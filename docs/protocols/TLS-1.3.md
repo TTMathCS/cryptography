@@ -116,6 +116,7 @@ TLS 1.3 and a `TLS_` suite.
 
 - [SSH](SSH.md): same building blocks, but there the client's list decides
 - [PKI](PKI.md): certificates, chains and the formats they come in
+- [WireGuard](WireGuard.md) / [Signal](Signal.md): X25519 and an AEAD again, but one fixed suite instead of a menu
 - [ECDH](../01-key-exchange/ECDH.md) / [AEAD](../05-modes-aead/AEAD.md) / [HKDF](../08-kdf-password-hashing/HKDF.md): the algorithms in depth
 
 ## References

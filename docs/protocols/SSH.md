@@ -165,6 +165,7 @@ Avoid DSA and SHA-1 `ssh-rsa` keys — Git hosts no longer accept them.
 ## See also
 
 - [TLS 1.3](TLS-1.3.md): the same job for the web, but there the server picks
+- [WireGuard](WireGuard.md): public keys pinned in a config, as in `known_hosts`, with nothing to negotiate
 - [Ed25519](../02-signatures/EdDSA.md) / [ECDSA](../02-signatures/ECDSA.md) / [RSA](../02-signatures/RSA.md): the key algorithms in depth
 - [Diffie-Hellman](../01-key-exchange/Diffie-Hellman.md) / [ECDH](../01-key-exchange/ECDH.md): what the key exchange does
 - [Cryptography FAQ](../FAQ.md): key sizes across algorithms, why randomness matters

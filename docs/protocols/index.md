@@ -12,11 +12,11 @@ Protocols with a link have their own page.
 | [SSH](SSH.md) | RFC 4251–4254 (2006) | OpenSSH, PuTTY, libssh, Dropbear |
 | [TLS 1.3](TLS-1.3.md) / QUIC | RFC 8446 (2018), RFC 9001 (2021) | OpenSSL, BoringSSL, NSS, rustls, GnuTLS, SChannel |
 | [PKI / X.509](PKI.md) | RFC 5280 (2008), ACME RFC 8555 (2019) | OpenSSL, Let's Encrypt, step-ca, AD CS |
-| OpenPGP | RFC 9580 (2024), RFC 4880 (2007) | GnuPG (follows its own LibrePGP draft), Sequoia, OpenPGP.js |
+| [OpenPGP](OpenPGP.md) | RFC 9580 (2024), RFC 4880 (2007); post-quantum RFC 9980 (2026) | GnuPG (follows its own LibrePGP draft), Sequoia, OpenPGP.js |
 | S/MIME | RFC 8551 (2019), CMS RFC 5652 (2009) | Outlook, Apple Mail, Thunderbird |
-| WireGuard | whitepaper (2017), Noise framework | Linux kernel 5.6+, wireguard-go, BoringTun |
+| [WireGuard](WireGuard.md) | whitepaper (2017), Noise framework | Linux kernel 5.6+, wireguard-go, WireGuardNT, BoringTun |
 | IPsec / IKEv2 | RFC 7296 (2014), RFC 4303 (2005) | strongSwan, Libreswan, Windows |
-| Signal | PQXDH (2023), Double Ratchet (2016) specs | libsignal (Signal, WhatsApp) |
+| [Signal](Signal.md) | PQXDH (2023), Double Ratchet (2016, SPQR added 2025) specs | libsignal (Signal); WhatsApp and Google Messages also use the protocol |
 | MLS | RFC 9420 (2023) | OpenMLS, Webex, Discord |
 | JOSE / JWT | RFC 7515–7519 (2015) | jose, PyJWT, Nimbus |
 | Kerberos | RFC 4120 (2005) | MIT Kerberos, Heimdal, Active Directory |
@@ -35,11 +35,11 @@ Protocols with a link have their own page.
 | [SSH](SSH.md) | ML-KEM-768 + X25519 | Ed25519 | ChaCha20-Poly1305 | in AEAD (else HMAC-SHA-256) | SHA-256 | SSH KDF, bcrypt_pbkdf for key files |
 | [TLS 1.3](TLS-1.3.md) / QUIC | X25519 + ML-KEM-768 | ECDSA P-256, RSA-PSS | AES-128-GCM, ChaCha20-Poly1305 | in AEAD | SHA-256 | HKDF |
 | [PKI / X.509](PKI.md) | — | RSA PKCS#1 v1.5, ECDSA P-256 | AES-256-CBC (key files) | HMAC-SHA-256 (PKCS#12) | SHA-256 | PBKDF2 |
-| OpenPGP | X25519 | Ed25519 | AES-256-OCB | in AEAD | SHA-256/512 | Argon2, HKDF |
+| [OpenPGP](OpenPGP.md) | X25519 | Ed25519 | AES-256-OCB | in AEAD | SHA-256/512 | Argon2, HKDF |
 | S/MIME | RSA-OAEP, ECDH | RSA, ECDSA | AES-GCM, AES-CBC | in AEAD | SHA-256 | X9.63 KDF |
-| WireGuard | X25519 (+ optional PSK) | none (pinned keys) | ChaCha20-Poly1305 | keyed BLAKE2s | BLAKE2s | HKDF (HMAC-BLAKE2s) |
+| [WireGuard](WireGuard.md) | X25519 (+ optional PSK) | none (pinned keys) | ChaCha20-Poly1305 | in AEAD; keyed BLAKE2s on handshakes | BLAKE2s | HKDF (HMAC-BLAKE2s) |
 | IPsec / IKEv2 | ECDH P-256 / X25519 (+ ML-KEM, RFC 9370) | RSA, ECDSA or PSK | AES-GCM | HMAC-SHA-256 | SHA-256 | prf+ (HMAC-SHA-256) |
-| Signal | X25519 + ML-KEM-1024 | XEdDSA | AES-256-CBC | HMAC-SHA-256 | SHA-256/512 | HKDF |
+| [Signal](Signal.md) | X25519 + Kyber-1024; ML-KEM-768 in SPQR | XEdDSA | AES-256-CBC | HMAC-SHA-256 | SHA-256/512 | HKDF |
 | MLS | HPKE (X25519) | Ed25519 | AES-128-GCM | in AEAD | SHA-256 | HKDF |
 | JOSE / JWT | ECDH-ES, RSA-OAEP | ES256, RS256, EdDSA | A256GCM | HS256 | SHA-256 | ConcatKDF, PBES2 |
 | Kerberos | — (PKINIT: DH) | — (PKINIT: certificates) | AES-256-CTS | HMAC-SHA1-96 / SHA-384-192 | SHA-1 / SHA-384 | PBKDF2 |
