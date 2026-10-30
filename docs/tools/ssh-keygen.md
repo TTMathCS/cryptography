@@ -46,7 +46,7 @@ ssh-keygen -F host.example.com                        # its lines in ~/.ssh/know
 ssh-keygen -R host.example.com                        # delete them after a real key change; '[host]:2222' for a port
 ssh-keygen -H                                         # hash every name; known_hosts.old keeps them readable
 ssh-keygen -A                                         # create missing /etc/ssh host keys (10.6: and ML-DSA)
-ssh-keygen -M generate -O bits=3072 c && ssh-keygen -M screen -f c moduli   # own DH primes: an hour
+ssh-keygen -M generate -O bits=3072 c && ssh-keygen -M screen -f c moduli   # own DH primes: slow, about 50 min here
 ```
 
 SHA256 hashes the `.pub` line's base64 field: `cut -d' ' -f2 id_ed25519.pub | base64 -d | openssl

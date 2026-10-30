@@ -42,7 +42,8 @@ like the megabytes Argon2 and scrypt demand.
   (OWASP's floor). Raise the cost and rehash at login as servers get faster.
 - **New systems:** prefer [Argon2id](Argon2.md).
 - **SSH key files:** OpenSSH protects private keys with `bcrypt_pbkdf`, a KDF
-  built on bcrypt (`ssh-keygen -a` sets the rounds, default 16).
+  built on bcrypt (`ssh-keygen -a` sets the rounds: 16 by default until 2023,
+  24 after, 32 since OpenSSH 10.6 in 2026).
 
 ## Example (Python)
 
