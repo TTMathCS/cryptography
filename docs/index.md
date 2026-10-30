@@ -225,10 +225,10 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 | | zk-STARKs | — | — | — | 2018 | — | Acceptable (PQ) |
 | | Bulletproofs | — | — | — | 2017 | — | Acceptable |
 | [Homomorphic encryption](11-advanced/Homomorphic-Encryption.md) | Paillier | 2048-bit and larger modulus | 112+ | ISO/IEC 18033-6 (2019) | 1999 | — | Acceptable |
-| | BGV / BFV / CKKS | — | — | HomomorphicEncryption.org (2018) | 2011–2017 | — | Acceptable |
-| | TFHE | — | — | — | 2016 | — | Acceptable |
-| [Multi-party computation](11-advanced/MPC.md) | garbled circuits (Yao), SPDZ | — | — | — | 1986 / 2012 | — | Acceptable |
-| [OPRF](11-advanced/OPRF.md) | OPRF / VOPRF / POPRF | 256-bit group | 128 | RFC 9497 (2023) | 2005 | — | Recommended |
+| | BGV / BFV / CKKS | — | — | HomomorphicEncryption.org (2018), ISO/IEC 28033 drafts | 2011–2017 | — | Acceptable |
+| | TFHE | — | — | ISO/IEC 28033-4 draft | 2016 | — | Acceptable |
+| [Multi-party computation](11-advanced/MPC.md) | garbled circuits (Yao), SPDZ | — | — | ISO/IEC 4922-1 (2023), 4922-2 (2024) | 1986 / 2012 | — | Acceptable |
+| [OPRF](11-advanced/OPRF.md) | OPRF / VOPRF / POPRF | 256–521-bit group | 128–256 | RFC 9497 (2023) | 2005 | — | Recommended |
 | VRF | ECVRF | 256-bit curve | 128 | RFC 9381 (2023) | 1999 | — | Acceptable |
 | Commitments | Pedersen commitment | 256-bit group | 128 | — | 1991 | — | Acceptable |
 
