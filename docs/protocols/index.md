@@ -19,9 +19,9 @@ Protocols with a link have their own page.
 | [Signal](Signal.md) | PQXDH (2023), Double Ratchet (2016, SPQR added 2025) specs | libsignal (Signal); WhatsApp and Google Messages also use the protocol |
 | [MLS](MLS.md) | RFC 9420 (2023), architecture RFC 9750 (2025) | OpenMLS, mls-rs, MLSpp; Discord calls, Webex |
 | [JOSE / JWT](JWT.md) | RFC 7515–7519 (2015), RFC 8725 (2020); ML-DSA RFC 9964 (2026) | panva jose, PyJWT, Nimbus JOSE+JWT, go-jose |
-| Kerberos | RFC 4120 (2005) | MIT Kerberos, Heimdal, Active Directory |
-| Wi-Fi WPA2 / WPA3 | IEEE 802.11i (2004), WPA3 (2018) | hostapd, wpa_supplicant |
-| DNSSEC | RFC 4033–4035 (2005) | BIND, Knot, Unbound, PowerDNS |
+| [Kerberos](Kerberos.md) | RFC 4120 (2005); AES-SHA2 RFC 8009 (2016) | MIT Kerberos, Heimdal, Active Directory |
+| [Wi-Fi WPA2 / WPA3](Wi-Fi.md) | IEEE 802.11i (2004), now in IEEE 802.11-2024; WPA3 (2018) | hostapd, wpa_supplicant, iwd |
+| [DNSSEC](DNSSEC.md) | RFC 4033–4035 (2005); algorithm levels RFC 9904 (2025) | BIND, Knot, Unbound, PowerDNS |
 | Disk encryption | IEEE 1619 (XTS), LUKS2 spec (2018) | cryptsetup, BitLocker, FileVault |
 | age | age-encryption.org/v1 (2019) | age, rage |
 | FIDO2 / passkeys | W3C WebAuthn (2019), FIDO CTAP2 | browsers, Apple / Google / Windows, YubiKey |
@@ -42,9 +42,9 @@ Protocols with a link have their own page.
 | [Signal](Signal.md) | X25519 + Kyber-1024; ML-KEM-768 in SPQR | XEdDSA | AES-256-CBC | HMAC-SHA-256 | SHA-256/512 | HKDF |
 | [MLS](MLS.md) | HPKE (X25519) | Ed25519 | AES-128-GCM | in AEAD; HMAC-SHA-256 confirmation tags | SHA-256 | HKDF |
 | [JOSE / JWT](JWT.md) | ECDH-ES, RSA-OAEP | RS256, ES256, Ed25519 | A256GCM, A128CBC-HS256 | HS256 | SHA-256 | Concat KDF, PBES2 (PBKDF2) |
-| Kerberos | — (PKINIT: DH) | — (PKINIT: certificates) | AES-256-CTS | HMAC-SHA1-96 / SHA-384-192 | SHA-1 / SHA-384 | PBKDF2 |
-| Wi-Fi WPA3 | SAE (Dragonfly) | — | AES-CCMP, GCMP-256 | CMAC (management frames) | SHA-256 | 802.11 KDF, PBKDF2 (WPA2) |
-| DNSSEC | — | ECDSA P-256, RSA-SHA-256, Ed25519 | — | — | SHA-256 | — |
+| [Kerberos](Kerberos.md) | — (PKINIT: DH, ECDH) | — (PKINIT: RSA, ECDSA certificates) | AES-256-CTS | HMAC-SHA1-96 (HMAC-SHA-384-192 opt-in) | SHA-1 | PBKDF2 (HMAC-SHA-1) |
+| [Wi-Fi WPA3](Wi-Fi.md) | SAE (Dragonfly, P-256) | — | AES-128-CCMP (GCMP-256 for Wi-Fi 7) | in AEAD; AES-CMAC (handshake MIC, BIP) | SHA-256 | 802.11 KDF (HMAC-SHA-256); PBKDF2-HMAC-SHA1 (WPA2-PSK) |
+| [DNSSEC](DNSSEC.md) | — | ECDSA P-256, RSA-SHA-256, Ed25519 | — | — | SHA-256 (DS), SHA-1 (NSEC3) | — |
 | Disk encryption | — | — | AES-XTS | none | SHA-256 | Argon2id (LUKS2), PBKDF2 |
 | age | X25519 (or SSH keys) | none | ChaCha20-Poly1305 | HMAC-SHA-256 | SHA-256 | HKDF, scrypt |
 | FIDO2 / passkeys | ECDH P-256 (PIN protocol) | ES256 (ECDSA P-256) | AES-256-CBC (PIN protocol) | HMAC-SHA-256 | SHA-256 | HKDF |

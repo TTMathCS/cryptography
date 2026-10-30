@@ -139,9 +139,12 @@ nav:
       - protocols/TLS-1.3.md
       - protocols/WireGuard.md
       - protocols/IPsec.md
+      - protocols/Wi-Fi.md
       - protocols/Signal.md
       - protocols/MLS.md
       - protocols/OpenPGP.md
       - protocols/JWT.md
+      - protocols/Kerberos.md
+      - protocols/DNSSEC.md
       - protocols/PKI.md
   - FAQ: FAQ.md
