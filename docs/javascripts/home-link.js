@@ -6,6 +6,7 @@
   var a = document.createElement("a");
   a.href = logo.href;
   a.className = "home-link";
+  a.title = "Back to the main page";
   a.textContent = title.textContent.trim();
   title.textContent = "";
   title.appendChild(a);

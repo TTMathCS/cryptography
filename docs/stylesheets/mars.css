@@ -106,8 +106,15 @@
 }
 
 /* the site name links home: Mars orange and underlined under the pointer (the header is dark in both schemes) */
-.md-header__title .home-link { color: inherit; cursor: pointer; transition: color 0.15s; }
-.md-header__title .home-link:hover, .md-header__title .home-link:focus-visible { color: #eea66f; text-decoration: underline; text-underline-offset: 0.2em; }
+/* hover: a solid line draws under the name and a back arrow slides in, so it reads as "go home" */
+.md-header__title .home-link { color: inherit; cursor: pointer; text-decoration: none; padding-bottom: 0.1em;
+  background: linear-gradient(currentColor, currentColor) left bottom / 0 2px no-repeat;
+  transition: color 0.15s, background-size 0.25s; }
+.md-header__title .home-link::before { content: "\2190"; display: inline-block; width: 0; opacity: 0;
+  overflow: hidden; vertical-align: bottom; transition: width 0.25s, opacity 0.25s; }
+.md-header__title .home-link:hover, .md-header__title .home-link:focus-visible { color: #eea66f; background-size: 100% 2px; }
+.md-header__title .home-link:hover::before, .md-header__title .home-link:focus-visible::before { width: 1.2em; opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .md-header__title .home-link, .md-header__title .home-link::before { transition: none; } }
 
 /* every page opens under the dome: the picture fades into the page colour */
 .md-container {
