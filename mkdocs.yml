@@ -1,5 +1,5 @@
 site_name: Cryptography
-site_url: https://ttmathcs.github.io/cryptography/
+site_url: https://cryptography.akadian.ca/
 site_description: Modern cryptography by category, with standards, release years and status
 repo_url: https://github.com/TTMathCS/cryptography
 edit_uri: edit/main/docs/
