@@ -282,7 +282,7 @@
   font-size: 0.7rem;
 }
 
-.mars-back {
+.md-banner .mars-back {
   font-family: var(--mars-serif);
   font-style: italic;
   font-weight: 600;
@@ -290,7 +290,7 @@
   color: #f4e6d4;
 }
 
-.mars-back:hover,
-.mars-back:focus-visible {
+.md-banner .mars-back:hover,
+.md-banner .mars-back:focus-visible {
   color: #eea66f;
 }
