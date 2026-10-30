@@ -177,13 +177,13 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 
 | Family | Algorithm | Size | Security (bits) | Standard | Released | Deprecated | Status |
 |---|---|---|---|---|---|---|---|
-| OS RNG | Linux `getrandom` / `/dev/urandom`, Windows `BCryptGenRandom`, macOS | — | — | — | 1994 | — | Recommended |
+| [OS RNG](09-random/OS-RNG.md) | Linux `getrandom` / `/dev/urandom`, Windows `BCryptGenRandom`, macOS | — | — | — | 1994 | — | Recommended |
 | | ChaCha20-based OS RNG (Linux 4.8+, OpenBSD `arc4random`) | 256-bit key | 256 | — | 2014 | — | Recommended |
-| | RC4-based `arc4random` | — | — | — | 1997 | replaced 2013–2014 | Broken |
-| NIST DRBG | HMAC_DRBG, Hash_DRBG, CTR_DRBG | 112–256-bit strength | 112–256 | SP 800-90A (2006, Rev 1 2015) | 2006 | — | Recommended |
-| | Dual_EC_DRBG | 256-bit curve | — | SP 800-90A (2006) | 2006 | withdrawn 2014 (backdoor) | Broken |
-| Entropy sources | entropy source testing | — | — | SP 800-90B (2018) | 2018 | — | Recommended |
-| Non-crypto PRNGs | Mersenne Twister, `rand()` | 19,937-bit state | none | — | 1997 | never safe for crypto | Broken |
+| | [RC4-based `arc4random`](09-random/Retired.md#rc4-based-arc4random) | — | — | — | 1997 | replaced 2013–2014 | Broken |
+| [NIST DRBG](09-random/NIST-DRBG.md) | HMAC_DRBG, Hash_DRBG, CTR_DRBG | 112–256-bit strength | 112–256 | SP 800-90A (2006, Rev 1 2015) | 2006 | — | Recommended |
+| | [Dual_EC_DRBG](09-random/NIST-DRBG.md#dual_ec_drbg) | 256-bit curve | — | SP 800-90A (2006) | 2006 | withdrawn 2014 (backdoor) | Broken |
+| [Entropy sources](09-random/NIST-DRBG.md#entropy-sources-sp-800-90b) | entropy source testing | — | — | SP 800-90B (2018) | 2018 | — | Recommended |
+| [Non-crypto PRNGs](09-random/Retired.md#mersenne-twister) | Mersenne Twister, `rand()` | 19,937-bit state | none | — | 1997 | never safe for crypto | Broken |
 
 ## 10. Math foundations
 

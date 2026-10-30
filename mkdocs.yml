@@ -103,6 +103,10 @@ nav:
       - 08-kdf-password-hashing/bcrypt.md
       - 08-kdf-password-hashing/PBKDF2.md
       - 08-kdf-password-hashing/Retired.md
+  - Random numbers:
+      - 09-random/OS-RNG.md
+      - 09-random/NIST-DRBG.md
+      - 09-random/Retired.md
   - Math foundations:
       - 10-math-foundations/Sieve-of-Eratosthenes.md
       - 10-math-foundations/Miller-Rabin-Primality-Test.md
