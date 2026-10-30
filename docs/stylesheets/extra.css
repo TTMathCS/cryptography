@@ -1,60 +1,193 @@
-/* the Mars look of akadian.ca (Mars-Home/site.css): dark sand, cream ink, rust and sky-blue; its own fonts */
-[data-md-color-scheme="slate"] {
-  color-scheme: dark;
-  --mars-bg: #120b09;
-  --mars-ink: #f4e6d4;
-  --mars-dim: #cdb096;
-  --mars-rust: #eea66f;
-  --mars-glow: #9cc9ea;
-  --mars-panel: #1c110e;
+/* The look of akadian.ca (myarcadia/Mars-Home): Arcadia City under its dome, the brand's colours and fonts.
+   Two schemes, chosen with the header toggle and remembered: Mars night (slate) and Mars dawn (default). */
 
-  --md-default-bg-color: var(--mars-bg);
-  --md-default-bg-color--light: rgba(18, 11, 9, 0.7);
-  --md-default-bg-color--lighter: rgba(18, 11, 9, 0.3);
-  --md-default-bg-color--lightest: rgba(18, 11, 9, 0.12);
-  --md-default-fg-color: var(--mars-ink);
-  --md-default-fg-color--light: var(--mars-dim);
-  --md-default-fg-color--lighter: rgba(244, 230, 212, 0.32);
-  --md-default-fg-color--lightest: rgba(244, 230, 212, 0.16);
-
-  --md-primary-fg-color: #2a1812;
-  --md-primary-fg-color--light: #5b3624;
-  --md-primary-fg-color--dark: #1a100c;
-  --md-primary-bg-color: var(--mars-ink);
-  --md-primary-bg-color--light: rgba(244, 230, 212, 0.7);
-  --md-accent-fg-color: var(--mars-rust);
-  --md-accent-fg-color--transparent: rgba(238, 166, 111, 0.12);
-  --md-accent-bg-color: #1a100c;
-
-  --md-typeset-color: var(--mars-ink);
-  --md-typeset-a-color: var(--mars-glow);
-  --md-code-bg-color: var(--mars-panel);
-  --md-code-fg-color: var(--mars-ink);
-  --md-typeset-table-color: rgba(244, 230, 212, 0.16);
-  --md-typeset-table-color--light: rgba(244, 230, 212, 0.05);
-  --md-footer-bg-color: #0d0806;
-  --md-footer-bg-color--dark: #080504;
+@font-face {
+  font-family: "Cormorant Garamond";
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/cormorant-garamond/CormorantGaramond-SemiBoldItalic-Latin.woff2") format("woff2");
 }
 
 :root {
   --md-text-font: "IBM Plex Sans";
   --md-code-font: "IBM Plex Mono";
   --mars-display: "Saira Condensed", "Arial Narrow", system-ui, sans-serif;
+  --mars-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
 }
 
-/* the header: the Mars sunset of the homepage, laid sideways */
+/* Mars night: the homepage's own colours */
+[data-md-color-scheme="slate"] {
+  color-scheme: dark;
+  --mars-bg: #120b09;
+  --mars-bg-fade: rgba(18, 11, 9, 0.5);
+  --mars-panel: #1c110e;
+  --mars-rust: #eea66f;
+  --mars-photo: url("../images/21-starlit-city.webp");
+
+  --md-default-bg-color: var(--mars-bg);
+  --md-default-bg-color--light: rgba(18, 11, 9, 0.7);
+  --md-default-bg-color--lighter: rgba(18, 11, 9, 0.3);
+  --md-default-bg-color--lightest: rgba(18, 11, 9, 0.12);
+  --md-default-fg-color: #f4e6d4;
+  --md-default-fg-color--light: #cdb096;
+  --md-default-fg-color--lighter: rgba(244, 230, 212, 0.32);
+  --md-default-fg-color--lightest: rgba(244, 230, 212, 0.16);
+  --md-typeset-color: #f4e6d4;
+  --md-typeset-a-color: #9cc9ea;
+  --md-accent-fg-color: var(--mars-rust);
+  --md-accent-fg-color--transparent: rgba(238, 166, 111, 0.12);
+  --md-code-bg-color: var(--mars-panel);
+  --md-code-fg-color: #f4e6d4;
+  --md-typeset-table-color: rgba(244, 230, 212, 0.16);
+  --md-typeset-table-color--light: rgba(244, 230, 212, 0.05);
+
+  --st-good: #7ccf7f;
+  --st-old: #ffb74d;
+  --st-bad: #ef6a5e;
+  --st-draft: #a8998a;
+}
+
+/* Mars dawn: the dusty pink-tan of the morning sky over the dome */
+[data-md-color-scheme="default"] {
+  color-scheme: light;
+  --mars-bg: #efdecb;
+  --mars-bg-fade: rgba(239, 222, 203, 0.45);
+  --mars-panel: #e6cfb6;
+  --mars-rust: #a9471c;
+  --mars-photo: url("../images/27-dawn-after-storm.webp");
+
+  --md-default-bg-color: var(--mars-bg);
+  --md-default-fg-color: #2b1a12;
+  --md-default-fg-color--light: #6b4a36;
+  --md-default-fg-color--lighter: rgba(43, 26, 18, 0.34);
+  --md-default-fg-color--lightest: rgba(43, 26, 18, 0.14);
+  --md-typeset-color: #2b1a12;
+  --md-typeset-a-color: #1f5a8c;
+  --md-accent-fg-color: var(--mars-rust);
+  --md-accent-fg-color--transparent: rgba(169, 71, 28, 0.1);
+  --md-code-bg-color: #e8d5bf;
+  --md-code-fg-color: #2b1a12;
+  --md-typeset-table-color: rgba(43, 26, 18, 0.16);
+  --md-typeset-table-color--light: rgba(43, 26, 18, 0.05);
+
+  --st-good: #2e7d32;
+  --st-old: #a35f00;
+  --st-bad: #c62828;
+  --st-draft: #7a6656;
+}
+
+/* both: the bar stays a dark band, like the homepage's top bar over its picture */
+[data-md-color-scheme] {
+  --md-primary-fg-color: #1a100c;
+  --md-primary-fg-color--light: #5b3624;
+  --md-primary-fg-color--dark: #120b09;
+  --md-primary-bg-color: #f4e6d4;
+  --md-primary-bg-color--light: rgba(244, 230, 212, 0.7);
+  --md-accent-bg-color: #1a100c;
+  --md-footer-bg-color: #120b09;
+  --md-footer-bg-color--dark: #0a0605;
+  --md-footer-fg-color: #f4e6d4;
+  --md-footer-fg-color--light: #cdb096;
+  --md-footer-fg-color--lighter: rgba(244, 230, 212, 0.45);
+}
+
 .md-header {
-  background: linear-gradient(90deg, #2a1812 0%, #5b3624 55%, #8a573a 100%);
-  box-shadow: 0 1px 0 rgba(244, 230, 212, 0.12);
+  background: rgba(18, 11, 9, 0.82);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 0 rgba(244, 230, 212, 0.1);
 }
 
 .md-header__title {
-  font-family: var(--mars-display);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-family: var(--mars-serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.05rem;
 }
 
+/* every page opens under the dome: the picture fades into the page colour */
+.md-container {
+  background:
+    linear-gradient(180deg, var(--mars-bg-fade) 0, var(--md-default-bg-color) 24rem),
+    var(--mars-photo) center top / 100% auto no-repeat,
+    var(--md-default-bg-color);
+}
+
+/* the homepage: the dome full width, the title at its foot */
+.mars-hero {
+  display: flex;
+  align-items: flex-end;
+  min-height: min(76vh, 40rem);
+  background:
+    linear-gradient(180deg, transparent 45%, var(--md-default-bg-color) 100%),
+    var(--mars-photo) center 42% / cover no-repeat;
+}
+
+.mars-hero__inner {
+  width: 100%;
+  padding: 0 0.8rem 2.2rem;
+}
+
+.mars-hero__title {
+  margin: 0;
+  font-family: var(--mars-serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(2.2rem, 5.5vw, 4rem);
+  line-height: 1;
+  color: #f4e6d4;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
+}
+
+[data-md-color-scheme="default"] .mars-hero__title {
+  color: #2b1a12;
+  text-shadow: 0 1px 14px rgba(239, 222, 203, 0.7);
+}
+
+.mars-hero__lead {
+  max-width: 36rem;
+  margin: 0.6rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--md-default-fg-color);
+}
+
+.mars-hero__go {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.1rem 0 0;
+}
+
+.mars-cta,
+.mars-pill {
+  font-family: var(--mars-display);
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  padding: 0.3rem 1rem;
+  border-radius: 999px;
+}
+
+.md-typeset .mars-cta,
+.mars-cta {
+  color: #1a100c;
+  background: #eea66f;
+  box-shadow: 0 6px 24px rgba(238, 166, 111, 0.3);
+}
+
+.mars-pill {
+  color: var(--md-default-fg-color);
+  border: 1px solid var(--md-default-fg-color--lighter);
+  background: var(--md-default-bg-color--lighter);
+}
+
+.mars-cta:hover { color: #1a100c; box-shadow: 0 8px 30px rgba(238, 166, 111, 0.5); }
+.mars-pill:hover { color: var(--md-default-fg-color); border-color: var(--md-typeset-a-color); }
+.mars-cta:focus-visible,
+.mars-pill:focus-visible { outline: 2px solid var(--md-typeset-a-color); outline-offset: 3px; }
+
+/* headings in the homepage's condensed face */
 .md-typeset h1,
 .md-typeset h2,
 .md-typeset h3 {
@@ -66,12 +199,15 @@
 .md-typeset h1 { font-weight: 700; }
 .md-typeset h2 { font-weight: 600; border-bottom: 1px solid var(--md-default-fg-color--lightest); padding-bottom: 0.2em; }
 
+.md-typeset table:not([class]) {
+  background: var(--md-default-bg-color);
+}
+
 .md-typeset table:not([class]) th {
   background: var(--mars-panel);
   font-family: var(--mars-display);
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 /* wider page; the right-hand contents panel lives in the left one (toc.integrate) */
@@ -91,9 +227,8 @@
     color: var(--mars-rust);
     font-family: var(--mars-display);
     font-weight: 700;
-    font-size: .72rem;
-    letter-spacing: .08em;
-    text-transform: uppercase;
+    font-size: .74rem;
+    letter-spacing: .04em;
   }
 
   .md-nav--primary > .md-nav__list > .md-nav__item--section > .md-nav > .md-nav__list {
@@ -103,14 +238,7 @@
   }
 }
 
-/* status colours in tables (set by javascripts/status.js) */
-:root {
-  --st-good: #66bb6a;
-  --st-old: #ffb74d;
-  --st-bad: #ef5350;
-  --st-draft: #a8998a;
-}
-
+/* status colours in tables (javascripts/status.js) */
 .md-typeset td.st-good { color: var(--st-good); font-weight: 700; }
 .md-typeset td.st-old { color: var(--st-old); font-weight: 700; }
 .md-typeset td.st-draft { color: var(--st-draft); font-style: italic; }
@@ -123,4 +251,9 @@
 
 .md-typeset td.st-strike a {
   color: inherit;
+}
+
+@media screen and (max-width: 44.9375em) {
+  .mars-hero { min-height: 60vh; }
+  .md-container { background-size: auto, 200% auto, auto; }
 }

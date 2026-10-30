@@ -1,7 +1,9 @@
-# Cryptography
+---
+template: home.html
+title: Cryptography
+---
 
-*Every algorithm family SSH, TLS and PKI use, in 11 categories, with its
-standard, release year and where it stands today.*
+# Algorithms by the job they do
 
 When SSH or TLS connects, it picks one algorithm for each job: a key exchange,
 a signature, a cipher, a MAC and a hash. The tables below list the algorithms

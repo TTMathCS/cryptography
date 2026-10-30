@@ -1,0 +1,14 @@
+{% extends "main.html" %}
+
+{% block hero %}
+<section class="mars-hero">
+  <div class="md-grid mars-hero__inner">
+    <p class="mars-hero__title">Cryptography</p>
+    <p class="mars-hero__lead">Every algorithm that keeps a message secret and genuine, sorted by the job it does, with its standard, its size and whether it still holds.</p>
+    <p class="mars-hero__go">
+      <a class="mars-cta" href="#1-key-exchange">Browse the table</a>
+      <a class="mars-pill" href="{{ 'protocols/' | url }}">Protocols</a>
+    </p>
+  </div>
+</section>
+{% endblock %}

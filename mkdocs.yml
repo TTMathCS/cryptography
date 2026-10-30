@@ -3,9 +3,11 @@ site_url: https://ttmathcs.github.io/cryptography/
 site_description: Modern cryptography by category, with standards, release years and status
 repo_url: https://github.com/TTMathCS/cryptography
 edit_uri: edit/main/docs/
+copyright: 'Part of <a href="https://www.akadian.ca/">Mars – your new home</a>'
 
 theme:
   name: material
+  custom_dir: overrides
   features:
     - navigation.sections
     - navigation.top
@@ -13,9 +15,20 @@ theme:
     - search.highlight
     - content.code.copy
   palette:
-    scheme: slate
-    primary: custom
-    accent: custom
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunset-up
+        name: Mars dawn
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Mars night
   font: false
 
 extra_css:
