@@ -33,7 +33,7 @@ theme:
 
 extra_css:
   - fonts/fonts.css
-  - stylesheets/extra.css
+  - stylesheets/mars.css
 
 extra_javascript:
   - javascripts/status.js
