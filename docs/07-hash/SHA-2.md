@@ -82,6 +82,7 @@ print(h.hexdigest() == digest)   # True
 
 - [SHA-3](SHA-3.md): the backup design, built differently
 - [HMAC](../06-mac/HMAC.md): keyed authentication on top of SHA-2
+- [Retired hashes](Retired.md): SHA-1, MD5, MD4 and RIPEMD-160
 - [Cryptography FAQ](../FAQ.md): encrypt vs. sign vs. hash
 
 ## References

@@ -80,6 +80,7 @@ In real code use a library version, such as `HKDF` from PyCA `cryptography`
 
 - [HMAC](../06-mac/HMAC.md): the only building block HKDF uses
 - [TLS 1.3](../protocols/TLS-1.3.md): the key schedule is HKDF all the way down
+- [NIST KDFs](NIST-KDFs.md): KBKDF, the one-step KDF and the X9.63 KDF
 - [Argon2](Argon2.md): the slow function for passwords
 
 ## References

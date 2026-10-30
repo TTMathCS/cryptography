@@ -150,17 +150,17 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 | [BLAKE](07-hash/BLAKE.md) | BLAKE2b / BLAKE2s | up to 512 / 256-bit output | 256 / 128 | RFC 7693 (2015) | 2012 | — | Recommended |
 | | BLAKE3 | 256-bit output (extendable) | 128 | — | 2020 | — | Recommended |
 | Ascon | Ascon-Hash256 / XOF128 | 256-bit / any output | 128 | SP 800-232 (2025) | 2014 | — | Acceptable |
-| SHA-1 | SHA-1 | 160-bit output | ~63 | FIPS 180-1 (1995), RFC 3174 (2001) | 1995 | SHAttered (2017); NIST retires it by 2030 | Broken |
-| MD | MD5 | 128-bit output | — | RFC 1321 (1992) | 1992 | collisions (2004); RFC 6151 (2011) | Broken |
+| [SHA-1](07-hash/Retired.md#sha-1) | SHA-1 | 160-bit output | ~63 | FIPS 180-1 (1995), RFC 3174 (2001) | 1995 | SHAttered (2017); NIST retires it by 2030 | Broken |
+| [MD](07-hash/Retired.md#md5) | MD5 | 128-bit output | — | RFC 1321 (1992) | 1992 | collisions (2004); RFC 6151 (2011) | Broken |
 | | MD4 | 128-bit output | — | RFC 1320 (1992) | 1990 | RFC 6150 (2011) | Broken |
-| RIPEMD | RIPEMD-160 | 160-bit output | 80 | ISO/IEC 10118-3 | 1996 | — | Legacy |
+| [RIPEMD](07-hash/Retired.md#ripemd-160) | RIPEMD-160 | 160-bit output | 80 | ISO/IEC 10118-3 | 1996 | — | Legacy |
 
 ## 8. Key derivation and password hashing
 
 | Family | Algorithm | Size | Security (bits) | Standard | Released | Deprecated | Status |
 |---|---|---|---|---|---|---|---|
 | [HKDF](08-kdf-password-hashing/HKDF.md) | HKDF | up to 255 × hash output | — | RFC 5869 (2010) | 2010 | — | Recommended |
-| NIST KDFs | KBKDF | any output length | — | SP 800-108 (2009) | 2009 | — | Acceptable |
+| [NIST KDFs](08-kdf-password-hashing/NIST-KDFs.md) | KBKDF | any output length | — | SP 800-108 (2009) | 2009 | — | Acceptable |
 | | one-step KDF (ConcatKDF) | any output length | — | SP 800-56A (2006) | 2006 | — | Acceptable |
 | | X9.63 KDF | any output length | — | ANSI X9.63 (2001) | 2001 | — | Acceptable |
 | [Argon2](08-kdf-password-hashing/Argon2.md) | Argon2id | any output, 19 MiB+ memory | — | RFC 9106 (2021) | 2015 | — | Recommended |
@@ -169,8 +169,8 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 | | yescrypt | 256-bit output | — | — | 2015 | — | Acceptable |
 | [bcrypt](08-kdf-password-hashing/bcrypt.md) | bcrypt | 184-bit hash, 72 B input max | — | — | 1999 | — | Acceptable |
 | [PBKDF](08-kdf-password-hashing/PBKDF2.md) | PBKDF2 | any output (keep ≤ hash size) | — | RFC 2898 (2000), RFC 8018 (2017), SP 800-132 (2010) | 2000 | — | Acceptable |
-| | PBKDF1 | ≤160-bit output | — | RFC 2898 (2000) | 1993 | RFC 8018 (2017) | Legacy |
-| Unix crypt | sha256crypt / sha512crypt | 256 / 512-bit output | — | — | 2007 | — | Legacy |
+| | [PBKDF1](08-kdf-password-hashing/Retired.md#pbkdf1) | ≤160-bit output | — | RFC 2898 (2000) | 1993 | RFC 8018 (2017) | Legacy |
+| [Unix crypt](08-kdf-password-hashing/Retired.md#unix-crypt) | sha256crypt / sha512crypt | 256 / 512-bit output | — | — | 2007 | — | Legacy |
 | | DES-crypt, MD5-crypt | 8-char password / 128-bit output | — | — | 1979 / 1994 | MD5-crypt retired by its author (2012) | Broken |
 
 ## 9. Random number generation
