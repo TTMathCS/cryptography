@@ -45,13 +45,13 @@ The turning points, with a link to the page that tells each story.
 | 1940–1944 | [Bletchley Park's](05-Machines-and-WWII.md#bletchley-park) bombes break Enigma; [Colossus](05-Machines-and-WWII.md#lorenz-and-colossus) attacks the Lorenz cipher | Codebreaking at industrial scale, and the first electronic computers |
 | 1943–1980 | The [Venona](05-Machines-and-WWII.md#venona) project reads reused Soviet one-time pads | The one-time pad is only as safe as its key handling |
 | 1949 | Claude Shannon publishes ["Communication Theory of Secrecy Systems"](06-Shannon-to-DES.md#shannon-secrecy-becomes-mathematics) | Cryptography becomes a mathematical science |
-| 1977 | [DES](06-Shannon-to-DES.md#des) becomes the first public standard cipher | Strong encryption for business, and a fight over key length |
 | 1976–1977 | [Diffie–Hellman](07-Public-Key.md#diffie-and-hellman) key exchange, then [RSA](07-Public-Key.md#rsa) | Public-key cryptography: strangers agree on secrets in the open |
-| 1997 | [GCHQ reveals](07-Public-Key.md#gchqs-secret) that its staff found public-key methods in 1970–1974 | The same ideas, discovered first in secret |
-| 1991–2000 | PGP, the Clipper chip and the US export fights: the [crypto wars](07-Public-Key.md#the-crypto-wars) | The "crypto wars" over who may use strong encryption |
+| 1977 | [DES](06-Shannon-to-DES.md#des) becomes the first public standard cipher | Strong encryption for business, and a fight over key length |
+| 1991–2000 | PGP, the Clipper chip and the US export fights | The [crypto wars](07-Public-Key.md#the-crypto-wars) over who may use strong encryption |
 | 1994 | Peter Shor's [quantum algorithm](10-Quantum-and-Post-Quantum.md#shors-algorithm-1994) for factoring | A future quantum computer would break RSA and elliptic curves |
 | 1995 | [SSL](08-Internet-Era.md#ssl-at-netscape) ships in Netscape Navigator; [SSH](08-Internet-Era.md#ssh) is written | Encryption for everyone's network traffic |
 | 1996–1999 | [Timing and power-analysis attacks](09-Hardware-and-Engineering.md#side-channels) | Hardware leaks keys even when the math is sound |
+| 1997 | [GCHQ reveals](07-Public-Key.md#gchqs-secret) that its staff found public-key methods in 1970–1974 | The same ideas, discovered first in secret |
 | 1998 | The EFF's [Deep Crack](09-Hardware-and-Engineering.md#deep-crack) finds a DES key in 56 hours | Proof that 56-bit keys were too short |
 | 2001 | [AES](08-Internet-Era.md#aes-a-cipher-chosen-in-public) is published as FIPS 197 | A cipher chosen in an open, worldwide competition |
 | 2004–2017 | [MD5, then SHA-1, collisions](08-Internet-Era.md#md5-and-sha-1) | Hash functions break in practice |
@@ -59,8 +59,8 @@ The turning points, with a link to the page that tells each story.
 | 2014 | [Heartbleed](08-Internet-Era.md#heartbleed-2014) | One bug in OpenSSL exposes much of the web |
 | 2015–2016 | [Let's Encrypt](08-Internet-Era.md#lets-encrypt-and-https-everywhere) starts issuing free certificates | Encrypted web traffic becomes the default |
 | 2016 | WhatsApp switches a billion users to the [Signal protocol](08-Internet-Era.md#from-otr-to-signal) | End-to-end encryption for ordinary messaging |
-| 2018 | [TLS 1.3](08-Internet-Era.md#from-ssl-to-tls-13) is published | A faster, cleaner protocol with forward secrecy built in |
 | 2016–2024 | NIST's [post-quantum competition](10-Quantum-and-Post-Quantum.md#the-nist-competition-20162024) | ML-KEM, ML-DSA and SLH-DSA become standards in August 2024 |
+| 2018 | [TLS 1.3](08-Internet-Era.md#from-ssl-to-tls-13) is published | A faster, cleaner protocol with forward secrecy built in |
 | 2022–2026 | [Hybrid post-quantum key exchange](10-Quantum-and-Post-Quantum.md#the-move-hybrids) becomes the default in SSH, browsers and Signal | Recorded traffic stays safe if a quantum computer arrives |
 | 2026 | [NIST IR 8547](10-Quantum-and-Post-Quantum.md#deadlines) sets 2030 and 2035 as the end dates for RSA and elliptic curves | The old public-key algorithms get a retirement date |
 
