@@ -61,7 +61,8 @@ nav:
       - 08-kdf-password-hashing/HKDF.md
       - 08-kdf-password-hashing/Argon2.md
       - 08-kdf-password-hashing/scrypt.md
-      - 08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md
+      - 08-kdf-password-hashing/bcrypt.md
+      - 08-kdf-password-hashing/PBKDF2.md
   - Math foundations:
       - 10-math-foundations/Sieve-of-Eratosthenes.md
       - 10-math-foundations/Miller-Rabin-Primality-Test.md

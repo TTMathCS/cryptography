@@ -79,7 +79,7 @@ pt = aead.decrypt(nonce, ct, header)         # raises if tampered
 ## See also
 
 - [ChaCha20-Poly1305](../05-modes-aead/AEAD.md) — the software-speed alternative
-- [X25519](../01-key-exchange/ECDH.md) / [Key Derivation](../08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md) — how both sides get the shared key
+- [X25519](../01-key-exchange/ECDH.md) / [HKDF](../08-kdf-password-hashing/HKDF.md) — how both sides get the shared key
 - [Cryptography FAQ](../FAQ.md) — symmetric vs. asymmetric
 
 ## References

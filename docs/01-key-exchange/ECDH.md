@@ -66,7 +66,7 @@ session_key = HKDF(algorithm=hashes.SHA256(), length=32,
 ## Security notes
 
 - **Derive, don't use raw.** Feed the exchange output through HKDF (see
-  [Key Derivation and Password Hashing](../08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md))
+  [HKDF](../08-kdf-password-hashing/HKDF.md))
   before it becomes a cipher key.
 - **Authenticate the public keys.** Plain X25519 has no identity; without
   signatures or certificates it's open to man-in-the-middle.

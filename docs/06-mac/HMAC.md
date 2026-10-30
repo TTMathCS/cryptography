@@ -33,7 +33,7 @@ which is why you use HMAC instead of just hashing `K || m` yourself.
 - **Verifying a message between parties that share a secret** — API request
   signing, webhook signatures, session cookies, JWT (the `HS256` algorithm).
 - **As a building block** — HKDF key derivation and PBKDF2 are both built on
-  HMAC. See [Key Derivation and Password Hashing](../08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md).
+  HMAC. See [HKDF](../08-kdf-password-hashing/HKDF.md) and [PBKDF2](../08-kdf-password-hashing/PBKDF2.md).
 - **Not for passwords.** A password is low-entropy; use a slow password hash
   instead.
 - **Not when the two sides don't share a secret.** Use a signature
@@ -68,7 +68,7 @@ early on the first wrong byte, and that timing difference can leak the right tag
 ## See also
 
 - [SHA-2](../07-hash/SHA-2.md) — the hash HMAC is built on
-- [Key Derivation and Password Hashing](../08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md) — HKDF and PBKDF2 use HMAC
+- [HKDF](../08-kdf-password-hashing/HKDF.md) / [PBKDF2](../08-kdf-password-hashing/PBKDF2.md) — both built on HMAC
 - [Cryptography FAQ](../FAQ.md) — encrypt vs. sign vs. hash
 
 ## References

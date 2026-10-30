@@ -57,7 +57,7 @@ assert pow(B, a, p) == pow(A, b, p)          # shared secret g^(ab) mod p
   swaps the public values. Combine it with a signature
   ([Ed25519](../02-signatures/EdDSA.md)) or certificate.
 - **Derive, don't use raw.** Feed `g^(ab)` through a KDF
-  ([HKDF](../08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md)) before it becomes a cipher key.
+  ([HKDF](../08-kdf-password-hashing/HKDF.md)) before it becomes a cipher key.
 - Use ephemeral keys for forward secrecy; use ≥2048-bit `p` for classic DH.
 - Quantum computers break the discrete log — see
   [ML-KEM](ML-KEM.md).
@@ -65,7 +65,7 @@ assert pow(B, a, p) == pow(A, b, p)          # shared secret g^(ab) mod p
 ## See also
 
 - [X25519](ECDH.md) — the modern elliptic-curve version
-- [Key Derivation and Password Hashing](../08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md) — turning the shared secret into keys
+- [HKDF](../08-kdf-password-hashing/HKDF.md) — turning the shared secret into keys
 - [AES](../04-symmetric-ciphers/AES.md) / [ChaCha20-Poly1305](../05-modes-aead/AEAD.md) — what the key feeds
 
 ## References

@@ -160,8 +160,8 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 | | Argon2i / Argon2d | RFC 9106 (2021) | 2015 | — | Acceptable |
 | [scrypt](08-kdf-password-hashing/scrypt.md) | scrypt | RFC 7914 (2016) | 2009 | — | Recommended |
 | | yescrypt | — | 2015 | — | Acceptable |
-| [bcrypt](08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md) | bcrypt | — | 1999 | — | Acceptable |
-| [PBKDF](08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md) | PBKDF2 | RFC 2898 (2000), RFC 8018 (2017), SP 800-132 (2010) | 2000 | — | Acceptable |
+| [bcrypt](08-kdf-password-hashing/bcrypt.md) | bcrypt | — | 1999 | — | Acceptable |
+| [PBKDF](08-kdf-password-hashing/PBKDF2.md) | PBKDF2 | RFC 2898 (2000), RFC 8018 (2017), SP 800-132 (2010) | 2000 | — | Acceptable |
 | | PBKDF1 | RFC 2898 (2000) | 1993 | RFC 8018 (2017) | Legacy |
 | Unix crypt | sha256crypt / sha512crypt | — | 2007 | — | Legacy |
 | | DES-crypt, MD5-crypt | — | 1979 / 1994 | MD5-crypt retired by its author (2012) | Broken |

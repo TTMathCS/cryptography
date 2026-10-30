@@ -116,7 +116,7 @@ TLS 1.3 and a `TLS_` suite.
 
 - [SSH](SSH.md): same building blocks, but there the client's list decides
 - [PKI](PKI.md): certificates, chains and the formats they come in
-- [ECDH](../01-key-exchange/ECDH.md) / [AEAD](../05-modes-aead/AEAD.md) / [Key derivation](../08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md): the algorithms in depth
+- [ECDH](../01-key-exchange/ECDH.md) / [AEAD](../05-modes-aead/AEAD.md) / [HKDF](../08-kdf-password-hashing/HKDF.md): the algorithms in depth
 
 ## References
 
