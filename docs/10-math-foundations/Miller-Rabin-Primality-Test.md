@@ -64,7 +64,9 @@ def is_probable_prime(n, rounds=40):
 - Use a cryptographic RNG for the bases and enough rounds (≥40 for key generation).
 - For `n` below fixed bounds, specific small base sets make the test
   *deterministic* — e.g. bases {2,3,5,7,11,13,17,19,23,29,31,37} are exact for
-  `n` below 3.3×10²⁴.
+  `n` below 3.18×10²³, and adding 41 makes it 3.3×10²⁴ (Sorenson and Webster,
+  2017). 318665857834031151167461 passes all twelve bases yet is
+  399165290221 × 798330580441.
 - "Strong pseudoprimes" that fool one base exist, which is why multiple random
   bases matter — see [why randomness matters](../FAQ.md).
 
@@ -76,5 +78,6 @@ def is_probable_prime(n, rounds=40):
 
 ## References
 
+- [Sorenson and Webster, "Strong pseudoprimes to twelve prime bases", Mathematics of Computation 86 (2017)](https://arxiv.org/abs/1509.00864)
 - Rabin, M. O. (1980). "Probabilistic algorithm for testing primality"
 - [Miller–Rabin primality test — Wikipedia](https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test)

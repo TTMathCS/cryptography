@@ -15,9 +15,9 @@ like SymPy and many big-integer libraries.
 ## How it works
 
 A composite slips past a single [Miller-Rabin](Miller-Rabin-Primality-Test.md)
-base with probability up to ¼, and likewise past a Lucas test — but the two tests
-are built on different structure, so the same composite fooling both seems not to
-happen.
+base with probability up to ¼, and past a strong Lucas test with probability up
+to 4/15 (Arnault, 1997). The two tests are built on different structure, so the
+same composite fooling both seems not to happen.
 
 1. **Strong Fermat test base 2** — one Miller-Rabin round with `a = 2`.
 2. **Strong Lucas test** — pick the Selfridge parameters (the first `D` in
@@ -108,4 +108,5 @@ def baillie_psw(n):
 ## References
 
 - Baillie, R.; Wagstaff, S. (1980). "Lucas pseudoprimes"
+- Arnault, F. (1997). "The Rabin-Monier theorem for Lucas pseudoprimes", Mathematics of Computation 66, 869–881
 - [Baillie–PSW primality test — Wikipedia](https://en.wikipedia.org/wiki/Baillie%E2%80%93PSW_primality_test)
