@@ -113,12 +113,12 @@ combine the two secrets, so the session stays safe if either one breaks.
 | | Ascon-AEAD128 | 128-bit key, 128-bit tag | 128 | SP 800-232 (2025) | 2014 | — | Recommended |
 | | AEGIS-128L/256 | 128 / 256-bit key | 128 / 256 | IETF draft | 2013 | — | Draft |
 | [Classic modes](05-modes-aead/Classic-Modes.md) | CTR | — | — | SP 800-38A (2001) | 1979 | — | Acceptable (needs a MAC) |
-| | CBC | — | — | FIPS 81 (1980), SP 800-38A (2001) | 1976 | dropped in TLS 1.3 (2018) | Legacy |
-| | CFB, OFB | — | — | FIPS 81 (1980) | 1980 | — | Legacy |
-| | ECB | — | — | FIPS 81 (1980) | 1980 | — | Broken |
-| [Disk encryption](05-modes-aead/Disk-Encryption.md) | XTS-AES | 256 / 512-bit key (two AES keys) | 128 / 256 | IEEE 1619 (2007), SP 800-38E (2010) | 2004 | — | Recommended |
+| | CBC | — | — | FIPS 81 (1980), SP 800-38A (2001) | 1980 | dropped in TLS 1.3 (2018) | Legacy |
+| | CFB, OFB | — | — | SP 800-38A (2001) | 1980 | — | Legacy |
+| | ECB | — | — | SP 800-38A (2001) | 1980 | NIST to limit its approval (2023 decision) | Broken |
+| [Disk encryption](05-modes-aead/Disk-Encryption.md) | XTS-AES | 256 / 512-bit key (two AES keys) | 128 / 256 | IEEE 1619-2025 (first 2007), SP 800-38E (2010) | 2004 | — | Recommended |
 | | Adiantum | 256-bit key | 256 | — | 2018 | — | Acceptable |
-| [Key wrap](05-modes-aead/Key-Wrap.md) | AES-KW / KWP | 128 / 256-bit key | 128 / 256 | RFC 3394 (2002), RFC 5649 (2009) | 2001 | — | Recommended |
+| [Key wrap](05-modes-aead/Key-Wrap.md) | AES-KW / KWP | 128 / 256-bit key | 128 / 256 | RFC 3394 (2002), RFC 5649 (2009), SP 800-38F (2012) | 2001 | — | Recommended |
 | Format-preserving | FF1 | 128 / 256-bit AES key | — | SP 800-38G (2016) | 2010 | — | Acceptable |
 | | FF3 | 128 / 256-bit AES key | — | SP 800-38G (2016) | 2010 | broken in 2017 | Broken |
 
