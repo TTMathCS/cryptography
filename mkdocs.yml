@@ -35,8 +35,12 @@ extra_css:
   - fonts/fonts.css
   - stylesheets/mars.css
 
+extra:
+  homepage: https://www.akadian.ca/
+
 extra_javascript:
   - javascripts/status.js
+  - javascripts/mars-link.js
   - javascripts/home-link.js
   - path: holidays/badge.js
     type: module

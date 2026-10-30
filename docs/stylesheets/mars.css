@@ -269,28 +269,60 @@
   .md-container { background-size: auto, 200% auto, auto; }
 }
 
-/* the bar above the header: back to the Mars homepage (overrides/main.html) */
-.md-banner {
-  background: #0a0605;
-  color: #cdb096;
-  border-bottom: 1px solid rgba(244, 230, 212, 0.1);
-}
-
-.md-banner__inner {
-  margin-top: 0.3rem;
-  margin-bottom: 0.3rem;
-  font-size: 0.7rem;
-}
-
-.md-banner .mars-back {
+/* the wordmark reads "Mars – Cryptography", like the homepage's "Mars – your new home";
+   "Mars" is the way back there (extra.homepage, overrides/partials/logo.html) */
+.md-header__button.md-logo {
+  display: inline-flex;
+  align-items: baseline;
+  margin: 0 0 0 0.2rem;
+  padding: 0.4rem 0 0.4rem 0.4rem;
   font-family: var(--mars-serif);
   font-style: italic;
   font-weight: 600;
-  font-size: 0.85rem;
-  color: #f4e6d4;
+  font-size: 1.05rem;
+  color: var(--md-primary-bg-color);
+  opacity: 1;
 }
 
-.md-banner .mars-back:hover,
-.md-banner .mars-back:focus-visible {
+.md-header__button.md-logo::after {
+  content: "–";
+  margin-left: 0.35em;
+  color: #cdb096;
+}
+
+.md-logo .mars-mark {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: rgba(244, 230, 212, 0.35);
+  transition: color 0.2s, text-decoration-color 0.2s;
+}
+
+.md-header__button.md-logo:hover,
+.md-header__button.md-logo:focus-visible {
+  opacity: 1;
+}
+
+.md-logo:hover .mars-mark,
+.md-logo:focus-visible .mars-mark {
   color: #eea66f;
+  text-decoration-color: currentColor;
+}
+
+.md-header__inner .md-header__title {
+  margin-left: 0.35em;
+}
+
+/* the drawer on phones shows the same "Mars" link above the menu */
+.md-nav__button.md-logo {
+  font-family: var(--mars-serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+@media screen and (max-width: 76.234375em) {
+  .md-header__button[for="__drawer"] {
+    order: -1;
+  }
 }
