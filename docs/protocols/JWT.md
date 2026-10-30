@@ -186,6 +186,7 @@ and the tag. The ES256 token from `jose` has a 64-byte signature.
 
 - [TLS 1.3](TLS-1.3.md) / [SSH](SSH.md): protocols that negotiate algorithms; a JWT can only announce one
 - [PKI](PKI.md): X.509 certificates; a JWK is a bare key, though `x5c` can carry a chain
+- [FIDO2](FIDO2.md): passkeys name their algorithms in COSE, JOSE's CBOR sibling, with the same ES256 and EdDSA names
 - [HMAC](../06-mac/HMAC.md) / [ECDSA](../02-signatures/ECDSA.md) / [Key wrap](../05-modes-aead/Key-Wrap.md) / [ML-DSA](../02-signatures/ML-DSA.md): the algorithms in depth
 - [NIST KDFs](../08-kdf-password-hashing/NIST-KDFs.md): computes RFC 7518's ECDH-ES key derivation example
 

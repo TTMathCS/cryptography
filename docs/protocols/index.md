@@ -3,7 +3,7 @@
 *The same algorithms from the [main table](../index.md), seen from the other
 side: what each popular protocol or tool actually runs.*
 
-Protocols with a link have their own page.
+Every protocol name opens its own page.
 
 ## Standard and implementations
 
@@ -24,9 +24,9 @@ Protocols with a link have their own page.
 | [DNSSEC](DNSSEC.md) | RFC 4033–4035 (2005); algorithm levels RFC 9904 (2025) | BIND, Knot, Unbound, PowerDNS |
 | [Disk encryption](Disk-Encryption.md) | IEEE 1619 (XTS, 2007; now 1619-2025), SP 800-38E (2010); LUKS1 (2005), LUKS2 spec (2018) | cryptsetup / dm-crypt, systemd-cryptenroll, BitLocker, FileVault |
 | [age](age.md) | age-encryption.org/v1 (2019); post-quantum in C2SP age v1.1.0 (2025) | age (Go), rage (Rust), typage (TypeScript) |
-| FIDO2 / passkeys | W3C WebAuthn (2019), FIDO CTAP2 | browsers, Apple / Google / Windows, YubiKey |
-| TOTP / HOTP | RFC 6238 (2011), RFC 4226 (2005) | Google Authenticator, oathtool |
-| Bitcoin | whitepaper (2008), BIPs | Bitcoin Core |
+| [FIDO2 / passkeys](FIDO2.md) | W3C WebAuthn Level 3 (2026; Level 1 2019), FIDO CTAP 2.2 (2025) / 2.3 (2026) | Chrome, Safari, Firefox, Edge; iCloud Keychain, Google Password Manager, Windows Hello; YubiKey; libfido2 |
+| [TOTP / HOTP](TOTP.md) | RFC 6238 (2011), RFC 4226 (2005) | Google Authenticator, Aegis, FreeOTP, oathtool, pam_google_authenticator |
+| [Bitcoin](Bitcoin.md) | whitepaper (2008); BIPs, e.g. Taproot BIP-340–342 (2021), v2 transport BIP-324 (2023) | Bitcoin Core, libsecp256k1, btcd |
 
 ## What each one uses by default
 
@@ -47,9 +47,9 @@ Protocols with a link have their own page.
 | [DNSSEC](DNSSEC.md) | — | ECDSA P-256, RSA-SHA-256, Ed25519 | — | — | SHA-256 (DS), SHA-1 (NSEC3) | — |
 | [Disk encryption](Disk-Encryption.md) | — | — | AES-256-XTS (LUKS2), XTS-AES-128 (BitLocker) | none | SHA-256 | Argon2id (LUKS2), PBKDF2 (LUKS1, FileVault 2), iterated SHA-256 (BitLocker) |
 | [age](age.md) | X25519 (ML-KEM-768 + X25519 with `-pq`, age 1.3+; or SSH keys) | none | ChaCha20-Poly1305 | HMAC-SHA-256 (header); Poly1305 in AEAD | SHA-256 | HKDF, scrypt |
-| FIDO2 / passkeys | ECDH P-256 (PIN protocol) | ES256 (ECDSA P-256) | AES-256-CBC (PIN protocol) | HMAC-SHA-256 | SHA-256 | HKDF |
-| TOTP / HOTP | — | — | — | HMAC-SHA-1 | SHA-1 | — |
-| Bitcoin | ECDH secp256k1 (BIP-324) | ECDSA secp256k1, Schnorr | ChaCha20-Poly1305 (BIP-324) | — | SHA-256, RIPEMD-160 | HMAC-SHA512, PBKDF2 |
+| [FIDO2 / passkeys](FIDO2.md) | ECDH P-256 (PIN protocol) | ES256 (ECDSA P-256) | AES-256-CBC (PIN protocol) | HMAC-SHA-256 (PIN token, hmac-secret / PRF) | SHA-256 | HKDF-SHA-256 (PIN protocol 2) |
+| [TOTP / HOTP](TOTP.md) | — | — | — | HMAC-SHA-1 (SHA-256/512 optional in TOTP) | SHA-1 | — |
+| [Bitcoin](Bitcoin.md) | ECDH secp256k1, ElligatorSwift (BIP-324) | ECDSA secp256k1 (default P2WPKH), Schnorr BIP-340 (Taproot) | ChaCha20-Poly1305 (BIP-324) | in AEAD (BIP-324) | SHA-256d, RIPEMD-160 (HASH160) | HKDF-SHA256 (BIP-324); HMAC-SHA512, PBKDF2 (wallets) |
 
 "—" means the protocol doesn't do that job. DNSSEC signs but never encrypts,
 and TOTP is nothing more than an HMAC over the clock.

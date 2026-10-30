@@ -147,7 +147,10 @@ nav:
       - protocols/age.md
       - protocols/JWT.md
       - protocols/Kerberos.md
+      - protocols/FIDO2.md
+      - protocols/TOTP.md
       - protocols/DNSSEC.md
       - protocols/Disk-Encryption.md
+      - protocols/Bitcoin.md
       - protocols/PKI.md
   - FAQ: FAQ.md
