@@ -119,7 +119,7 @@ combine the two secrets, so the session stays safe if either one breaks.
 | [Disk encryption](05-modes-aead/Disk-Encryption.md) | XTS-AES | 256 / 512-bit key (two AES keys) | 128 / 256 | IEEE 1619-2025 (first 2007), SP 800-38E (2010) | 2004 | — | Recommended |
 | | Adiantum | 256-bit key | 256 | — | 2018 | — | Acceptable |
 | [Key wrap](05-modes-aead/Key-Wrap.md) | AES-KW / KWP | 128 / 256-bit key | 128 / 256 | RFC 3394 (2002), RFC 5649 (2009), SP 800-38F (2012) | 2001 | — | Recommended |
-| Format-preserving | FF1 | 128 / 256-bit AES key | — | SP 800-38G (2016) | 2010 | — | Acceptable |
+| [Format-preserving](05-modes-aead/Format-Preserving.md) | FF1 | 128 / 256-bit AES key | — | SP 800-38G (2016) | 2010 | — | Acceptable |
 | | FF3 | 128 / 256-bit AES key | — | SP 800-38G (2016) | 2010 | broken in 2017 | Broken |
 
 ## 6. MAC
@@ -129,9 +129,9 @@ combine the two secrets, so the session stays safe if either one breaks.
 | [HMAC](06-mac/HMAC.md) | HMAC-SHA-256/384/512 | 256 / 384 / 512-bit tag | 256 | RFC 2104 (1997), FIPS 198-1 (2008) | 1996 | — | Recommended |
 | | HMAC-SHA-1 | 160-bit tag | 160 | RFC 2104 (1997) | 1996 | — | Legacy |
 | | HMAC-MD5 | 128-bit tag | 128 | RFC 2104 (1997) | 1996 | RFC 6151 (2011) | Legacy |
-| Block-cipher MAC | CMAC | 128-bit tag | 128 | SP 800-38B (2005), RFC 4493 (2006) | 2003 | — | Acceptable |
+| [Block-cipher MAC](06-mac/Block-Cipher-MACs.md) | CMAC | 128-bit tag | 128 | SP 800-38B (2005), RFC 4493 (2006) | 2003 | — | Acceptable |
 | | GMAC | 128-bit tag | 128 | SP 800-38D (2007) | 2004 | — | Acceptable |
-| Universal hash | Poly1305 | 128-bit tag | ~100 | RFC 8439 (2018) | 2005 | — | Recommended |
+| [Universal hash](06-mac/Universal-Hash-MACs.md) | Poly1305 | 128-bit tag | ~100 | RFC 8439 (2018) | 2005 | — | Recommended |
 | | UMAC | 64 / 128-bit tag | ~64 / ~128 | RFC 4418 (2006) | 1999 | — | Acceptable |
 | KMAC | KMAC128/256 | any tag length | 128 / 256 | SP 800-185 (2016) | 2016 | — | Acceptable |
 | SipHash | SipHash | 128-bit key, 64-bit tag | 64 | — | 2012 | — | Acceptable |
