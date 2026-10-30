@@ -69,6 +69,10 @@ nav:
       - 02-signatures/SLH-DSA.md
       - 02-signatures/Stateful-Hash-Signatures.md
       - 02-signatures/Blind-Signatures.md
+  - Public-key encryption:
+      - 03-public-key-encryption/ElGamal.md
+      - 03-public-key-encryption/ECIES.md
+      - 03-public-key-encryption/HPKE.md
   - Symmetric ciphers:
       - 04-symmetric-ciphers/AES.md
   - Modes and AEAD:

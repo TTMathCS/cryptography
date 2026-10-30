@@ -80,6 +80,7 @@ session_key = HKDF(algorithm=hashes.SHA256(), length=32,
 - [Ed25519](../02-signatures/EdDSA.md) — signatures on the same curve family
 - [Diffie-Hellman](Diffie-Hellman.md) — the classic ECDH/finite-field version
 - [ML-KEM](ML-KEM.md) — hybrid key exchange
+- [ECIES](../03-public-key-encryption/ECIES.md) / [HPKE](../03-public-key-encryption/HPKE.md) — public-key encryption built on ECDH
 
 ## References
 
