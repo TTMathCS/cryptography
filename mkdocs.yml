@@ -143,8 +143,11 @@ nav:
       - protocols/Signal.md
       - protocols/MLS.md
       - protocols/OpenPGP.md
+      - protocols/S-MIME.md
+      - protocols/age.md
       - protocols/JWT.md
       - protocols/Kerberos.md
       - protocols/DNSSEC.md
+      - protocols/Disk-Encryption.md
       - protocols/PKI.md
   - FAQ: FAQ.md
