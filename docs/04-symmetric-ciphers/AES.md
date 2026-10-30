@@ -51,7 +51,8 @@ whole block. Decryption runs the inverse steps with the round keys in reverse.
 ## Example (Python)
 
 From-scratch AES means shipping the full S-box and round logic, so the concise
-*and* correct approach is a vetted library:
+*and* correct approach is a vetted library, here PyCA `cryptography`
+(`pip install cryptography`):
 
 ```python
 import os
