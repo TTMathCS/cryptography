@@ -150,7 +150,7 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 | | Keccak-256 | 256-bit output | 128 | — | 2008 | — | Acceptable |
 | [BLAKE](07-hash/BLAKE.md) | BLAKE2b / BLAKE2s | up to 512 / 256-bit output | 256 / 128 | RFC 7693 (2015) | 2012 | — | Recommended |
 | | BLAKE3 | 256-bit output (extendable) | 128 | — | 2020 | — | Recommended |
-| Ascon | Ascon-Hash256 / XOF128 | 256-bit / any output | 128 | SP 800-232 (2025) | 2014 | — | Acceptable |
+| [Ascon](05-modes-aead/AEAD.md#ascon) | Ascon-Hash256 / XOF128 | 256-bit / any output | 128 | SP 800-232 (2025) | 2014 | — | Acceptable |
 | [SHA-1](07-hash/Retired.md#sha-1) | SHA-1 | 160-bit output | ~63 | FIPS 180-1 (1995), RFC 3174 (2001) | 1995 | SHAttered (2017); NIST retires it by 2030 | Broken |
 | [MD](07-hash/Retired.md#md5) | MD5 | 128-bit output | — | RFC 1321 (1992) | 1992 | collisions (2004); RFC 6151 (2011) | Broken |
 | | MD4 | 128-bit output | — | RFC 1320 (1992) | 1990 | RFC 6150 (2011) | Broken |
