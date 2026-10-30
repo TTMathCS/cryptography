@@ -175,7 +175,7 @@ walk(0, len(der), 0)
 
 Depth 2 is tbsCertificate's fields, at `asn1parse`'s offsets. With `max_depth=9`
 all 12 OIDs sit where OpenSSL prints their names (2.5.4.6 countryName, …);
-streamed CMS stops it at `80`.
+streamed CMS stops it at `80`. More commands: [openssl](../tools/openssl.md).
 
 ## See also
 

@@ -116,7 +116,7 @@ who you are; a trust store holds only certificates you trust, usually
 self-signed roots, to check others. Java reads `javax.net.ssl.keyStore` and
 `javax.net.ssl.trustStore`, else `jssecacerts`, then `cacerts` (password
 `changeit`): password-less PKCS#12 in OpenJDK since JDK 18, still JKS on
-Ubuntu (122 roots here). OpenSSL takes a PEM file or directory (`-CAfile`).
+Ubuntu 24.04. OpenSSL takes a PEM file or directory (`-CAfile`).
 
 **Since 2024.** RFC 9579 (2024) let the PKCS#12 MAC use PBMAC1, an HMAC keyed
 by PBKDF2 (RFC 8018 §7.1) instead of the old KDF; RFC 9879 (September 2025)
@@ -160,11 +160,13 @@ keytool -list -keystore demo.p12 | head -1                      # Keystore type:
 ```
 
 `cmp` prints nothing: PEM is the DER in base64, so the fingerprints match.
+More commands: [openssl](../tools/openssl.md), [keytool](../tools/keytool.md).
 
 ## See also
 
 - [X.509](X.509.md) / [ASN.1 and DER](ASN.1-DER.md): what a certificate holds, and the bytes under every format here
 - [PKI](../protocols/PKI.md) / [S/MIME](../protocols/S-MIME.md): chains, CAs and trust stores; the `.p12` a mail user imports
+- [openssl](../tools/openssl.md) / [keytool](../tools/keytool.md): commands to convert, import and inspect these files
 - [PBKDF2](../08-kdf-password-hashing/PBKDF2.md) / [Retired ciphers](../04-symmetric-ciphers/Retired.md#rc2) / [SSH](../protocols/SSH.md): the KDF in new files, the RC2 and 3DES in old ones, OpenSSH's own format
 
 ## References

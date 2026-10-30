@@ -11,7 +11,7 @@ Every protocol name opens its own page.
 |---|---|---|
 | [SSH](SSH.md) | RFC 4251–4254 (2006) | OpenSSH, PuTTY, libssh, Dropbear |
 | [TLS 1.3](TLS-1.3.md) / QUIC | RFC 8446 (2018), RFC 9001 (2021) | OpenSSL, BoringSSL, NSS, rustls, GnuTLS, SChannel |
-| [PKI](PKI.md) / [X.509](../formats/X.509.md) | RFC 5280 (2008), ACME RFC 8555 (2019); PEM RFC 7468 (2015), PKCS#12 RFC 7292 (2014) | OpenSSL, Let's Encrypt, step-ca, AD CS |
+| [PKI](PKI.md) / [X.509](../formats/X.509.md) | RFC 5280 (2008), CA/B Forum BRs (2012), CT RFC 6962 (2013), ACME RFC 8555 (2019); PEM RFC 7468 (2015), PKCS#12 RFC 7292 (2014) | OpenSSL, Let's Encrypt (Boulder), step-ca, EJBCA, AD CS |
 | [OpenPGP](OpenPGP.md) | RFC 9580 (2024), RFC 4880 (2007); post-quantum RFC 9980 (2026) | GnuPG (follows its own LibrePGP draft), Sequoia, OpenPGP.js |
 | [S/MIME](S-MIME.md) | RFC 8551 (2019), CMS RFC 5652 (2009); ML-KEM RFC 9936 (2026) | Outlook, Apple Mail, Thunderbird, gpgsm, OpenSSL |
 | [WireGuard](WireGuard.md) | whitepaper (2017), Noise framework | Linux kernel 5.6+, wireguard-go, WireGuardNT, BoringTun |
@@ -34,7 +34,7 @@ Every protocol name opens its own page.
 |---|---|---|---|---|---|---|
 | [SSH](SSH.md) | ML-KEM-768 + X25519 | Ed25519 | ChaCha20-Poly1305 | in AEAD (else HMAC-SHA-256) | SHA-256 | SSH KDF, bcrypt_pbkdf for key files |
 | [TLS 1.3](TLS-1.3.md) / QUIC | X25519 + ML-KEM-768 | ECDSA P-256, RSA-PSS | AES-128-GCM, ChaCha20-Poly1305 | in AEAD | SHA-256 | HKDF |
-| [PKI](PKI.md) / [X.509](../formats/X.509.md) | — | RSA PKCS#1 v1.5, ECDSA P-256 | AES-256-CBC (PKCS#8, PKCS#12) | HMAC-SHA-256 (PKCS#12) | SHA-256 | PBKDF2-HMAC-SHA-256; PKCS#12 KDF for the MAC key |
+| [PKI](PKI.md) / [X.509](../formats/X.509.md) | — | RSA PKCS#1 v1.5 (SHA-256), ECDSA P-256 / P-384 | AES-256-CBC (PKCS#8, PKCS#12) | HMAC-SHA-256 (PKCS#12) | SHA-256 (SHA-384 with P-384 keys) | PBKDF2-HMAC-SHA-256; PKCS#12 KDF for the MAC key |
 | [OpenPGP](OpenPGP.md) | X25519 | Ed25519 | AES-256-OCB | in AEAD | SHA-256/512 | Argon2, HKDF |
 | [S/MIME](S-MIME.md) | RSA (PKCS#1 v1.5, OAEP), ECDH P-256 | RSA, ECDSA P-256 | AES-256-CBC, AES-GCM | in AEAD (none with CBC) | SHA-256 | X9.63 KDF (ECDH) |
 | [WireGuard](WireGuard.md) | X25519 (+ optional PSK) | none (pinned keys) | ChaCha20-Poly1305 | in AEAD; keyed BLAKE2s on handshakes | BLAKE2s | HKDF (HMAC-BLAKE2s) |

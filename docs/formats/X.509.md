@@ -136,6 +136,7 @@ openssl x509 -in /etc/ssl/certs/ISRG_Root_X1.pem -noout -fingerprint -sha256   #
 openssl s_client -connect example.org:443 </dev/null | openssl x509 -noout -text   # a server's leaf (SNI is sent)
 ```
 
+- **More:** a test CA, a whole chain, bundles, PEM and DER on [openssl](../tools/openssl.md).
 - **Python:** a fingerprint is just a hash of the DER bytes. Press Enter for
   Let's Encrypt's RSA root in Ubuntu's CA bundle.
 
@@ -163,6 +164,7 @@ Root X1 in Mozilla's root list (NSS `certdata.txt`).
 - [ASN.1 and DER](ASN.1-DER.md) / [File formats](File-Formats.md): how these fields become bytes, and the PEM, PKCS#7 and PKCS#12 files they travel in
 - [PKI](../protocols/PKI.md): chains, CAs, trust stores and revocation
 - [TLS 1.3](../protocols/TLS-1.3.md) / [S/MIME](../protocols/S-MIME.md): the two biggest users; S/MIME CAs may issue ML-DSA and ML-KEM certificates
+- [openssl](../tools/openssl.md): commands to make, read and convert certificates
 - [ECDSA](../02-signatures/ECDSA.md) / [RSA](../02-signatures/RSA.md) / [ML-DSA](../02-signatures/ML-DSA.md): the signatures inside
 
 ## References
