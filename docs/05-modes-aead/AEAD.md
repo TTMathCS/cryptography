@@ -69,6 +69,7 @@ pt = aead.decrypt(nonce, ct, header)     # raises if the tag or header don't mat
 - [AES](../04-symmetric-ciphers/AES.md) — the block-cipher AEAD it competes with (AES-GCM)
 - [ChaCha and Salsa20](../04-symmetric-ciphers/ChaCha.md) — the stream cipher on its own: quarter-round, nonce sizes, XChaCha20
 - [X25519](../01-key-exchange/ECDH.md) — commonly paired to agree on the key
+- [Classic modes](Classic-Modes.md) / [Disk encryption](Disk-Encryption.md) / [Key wrap](Key-Wrap.md) — the other cipher modes: CBC and CTR, XTS, AES Key Wrap
 - [Cryptography FAQ](../FAQ.md) — symmetric vs. asymmetric
 
 ## References

@@ -80,6 +80,9 @@ nav:
       - 04-symmetric-ciphers/Retired.md
   - Modes and AEAD:
       - 05-modes-aead/AEAD.md
+      - 05-modes-aead/Classic-Modes.md
+      - 05-modes-aead/Disk-Encryption.md
+      - 05-modes-aead/Key-Wrap.md
   - MAC:
       - 06-mac/HMAC.md
   - Hash functions:

@@ -79,6 +79,7 @@ pt = aead.decrypt(nonce, ct, header)         # raises if tampered
 ## See also
 
 - [ChaCha20-Poly1305](../05-modes-aead/AEAD.md) — the software-speed alternative
+- [Classic modes](../05-modes-aead/Classic-Modes.md) / [Disk encryption](../05-modes-aead/Disk-Encryption.md) / [Key wrap](../05-modes-aead/Key-Wrap.md) — ECB to CTR, XTS-AES and AES Key Wrap in detail
 - [Retired ciphers](Retired.md) / [National ciphers](National-Ciphers.md) — DES and 3DES before AES, and the national ciphers used beside it
 - [X25519](../01-key-exchange/ECDH.md) / [HKDF](../08-kdf-password-hashing/HKDF.md) — how both sides get the shared key
 - [Cryptography FAQ](../FAQ.md) — symmetric vs. asymmetric
