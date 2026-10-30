@@ -123,8 +123,9 @@ Elliptic-curve [DSA](../02-signatures/DSA.md) over the NIST P-256/384/521 curves
     - **Nonce dependence.** Every signature needs a fresh random nonce; a weak or
     repeated one lets an attacker recover the private key from the signatures.
     This is a real client-side risk at sign time.
-    - **NIST-curve distrust.** P-256's constants are unexplained; no proven
-    backdoor, but enough doubt that people avoid it when they can.
+    - **NIST-curve distrust.** P-256's constants come from a seed NIST never
+    explained (a 2026 study traced how the seed was made, not why it was
+    picked); no proven backdoor, but enough doubt that people avoid it when they can.
 
 ### Ed25519
 

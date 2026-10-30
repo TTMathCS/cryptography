@@ -19,8 +19,9 @@ appeared. *Standard* is the RFC, FIPS or other document that defines it.
 Recommended or Acceptable (green), Legacy (amber), Draft (grey, standard not
 final) and Broken (red, struck through). **PQ** marks post-quantum families.
 
-NIST IR 8547 is NIST's plan to deprecate RSA and elliptic-curve algorithms at
-112-bit security (RSA-2048, P-256) in 2030 and to disallow all of them in 2035.
+NIST IR 8547 (final, October 2026) deprecates every quantum-vulnerable signature
+and key exchange in NIST's standards (RSA, finite-field and elliptic-curve DH,
+ECDSA, EdDSA) after 2030, at every key size, and disallows them after 2035.
 
 Families with a link have their own page. The rest get theirs in later updates.
 
@@ -28,7 +29,7 @@ Families with a link have their own page. The rest get theirs in later updates.
 
 | Family | Algorithm | Size | Security (bits) | Standard | Released | Deprecated | Status |
 |---|---|---|---|---|---|---|---|
-| [Diffie-Hellman (finite field)](01-key-exchange/Diffie-Hellman.md) | 2048-bit and larger groups | 2048–8192-bit group | 112–200 | RFC 3526 (2003), RFC 7919 (2016) | 1976 | — | Acceptable |
+| [Diffie-Hellman (finite field)](01-key-exchange/Diffie-Hellman.md) | 2048-bit and larger groups | 2048–8192-bit group | 112–200 | RFC 3526 (2003), RFC 7919 (2016) | 1976 | NIST IR 8547: 2030 / 2035 | Acceptable |
 | | 1024-bit and smaller groups | ≤1024-bit group | ≤80 | RFC 2409 (1998) | 1998 | Logjam (2015); RFC 9142 (2022) for SSH | Broken |
 | [Diffie-Hellman (elliptic curve)](01-key-exchange/ECDH.md) | X25519 | 255-bit key | 128 | RFC 7748 (2016) | 2006 | — | Recommended |
 | | X448 | 448-bit key | 224 | RFC 7748 (2016) | 2015 | — | Acceptable |
@@ -59,17 +60,17 @@ combine the two secrets, so the session stays safe if either one breaks.
 | | keys under 2048 bits | 1024-bit key | 80 | — | — | NIST SP 800-131A (after 2013) | Broken |
 | [DSA](02-signatures/DSA.md) | DSA | 2048–3072-bit p | 112–128 | FIPS 186 (1994) | 1991 | FIPS 186-5 (2023); OpenSSH 10 (2025) | Legacy |
 | [ECDSA](02-signatures/ECDSA.md) | P-256/384/521 | 256 / 384 / 521-bit key | 128 / 192 / 256 | ANSI X9.62 (1999), FIPS 186-2 (2000) | 1992 | NIST IR 8547: 2030 / 2035 | Acceptable |
-| | deterministic ECDSA | 256 / 384 / 521-bit key | 128 / 192 / 256 | RFC 6979 (2013) | 2013 | — | Recommended |
+| | deterministic ECDSA | 256 / 384 / 521-bit key | 128 / 192 / 256 | RFC 6979 (2013) | 2013 | NIST IR 8547: 2030 / 2035 | Recommended |
 | | secp256k1 | 256-bit key | 128 | SEC 2 (2000) | 2000 | — | Acceptable |
 | [Schnorr](02-signatures/Schnorr.md) | BIP-340 | 256-bit key | 128 | BIP-340 (2020) | 1989 | — | Acceptable |
-| [EdDSA](02-signatures/EdDSA.md) | Ed25519 | 256-bit key, 512-bit signature | 128 | RFC 8032 (2017), FIPS 186-5 (2023) | 2011 | — | Recommended |
-| | Ed448 | 456-bit key, 912-bit signature | 224 | RFC 8032 (2017) | 2015 | — | Acceptable |
+| [EdDSA](02-signatures/EdDSA.md) | Ed25519 | 256-bit key, 512-bit signature | 128 | RFC 8032 (2017), FIPS 186-5 (2023) | 2011 | NIST IR 8547: 2030 / 2035 | Recommended |
+| | Ed448 | 456-bit key, 912-bit signature | 224 | RFC 8032 (2017), FIPS 186-5 (2023) | 2015 | NIST IR 8547: 2030 / 2035 | Acceptable |
 | [ML-DSA](02-signatures/ML-DSA.md) (PQ, lattice) | ML-DSA-44/65/87 | 1,312 / 1,952 / 2,592 B public key | 128 / 192 / 256 | FIPS 204 (2024) | 2017 | — | Recommended |
 | [FN-DSA](02-signatures/FN-DSA.md) (PQ, lattice) | Falcon-512/1024 | 897 / 1,793 B public key | 128 / 256 | FIPS 206 (in development) | 2017 | — | Draft |
 | [SLH-DSA](02-signatures/SLH-DSA.md) (PQ, hash) | SLH-DSA | 7.8 – 49.9 KB signature | 128 / 192 / 256 | FIPS 205 (2024) | 2015 | — | Acceptable |
 | [Stateful hash-based](02-signatures/Stateful-Hash-Signatures.md) (PQ) | LMS / HSS | 192 / 256-bit hash | 192 / 256 | RFC 8554 (2019), SP 800-208 (2020) | 1995 | — | Recommended |
 | | XMSS | 192 / 256-bit hash | 192 / 256 | RFC 8391 (2018), SP 800-208 (2020) | 2011 | — | Acceptable |
-| [Blind signatures](02-signatures/Blind-Signatures.md) | RSA blind signatures | 2048–4096-bit key | 112–140 | RFC 9474 (2023) | 1982 | — | Acceptable |
+| [Blind signatures](02-signatures/Blind-Signatures.md) | RSA blind signatures | 2048–4096-bit key | 112–140 | RFC 9474 (2023) | 1982 | NIST IR 8547: 2030 / 2035 | Acceptable |
 
 ## 3. Public-key encryption
 
@@ -201,12 +202,12 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 | | lattices (LWE, Module-LWE) | — | — | — | 2005 | — | Recommended (PQ) |
 | | hash-based | — | — | — | 1979 | — | Recommended (PQ) |
 | | codes (McEliece, HQC) | — | — | — | 1978 | — | Acceptable (PQ) |
-| | isogenies (SIKE) | — | — | — | 2011 | broken 2022 | Broken |
+| | isogenies (SIKE) | — | — | — | 2011 (SIDH), 2017 (SIKE) | broken 2022 | Broken |
 | | multivariate (Rainbow) | — | — | — | 2005 | broken 2022 | Broken |
 | [Elliptic curves](10-math-foundations/Elliptic-Curves.md) | Curve25519 | 255-bit | 128 | RFC 7748 (2016) | 2006 | — | Recommended |
 | | Curve448 | 448-bit | 224 | RFC 7748 (2016) | 2015 | — | Acceptable |
 | | P-256 / P-384 / P-521 | 256 / 384 / 521-bit | 128 / 192 / 256 | FIPS 186-2 (2000), SP 800-186 (2023) | 1999 | NIST IR 8547: 2030 / 2035 | Acceptable |
-| | P-192 / P-224 | 192 / 224-bit | 96 / 112 | FIPS 186-2 (2000) | 1999 | SP 800-186 (2023): legacy only | Legacy |
+| | P-192 / P-224 | 192 / 224-bit | 96 / 112 | FIPS 186-2 (2000) | 1999 | SP 800-186 (2023): P-192 legacy only; NIST IR 8547: 2030 / 2035 | Legacy |
 | | secp256k1 | 256-bit | 128 | SEC 2 (2000) | 2000 | — | Acceptable |
 | | Brainpool | 160–512-bit | 80–256 | RFC 5639 (2010) | 2005 | — | Acceptable |
 
