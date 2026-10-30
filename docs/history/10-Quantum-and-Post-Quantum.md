@@ -18,7 +18,7 @@ how that came about, where it stands, and what is still unsettled.
 
 | When | What |
 |---|---|
-| 1981–1985 | Feynman and Deutsch: the idea of a quantum computer |
+| 1980–1985 | Benioff, Manin, Feynman and Deutsch: the idea of a quantum computer |
 | 1994 | Peter Shor's algorithm for factoring and discrete logarithms |
 | 1996 | Lov Grover's search algorithm |
 | 1996–2005 | Ajtai, NTRU and Regev's learning with errors: the lattice foundations |
@@ -30,13 +30,14 @@ how that came about, where it stands, and what is still unsettled.
 | 2023 | Signal's PQXDH |
 | 2024 | FIPS 203, 204 and 205; hybrid ML-KEM on by default in Chrome and Firefox; Google's Willow chip |
 | 2025 | HQC chosen as a backup KEM; RSA-2048 re-estimated at under a million qubits; Signal's SPQR |
-| 2026 | 256-bit elliptic curves estimated at under half a million qubits; nine signatures in NIST's third round; NIST IR 8547 final |
+| 2026 | 256-bit elliptic curves estimated at under half a million qubits; nine signatures in NIST's third round (eight after HAWK's withdrawal); a US executive order on federal deadlines; NIST IR 8547 final |
 
 ## A computer built from physics
 
 ### Feynman's question
 
-In 1981 the physicist Richard Feynman pointed out that ordinary computers
+Paul Benioff and Yuri Manin had sketched quantum models of computation in
+1980. In 1981 the physicist Richard Feynman pointed out that ordinary computers
 are hopelessly slow at simulating quantum physics, because the amount of
 information needed to describe a quantum system doubles with every
 particle added. Why not, he asked, build a computer out of quantum parts
@@ -54,15 +55,18 @@ that the cancelling has to be exact, and real qubits are fragile.
 
 ### Shor's algorithm, 1994
 
-For a decade nobody knew whether quantum computers would be good for
-anything except physics. Then in 1994 Peter Shor, at AT&T Bell Labs,
+For years it was unclear whether quantum computers would be good for
+much beyond physics. Deutsch and Richard Jozsa (1992) and Daniel Simon
+(1994) found problems on which they were provably faster, but the
+problems were artificial. Then in 1994 Peter Shor, at AT&T Bell Labs,
 showed how one could factor large numbers and compute discrete logarithms
 in polynomial time, that is, efficiently, where the best classical methods
 take time that grows almost exponentially.
 
 The trick is that factoring reduces to finding a *period*. Pick a number
 *a* and look at *a*, *a*², *a*³, … mod *N*: the sequence eventually repeats,
-with some period *r*. Knowing *r* almost always reveals a factor of *N*.
+with some period *r*. For an RSA modulus, knowing *r* reveals a factor at
+least half the time; if it doesn't, pick another *a* and try again.
 Classically, finding *r* is as hard as factoring. A quantum computer can
 put all the exponents into superposition at once and use a *quantum
 Fourier transform*, which makes the amplitudes interfere so that
@@ -164,8 +168,9 @@ page has the numbers.
 ### Toy factorizations
 
 The first quantum computations ran on molecules in nuclear magnetic
-resonance machines in the late 1990s. In 2001 a team at IBM and Stanford
-led by Lieven Vandersypen used seven nuclear spins in a specially made
+resonance machines in the late 1990s. In 2001 a team from IBM's Almaden
+lab and Stanford, led by Isaac Chuang with Lieven Vandersypen as first
+author, used seven nuclear spins in a specially made
 molecule to "factor" 15 with Shor's algorithm, and in 2012 a photonic
 experiment did 21. These were real experiments but not real factorizations:
 to fit on the hardware, the circuits were simplified using knowledge of
@@ -205,21 +210,27 @@ Estimates of what it would take to break real keys have fallen sharply:
 |---|---|---|
 | 2019 | RSA-2048 | about 20 million noisy qubits, 8 hours (Gidney and Ekerå) |
 | 2025 | RSA-2048 | under a million noisy qubits, under a week (Gidney) |
-| 2026 | 256-bit elliptic curve | about 1,200–1,450 logical qubits; under half a million physical qubits, minutes (Babbush and others, Google) |
+| 2026 | 256-bit elliptic curve (secp256k1) | about 1,200–1,450 logical qubits; under half a million physical qubits, minutes (Babbush and others, Google) |
+| 2026 | 256-bit elliptic curve (P-256) | about 10,000–26,000 neutral-atom qubits, days (Cain and others, Caltech; a preprint) |
 
 Each estimate assumes error rates of about one in a thousand per
 operation and a full fault-tolerant design; the largest machines today
 have about a hundred to a few thousand physical qubits. The gap is still
 large, but it shrinks from both sides: hardware improves, and algorithms
-need less of it. A February 2026 preprint from Iceberg Quantum claimed
-RSA-2048 might take under 100,000 physical qubits with newer error-
-correcting codes, a claim not yet validated.
+need less of it. The newest estimates lean on newer error-correcting
+codes and hardware that can move qubits around, and are not yet
+validated: a February 2026 preprint from Iceberg Quantum claimed RSA-2048
+might take under 100,000 physical qubits, and the Caltech preprint above
+goes lower still. Google's team did not publish its elliptic-curve
+circuits at all, to avoid handing out a blueprint; it backed its numbers
+with a zero-knowledge proof covering the main subroutine, so outsiders
+can check the claim without being able to rebuild the attack.
 
 Nobody can say when, or whether, a *cryptographically relevant quantum
-computer* will exist. Surveys of researchers, such as the Global Risk
-Institute's yearly report, find a wide spread of opinion, with a
-substantial share of experts putting the odds at better than even within
-fifteen years and few ruling it out. Google said in March 2026
+computer* will exist. The Global Risk Institute's yearly survey of
+researchers finds a wide spread of opinion; its latest edition, published
+in March 2026, puts the experts' combined estimate of the chance of one
+within fifteen years at better than even. Google said in March 2026
 that it aimed to finish its own post-quantum migration by 2029.
 
 ### Harvest now, decrypt later
@@ -325,10 +336,12 @@ describes the real scheme.
 ### The call
 
 In August 2015 NSA announced that it planned to move to quantum-resistant
-algorithms, which surprised many observers, since it had only recently
-endorsed elliptic curves. In 2016 NIST published a report on the threat
-(NIST IR 8105) and, in December, a formal call for proposals, run like
-the [AES](08-Internet-Era.md#aes-a-cipher-chosen-in-public) and SHA-3
+algorithms, which surprised many observers, since in 2005 it had made
+elliptic curves the centre of its Suite B. In 2016 NIST published a report
+on the threat (NIST IR 8105) and, in December, a formal call for
+proposals. NIST avoided calling it a competition, since it could pick
+several winners, but it ran like the
+[AES](08-Internet-Era.md#aes-a-cipher-chosen-in-public) and SHA-3
 competitions: open submissions, public analysis, several rounds. It
 asked for two kinds of algorithm: *key-encapsulation mechanisms* (KEMs) to
 agree on keys, and digital signatures.
@@ -347,7 +360,8 @@ Two of the candidates fell in 2022, in ways that shaped the outcome.
   it all: "Breaking Rainbow Takes a Weekend on a Laptop".
 - **SIKE**, an isogeny-based KEM with very small keys, had reached the
   fourth round. In July 2022 Wouter Castryck and Thomas Decru of KU Leuven
-  recovered its key in about an hour on a single computer core, using a
+  recovered a SIKEp434 key in about an hour on a single computer core
+  (refined versions of the attack take minutes), using a
   piece of 1997 mathematics about curves of genus two that nobody had
   thought to apply.
 
@@ -374,8 +388,9 @@ new names:
 | FIPS 206 (pending) | FN-DSA | Falcon (NTRU lattices) | compact signatures | [FN-DSA](../02-signatures/FN-DSA.md) |
 
 On 11 March 2025 NIST chose **HQC**, a code-based KEM, as a backup to
-ML-KEM in case a breakthrough against lattices ever comes, over BIKE and
-Classic McEliece. Stateful hash-based signatures, LMS and XMSS, had
+ML-KEM in case a breakthrough against lattices ever comes, over the
+similar BIKE; it put Classic McEliece on hold until ISO finished its
+version. Stateful hash-based signatures, LMS and XMSS, had
 already been standardized in 2018–2020 for uses such as firmware signing.
 
 ### More signatures
@@ -386,18 +401,22 @@ opened a separate call for additional signature schemes, ideally with
 short signatures and not based on lattices. Forty entered the first round
 in 2023 and fourteen the second in October 2024. On 14 May 2026 NIST
 advanced nine to a third round expected to last about two years: FAEST,
-HAWK, MAYO, MQOM, QR-UOV, SDitH, SNOVA, SQIsign and UOV. They span
-multivariate, isogeny, lattice and "MPC-in-the-head" designs. Reports
-since then say HAWK's team withdrew it; I could not confirm that from NIST.
+HAWK, MAYO, MQOM, QR-UOV, SDitH, SNOVA, SQIsign and UOV. HAWK, the only
+lattice scheme, was withdrawn in July 2026 after a key-recovery attack,
+leaving eight: multivariate schemes, an isogeny scheme (SQIsign), a
+code-based one (SDitH) and FAEST, built on AES and the "VOLE-in-the-head"
+technique.
 
 ### Beyond NIST
 
 Other countries ran their own processes. Germany's BSI and France's ANSSI
 recommend using post-quantum algorithms only in *hybrid* combination with
-classical ones for now, and have backed some extra algorithms such as
-FrodoKEM and Classic McEliece. ISO published Classic McEliece in June
-2026, and Germany's BSI then advised against it for new systems in
-October 2026, a sign of how unsettled the details still are. South Korea
+classical ones for now (hash-based signatures excepted), and have backed
+some extra algorithms such as FrodoKEM and Classic McEliece. ISO published
+Classic McEliece in June 2026, and in October 2026 Germany's BSI advised
+against it for new systems, because new cryptanalysis put the cost of
+recovering its keys below the claimed security levels, though no
+practical attack exists. South Korea
 ran its own competition and chose four algorithms in 2025, and China
 announced its own call in 2025.
 
@@ -416,9 +435,10 @@ with ML-KEM's.
 
 Google ran the first public test in 2016, adding the lattice scheme
 NewHope next to X25519 in a test version of Chrome for a few months
-(CECPQ1). In 2019 Google and Cloudflare tested two more lattice hybrids
-(CECPQ2). These experiments showed that the larger messages, a kilobyte or
-more instead of 32 bytes, mostly worked, but also that some old network
+(CECPQ1). In 2019 Google and Cloudflare tested two more hybrids: CECPQ2,
+with the lattice scheme NTRU-HRSS, and CECPQ2b, with the isogeny scheme
+SIKE. These experiments showed that the larger messages, up to a
+kilobyte or more instead of 32 bytes, mostly worked, but also that some old network
 equipment broke on unusually large handshakes.
 
 ### SSH first
@@ -463,8 +483,10 @@ recipient type, [JOSE](../protocols/JWT.md) ML-DSA, and
 Certificates are the hard part. A TLS handshake carries several
 signatures and public keys, and swapping each 64-byte signature for a
 2,420-byte one adds many kilobytes, so public web certificates were still
-RSA and ECDSA in October 2026 while the industry argued over designs
-that would need fewer signatures. See [PKI](../protocols/PKI.md).
+RSA and ECDSA in October 2026. Chrome accepts ML-DSA only in private PKIs
+so far and plans to bring post-quantum certificates to the public web
+through *Merkle Tree Certificates*, an IETF draft that needs far fewer
+signatures per handshake. See [PKI](../protocols/PKI.md).
 
 ## Deadlines
 
@@ -476,7 +498,10 @@ start now, finish around 2035.
   firmware, AES-256 and SHA-384 or SHA-512, with most kinds of equipment
   expected to use them exclusively by 2030–2033 and the whole transition
   complete by 2035. A 2022 presidential memorandum (NSM-10) set the same
-  2035 goal for the federal government.
+  2035 goal for the federal government, and an executive order in June
+  2026 (EO 14412) set firmer dates for high-value federal systems:
+  post-quantum key establishment by the end of 2030 and post-quantum
+  signatures by the end of 2031.
 - **NIST IR 8547.** NIST's transition plan, published as a draft in
   November 2024 and in final form in October 2026, deprecates every
   quantum-vulnerable public-key algorithm in its standards (RSA,
@@ -505,8 +530,9 @@ As of October 2026:
   additional-signature round will run until about 2028.
 - **Confidence in lattices.** Lattice problems have been studied seriously
   for about thirty years, far less than factoring. In April 2024 Yilei
-  Chen posted a paper claiming a quantum algorithm for LWE; within about
-  ten days other researchers found a bug that sank it. The episode showed
+  Chen posted a paper claiming a quantum algorithm for LWE (for some
+  parameter choices, not ML-KEM's); within about ten days other
+  researchers found a bug that sank it. The episode showed
   both the worry and how fast the community checks.
 - **Implementations.** As with every earlier algorithm, the code is weaker
   than the mathematics. In 2023–2024 the *KyberSlash* timing leaks, caused
@@ -551,10 +577,10 @@ mathematics, to be where things go wrong.
 ## References
 
 - Richard P. Feynman, "Simulating Physics with Computers", *International Journal of Theoretical Physics* 21 (1982) / David Deutsch, "Quantum Theory, the Church–Turing Principle and the Universal Quantum Computer", *Proceedings of the Royal Society A* 400 (1985)
-- Peter W. Shor, "Algorithms for Quantum Computation: Discrete Logarithms and Factoring" (FOCS 1994; *SIAM Journal on Computing* 26, 1997) / Lov K. Grover, "A Fast Quantum Mechanical Algorithm for Database Search" (STOC 1996)
+- Peter W. Shor, "Algorithms for Quantum Computation: Discrete Logarithms and Factoring" (FOCS 1994) and "Polynomial-Time Algorithms for Prime Factorization and Discrete Logarithms on a Quantum Computer", *SIAM Journal on Computing* 26, no. 5 (1997) / Lov K. Grover, "A Fast Quantum Mechanical Algorithm for Database Search" (STOC 1996)
 - Lieven M. K. Vandersypen et al., "Experimental Realization of Shor's Quantum Factoring Algorithm Using Nuclear Magnetic Resonance", *Nature* 414 (2001) / John A. Smolin, Graeme Smith and Alexander Vargo, "Oversimplifying Quantum Factoring", *Nature* 499 (2013)
 - Frank Arute et al., "Quantum Supremacy Using a Programmable Superconducting Processor", *Nature* 574 (2019) / Google Quantum AI, "Quantum Error Correction below the Surface Code Threshold", *Nature* 638 (2025)
-- Craig Gidney and Martin Ekerå, "How to Factor 2048 Bit RSA Integers in 8 Hours Using 20 Million Noisy Qubits", *Quantum* 5 (2021; preprint 2019) / [Craig Gidney, "How to Factor 2048 Bit RSA Integers with Less than a Million Noisy Qubits" (2025)](https://arxiv.org/abs/2505.15917) / [Babbush et al. (2026)](https://arxiv.org/abs/2603.28846)
+- Craig Gidney and Martin Ekerå, "How to Factor 2048 Bit RSA Integers in 8 Hours Using 20 Million Noisy Qubits", *Quantum* 5 (2021; preprint 2019) / [Craig Gidney, "How to Factor 2048 Bit RSA Integers with Less than a Million Noisy Qubits" (2025)](https://arxiv.org/abs/2505.15917) / [Babbush et al., "Securing Elliptic Curve Cryptocurrencies against Quantum Vulnerabilities: Resource Estimates and Mitigations" (2026)](https://arxiv.org/abs/2603.28846) / Cain et al. (arXiv 2603.28627, 2026) / Iceberg Quantum (arXiv 2602.11457, 2026)
 - Michele Mosca, "Cybersecurity in an Era with Quantum Computers: Will We Be Ready?", *IEEE Security & Privacy* 16, no. 5 (2018)
 - Miklós Ajtai, "Generating Hard Instances of Lattice Problems" (STOC 1996) / Jeffrey Hoffstein, Jill Pipher and Joseph H. Silverman, "NTRU: A Ring-Based Public Key Cryptosystem" (ANTS 1998) / Oded Regev, "On Lattices, Learning with Errors, Random Linear Codes, and Cryptography" (STOC 2005; *Journal of the ACM* 56, 2009)
 - NIST IR 8105, *Report on Post-Quantum Cryptography* (2016) / NIST IR 8413, *Status Report on the Third Round* (2022) / NIST IR 8545, *Status Report on the Fourth Round* (2025) / NIST IR 8610, *Status Report on the Second Round of the Additional Digital Signature Schemes* (2026)
@@ -564,4 +590,4 @@ mathematics, to be where things go wrong.
 - [OpenSSH release notes](https://www.openssh.com/releasenotes.html) (9.0, 9.9, 10.0, 10.1) and [OpenSSH post-quantum page](https://www.openssh.com/pq.html) / Signal, *The PQXDH Key Agreement Protocol* (2023) and "Signal Protocol and Post-Quantum Ratchets" (October 2025) / Apple Security Research, "iMessage with PQ3" (February 2024) / Apple, "Prepare your network for quantum-secure encryption in TLS" (2025)
 - NSA, *Announcing the Commercial National Security Algorithm Suite 2.0* (September 2022) / White House, National Security Memorandum 10 (May 2022) / NCSC, *Timelines for Migration to Post-Quantum Cryptography* (March 2025) / *A Coordinated Implementation Roadmap for the Transition to Post-Quantum Cryptography* (EU NIS Cooperation Group, June 2025)
 
-*Weaker sources:* the October 2026 final version of NIST IR 8547 and its change from the draft, known from secondary reports and this site's main table because nist.gov was unreachable from here; the status of FIPS 206 and FIPS 207, from this site's FN-DSA and code-based KEM pages and from news reports; the May 2026 third-round list and the reported HAWK withdrawal, from news summaries of NIST IR 8610; the details of Babbush et al. (2026) and Iceberg Quantum's February 2026 preprint, from news coverage; Google's 2029 migration target; Cloudflare's adoption figures, from its blog as summarized in the press; the 2025–2026 logical-qubit counts, which come from company announcements; the Korean and Chinese processes; the browser and Apple release dates for hybrid ML-KEM, from vendor documentation summarized by search.
+*Weaker sources:* the October 2026 final version of NIST IR 8547 (NIST's news release of 27 October 2026) and its change from the draft, known from secondary reports and this site's main table because nist.gov was unreachable from here; Executive Order 14412 and its 2030 and 2031 dates, from search summaries of the White House and Federal Register texts; the status of FIPS 206 and FIPS 207, from this site's FN-DSA and code-based KEM pages and from news reports; the May 2026 third-round list and HAWK's July 2026 withdrawal, from news summaries of NIST IR 8610 and the pqc-forum; the details of Babbush et al., Cain et al. and Iceberg Quantum's 2026 preprints, from news coverage and search summaries; the Global Risk Institute's March 2026 survey figure; Google's 2029 migration target (Google blog, March 2026); Cloudflare's adoption figures, from its blog as summarized in the press; the 2025–2026 logical-qubit counts, which come from company announcements; the Korean and Chinese processes; the browser and Apple release dates for hybrid ML-KEM, from vendor documentation summarized by search.
