@@ -120,7 +120,7 @@ combine the two secrets, so the session stays safe if either one breaks.
 | | Adiantum | 256-bit key | 256 | — | 2018 | — | Acceptable |
 | [Key wrap](05-modes-aead/Key-Wrap.md) | AES-KW / KWP | 128 / 256-bit key | 128 / 256 | RFC 3394 (2002), RFC 5649 (2009), SP 800-38F (2012) | 2001 | — | Recommended |
 | [Format-preserving](05-modes-aead/Format-Preserving.md) | FF1 | 128 / 256-bit AES key | — | SP 800-38G (2016) | 2010 | — | Acceptable |
-| | FF3 | 128 / 256-bit AES key | — | SP 800-38G (2016) | 2010 | broken in 2017 | Broken |
+| | FF3 | 128 / 256-bit AES key | — | SP 800-38G (2016) | 2010 | broken in 2017; dropped in the SP 800-38G Rev. 1 draft (2025) | Broken |
 
 ## 6. MAC
 
@@ -132,7 +132,7 @@ combine the two secrets, so the session stays safe if either one breaks.
 | [Block-cipher MAC](06-mac/Block-Cipher-MACs.md) | CMAC | 128-bit tag | 128 | SP 800-38B (2005), RFC 4493 (2006) | 2003 | — | Acceptable |
 | | GMAC | 128-bit tag | 128 | SP 800-38D (2007) | 2004 | — | Acceptable |
 | [Universal hash](06-mac/Universal-Hash-MACs.md) | Poly1305 | 128-bit tag | ~100 | RFC 8439 (2018) | 2005 | — | Recommended |
-| | UMAC | 64 / 128-bit tag | ~64 / ~128 | RFC 4418 (2006) | 1999 | — | Acceptable |
+| | UMAC | 64 / 128-bit tag | ~60 / ~120 | RFC 4418 (2006) | 1999 | — | Acceptable |
 | KMAC | KMAC128/256 | any tag length | 128 / 256 | SP 800-185 (2016) | 2016 | — | Acceptable |
 | SipHash | SipHash | 128-bit key, 64-bit tag | 64 | — | 2012 | — | Acceptable |
 
