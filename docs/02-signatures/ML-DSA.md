@@ -86,6 +86,7 @@ with oqs.Signature("ML-DSA-65") as verifier:
 
 - [ML-KEM](../01-key-exchange/ML-KEM.md): the key exchange side
 - [Ed25519](EdDSA.md) / [ECDSA](ECDSA.md): what ML-DSA replaces
+- [FN-DSA](FN-DSA.md) / [SLH-DSA](SLH-DSA.md): the other two NIST post-quantum signatures
 - [Will quantum computers break all of this?](../FAQ.md)
 
 ## References

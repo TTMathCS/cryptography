@@ -67,6 +67,7 @@ priv.public_key().verify(sig, b"message")   # raises if invalid
 
 - [X25519](../01-key-exchange/ECDH.md) — key exchange on the same curve family
 - [ECDSA](ECDSA.md) — the curve signature scheme it improves on
+- [Schnorr](Schnorr.md) — the scheme EdDSA grew from
 - [Cryptography FAQ](../FAQ.md) — why randomness (and its absence here) matters
 
 ## References

@@ -62,8 +62,11 @@ nav:
       - 02-signatures/RSA.md
       - 02-signatures/DSA.md
       - 02-signatures/ECDSA.md
+      - 02-signatures/Schnorr.md
       - 02-signatures/EdDSA.md
       - 02-signatures/ML-DSA.md
+      - 02-signatures/FN-DSA.md
+      - 02-signatures/SLH-DSA.md
   - Symmetric ciphers:
       - 04-symmetric-ciphers/AES.md
   - Modes and AEAD:

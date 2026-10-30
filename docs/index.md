@@ -61,12 +61,12 @@ combine the two secrets, so the session stays safe if either one breaks.
 | [ECDSA](02-signatures/ECDSA.md) | P-256/384/521 | 256 / 384 / 521-bit key | 128 / 192 / 256 | ANSI X9.62 (1999), FIPS 186-2 (2000) | 1992 | NIST IR 8547: 2030 / 2035 | Acceptable |
 | | deterministic ECDSA | 256 / 384 / 521-bit key | 128 / 192 / 256 | RFC 6979 (2013) | 2013 | — | Recommended |
 | | secp256k1 | 256-bit key | 128 | SEC 2 (2000) | 2000 | — | Acceptable |
-| Schnorr | BIP-340 | 256-bit key | 128 | BIP-340 (2020) | 1989 | — | Acceptable |
+| [Schnorr](02-signatures/Schnorr.md) | BIP-340 | 256-bit key | 128 | BIP-340 (2020) | 1989 | — | Acceptable |
 | [EdDSA](02-signatures/EdDSA.md) | Ed25519 | 256-bit key, 512-bit signature | 128 | RFC 8032 (2017), FIPS 186-5 (2023) | 2011 | — | Recommended |
 | | Ed448 | 456-bit key, 912-bit signature | 224 | RFC 8032 (2017) | 2015 | — | Acceptable |
 | [ML-DSA](02-signatures/ML-DSA.md) (PQ, lattice) | ML-DSA-44/65/87 | 1,312 / 1,952 / 2,592 B public key | 128 / 192 / 256 | FIPS 204 (2024) | 2017 | — | Recommended |
-| FN-DSA (PQ, lattice) | Falcon-512/1024 | 897 / 1,793 B public key | 128 / 256 | FIPS 206 (draft) | 2017 | — | Draft |
-| SLH-DSA (PQ, hash) | SLH-DSA | 7.8 – 49.9 KB signature | 128 / 192 / 256 | FIPS 205 (2024) | 2015 | — | Acceptable |
+| [FN-DSA](02-signatures/FN-DSA.md) (PQ, lattice) | Falcon-512/1024 | 897 / 1,793 B public key | 128 / 256 | FIPS 206 (draft) | 2017 | — | Draft |
+| [SLH-DSA](02-signatures/SLH-DSA.md) (PQ, hash) | SLH-DSA | 7.8 – 49.9 KB signature | 128 / 192 / 256 | FIPS 205 (2024) | 2015 | — | Acceptable |
 | Stateful hash-based (PQ) | LMS / HSS | 256-bit hash | 256 | RFC 8554 (2019), SP 800-208 (2020) | 1995 | — | Recommended |
 | | XMSS | 256-bit hash | 256 | RFC 8391 (2018), SP 800-208 (2020) | 2011 | — | Acceptable |
 | Blind signatures | RSA blind signatures | 2048–4096-bit key | 112–140 | RFC 9474 (2023) | 1982 | — | Acceptable |
