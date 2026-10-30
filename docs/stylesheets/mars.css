@@ -268,3 +268,29 @@
   .mars-hero { min-height: 60vh; }
   .md-container { background-size: auto, 200% auto, auto; }
 }
+
+/* the bar above the header: back to the Mars homepage (overrides/main.html) */
+.md-banner {
+  background: #0a0605;
+  color: #cdb096;
+  border-bottom: 1px solid rgba(244, 230, 212, 0.1);
+}
+
+.md-banner__inner {
+  margin-top: 0.3rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.7rem;
+}
+
+.mars-back {
+  font-family: var(--mars-serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #f4e6d4;
+}
+
+.mars-back:hover,
+.mars-back:focus-visible {
+  color: #eea66f;
+}
