@@ -65,7 +65,7 @@ AES-256-CBC: with no handshake, it uses only what she says she reads.
 
 1. **Certificates.** Each user needs an X.509 certificate with their address
    in the subjectAltName and the `emailProtection` extended key usage (RFC
-   8550; format in [PKI](PKI.md)). Key usage says if the key signs or receives
+   8550; format in [X.509](../formats/X.509.md)). Key usage says if the key signs or receives
    (`keyEncipherment` for RSA, `keyAgreement` for ECDH). A sender can only
    encrypt to a certificate it already has, from a signed mail or a directory.
 2. **Signing (SignedData).** The client hashes the MIME part into a
@@ -162,7 +162,7 @@ with its key size: hex 80, 40 and 28 for 128, 64 and 40 bits.
 ## See also
 
 - [OpenPGP](OpenPGP.md): the other way to sign and encrypt mail, with keys people vouch for themselves and ML-KEM paired with X25519
-- [PKI](PKI.md) / [Kerberos](Kerberos.md): X.509 certificates and the PEM, PKCS#7 and PKCS#12 files S/MIME keys travel in; PKINIT, which signs with CMS too
+- [X.509](../formats/X.509.md) / [File formats](../formats/File-Formats.md) / [Kerberos](Kerberos.md): the certificates, the PEM, PKCS#7 and PKCS#12 files S/MIME keys travel in, and PKINIT, which signs with CMS too
 - [AEAD](../05-modes-aead/AEAD.md) / [Classic modes](../05-modes-aead/Classic-Modes.md#cbc) / [Key wrap](../05-modes-aead/Key-Wrap.md): GCM, the CBC malleability behind EFAIL, and AES key wrap
 - [ML-KEM](../01-key-exchange/ML-KEM.md) / [ML-DSA](../02-signatures/ML-DSA.md) / [SLH-DSA](../02-signatures/SLH-DSA.md): the post-quantum algorithms CMS now carries
 

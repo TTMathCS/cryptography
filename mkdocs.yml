@@ -153,4 +153,8 @@ nav:
       - protocols/Disk-Encryption.md
       - protocols/Bitcoin.md
       - protocols/PKI.md
+  - Formats:
+      - formats/X.509.md
+      - formats/ASN.1-DER.md
+      - formats/File-Formats.md
   - FAQ: FAQ.md

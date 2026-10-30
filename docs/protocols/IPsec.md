@@ -198,7 +198,7 @@ Every line matches what the initiator's charon logged as `SKEYSEED` and
 - [WireGuard](WireGuard.md): the other common VPN, with one fixed suite and nothing to negotiate
 - [TLS 1.3](TLS-1.3.md): also negotiates, and derives its keys with HKDF
 - [SSH](SSH.md): a menu of algorithms too, but there the client's order decides
-- [PKI](PKI.md): the certificates IKE_AUTH uses when there is no pre-shared key
+- [PKI](PKI.md) / [X.509](../formats/X.509.md): the certificates IKE_AUTH uses when there is no pre-shared key
 - [HKDF](../08-kdf-password-hashing/HKDF.md) / [AEAD](../05-modes-aead/AEAD.md) / [ML-KEM](../01-key-exchange/ML-KEM.md): the algorithms in depth
 
 ## References

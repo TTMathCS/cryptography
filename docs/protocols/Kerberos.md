@@ -160,7 +160,7 @@ the key `klist -kKe` printed. Password and salt alone give the long-term key.
 
 ## See also
 
-- [PKI](PKI.md): the certificates PKINIT and smart-card logon use
+- [PKI](PKI.md) / [X.509](../formats/X.509.md): the certificates PKINIT and smart-card logon use
 - [TLS 1.3](TLS-1.3.md) / [SSH](SSH.md): public-key handshakes, where Kerberos relies on a trusted third party
 - [PBKDF2](../08-kdf-password-hashing/PBKDF2.md) / [NIST KDFs](../08-kdf-password-hashing/NIST-KDFs.md#kbkdf-sp-800-108): the two steps of string-to-key
 - [PAKE](../01-key-exchange/PAKE.md): password-authenticated key exchange, the idea behind SPAKE pre-authentication
