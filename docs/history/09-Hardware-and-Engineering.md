@@ -16,7 +16,7 @@ which has decided more than once how long a key needs to be.
 | When | What |
 |---|---|
 | 1943 | SIGSALY, digital voice encryption with one-time key records; Bell Labs notices a cipher machine leaking |
-| 1972 | the Atalla box, an early hardware security module for bank PINs |
+| 1972–1973 | the Atalla box, an early hardware security module for bank PINs |
 | 1974–1979 | the smart card: Moreno's patent, Bull's microprocessor card |
 | 1985 | Wim van Eck reads a computer screen from its radio emissions |
 | 1991 | the GSM SIM card |
@@ -100,7 +100,9 @@ Britain switched to "chip and PIN" in the mid-2000s.
 Small chips meant small ciphers, and some were weak. In 1998 Marc
 Briceno, Ian Goldberg and David Wagner broke COMP128, the algorithm many
 SIM cards used to prove their identity, and could clone the cards. GSM's
-voice ciphers A5/2 and A5/1 fell in the following decade. In 2007–2008
+weaker voice cipher, A5/2, was broken the next year, and attacks on the
+stronger A5/1, published from 1997 on, became practical with precomputed
+tables around 2009–2010. In 2007–2008
 researchers in Germany and the Netherlands reverse-engineered the
 Crypto-1 cipher of the MIFARE Classic, the contactless card used by
 transport systems such as London's Oyster and the Dutch OV-chipkaart, and
@@ -149,9 +151,10 @@ of attacks. On phones without such instructions, Google switched to
 plain software.
 
 Processors also gained random number generators. Intel's RDRAND (2012)
-draws on electrical noise inside the chip. After the Snowden documents,
-the Linux kernel's developers declined to rely on it alone and kept mixing
-it with other sources, a caution that looked wise in 2019 when a bug in
+draws on electrical noise inside the chip. In 2012 the Linux kernel's
+random-number maintainer, Ted Ts'o, declined to rely on it alone and kept
+mixing it with other sources, a caution that looked wiser after the
+Snowden documents and again in 2019 when a bug in
 some AMD processors made RDRAND return the same value every time. See the
 [OS random number generator](../09-random/OS-RNG.md) page.
 
@@ -257,10 +260,11 @@ one program, or a web page's JavaScript, trick another into leaking its
 secrets. They were found independently by Jann Horn of Google's Project
 Zero, by Paul Kocher, and by teams at Graz University of Technology and
 elsewhere. Almost every high-performance processor of the previous two
-decades was affected by Spectre, and fixing it took changes to operating systems, browsers,
-compilers and chip designs. Later variants kept coming, such as GoFetch
-(2024), which broke constant-time cryptography on Apple's M-series chips
-through a feature that prefetches memory.
+decades was affected by Spectre, and fixing it took changes to operating
+systems, browsers, compilers and chip designs. Variants and new
+microarchitectural leaks kept coming, such as GoFetch (2024), which broke
+constant-time cryptography on Apple's M-series chips through a feature
+that prefetches memory.
 
 The lesson of the side-channel era: a cipher's security proof covers the
 mathematics, not the machine. Implementations now have to be designed,
@@ -284,8 +288,8 @@ The EFF also published the full design as a book, *Cracking DES*, printed
 in a form that could be scanned back into a computer, because printed
 books, unlike software, could legally be exported. Later machines made
 the point cheaper still: COPACOBANA (2006), built by German universities
-from 120 off-the-shelf programmable chips for about €10,000, searched the
-DES key space in about a week.
+from 120 off-the-shelf programmable chips for €8,980, found a DES key in
+about a week on average.
 
 ### Graphics cards and passwords
 
@@ -412,7 +416,7 @@ without relays, and each relay must be trusted. It still needs an
 authenticated classical channel, which means ordinary cryptography or a
 pre-shared key, so it doesn't remove the need for the algorithms it is
 meant to replace. And the hardware has been attacked: in 2010 researchers
-in Norway blinded the detectors of commercial QKD systems with bright light
+in Norway and Germany blinded the detectors of commercial QKD systems with bright light
 and took control of the key without raising the error rate.
 
 For these reasons NSA does not recommend QKD for US national security
@@ -475,7 +479,7 @@ the people who write cryptographic code to change how they work.
 ## References
 
 - NSA, "TEMPEST: A Signal Problem", *Cryptologic Spectrum* 2, no. 3 (1972; declassified 2007) / Wim van Eck, "Electromagnetic Radiation from Video Display Units: An Eavesdropping Risk?", *Computers & Security* 4 (1985), pp. 269–286
-- Patrick D. Weadon, *SIGSALY: The Start of the Digital Revolution* (NSA Center for Cryptologic History) / J. V. Boone and R. R. Peterson, *SIGSALY: The Start of the Digital Revolution* (NSA, 2000)
+- Patrick D. Weadon, "The SIGSALY Story" (NSA Center for Cryptologic History) / J. V. Boone and R. R. Peterson, *The Start of the Digital Revolution: SIGSALY Secure Digital Voice Communications in World War II* (NSA Center for Cryptologic History, 2000)
 - Paul C. Kocher, "Timing Attacks on Implementations of Diffie-Hellman, RSA, DSS, and Other Systems" (CRYPTO '96) / Kocher, Jaffe and Jun, "Differential Power Analysis" (CRYPTO '99) / David Brumley and Dan Boneh, "Remote Timing Attacks Are Practical" (USENIX Security 2003)
 - Dan Boneh, Richard A. DeMillo and Richard J. Lipton, "On the Importance of Checking Cryptographic Protocols for Faults" (EUROCRYPT '97) / Yoongu Kim et al., "Flipping Bits in Memory Without Accessing Them" (ISCA 2014)
 - Daniel J. Bernstein, "Cache-timing attacks on AES" (2005) / Dag Arne Osvik, Adi Shamir and Eran Tromer, "Cache Attacks and Countermeasures: the Case of AES" (CT-RSA 2006) / Daniel Genkin, Adi Shamir and Eran Tromer, "RSA Key Extraction via Low-Bandwidth Acoustic Cryptanalysis" (CRYPTO 2014)
@@ -487,4 +491,4 @@ the people who write cryptographic code to change how they work.
 - Stephen Wiesner, "Conjugate Coding", *SIGACT News* 15, no. 1 (1983) / Charles H. Bennett and Gilles Brassard, "Quantum Cryptography: Public Key Distribution and Coin Tossing" (Bangalore, 1984) / Bennett et al., "Experimental Quantum Cryptography", *Journal of Cryptology* 5 (1992) / Artur K. Ekert, "Quantum Cryptography Based on Bell's Theorem", *Physical Review Letters* 67 (1991) / Lydersen et al., "Hacking Commercial Quantum Cryptography Systems by Tailored Bright Illumination", *Nature Photonics* 4 (2010)
 - ANSSI, BSI, NLNCSA and Swedish Armed Forces, *Position Paper on Quantum Key Distribution* (January 2024)
 
-*Weaker sources:* search summaries and encyclopedia articles for the Atalla box (1972, "first HSM"), IBM 4758's FIPS rating, the SIM, EMV and chip-and-PIN dates, COPACOBANA's price and speed, Gosney's 2012 cluster, Bitcoin's hash rate, Micius and the Beijing–Shanghai link; Brian Krebs's 2018 report of Google's statement on security keys; the NSA and NCSC positions on QKD as quoted in a 2022 BSI workshop presentation; the AMD RDRAND bug (2019) and SGX's removal from consumer chips from news reports.
+*Weaker sources:* search summaries and encyclopedia articles for the Atalla box (1972, "first HSM"), IBM 4758's FIPS rating, the SIM, EMV and chip-and-PIN dates, COPACOBANA's price and speed, Gosney's 2012 cluster, the 2012 Linux mailing-list discussion of RDRAND, Bitcoin's hash rate, Micius and the Beijing–Shanghai link; Brian Krebs's 2018 report of Google's statement on security keys; the NSA and NCSC positions on QKD as quoted in a 2022 BSI workshop presentation; the AMD RDRAND bug (2019) and SGX's removal from consumer chips from news reports.

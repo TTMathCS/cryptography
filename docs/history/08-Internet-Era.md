@@ -26,7 +26,7 @@ overlaps the last decade here, is on the [last page](10-Quantum-and-Post-Quantum
 | 2008–2009 | Bitcoin |
 | 2011 | DigiNotar hacked; fake Google certificates used in Iran |
 | 2012 | SHA-3 chosen (Keccak) |
-| 2013 | the Snowden documents; the Dual_EC_DRBG backdoor |
+| 2013 | the Snowden documents; the Dual_EC_DRBG backdoor, all but confirmed |
 | 2014 | Heartbleed; POODLE |
 | 2015 | Let's Encrypt issues its first certificates; Logjam and FREAK |
 | 2016 | WhatsApp turns on end-to-end encryption for a billion users |
@@ -84,7 +84,7 @@ common 1024-bit Diffie–Hellman groups.
 TLS 1.3, published in August 2018 as RFC 8446 after four years of open
 design with academic analysts checking each draft, cut out everything that
 had caused trouble: RSA key transport, CBC mode, compression, static
-Diffie–Hellman, renegotiation. Every connection now uses ephemeral
+Diffie–Hellman, renegotiation. Every full handshake now uses ephemeral
 Diffie–Hellman, so recorded traffic stays safe even if the server's key is
 later stolen (*forward secrecy*), and the handshake takes one round trip
 instead of two. The [TLS 1.3 page](../protocols/TLS-1.3.md) shows what it
@@ -150,8 +150,8 @@ FIPS 197 was published on 26 November 2001.
 In 2003 NSA approved AES for classified information, up to Top Secret
 with 192- or 256-bit keys. Twenty-five years on, the best attacks on the
 full cipher are barely faster than brute force. The open process worked
-so well that NIST has used it for every major choice since: SHA-3, and
-the post-quantum algorithms. The [AES page](../04-symmetric-ciphers/AES.md)
+so well that NIST has used it for several major choices since,
+including SHA-3 and the post-quantum algorithms. The [AES page](../04-symmetric-ciphers/AES.md)
 explains how the cipher works.
 
 ### Stream ciphers and AEAD
@@ -159,8 +159,9 @@ explains how the cipher works.
 The 2000s also brought new designs for speed. Europe's eSTREAM project
 (2004–2008) picked a portfolio of stream ciphers, including Daniel J.
 Bernstein's Salsa20; his ChaCha variant (2008), paired with the Poly1305
-MAC, became the cipher Google used for phones without AES hardware and
-later a TLS and SSH standard. At the same time, protocol designers
+MAC, became the cipher Google used for phones without AES hardware, an
+OpenSSH option from 2014 and a TLS standard (RFC 7905) in 2016. At the
+same time, protocol designers
 learned that encryption and integrity should come in one package, an
 *authenticated encryption* mode such as AES-GCM (2004). See
 [ChaCha](../04-symmetric-ciphers/ChaCha.md) and [AEAD](../05-modes-aead/AEAD.md).
@@ -214,8 +215,8 @@ resistance, and SHA-1's 160 bits give 2⁸⁰. Cryptanalysis cut far below
 those numbers.
 
 - **MD5.** Hans Dobbertin found collisions in its compression function in
-  1996. In August 2004 Wang Xiaoyun and her colleagues from Shandong
-  University announced full MD5 collisions, found in hours. In December
+  1996. In August 2004 Wang Xiaoyun of Shandong University and her
+  colleagues announced full MD5 collisions, found in hours. In December
   2008 a team led by Marc Stevens, Alexander Sotirov and Jacob Appelbaum
   used a cluster of about 200 PlayStation 3 consoles to make an MD5
   collision between an ordinary certificate and a rogue CA certificate
@@ -227,8 +228,9 @@ those numbers.
   move to SHA-2. The first actual collision, *SHAttered*, came on
   23 February 2017 from CWI Amsterdam and Google: two different PDF files
   with the same SHA-1, after about 2⁶³ computations. In 2020 Gaëtan
-  Leurent and Thomas Peyrin made a chosen-prefix collision for about
-  $45,000 of rented computing.
+  Leurent and Thomas Peyrin made a chosen-prefix collision with about two
+  months of rented graphics cards, costing them about $75,000; they
+  estimated $45,000 at cheaper rental prices.
 
 The details of both breaks, and where the old hashes linger, are on the
 [retired hashes page](../07-hash/Retired.md).
@@ -342,15 +344,17 @@ by the Finnish firm Codenomicon. A client could send a heartbeat claiming
 to contain, say, 64 kilobytes of data while actually sending one byte,
 and the server would reply with 64 kilobytes of whatever happened to be
 in its memory: passwords, session cookies, even private keys. The bug
-had been in OpenSSL for two years, and estimates put the share of secure
-web servers affected at around a sixth. Heartbleed, one of the first bugs
+had been in OpenSSL for two years. Estimates of how many secure web
+servers were affected range from Netcraft's 17% to 24–55% of the most
+popular HTTPS sites in Durumeric and colleagues' measurements. Heartbleed, one of the first bugs
 with its own name and logo, showed how much of the internet rested on one
 under-funded open-source library. Funding followed, and so did forks:
 Google's BoringSSL and OpenBSD's LibreSSL.
 
 Other famous failures of the decade include Apple's "goto fail" bug
-(2014), which skipped certificate checks because of one duplicated line of
-code, and the 2010 discovery that Sony's PlayStation 3 signed its software
+(2014), in which one duplicated line of code skipped the check of the
+server's key-exchange signature, so an attacker could pose as a site with
+its real certificate but without its private key, and the 2010 discovery that Sony's PlayStation 3 signed its software
 with [ECDSA](../02-signatures/ECDSA.md) using the same random number every
 time, which revealed its private key.
 
@@ -374,9 +378,10 @@ archive of classified documents. They described programs that collected
 internet and phone data on a huge scale, often by tapping the links
 between companies' data centres, where traffic travelled unencrypted. In
 September 2013 *The New York Times*, *The Guardian* and *ProPublica*
-reported a program called Bullrun, with a budget to "insert
-vulnerabilities into commercial encryption systems", and documents that
-were widely read as confirming the Dual_EC backdoor.
+reported on NSA's decryption program, Bullrun, and on a budget request
+for a related "SIGINT Enabling Project" to "insert vulnerabilities into
+commercial encryption systems". The *Times* said the documents appeared to
+confirm the Dual_EC backdoor; NSA has never acknowledged it.
 
 The consequences:
 
@@ -385,14 +390,16 @@ The consequences:
   widely used BSAFE library under a $10 million contract with NSA, which
   RSA denied knowingly weakening.
 - In December 2015 Juniper Networks found unauthorized code in its
-  firewalls that had replaced the Dual_EC constants, so someone else's
-  backdoor had been put in place of the original one.
+  firewalls. Juniper's products used Dual_EC with a point Q of its own,
+  never explained; the intruders, years earlier, had replaced that Q with
+  one of their choosing, turning the generator into their own backdoor.
 - Tech companies encrypted the links between their data centres, turned on
   forward secrecy, and accelerated HTTPS. The IETF declared that
   "pervasive monitoring is an attack" (RFC 7258, 2014).
 
 The episode is the modern version of the [DES S-box](06-Shannon-to-DES.md#two-suspicions)
-suspicion, except that this time the suspicion was right. It is why new
+suspicion, except that this time the suspicion was almost certainly
+right, though never officially confirmed. It is why new
 standards now explain where every constant comes from. The full technical
 story is on the [retired random generators page](../09-random/Retired.md#dual_ec_drbg).
 
@@ -430,7 +437,8 @@ security experts, "Keys Under Doormats", argued that any built-in access
 for governments would weaken security for everyone. Laws in Britain and
 Australia since have given governments powers to demand technical help,
 and in February 2025 Apple withdrew its strongest iCloud encryption for
-new users in the UK rather than build a way in. The argument is still
+new users in the UK, reportedly in response to a secret government order
+to build a way in. The argument is still
 open.
 
 ## Money and other new uses
@@ -457,8 +465,8 @@ scheme (2009), which can compute on data without decrypting it.
 - **Encryption by default** for web traffic, messaging and phones.
 - **Open competitions** (AES, SHA-3, password hashing, and later
   post-quantum) as the way to choose algorithms.
-- **Protocols designed with proofs**, as TLS 1.3 and Signal were, instead of
-  patched after each attack.
+- **Protocols analysed with proofs**, as TLS 1.3 was during its design and
+  Signal soon after, instead of patched after each attack.
 - **The lesson that implementation is where things break**: padding
   oracles, Heartbleed, bad randomness, nonce reuse.
 - **Distrust of unexplained constants**, after Dual_EC.

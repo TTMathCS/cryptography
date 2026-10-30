@@ -55,7 +55,7 @@ The turning points, with a link to the page that tells each story.
 | 1998 | The EFF's [Deep Crack](09-Hardware-and-Engineering.md#deep-crack) finds a DES key in 56 hours | Proof that 56-bit keys were too short |
 | 2001 | [AES](08-Internet-Era.md#aes-a-cipher-chosen-in-public) is published as FIPS 197 | A cipher chosen in an open, worldwide competition |
 | 2004–2017 | [MD5, then SHA-1, collisions](08-Internet-Era.md#md5-and-sha-1) | Hash functions break in practice |
-| 2013 | The [Snowden documents](08-Internet-Era.md#snowden-and-dual_ec_drbg) | Mass surveillance, and a backdoored random number generator |
+| 2013 | The [Snowden documents](08-Internet-Era.md#snowden-and-dual_ec_drbg) | Mass surveillance, and a random number generator that was almost certainly backdoored |
 | 2014 | [Heartbleed](08-Internet-Era.md#heartbleed-2014) | One bug in OpenSSL exposes much of the web |
 | 2015–2016 | [Let's Encrypt](08-Internet-Era.md#lets-encrypt-and-https-everywhere) starts issuing free certificates | Encrypted web traffic becomes the default |
 | 2016 | WhatsApp switches a billion users to the [Signal protocol](08-Internet-Era.md#from-otr-to-signal) | End-to-end encryption for ordinary messaging |
