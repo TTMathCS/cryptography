@@ -88,9 +88,12 @@ nav:
       - 06-mac/HMAC.md
       - 06-mac/Block-Cipher-MACs.md
       - 06-mac/Universal-Hash-MACs.md
+      - 06-mac/KMAC.md
+      - 06-mac/SipHash.md
   - Hash functions:
       - 07-hash/SHA-2.md
       - 07-hash/SHA-3.md
+      - 07-hash/BLAKE.md
   - KDF and password hashing:
       - 08-kdf-password-hashing/HKDF.md
       - 08-kdf-password-hashing/Argon2.md

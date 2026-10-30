@@ -133,8 +133,8 @@ combine the two secrets, so the session stays safe if either one breaks.
 | | GMAC | 128-bit tag | 128 | SP 800-38D (2007) | 2004 | — | Acceptable |
 | [Universal hash](06-mac/Universal-Hash-MACs.md) | Poly1305 | 128-bit tag | ~100 | RFC 8439 (2018) | 2005 | — | Recommended |
 | | UMAC | 64 / 128-bit tag | ~60 / ~120 | RFC 4418 (2006) | 1999 | — | Acceptable |
-| KMAC | KMAC128/256 | any tag length | 128 / 256 | SP 800-185 (2016) | 2016 | — | Acceptable |
-| SipHash | SipHash | 128-bit key, 64-bit tag | 64 | — | 2012 | — | Acceptable |
+| [KMAC](06-mac/KMAC.md) | KMAC128/256 | any tag length | 128 / 256 | SP 800-185 (2016) | 2016 | — | Acceptable |
+| [SipHash](06-mac/SipHash.md) | SipHash | 128-bit key, 64-bit tag | 64 | — | 2012 | — | Acceptable |
 
 Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 
@@ -147,7 +147,7 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 | [SHA-3](07-hash/SHA-3.md) | SHA3-256/384/512 | 256 / 384 / 512-bit output | 128 / 192 / 256 | FIPS 202 (2015) | 2008 | — | Recommended |
 | | SHAKE128/256 | any output length | 128 / 256 | FIPS 202 (2015) | 2015 | — | Recommended |
 | | Keccak-256 | 256-bit output | 128 | — | 2008 | — | Acceptable |
-| BLAKE | BLAKE2b / BLAKE2s | up to 512 / 256-bit output | 256 / 128 | RFC 7693 (2015) | 2012 | — | Recommended |
+| [BLAKE](07-hash/BLAKE.md) | BLAKE2b / BLAKE2s | up to 512 / 256-bit output | 256 / 128 | RFC 7693 (2015) | 2012 | — | Recommended |
 | | BLAKE3 | 256-bit output (extendable) | 128 | — | 2020 | — | Recommended |
 | Ascon | Ascon-Hash256 / XOF128 | 256-bit / any output | 128 | SP 800-232 (2025) | 2014 | — | Acceptable |
 | SHA-1 | SHA-1 | 160-bit output | ~63 | FIPS 180-1 (1995), RFC 3174 (2001) | 1995 | SHAttered (2017); NIST retires it by 2030 | Broken |

@@ -67,6 +67,7 @@ print(hashlib.shake_128(b"hello world").hexdigest(16))   # 16 bytes out
 
 - [SHA-2](SHA-2.md): the Merkle–Damgård design SHA-3 backs up
 - [HMAC](../06-mac/HMAC.md): the keyed construction for SHA-2
+- [KMAC](../06-mac/KMAC.md): the standard keyed form of SHA-3
 
 ## References
 
