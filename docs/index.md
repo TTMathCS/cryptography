@@ -28,7 +28,7 @@ Families with a link have their own page. The rest get theirs in later updates.
 | | X448 | RFC 7748 (2016) | 2015 | — | Acceptable |
 | | ECDH P-256/384/521 | SP 800-56A (2006), RFC 8422 (2018) | 1999 | NIST IR 8547: 2030 / 2035 | Acceptable |
 | | ECDH Brainpool | RFC 5639 (2010) | 2005 | — | Acceptable |
-| [ML-KEM](01-key-exchange/Post-Quantum-Cryptography.md) (PQ, lattice) | ML-KEM-512/768/1024 | FIPS 203 (2024) | 2017 | — | Recommended |
+| [ML-KEM](01-key-exchange/ML-KEM.md) (PQ, lattice) | ML-KEM-512/768/1024 | FIPS 203 (2024) | 2017 | — | Recommended |
 | | X25519 + ML-KEM-768 hybrid | IETF drafts (TLS, SSH) | 2024 | — | Recommended |
 | NTRU Prime (PQ, lattice) | sntrup761 + X25519 hybrid | IETF draft | 2016 | — | Acceptable |
 | Code-based (PQ) | HQC | NIST pick 2025, standard due ~2027 | 2017 | — | Draft |
@@ -58,7 +58,7 @@ combine the two secrets, so the session stays safe if either one breaks.
 | Schnorr | BIP-340 | BIP-340 (2020) | 1989 | — | Acceptable |
 | [EdDSA](02-signatures/EdDSA.md) | Ed25519 | RFC 8032 (2017), FIPS 186-5 (2023) | 2011 | — | Recommended |
 | | Ed448 | RFC 8032 (2017) | 2015 | — | Acceptable |
-| [ML-DSA](01-key-exchange/Post-Quantum-Cryptography.md) (PQ, lattice) | ML-DSA-44/65/87 | FIPS 204 (2024) | 2017 | — | Recommended |
+| [ML-DSA](02-signatures/ML-DSA.md) (PQ, lattice) | ML-DSA-44/65/87 | FIPS 204 (2024) | 2017 | — | Recommended |
 | FN-DSA (PQ, lattice) | Falcon-512/1024 | FIPS 206 (draft) | 2017 | — | Draft |
 | SLH-DSA (PQ, hash) | SLH-DSA | FIPS 205 (2024) | 2015 | — | Acceptable |
 | Stateful hash-based (PQ) | LMS / HSS | RFC 8554 (2019), SP 800-208 (2020) | 1995 | — | Recommended |

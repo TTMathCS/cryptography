@@ -41,12 +41,13 @@ nav:
   - Key exchange:
       - 01-key-exchange/Diffie-Hellman.md
       - 01-key-exchange/ECDH.md
-      - 01-key-exchange/Post-Quantum-Cryptography.md
+      - 01-key-exchange/ML-KEM.md
   - Signatures:
       - 02-signatures/RSA.md
       - 02-signatures/DSA.md
       - 02-signatures/ECDSA.md
       - 02-signatures/EdDSA.md
+      - 02-signatures/ML-DSA.md
   - Symmetric ciphers:
       - 04-symmetric-ciphers/AES.md
   - Modes and AEAD:

@@ -41,7 +41,7 @@ KDF before use.
   certificate to stop a man-in-the-middle.
 - **In hybrid post-quantum exchanges** — TLS now pairs X25519 with ML-KEM so the
   secret stays safe even against a future quantum attacker. See
-  [Post-Quantum Cryptography](Post-Quantum-Cryptography.md).
+  [ML-KEM](ML-KEM.md).
 
 ## Example (Python)
 
@@ -79,7 +79,7 @@ session_key = HKDF(algorithm=hashes.SHA256(), length=32,
 
 - [Ed25519](../02-signatures/EdDSA.md) — signatures on the same curve family
 - [Diffie-Hellman](Diffie-Hellman.md) — the classic ECDH/finite-field version
-- [Post-Quantum Cryptography](Post-Quantum-Cryptography.md) — hybrid key exchange
+- [ML-KEM](ML-KEM.md) — hybrid key exchange
 
 ## References
 

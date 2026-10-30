@@ -72,7 +72,7 @@ The full worked numbers are in the [Cryptography FAQ](../FAQ.md).
 - Reusing a prime across two keys, or weak randomness in prime generation, breaks
   everything — see [why randomness matters](../FAQ.md).
 - Vulnerable to quantum computers via Shor's algorithm — see
-  [Post-Quantum Cryptography](../01-key-exchange/Post-Quantum-Cryptography.md).
+  [ML-DSA](ML-DSA.md).
 
 ## See also
 

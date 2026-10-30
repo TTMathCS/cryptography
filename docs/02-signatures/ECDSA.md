@@ -61,7 +61,7 @@ priv.public_key().verify(sig, b"message", ec.ECDSA(hashes.SHA256()))  # raises i
   deterministic ECDSA (RFC 6979).
 - ~256-bit curves give ~128-bit security, comparable to AES-128.
 - Vulnerable to quantum computers (Shor's algorithm) like all ECC — see
-  [Post-Quantum Cryptography](../01-key-exchange/Post-Quantum-Cryptography.md).
+  [ML-DSA](ML-DSA.md).
 
 ## See also
 

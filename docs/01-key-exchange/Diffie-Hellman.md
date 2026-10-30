@@ -60,7 +60,7 @@ assert pow(B, a, p) == pow(A, b, p)          # shared secret g^(ab) mod p
   ([HKDF](../08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md)) before it becomes a cipher key.
 - Use ephemeral keys for forward secrecy; use ≥2048-bit `p` for classic DH.
 - Quantum computers break the discrete log — see
-  [Post-Quantum Cryptography](Post-Quantum-Cryptography.md).
+  [ML-KEM](ML-KEM.md).
 
 ## See also
 

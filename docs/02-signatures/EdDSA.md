@@ -61,7 +61,7 @@ priv.public_key().verify(sig, b"message")   # raises if invalid
 - Curve25519 is twist-secure and avoids the point-validation traps of NIST curves.
 - ~128-bit security; uses SHA-512 internally.
 - Quantum computers break it like all ECC — see
-  [Post-Quantum Cryptography](../01-key-exchange/Post-Quantum-Cryptography.md).
+  [ML-DSA](ML-DSA.md).
 
 ## See also
 
