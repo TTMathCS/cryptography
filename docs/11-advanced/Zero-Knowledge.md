@@ -156,6 +156,7 @@ print(verify(A, V, r + 1, b"alice"))    # False
 - [Schnorr](../02-signatures/Schnorr.md): the same equations as a signature
 - [Threshold signatures](Threshold-Signatures.md): Schnorr proofs in FROST's key generation
 - [Secret sharing](Secret-Sharing.md): Pedersen's commitments, also behind Bulletproofs
+- [Commitments](Commitments.md): hash and Pedersen commitments, the first move in many of these proofs
 
 ## References
 

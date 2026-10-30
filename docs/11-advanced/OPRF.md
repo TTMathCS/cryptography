@@ -152,6 +152,7 @@ print(oprf(b"hunter3")[1] == y1)        # False
 - [Blind signatures](../02-signatures/Blind-Signatures.md): the other Privacy Pass token
 - [Zero-knowledge proofs](Zero-Knowledge.md): the kind of proof behind VOPRF
 - [Multi-party computation](MPC.md): an OPRF is a two-party computation of one function
+- [VRF](VRF.md): the same kind of keyed hash, computed in the open with a proof
 
 ## References
 

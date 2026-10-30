@@ -229,8 +229,8 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 | | TFHE | — | — | ISO/IEC 28033-4 draft | 2016 | — | Acceptable |
 | [Multi-party computation](11-advanced/MPC.md) | garbled circuits (Yao), SPDZ | — | — | ISO/IEC 4922-1 (2023), 4922-2 (2024) | 1986 / 2012 | — | Acceptable |
 | [OPRF](11-advanced/OPRF.md) | OPRF / VOPRF / POPRF | 256–521-bit group | 128–256 | RFC 9497 (2023) | 2005 | — | Recommended |
-| VRF | ECVRF | 256-bit curve | 128 | RFC 9381 (2023) | 1999 | — | Acceptable |
-| Commitments | Pedersen commitment | 256-bit group | 128 | — | 1991 | — | Acceptable |
+| [VRF](11-advanced/VRF.md) | ECVRF | 256-bit curve | 128 | RFC 9381 (2023) | 1999 | — | Acceptable |
+| [Commitments](11-advanced/Commitments.md) | Pedersen commitment | 256-bit group | 128 | — | 1991 | — | Acceptable |
 
 ## Also here
 

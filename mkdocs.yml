@@ -123,6 +123,8 @@ nav:
       - 11-advanced/Homomorphic-Encryption.md
       - 11-advanced/MPC.md
       - 11-advanced/OPRF.md
+      - 11-advanced/VRF.md
+      - 11-advanced/Commitments.md
   - Protocols:
       - protocols/index.md
       - protocols/SSH.md
