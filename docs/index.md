@@ -78,10 +78,10 @@ combine the two secrets, so the session stays safe if either one breaks.
 | [RSA](02-signatures/RSA.md) | RSA-OAEP | 2048–4096-bit key | 112–140 | RFC 2437 (1998), RFC 8017 (2016) | 1994 | NIST IR 8547: 2030 / 2035 | Acceptable |
 | | PKCS#1 v1.5 encryption | 2048–4096-bit key | — | RFC 2313 (1998) | 1993 | Bleichenbacher (1998), ROBOT (2017); NIST SP 800-131A (after 2023) | Broken |
 | | textbook RSA (no padding) | any key | — | — | 1977 | never safe | Broken |
-| [ElGamal](03-public-key-encryption/ElGamal.md) | ElGamal | 2048-bit and larger group | 112+ | RFC 4880 (OpenPGP, 2007) | 1985 | — | Legacy |
-| [ECIES](03-public-key-encryption/ECIES.md) | ECIES | 256-bit curve | 128 | SEC 1 (2000), ISO 18033-2 (2006) | 2001 | — | Acceptable |
-| [HPKE](03-public-key-encryption/HPKE.md) | DHKEM + HKDF + AEAD | 256-bit curve (X25519, P-256) | 128 | RFC 9180 (2022) | 2022 | — | Recommended |
-| | HPKE with ML-KEM / X-Wing | 1,216 B public key (X-Wing) | 192 | IETF drafts | 2024 | — | Draft |
+| [ElGamal](03-public-key-encryption/ElGamal.md) | ElGamal | 2048-bit and larger group | 112+ | RFC 2440 (1998), RFC 9580 (2024) | 1985 | RFC 9580 (2024): no new keys, no encrypting to old ones | Legacy |
+| [ECIES](03-public-key-encryption/ECIES.md) | ECIES | 256-bit curve | 128 | SEC 1 (2000), ISO 18033-2 (2006) | 1999 | — | Acceptable |
+| [HPKE](03-public-key-encryption/HPKE.md) | DHKEM + HKDF + AEAD | 256-bit curve (X25519, P-256) | 128 | RFC 9180 (2022) | 2019 | — | Recommended |
+| | HPKE with ML-KEM / X-Wing | 1,216 B public key (X-Wing) | 192 | IETF HPKE and CFRG drafts | 2024 | — | Draft |
 
 ## 4. Symmetric ciphers
 
