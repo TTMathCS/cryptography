@@ -55,6 +55,9 @@ nav:
       - 01-key-exchange/Diffie-Hellman.md
       - 01-key-exchange/ECDH.md
       - 01-key-exchange/ML-KEM.md
+      - 01-key-exchange/NTRU-Prime.md
+      - 01-key-exchange/Code-Based-KEMs.md
+      - 01-key-exchange/PAKE.md
   - Signatures:
       - 02-signatures/RSA.md
       - 02-signatures/DSA.md

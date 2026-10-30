@@ -94,6 +94,7 @@ print(secret_sender == secret_receiver)   # True: 32 shared bytes, run them thro
 ## See also
 
 - [ECDH](ECDH.md): X25519, the classical half of the hybrid
+- [NTRU Prime](NTRU-Prime.md) / [Code-based KEMs](Code-Based-KEMs.md): the other post-quantum KEMs
 - [ML-DSA](../02-signatures/ML-DSA.md): the post-quantum signature from the same family
 - [HKDF](../08-kdf-password-hashing/HKDF.md): what the shared secret goes through next
 - [Will quantum computers break all of this?](../FAQ.md)
