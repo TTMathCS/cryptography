@@ -81,6 +81,7 @@ session_key = HKDF(algorithm=hashes.SHA256(), length=32,
 - [Diffie-Hellman](Diffie-Hellman.md) — the classic ECDH/finite-field version
 - [ML-KEM](ML-KEM.md) — hybrid key exchange
 - [ECIES](../03-public-key-encryption/ECIES.md) / [HPKE](../03-public-key-encryption/HPKE.md) — public-key encryption built on ECDH
+- [Elliptic curves](../10-math-foundations/Elliptic-Curves.md) — Curve25519 next to the NIST and other named curves
 
 ## References
 

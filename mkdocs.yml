@@ -114,6 +114,8 @@ nav:
       - 10-math-foundations/Pocklington-Primality-Test.md
       - 10-math-foundations/Mersenne-Primes.md
       - 10-math-foundations/Fermat-Primes.md
+      - 10-math-foundations/Hard-Problems.md
+      - 10-math-foundations/Elliptic-Curves.md
   - Protocols:
       - protocols/index.md
       - protocols/SSH.md

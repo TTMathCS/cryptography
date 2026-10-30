@@ -195,7 +195,7 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 | | [Baillie-PSW](10-math-foundations/Baillie-PSW-Primality-Test.md) | — | — | — | 1980 | — | Recommended |
 | | [Pocklington](10-math-foundations/Pocklington-Primality-Test.md) | — | — | — | 1914 | — | Acceptable (proofs) |
 | Special primes | [Mersenne](10-math-foundations/Mersenne-Primes.md), [Fermat primes](10-math-foundations/Fermat-Primes.md) | — | — | — | 1644 / 1640 | — | Theory |
-| Hard problems | factoring (RSA) | — | — | — | 1977 | Shor's algorithm (1994) | Quantum-vulnerable |
+| [Hard problems](10-math-foundations/Hard-Problems.md) | factoring (RSA) | — | — | — | 1977 | Shor's algorithm (1994) | Quantum-vulnerable |
 | | discrete log (DH, DSA) | — | — | — | 1976 | Shor's algorithm (1994) | Quantum-vulnerable |
 | | elliptic-curve discrete log | — | — | — | 1985 | Shor's algorithm (1994) | Quantum-vulnerable |
 | | lattices (LWE, Module-LWE) | — | — | — | 2005 | — | Recommended (PQ) |
@@ -203,7 +203,7 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 | | codes (McEliece, HQC) | — | — | — | 1978 | — | Acceptable (PQ) |
 | | isogenies (SIKE) | — | — | — | 2011 | broken 2022 | Broken |
 | | multivariate (Rainbow) | — | — | — | 2005 | broken 2022 | Broken |
-| Elliptic curves | Curve25519 | 255-bit | 128 | RFC 7748 (2016) | 2006 | — | Recommended |
+| [Elliptic curves](10-math-foundations/Elliptic-Curves.md) | Curve25519 | 255-bit | 128 | RFC 7748 (2016) | 2006 | — | Recommended |
 | | Curve448 | 448-bit | 224 | RFC 7748 (2016) | 2015 | — | Acceptable |
 | | P-256 / P-384 / P-521 | 256 / 384 / 521-bit | 128 / 192 / 256 | FIPS 186-2 (2000), SP 800-186 (2023) | 1999 | NIST IR 8547: 2030 / 2035 | Acceptable |
 | | P-192 / P-224 | 192 / 224-bit | 96 / 112 | FIPS 186-2 (2000) | 1999 | SP 800-186 (2023): legacy only | Legacy |
