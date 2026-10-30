@@ -9,6 +9,7 @@ theme:
   features:
     - navigation.sections
     - navigation.top
+    - toc.integrate
     - search.highlight
     - content.code.copy
   palette:
@@ -22,6 +23,9 @@ theme:
       toggle:
         icon: material/weather-sunny
         name: Light mode
+
+extra_css:
+  - stylesheets/extra.css
 
 markdown_extensions:
   - toc:

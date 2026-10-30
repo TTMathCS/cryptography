@@ -1,0 +1,27 @@
+/* wider page; the right-hand contents panel lives in the left one (toc.integrate) */
+.md-grid {
+  max-width: 80rem;
+}
+
+/* left panel: the 11 categories read as headings, the pages under them as items */
+@media screen and (min-width: 76.25em) {
+  .md-nav--primary > .md-nav__list > .md-nav__item--section {
+    margin-top: 1em;
+    padding-top: .6em;
+    border-top: 1px solid var(--md-default-fg-color--lightest);
+  }
+
+  .md-nav--primary > .md-nav__list > .md-nav__item > .md-nav__link {
+    color: var(--md-typeset-a-color);
+    font-weight: 700;
+    font-size: .64rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  .md-nav--primary > .md-nav__list > .md-nav__item--section > .md-nav > .md-nav__list {
+    margin-left: .2rem;
+    padding-left: .5rem;
+    border-left: 2px solid var(--md-default-fg-color--lightest);
+  }
+}
