@@ -87,7 +87,9 @@ ended in August 2026, and it is now in IESG evaluation.
 
 ## Example (Python)
 
-Needs PyCA `cryptography` 47 or later; not run here.
+Needs PyCA `cryptography` 47 or later (`pip install cryptography`); 46 has
+no `hpke` module. Run with 47.0.0 and 50.0.1 on Python 3.13, it prints
+`53 b'hello'`.
 
 ```python
 from cryptography.hazmat.primitives.asymmetric import x25519
