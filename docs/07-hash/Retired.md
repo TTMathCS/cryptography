@@ -122,10 +122,13 @@ import hashlib
 
 try:
     print(hashlib.new("md4", "password".encode("utf-16-le")).hexdigest())
+    # 8846f7eaee8fb117ad06bdd830b7586c: the NT hash of "password"
 except ValueError:                      # OpenSSL 3 keeps MD4 in its legacy provider
     print("no MD4 in this build")
-# 8846f7eaee8fb117ad06bdd830b7586c: the NT hash of "password"
 ```
+
+Python 3.13 on OpenSSL 3.0.13 prints `no MD4 in this build`. With the
+legacy provider turned on in the OpenSSL config, it prints the hash.
 
 ## RIPEMD-160
 
