@@ -26,16 +26,16 @@ The turning points, with a link to the page that tells each story.
 | Year | Event | Why it mattered |
 |---|---|---|
 | c. 1900 BC | A scribe uses unusual hieroglyphs in the tomb of [Khnumhotep II](01-Ancient.md#egypt-the-scribe-who-changed-the-signs) in Egypt | The oldest known deliberate change to a script |
-| 1600s–1200s BC | A Babylonian [glaze recipe](01-Ancient.md#mesopotamia-a-potters-recipe) is written in rare sign values | The oldest writing known to guard a secret, a trade one |
+| 1600s–1200s BC | A Babylonian [glaze or glass recipe](01-Ancient.md#mesopotamia-a-potters-recipe) is written in rare sign values | The oldest writing known to guard a secret, a trade one |
 | c. 499 BC | Histiaeus sends a message [tattooed on a slave's scalp](01-Ancient.md#herodotuss-stories) | Steganography: hiding that a message exists at all |
 | 100s BC | Polybius describes a [5 × 5 grid for torch signals](01-Ancient.md#greece-polybius-and-his-square) | Letters as pairs of numbers, an idea reused for 2,000 years |
-| 50s BC | Julius Caesar [shifts each letter three places](01-Ancient.md#rome-caesar-and-augustus) | The best-known substitution cipher, with only 25 keys |
-| 800s | Al-Kindi, in Baghdad, writes the first known account of frequency analysis | The first general method for breaking substitution ciphers |
-| 1412 | Al-Qalqashandi's encyclopedia sums up three centuries of Arab cryptology | The most complete treatment of ciphers and codebreaking of its time |
-| c. 1467 | Leon Battista Alberti describes his cipher disk | The first polyalphabetic cipher in Europe |
-| 1553 | Giovan Battista Bellaso publishes the keyword cipher later called "Vigenère" | Called unbreakable for three centuries |
-| 1587 | Mary, Queen of Scots, is executed after her ciphered letters are read | Codebreaking decides the fate of a queen |
-| 1600s | The Rossignols build Louis XIV's Great Cipher | A code that stayed unread for 200 years |
+| 50s BC | Julius Caesar [shifts each letter three places](01-Ancient.md#rome-caesar-and-augustus) | The best-known substitution cipher, with only a couple of dozen keys |
+| 800s | [Al-Kindi](02-Arab-Cryptanalysis.md#al-kindi-counting-letters), in Baghdad, writes the first known account of frequency analysis | The first general method for breaking substitution ciphers |
+| 1412 | [Al-Qalqashandi's encyclopedia](02-Arab-Cryptanalysis.md#ibn-ad-durayhim-and-al-qalqashandi) sums up three centuries of Arab cryptology | The most complete treatment of ciphers and codebreaking of its time |
+| c. 1467 | Leon Battista Alberti describes his [cipher disk](03-Renaissance.md#albertis-cipher-disk) | The first polyalphabetic cipher in Europe |
+| 1553 | Giovan Battista Bellaso publishes the [keyword cipher](03-Renaissance.md#bellaso-and-the-keyword) later called "Vigenère" | Called unbreakable for three centuries |
+| 1587 | [Mary, Queen of Scots](03-Renaissance.md#mary-queen-of-scots), is executed after her ciphered letters are read | Codebreaking decides the fate of a queen |
+| 1600s | The Rossignols build Louis XIV's [Great Cipher](03-Renaissance.md#france-the-rossignols-and-the-great-cipher) | A code that stayed unread for 200 years |
 | 1854–1863 | Charles Babbage, then Friedrich Kasiski, break the Vigenère cipher | The "indecipherable cipher" falls |
 | 1883 | Auguste Kerckhoffs publishes *La cryptographie militaire* | The rule that only the key, not the method, may be secret |
 | 1917 | British codebreakers read the Zimmermann telegram | Helps bring the United States into the First World War |
@@ -67,8 +67,10 @@ The pages run in time order, and each one stands on its own:
 
 1. [The ancient world](01-Ancient.md): Egyptian and Babylonian scribes, the
    Spartan skytale, Polybius, Caesar, Atbash, hidden messages
-2. Arab cryptanalysis: Al-Kindi and frequency analysis
-3. The Renaissance: cipher disks, the "Vigenère" cipher, black chambers
+2. [Arab cryptanalysis](02-Arab-Cryptanalysis.md): al-Kindi and frequency
+   analysis, and the scholars who built on it
+3. [The Renaissance](03-Renaissance.md): cipher disks, the "Vigenère"
+   cipher, nomenclators, Mary Queen of Scots, the black chambers
 4. The telegraph age: Vigenère broken, Kerckhoffs, Zimmermann, the one-time
    pad
 5. Machines and World War II: rotor machines, Enigma, Bletchley Park,

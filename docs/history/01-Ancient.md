@@ -23,11 +23,11 @@ matters is that each of these ideas appears here first.
 | When | Where | What | Kind |
 |---|---|---|---|
 | c. 1900 BC | Beni Hasan, Egypt | odd hieroglyphs in the tomb of Khnumhotep II | changed script, not secret |
-| 1600s–1200s BC (disputed) | Babylonia | a glaze recipe in rare sign values | trade secret |
+| 1600s–1200s BC (disputed) | Babylonia | a glaze or glass recipe in rare sign values | trade secret |
 | 600s BC on | Sparta | the *skytale* message staff | transposition (disputed) |
 | 600s–500s BC or later | Judah | Atbash names in Jeremiah | substitution |
 | c. 499 BC | Persia to Miletus | Histiaeus's tattooed slave | steganography |
-| 480 BC | Persia to Sparta | Demaratus's blank wax tablet | steganography |
+| 480s BC | Persia to Sparta | Demaratus's blank wax tablet | steganography |
 | 350s BC | Greece | Aeneas Tacticus's chapter on secret messages | steganography, codes |
 | 100s BC | Greece | Polybius's torch-signal square | letters as numbers |
 | 50s BC | Rome | Caesar's shift of three | substitution |
@@ -38,8 +38,8 @@ matters is that each of these ideas appears here first.
 
 ### Khnumhotep II, about 1900 BC
 
-David Kahn opens *The Codebreakers*, still the standard history of the
-subject, in a tomb at Beni Hasan on the Nile, near the old town of Menet
+David Kahn begins the historical part of *The Codebreakers*, still the
+standard history of the subject, in a tomb at Beni Hasan on the Nile, near the old town of Menet
 Khufu. Khnumhotep II was a regional governor under the 12th Dynasty
 pharaohs Amenemhat II and Senusret II, around 1900 BC. The scribe who laid
 out the long inscription of his life swapped some ordinary hieroglyphs for
@@ -80,17 +80,19 @@ The oldest known writing hidden for a practical reason is a small clay
 tablet in the British Museum (BM 120960). It was bought from a dealer and
 is said to come from Tell Umar, the site of Seleucia on the Tigris, in
 modern Iraq. C. J. Gadd and Reginald Campbell Thompson published it in
-1936 as "A Middle-Babylonian Chemical Text". It gives recipes for glazing
-pottery, the earliest such formulas known.
+1936 as "A Middle-Babylonian Chemical Text" and read it as recipes for
+glazing pottery, the earliest such formulas known. The British Museum now
+follows a later reading, by Leo Oppenheim and colleagues in 1970, as a
+recipe for red glass.
 
 Kahn describes how the writer chose uncommon readings of the cuneiform
 signs and spelled words in unusual ways, so that the recipe would mean
 little to anyone outside the trade. The motive looks familiar: a craftsman
 guarding a commercial secret.
 
-Its date is uncertain. Gadd linked a royal name on the tablet to King
-Gulkishar, which would put it in the 17th century BC; Kahn gives about
-1500 BC; the British Museum's catalogue says 1400–1200 BC.
+Its date is uncertain. Gadd and Thompson linked a royal name on the
+tablet to King Gulkishar and dated it no later than the 17th century BC;
+Kahn gives about 1500 BC; the British Museum's catalogue says 1400–1200 BC.
 
 In the last centuries of cuneiform, around the Seleucid period (after 312
 BC), scribes also wrote some signs as numbers. Tablets survive that pair
@@ -159,12 +161,14 @@ Kasdim כשדים becomes לבקמי Leb-kamai
 
 ### The Dead Sea Scrolls
 
-Centuries later, the community at Qumran, by the Dead Sea, wrote a handful
-of its scrolls (eight or nine are known, from roughly the 2nd and 1st
-centuries BC) in a substitute alphabet scholars call *Cryptic A*. Each
-Hebrew letter has its own invented sign. Scholars learned to read it in the
-1950s. In 2017 Eshbal Ratzon and Jonathan Ben-Dov pieced one of these
-scrolls, a calendar, back together from about 60 tiny fragments. Nothing in
+Centuries later, the community at Qumran, by the Dead Sea, wrote some of
+its scrolls, probably in the 2nd or 1st century BC, in a substitute
+alphabet scholars call *Cryptic A*. Each Hebrew letter has its own invented
+sign. Scholars learned to read it in the 1950s. How many scrolls use it is
+disputed: Stephen Pfann's 2000 edition counted 36 manuscripts, most of them
+tiny fragments, while Jonathan Ben-Dov argued in 2024 that only eight or
+nine are really in the script. In 2017 Eshbal Ratzon and Ben-Dov pieced
+one of them, a calendar, back together from 42 tiny fragments. Nothing in
 the cryptic scrolls is especially secret; the script seems to have marked
 texts meant for the community's teachers, a badge of rank more than a lock.
 
@@ -269,7 +273,7 @@ sets how many letters fit around one turn.
 The word is much older than these descriptions. The poet Archilochus, in
 the 7th century BC, already calls a bad piece of news "a grieving
 skytale", and Thucydides (1.131) tells how the Spartans recalled their
-general Pausanias in the 470s BC by sending a herald with a skytale. Neither
+general Pausanias around 470 BC by sending a herald with a skytale. Neither
 says anything about winding a strip or hiding the text.
 
 In 1998 the classicist Thomas Kelly argued in *Cryptologia*, in a paper
@@ -338,8 +342,9 @@ The 24 letters of the Greek alphabet are split into five tablets of five
 letters (the last has only four). The signaller stands behind a wall with
 torches. First he raises torches on the left, one to five, to say which
 tablet. Then he raises torches on the right to say which letter on that
-tablet. The receiver watches through a sighting tube with two openings so
-he can tell left from right, and writes the letters down. Every letter
+tablet. The receiver watches through an instrument with two sighting
+tubes, one for each side, so he can tell left from right, and writes the
+letters down. Every letter
 becomes a pair of small numbers.
 
 It was built for speed and distance, not secrecy. Anyone who knew the
@@ -403,7 +408,8 @@ Aulus Gellius adds (*Attic Nights* 17.9) that Caesar wrote to his agents
 Oppius and Balbus in letters that looked like nonsense, and that the
 grammarian Probus wrote a whole commentary on the secret letters in
 Caesar's correspondence. That commentary is lost, which is a pity: it
-would be the oldest known book on reading ciphers.
+would tell us how Caesar's ciphers worked, from someone who had studied
+them.
 
 Suetonius also records the habit of Caesar's heir. Augustus, he says (*Life
 of Augustus* 88), wrote B for A, C for B and so on, a shift of one, but
@@ -495,10 +501,12 @@ nobody yet had a method for attacking ciphers in general.
 ### Watchwords in the camp
 
 Polybius also describes how a Roman army camp passed its nightly watchword
-(*Histories* 6.34). A soldier from each unit collected a wooden tablet
-(*tessera*) with the word written on it from the tribune, and it went from
-unit to unit before being returned. The tribune checked that every tablet
-came back, so if one went missing he could trace exactly where. It is a
+(*Histories* 6.34). At sunset a soldier from the tenth maniple (company)
+of each class of infantry and cavalry collected a wooden tablet
+(*tessera*) with the word on it from the tribune. It was passed from
+maniple to maniple, and the first maniples brought it back to the tribunes
+before dark. The tribunes checked that every tablet came back, so if one
+went missing they could trace exactly where. It is a
 password system with a delivery receipt, an early cousin of the
 authentication problems that network protocols still solve.
 
@@ -544,16 +552,18 @@ received their instructions in secret writing.
 
 ## Why weak ciphers worked
 
-From a modern view, everything on this page is easy to break. Caesar has 25
-keys, the skytale a handful, Atbash and Polybius none at all. They worked
+From a modern view, everything on this page is easy to break. Caesar's
+shift has a couple of dozen keys, the skytale a handful, Atbash and
+Polybius none at all. They worked
 anyway, for reasons that had little to do with mathematics:
 
 - **Few people could read.** A captured messenger carrying a jumble of
   letters in a foreign script was not much of a risk.
 - **Nobody had a theory of breaking ciphers.** An enemy could guess, or
   torture the courier, but there was no general method for attacking a
-  substitution. That method, counting how often each letter appears, would
-  not be written down for another seven hundred years, in Baghdad.
+  substitution. That method, counting how often each letter appears, was
+  first written down by [al-Kindi](02-Arab-Cryptanalysis.md), in
+  9th-century Baghdad.
 - **Secrecy of method did most of the work.** If the enemy didn't know you
   used a rod, the rod's thickness hardly mattered. Modern cryptography
   rejects this idea completely: the method is assumed public and only the
@@ -573,10 +583,10 @@ letters under a small secret key.
 
 ## References
 
-- David Kahn, *The Codebreakers: The Comprehensive History of Secret Communication from Ancient Times to the Internet* (rev. ed., Scribner, 1996), chapters 2–3: Khnumhotep II, the glaze tablet, Atbash, the Greek and Roman material, India
-- C. J. Gadd and R. Campbell Thompson, "A Middle-Babylonian Chemical Text", *Iraq* 3 (1936), pp. 87–96 / Laurie E. Pearce, *Cuneiform Cryptography: Numerical Substitutions for Syllabic and Logographic Signs* (PhD thesis, Yale, 1982), and "Cuneiform Number-Syllabaries", *Iraq* (1983)
-- John C. Darnell, *The Enigmatic Netherworld Books of the Solar-Osirian Unity* (Orbis Biblicus et Orientalis 198, 2004) / Serge Sauneron, *Esna* (IFAO, 1959–1982) / Christian Leitz, "Die beiden kryptographischen Inschriften aus Esna mit den Widdern und Krokodilen", *Studien zur Altägyptischen Kultur* 29 (2001)
-- Jeremiah 25:26, 51:1, 51:41 (Masoretic text, the Septuagint and Targum Jonathan) / Eshbal Ratzon and Jonathan Ben-Dov, "A Newly Reconstructed Calendrical Scroll from Qumran in Cryptic Script", *Journal of Biblical Literature* 136, no. 4 (2017)
+- David Kahn, *The Codebreakers: The Comprehensive History of Secret Communication from Ancient Times to the Internet* (rev. ed., Scribner, 1996), chapter 2: Khnumhotep II, the glaze tablet, Atbash, the Greek and Roman material, India
+- C. J. Gadd and R. Campbell Thompson, "A Middle-Babylonian Chemical Text", *Iraq* 3 (1936), pp. 87–96 / A. Leo Oppenheim and others, *Glass and Glassmaking in Ancient Mesopotamia* (Corning Museum of Glass, 1970) / Laurie E. Pearce, *Cuneiform Cryptography: Numerical Substitutions for Syllabic and Logographic Signs* (PhD thesis, Yale, 1982), and "Cuneiform Number-Syllabaries", *Iraq* (1983)
+- John C. Darnell, *The Enigmatic Netherworld Books of the Solar-Osirian Unity* (Orbis Biblicus et Orientalis 198, 2004) / Serge Sauneron, *Esna* (IFAO, 1959–2009) / Christian Leitz, "Die beiden kryptographischen Inschriften aus Esna mit den Widdern und Krokodilen", *Studien zur Altägyptischen Kultur* 29 (2001)
+- Jeremiah 25:26, 51:1, 51:41 (Masoretic text, the Septuagint and Targum Jonathan) / Eshbal Ratzon and Jonathan Ben-Dov, "A Newly Reconstructed Calendrical Scroll from Qumran in Cryptic Script", *Journal of Biblical Literature* 136, no. 4 (2017), pp. 905–936 / Stephen J. Pfann, "Cryptic Texts", in *Discoveries in the Judaean Desert* 36 (Oxford, 2000)
 - Herodotus, *Histories* 1.123, 5.35, 7.239, 8.128 / Aeneas Tacticus, *How to Survive Under Siege* 31 / Polybius, *Histories* 6.34, 10.44–47 / Ovid, *Ars Amatoria* 3
 - Plutarch, *Life of Lysander* 19 / Aulus Gellius, *Attic Nights* 17.9 / Thucydides 1.131 / Archilochus, fragment 185 (West) / Thomas Kelly, "The Myth of the Skytale", *Cryptologia* 22, no. 3 (1998), pp. 244–260
 - Suetonius, *Life of Julius Caesar* 56 and *Life of Augustus* 88 / Caesar, *Gallic War* 5.48 / Cassius Dio, *Roman History* 40.9
