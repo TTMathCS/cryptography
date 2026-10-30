@@ -70,7 +70,10 @@ makes it a KEM, as in ML-KEM.
 
 ## Example (Python)
 
-Needs `liboqs-python`, with liboqs 0.16 (2026) or later for the `HQC-1` name.
+Needs `pip install liboqs-python` (its first import builds the liboqs C library if it is missing), with liboqs 0.16
+(2026) or later for the `HQC-1` name. The HQC sizes in the table and in the
+output are those of the August 2025 spec, which liboqs 0.16 implements.
+liboqs-python 0.16 first prints `liboqs-python faulthandler is disabled`.
 
 ```python
 import oqs

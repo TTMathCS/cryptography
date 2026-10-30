@@ -66,7 +66,8 @@ SHA-3 and SHAKE do all the hashing and sampling inside.
 
 ## Example (Python)
 
-Needs `liboqs-python`; the standard library has no ML-KEM.
+Needs `pip install liboqs-python` (its first import builds the liboqs C library if it is missing). The standard
+library has no ML-KEM. liboqs-python 0.16 first prints `liboqs-python faulthandler is disabled`.
 
 ```python
 import oqs
