@@ -116,6 +116,10 @@ nav:
       - 10-math-foundations/Fermat-Primes.md
       - 10-math-foundations/Hard-Problems.md
       - 10-math-foundations/Elliptic-Curves.md
+  - Advanced primitives:
+      - 11-advanced/Secret-Sharing.md
+      - 11-advanced/Threshold-Signatures.md
+      - 11-advanced/Zero-Knowledge.md
   - Protocols:
       - protocols/index.md
       - protocols/SSH.md

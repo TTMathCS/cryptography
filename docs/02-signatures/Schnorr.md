@@ -136,6 +136,8 @@ print(sig.hex()[:16], verify(x, m, sig), verify(x, b"other", sig))   # e907831f8
 - [ECDSA](ECDSA.md): Bitcoin's signature before Taproot, still used by older
   outputs
 - [DSA](DSA.md): the scheme NIST picked in 1991 instead
+- [Threshold signatures](../11-advanced/Threshold-Signatures.md): FROST, t-of-n
+  signing that ends in one Schnorr signature
 
 ## References
 
