@@ -15,7 +15,7 @@ Argon2 won the Password Hashing Competition in 2015 and became RFC 9106 in
 
 | Variant | Memory access | Use |
 |---|---|---|
-| **Argon2id** | first pass data-independent, then data-dependent | the default for passwords |
+| **Argon2id** | first half of the first pass data-independent, the rest data-dependent (RFC 9106 §1) | the default for passwords |
 | Argon2i | data-independent | side-channel-resistant, weaker against GPUs |
 | Argon2d | data-dependent | strongest against GPUs, leaks timing; crypto-currency, not logins |
 
@@ -43,7 +43,7 @@ it for cheap parallel hardware. That property is called **memory-hard**.
 
 ## Example (Python)
 
-Needs `argon2-cffi`:
+Needs `pip install argon2-cffi`:
 
 ```python
 from argon2 import PasswordHasher
@@ -55,8 +55,9 @@ print(stored)                         # $argon2id$v=19$m=65536,t=3,p=4$<salt>$<h
 print(ph.verify(stored, "correct horse battery staple"))   # True, raises on a wrong password
 ```
 
-The stored string carries the variant, parameters and salt, so you can raise
-the cost later and rehash on the next login (`ph.check_needs_rehash(stored)`).
+The salt is random, so the printed string changes every run. The stored
+string carries the variant, parameters and salt, so you can raise the cost
+later and rehash on the next login (`ph.check_needs_rehash(stored)`).
 
 ## Security notes
 

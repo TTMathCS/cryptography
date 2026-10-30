@@ -50,12 +50,15 @@ import hashlib, os
 
 salt = os.urandom(16)
 key = hashlib.pbkdf2_hmac("sha256", b"correct horse battery staple", salt, 600_000)
-print(key.hex())   # about 0.2 s on a laptop
+print(key.hex())   # different every run: the salt is random
 
 # RFC 6070 test vector
 print(hashlib.pbkdf2_hmac("sha1", b"password", b"salt", 4096).hex())
 # 4b007901b765489abead49d926f721d065a429c1
 ```
+
+The 600,000 iterations took about 0.16 s on the 2.1 GHz Xeon this was run
+on. The time depends on your CPU.
 
 ## Security notes
 

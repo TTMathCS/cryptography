@@ -47,7 +47,7 @@ like the megabytes Argon2 and scrypt demand.
 
 ## Example (Python)
 
-Needs the `bcrypt` package:
+Needs `pip install bcrypt`:
 
 ```python
 import bcrypt
@@ -58,10 +58,13 @@ print(stored)                              # b'$2b$12$...'
 print(bcrypt.checkpw(password, stored))    # True
 ```
 
+`gensalt` picks a random salt, so `stored` is different every run.
+
 ## Security notes
 
-- **72-byte limit:** most implementations ignore everything past the first 72
-  bytes of the password. To allow longer ones, pre-hash with SHA-256 and
+- **72-byte limit:** many implementations silently ignore everything past the
+  first 72 bytes of the password; the Python `bcrypt` package (5.0) raises
+  `ValueError` instead. To allow longer ones, pre-hash with SHA-256 and
   base64-encode the digest first; a raw digest can contain zero bytes, which
   some implementations treat as the end of the string.
 - Each cost step doubles the time; 12 takes roughly a quarter of a second on a

@@ -59,7 +59,9 @@ except ValueError as e:
 
 The first line is the DES key and IV that
 `openssl enc -des-cbc -md md5 -S 73616c7473616c74 -k password -P` prints
-(checked with LibreSSL 3.3).
+(checked with LibreSSL 3.3, and with OpenSSL 3.0.13 after adding
+`-provider legacy -provider default`, since OpenSSL 3 keeps DES in its
+legacy provider).
 
 ## Unix crypt
 
@@ -93,7 +95,8 @@ way can be found, and keeps it only for systems that can't take anything
 better.
 
 The Python `crypt` module wraps the system `crypt(3)`. It is Unix only and
-was removed in Python 3.13.
+was removed in Python 3.13, so this example needs 3.12 or older (3.11 and
+3.12 also print a DeprecationWarning):
 
 ```python
 import crypt
@@ -101,6 +104,10 @@ import crypt
 print(crypt.crypt("password", "ab"))      # abJnggxhB/yWI
 print(crypt.crypt("password123", "ab"))   # abJnggxhB/yWI: the "123" is ignored
 ```
+
+On Python 3.13 or later, use Perl's built-in `crypt`, which calls the same
+`crypt(3)`: `perl -le 'print crypt("password123", "ab")'` prints
+`abJnggxhB/yWI` too.
 
 ### MD5-crypt
 
