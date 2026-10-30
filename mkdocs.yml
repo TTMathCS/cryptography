@@ -58,6 +58,9 @@ nav:
       - 07-hash/SHA-2.md
       - 07-hash/SHA-3.md
   - KDF and password hashing:
+      - 08-kdf-password-hashing/HKDF.md
+      - 08-kdf-password-hashing/Argon2.md
+      - 08-kdf-password-hashing/scrypt.md
       - 08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md
   - Math foundations:
       - 10-math-foundations/Sieve-of-Eratosthenes.md

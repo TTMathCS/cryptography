@@ -152,13 +152,13 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 
 | Family | Algorithm | Standard | Released | Deprecated | Status |
 |---|---|---|---|---|---|
-| [HKDF](08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md) | HKDF | RFC 5869 (2010) | 2010 | — | Recommended |
+| [HKDF](08-kdf-password-hashing/HKDF.md) | HKDF | RFC 5869 (2010) | 2010 | — | Recommended |
 | NIST KDFs | KBKDF | SP 800-108 (2009) | 2009 | — | Acceptable |
 | | one-step KDF (ConcatKDF) | SP 800-56A (2006) | 2006 | — | Acceptable |
 | | X9.63 KDF | ANSI X9.63 (2001) | 2001 | — | Acceptable |
-| [Argon2](08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md) | Argon2id | RFC 9106 (2021) | 2015 | — | Recommended |
+| [Argon2](08-kdf-password-hashing/Argon2.md) | Argon2id | RFC 9106 (2021) | 2015 | — | Recommended |
 | | Argon2i / Argon2d | RFC 9106 (2021) | 2015 | — | Acceptable |
-| [scrypt](08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md) | scrypt | RFC 7914 (2016) | 2009 | — | Recommended |
+| [scrypt](08-kdf-password-hashing/scrypt.md) | scrypt | RFC 7914 (2016) | 2009 | — | Recommended |
 | | yescrypt | — | 2015 | — | Acceptable |
 | [bcrypt](08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md) | bcrypt | — | 1999 | — | Acceptable |
 | [PBKDF](08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md) | PBKDF2 | RFC 2898 (2000), RFC 8018 (2017), SP 800-132 (2010) | 2000 | — | Acceptable |
