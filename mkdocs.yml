@@ -75,6 +75,9 @@ nav:
       - 03-public-key-encryption/HPKE.md
   - Symmetric ciphers:
       - 04-symmetric-ciphers/AES.md
+      - 04-symmetric-ciphers/ChaCha.md
+      - 04-symmetric-ciphers/National-Ciphers.md
+      - 04-symmetric-ciphers/Retired.md
   - Modes and AEAD:
       - 05-modes-aead/AEAD.md
   - MAC:
