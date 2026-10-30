@@ -163,6 +163,7 @@ print(pow(g, s, p) == R * pow(P, c, p) % p)   # True: a plain Schnorr check on (
 - [Schnorr](../02-signatures/Schnorr.md) / [EdDSA](../02-signatures/EdDSA.md): what FROST produces
 - [ECDSA](../02-signatures/ECDSA.md): what threshold ECDSA produces
 - [Zero-knowledge proofs](Zero-Knowledge.md): the proofs inside key generation and threshold ECDSA
+- [Multi-party computation](MPC.md): threshold signing is one case of it
 
 ## References
 

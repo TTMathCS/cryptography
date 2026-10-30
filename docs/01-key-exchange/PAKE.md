@@ -119,6 +119,7 @@ For real use, take a reviewed implementation of the RFC, such as `opaque-ke`
 
 - [Diffie-Hellman](Diffie-Hellman.md) / [ECDH](ECDH.md): the exchange a PAKE builds on
 - [Argon2](../08-kdf-password-hashing/Argon2.md): the slow hash on the password side
+- [OPRF](../11-advanced/OPRF.md): the oblivious PRF inside OPAQUE
 - [Protocols](../protocols/index.md): WPA3 next to SSH, TLS and the rest
 
 ## References

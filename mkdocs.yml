@@ -120,6 +120,9 @@ nav:
       - 11-advanced/Secret-Sharing.md
       - 11-advanced/Threshold-Signatures.md
       - 11-advanced/Zero-Knowledge.md
+      - 11-advanced/Homomorphic-Encryption.md
+      - 11-advanced/MPC.md
+      - 11-advanced/OPRF.md
   - Protocols:
       - protocols/index.md
       - protocols/SSH.md
