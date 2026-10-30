@@ -67,8 +67,8 @@ combine the two secrets, so the session stays safe if either one breaks.
 | [ML-DSA](02-signatures/ML-DSA.md) (PQ, lattice) | ML-DSA-44/65/87 | 1,312 / 1,952 / 2,592 B public key | 128 / 192 / 256 | FIPS 204 (2024) | 2017 | — | Recommended |
 | [FN-DSA](02-signatures/FN-DSA.md) (PQ, lattice) | Falcon-512/1024 | 897 / 1,793 B public key | 128 / 256 | FIPS 206 (in development) | 2017 | — | Draft |
 | [SLH-DSA](02-signatures/SLH-DSA.md) (PQ, hash) | SLH-DSA | 7.8 – 49.9 KB signature | 128 / 192 / 256 | FIPS 205 (2024) | 2015 | — | Acceptable |
-| [Stateful hash-based](02-signatures/Stateful-Hash-Signatures.md) (PQ) | LMS / HSS | 256-bit hash | 256 | RFC 8554 (2019), SP 800-208 (2020) | 1995 | — | Recommended |
-| | XMSS | 256-bit hash | 256 | RFC 8391 (2018), SP 800-208 (2020) | 2011 | — | Acceptable |
+| [Stateful hash-based](02-signatures/Stateful-Hash-Signatures.md) (PQ) | LMS / HSS | 192 / 256-bit hash | 192 / 256 | RFC 8554 (2019), SP 800-208 (2020) | 1995 | — | Recommended |
+| | XMSS | 192 / 256-bit hash | 192 / 256 | RFC 8391 (2018), SP 800-208 (2020) | 2011 | — | Acceptable |
 | [Blind signatures](02-signatures/Blind-Signatures.md) | RSA blind signatures | 2048–4096-bit key | 112–140 | RFC 9474 (2023) | 1982 | — | Acceptable |
 
 ## 3. Public-key encryption
