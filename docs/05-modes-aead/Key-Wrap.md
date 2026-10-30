@@ -126,10 +126,12 @@ except ValueError as e:
     print(e)                                    # integrity check failed
 ```
 
-In real code, PyCA `cryptography` has `aes_key_wrap(kek, key)` and
-`aes_key_unwrap(kek, wrapped)`, plus `aes_key_wrap_with_padding` for KWP.
-A failed unwrap raises `InvalidUnwrap`. Those calls need the library and
-weren't run for this page.
+In real code, PyCA `cryptography` (`pip install cryptography`) has
+`aes_key_wrap(kek, key)` and `aes_key_unwrap(kek, wrapped)`, plus
+`aes_key_wrap_with_padding` for KWP. A failed unwrap raises
+`InvalidUnwrap`. Run with cryptography 50.0.1 on Python 3.13, they wrap a
+256-bit key to 40 bytes, raise `InvalidUnwrap` on the flipped bit, and
+match the test vectors in RFC 3394 and RFC 5649.
 
 ## Security notes
 

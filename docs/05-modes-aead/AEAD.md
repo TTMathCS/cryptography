@@ -171,7 +171,7 @@ at sensors and embedded chips where AES is too big or too slow.
 
 ## Example (Python)
 
-With PyCA `cryptography`:
+With PyCA `cryptography` (`pip install cryptography`):
 
 ```python
 import os
@@ -188,9 +188,12 @@ pt = aead.decrypt(nonce, ct, header)     # raises if the tag or header don't mat
 ```
 
 `AESGCM`, `AESGCMSIV`, `AESCCM` and `AESOCB3` take the same
-`encrypt(nonce, data, associated_data)` calls. This needs the library and
-wasn't run for this page. The two halves of ChaCha20-Poly1305 run from the
-standard library on the [ChaCha](../04-symmetric-ciphers/ChaCha.md) and
+`encrypt(nonce, data, associated_data)` calls. Run with cryptography 50.0.1
+on Python 3.13, these four and `ChaCha20Poly1305` each turn
+`b"secret data"` into 27 bytes (the data plus a 16-byte tag) and give it
+back, and a changed header or ciphertext byte raises `InvalidTag`. The
+two halves of ChaCha20-Poly1305 run from the standard library on the
+[ChaCha](../04-symmetric-ciphers/ChaCha.md) and
 [Universal hash MACs](../06-mac/Universal-Hash-MACs.md) pages.
 
 ## Security notes
