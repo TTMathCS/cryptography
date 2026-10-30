@@ -90,15 +90,16 @@ combine the two secrets, so the session stays safe if either one breaks.
 | [AES](04-symmetric-ciphers/AES.md) | AES-128/192/256 | 128 / 192 / 256-bit key, 128-bit block | 128 / 192 / 256 | FIPS 197 (2001) | 1998 | — | Recommended |
 | | Serpent, Twofish (AES finalists) | 128–256-bit key, 128-bit block | 128–256 | — | 1998 | — | Acceptable |
 | [ChaCha / Salsa](04-symmetric-ciphers/ChaCha.md) | ChaCha20 | 256-bit key | 256 | RFC 8439 (2018) | 2008 | — | Recommended |
-| | Salsa20 | 256-bit key | 256 | eSTREAM (2008) | 2005 | — | Acceptable |
+| | Salsa20 | 256-bit key | 256 | eSTREAM (2008, as Salsa20/12) | 2005 | — | Acceptable |
 | [National ciphers](04-symmetric-ciphers/National-Ciphers.md) | Camellia | 128–256-bit key, 128-bit block | 128–256 | RFC 3713 (2004) | 2000 | — | Acceptable |
 | | ARIA | 128–256-bit key, 128-bit block | 128–256 | RFC 5794 (2010) | 2003 | — | Acceptable |
-| | SM4 | 128-bit key, 128-bit block | 128 | GB/T 32907 (2016), RFC 8998 (2021) | 2006 | — | Acceptable |
+| | SM4 | 128-bit key, 128-bit block | 128 | GB/T 32907 (2016), ISO/IEC 18033-3 Amd 1 (2021) | 2006 | — | Acceptable |
+| | Kuznyechik | 256-bit key, 128-bit block | 256 | GOST R 34.12-2015, RFC 7801 (2016) | 2015 | — | Acceptable |
 | [DES](04-symmetric-ciphers/Retired.md#des) | DES | 56-bit key, 64-bit block | 56 | FIPS 46 (1977) | 1977 | withdrawn 2005 | Broken |
-| | 3DES | 168-bit key, 64-bit block | 112 | ANSI X9.52 (1998), SP 800-67 | 1998 | Sweet32 (2016); NIST: disallowed after 2023 | Legacy |
+| | 3DES | 168-bit key, 64-bit block | 112 | ANSI X9.52 (1998), FIPS 46-3 (1999), SP 800-67 | 1978 | Sweet32 (2016); NIST: disallowed after 2023 | Legacy |
 | [64-bit block ciphers](04-symmetric-ciphers/Retired.md#64-bit-block-ciphers) | Blowfish | 32–448-bit key, 64-bit block | — | — | 1993 | Sweet32 (2016) | Legacy |
-| | IDEA, CAST5, RC2 | 40–128-bit key, 64-bit block | — | RFC 2144 (1997), RFC 2268 (1998) | 1987–1996 | Sweet32 (2016) | Legacy |
-| [RC4](04-symmetric-ciphers/Retired.md#rc4) | RC4 | 40–2048-bit key | — | — | 1987 | RFC 7465 (TLS, 2015), RFC 8758 (SSH, 2020) | Broken |
+| | IDEA, CAST5, RC2 | 40–1024-bit key, 64-bit block | — | RFC 2144 (1997), RFC 2268 (1998) | 1987–1996 | Sweet32 (2016) | Legacy |
+| [RC4](04-symmetric-ciphers/Retired.md#rc4) | RC4 | 8–2048-bit key | — | — | 1987 | RFC 7465 (TLS, 2015), RFC 8758 (SSH, 2020) | Broken |
 
 ## 5. Cipher modes and AEAD
 
@@ -177,7 +178,7 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 | Family | Algorithm | Size | Security (bits) | Standard | Released | Deprecated | Status |
 |---|---|---|---|---|---|---|---|
 | OS RNG | Linux `getrandom` / `/dev/urandom`, Windows `BCryptGenRandom`, macOS | — | — | — | 1994 | — | Recommended |
-| | ChaCha20-based OS RNG (Linux 4.8+, OpenBSD `arc4random`) | 256-bit key | 256 | — | 2013 | — | Recommended |
+| | ChaCha20-based OS RNG (Linux 4.8+, OpenBSD `arc4random`) | 256-bit key | 256 | — | 2014 | — | Recommended |
 | | RC4-based `arc4random` | — | — | — | 1997 | replaced 2013–2014 | Broken |
 | NIST DRBG | HMAC_DRBG, Hash_DRBG, CTR_DRBG | 112–256-bit strength | 112–256 | SP 800-90A (2006, Rev 1 2015) | 2006 | — | Recommended |
 | | Dual_EC_DRBG | 256-bit curve | — | SP 800-90A (2006) | 2006 | withdrawn 2014 (backdoor) | Broken |
