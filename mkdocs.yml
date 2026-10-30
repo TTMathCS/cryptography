@@ -37,6 +37,7 @@ extra_css:
 
 extra_javascript:
   - javascripts/status.js
+  - javascripts/home-link.js
   - path: holidays/badge.js
     type: module
 

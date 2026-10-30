@@ -105,6 +105,9 @@
   font-size: 1.05rem;
 }
 
+.md-header__title .home-link { color: inherit; }
+.md-header__title .home-link:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+
 /* every page opens under the dome: the picture fades into the page colour */
 .md-container {
   background:
