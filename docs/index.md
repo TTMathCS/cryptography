@@ -215,11 +215,11 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 
 | Family | Algorithm | Size | Security (bits) | Standard | Released | Deprecated | Status |
 |---|---|---|---|---|---|---|---|
-| [Secret sharing](11-advanced/Secret-Sharing.md) | Shamir's secret sharing | — | — | — | 1979 | — | Recommended |
+| [Secret sharing](11-advanced/Secret-Sharing.md) | Shamir's secret sharing | — | — | ISO/IEC 19592-2 (2017) | 1979 | — | Recommended |
 | | Feldman / Pedersen verifiable secret sharing | — | — | — | 1987 / 1991 | — | Acceptable |
-| [Threshold signatures](11-advanced/Threshold-Signatures.md) | FROST | 256-bit group | 128 | RFC 9591 (2024) | 2020 | — | Recommended |
+| [Threshold signatures](11-advanced/Threshold-Signatures.md) | FROST | 256 / 448-bit group | 128 / 224 | RFC 9591 (2024) | 2020 | — | Recommended |
 | | threshold ECDSA (GG18, CGGMP) | — | — | — | 2018 | — | Acceptable |
-| | BLS (aggregate signatures) | 381-bit curve (BLS12-381) | ~120 | IETF draft | 2001 | — | Acceptable |
+| | BLS (aggregate signatures) | 381-bit curve (BLS12-381) | ~126 | IRTF CFRG draft | 2001 | — | Acceptable |
 | [Zero-knowledge proofs](11-advanced/Zero-Knowledge.md) | Schnorr proof | 256-bit group | 128 | RFC 8235 (2017) | 1989 | — | Recommended |
 | | zk-SNARKs (Groth16, PLONK) | — | — | — | 2016 / 2019 | — | Acceptable |
 | | zk-STARKs | — | — | — | 2018 | — | Acceptable (PQ) |
