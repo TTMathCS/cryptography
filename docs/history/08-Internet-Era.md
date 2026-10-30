@@ -11,7 +11,7 @@ new protocols, new ciphers and hashes chosen in public competitions, and
 a long series of painful lessons: most real-world breaks came not from
 the mathematics but from protocol design, implementation bugs and bad
 randomness. This page tells that story. The quantum part of it, which
-overlaps the last decade here, is on the last page of this section.
+overlaps the last decade here, is on the [last page](10-Quantum-and-Post-Quantum.md).
 
 | When | What |
 |---|---|
@@ -462,8 +462,9 @@ scheme (2009), which can compute on data without decrypting it.
 - **The lesson that implementation is where things break**: padding
   oracles, Heartbleed, bad randomness, nonce reuse.
 - **Distrust of unexplained constants**, after Dual_EC.
-- **A new threat on the horizon**: quantum computers, and the race to
-  replace the public-key algorithms this whole era was built on.
+- **A new threat on the horizon**: quantum computers, and the
+  [race to replace](10-Quantum-and-Post-Quantum.md) the public-key
+  algorithms this whole era was built on.
 
 ## See also
 

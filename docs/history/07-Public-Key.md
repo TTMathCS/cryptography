@@ -454,7 +454,7 @@ the 2010s over encrypted phones and messaging, as the
   payments.
 - **Hard problems as the basis of security**: factoring and discrete
   logarithms. Both fall to a large quantum computer, which is why the
-  post-quantum story begins here too.
+  [post-quantum](10-Quantum-and-Post-Quantum.md) story begins here too.
 - **Cryptography as public science**, with open papers, open standards and
   open code, and court rulings, *Junger* above all, that treat source
   code as protected speech.

@@ -419,8 +419,8 @@ For these reasons NSA does not recommend QKD for US national security
 systems, Britain's National Cyber Security Centre does not endorse it for
 government use, and in January 2024 the French, German, Dutch and Swedish
 security agencies published a joint position recommending
-post-quantum cryptography first. That story is on the last page of this
-section.
+post-quantum cryptography first. That story is on the
+[last page](10-Quantum-and-Post-Quantum.md).
 
 ## Engineering the software
 

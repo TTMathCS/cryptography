@@ -74,6 +74,7 @@ nav:
       - history/07-Public-Key.md
       - history/08-Internet-Era.md
       - history/09-Hardware-and-Engineering.md
+      - history/10-Quantum-and-Post-Quantum.md
   - Key exchange:
       - 01-key-exchange/Diffie-Hellman.md
       - 01-key-exchange/ECDH.md
