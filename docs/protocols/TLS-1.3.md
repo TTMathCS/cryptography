@@ -71,8 +71,8 @@ secret → master secret, each step mixing in the transcript hash.
 | KDF | HKDF key schedule | RFC 5869, RFC 8446 §7.1 | TLS 1.2 PRF (RFC 5246) |
 
 Every TLS 1.3 implementation must support `TLS_AES_128_GCM_SHA256`, `secp256r1`
-and the `rsa_pss_rsae_sha256` and `ecdsa_secp256r1_sha256` signatures
-(RFC 8446 §9.1). `X25519MLKEM768` is on by default in Chrome and Firefox and in
+and the `rsa_pkcs1_sha256` (in certificates), `rsa_pss_rsae_sha256` and
+`ecdsa_secp256r1_sha256` signatures (RFC 8446 §9.1). `X25519MLKEM768` is on by default in Chrome and Firefox and in
 OpenSSL 3.5 (2025).
 
 ## Versions
@@ -97,6 +97,7 @@ openssl s_client -connect www.google.com:443 -servername www.google.com </dev/nu
 ```
 
 - **Python:** prints the version and cipher your Python's TLS library gets.
+  Type a host or press Enter for www.google.com. It needs the network.
 
 ```python
 import socket, ssl
@@ -108,9 +109,13 @@ with socket.create_connection((host, 443)) as s:
         print(t.version(), t.cipher()[0])
 ```
 
-On the Mac's system Python (LibreSSL 2.8.3) this prints
-`TLSv1.2 ECDHE-ECDSA-CHACHA20-POLY1305`. A Python built with OpenSSL 3 prints
-TLS 1.3 and a `TLS_` suite.
+What it prints depends on your TLS library and the server, so these outputs
+come from the machines named. For www.google.com, the Mac's system Python
+(LibreSSL 2.8.3) printed `TLSv1.2 ECDHE-ECDSA-CHACHA20-POLY1305`. Python 3.13
+with OpenSSL 3.0.13, on a machine with no outside network, printed
+`TLSv1.3 TLS_AES_256_GCM_SHA384` for `localhost`, where `openssl s_server` ran
+with a test certificate trusted through `SSL_CERT_FILE`. A Python built with
+OpenSSL 3 gets TLS 1.3 and a `TLS_` suite from any server that offers it.
 
 ## See also
 

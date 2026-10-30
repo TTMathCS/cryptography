@@ -131,7 +131,8 @@ for i in range(3):
 2 aes 5cd3776ee5f49622 mac ed2af285dc22960c iv fc737c1e34d66ce4
 ```
 
-Line 0 matches `test_chain_key_derivation` in libsignal's `ratchet/keys.rs`.
+The aes and mac keys on line 0 match `test_chain_key_derivation` in
+libsignal's `ratchet/keys.rs`, which doesn't list the IV.
 In a live session the SPQR key replaces the zero salt, so real keys differ.
 
 ## See also

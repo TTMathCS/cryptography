@@ -22,7 +22,7 @@ subkey v6 X25519 sha256 12c83f1e706f6308fe151a417743a1f033790e93e9978488d1db378d
 signature v6 Ed25519 SHA2-512
 ```
 
-and the message lines are the RFC's own notes on its packet dump:
+and the message lines are condensed from the RFC's notes on its packet dump:
 
 ```
 0x0002  06   v6 PKESK
