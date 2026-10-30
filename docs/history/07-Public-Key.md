@@ -23,11 +23,11 @@ history of the subject.
 | 1977 | Rivest, Shamir and Adleman | RSA; Martin Gardner's column and the RSA-129 challenge |
 | 1978 | Loren Kohnfelder | certificates |
 | 1979 | Lamport; Merkle | one-time signatures; hash trees |
-| 1985 | Neal Koblitz, Victor Miller | elliptic-curve cryptography; ElGamal |
+| 1985 | Koblitz and Miller; Taher Elgamal | elliptic-curve cryptography; ElGamal encryption and signatures |
 | 1991 | Phil Zimmermann | PGP |
 | 1993–1996 | the White House | the Clipper chip and key escrow |
 | 1994 | Atkins, Graff, Lenstra, Leyland | RSA-129 factored: "squeamish ossifrage" |
-| 1996–2000 | Bernstein, Junger; the US government | courts treat code as speech; export rules relaxed |
+| 1996–2000 | Bernstein, Junger; the US government | court rulings on code as speech; export rules relaxed |
 | 1997 | GCHQ | reveals Ellis, Cocks and Williamson's work |
 
 ## The key distribution problem
@@ -237,7 +237,7 @@ public (3233, 17) private 2753
 
 Real RSA needs careful padding before the exponentiation, or it leaks;
 see the [RSA page](../02-signatures/RSA.md) and the attacks on the
-internet-era page.
+[internet era](08-Internet-Era.md#from-ssl-to-tls-13) page.
 
 ### Squeamish ossifrage
 
@@ -245,16 +245,17 @@ The idea reached the public in Martin Gardner's "Mathematical Games"
 column in *Scientific American* in August 1977, under the title "A new
 kind of cipher that would take millions of years to break". The column
 printed a challenge: a message encrypted with a 129-digit modulus, with
-$100 from the inventors to whoever read it. Rivest estimated, using the
-best methods of the day, that factoring it would take 40 quadrillion
-years. Thousands of readers wrote in for the technical memo, which went
+$100 from the inventors to whoever read it. The column quoted Rivest's
+estimate that factoring a 125-digit number with the best methods of the
+day would take 40 quadrillion years; Rivest later said he didn't recall
+how that figure was reached. Thousands of readers wrote in for the technical memo, which went
 out only months later, after an NSA employee's warning (below) that such
 papers might break export law made MIT cautious.
 
 The formal paper, "A Method for Obtaining Digital Signatures and Public-Key
 Cryptosystems", appeared in *Communications of the ACM* in February 1978,
-with "Alice" and "Bob" as its sender and receiver, the start of a long
-tradition. MIT patented RSA in 1983; the patent ran until September 2000,
+with "Alice" and "Bob" as its sender and receiver (they may already
+appear in the 1977 memo), the start of a long tradition. MIT patented RSA in 1983; the patent ran until September 2000,
 and the inventors' company, RSA Data Security, founded in 1982, licensed
 it to almost every security product of the 1980s and 1990s.
 
@@ -351,9 +352,9 @@ decades, slowed by unfamiliar mathematics and by patents, many held by the
 Canadian company Certicom. NSA endorsed elliptic curves in its Suite B in
 2005, and Daniel J. Bernstein's Curve25519 (2005) and the Ed25519
 signature scheme (2011) made them fast and hard to misuse. Today
-[X25519](../01-key-exchange/ECDH.md) and
-[Ed25519](../02-signatures/EdDSA.md) are the defaults in SSH, TLS, Signal
-and WireGuard. [Elliptic curves](../10-math-foundations/Elliptic-Curves.md)
+[X25519](../01-key-exchange/ECDH.md) is the most widely used key exchange
+on the internet, now usually paired with ML-KEM, and
+[Ed25519](../02-signatures/EdDSA.md) is the default SSH key type. [Elliptic curves](../10-math-foundations/Elliptic-Curves.md)
 explains the mathematics.
 
 ## The crypto wars
@@ -388,14 +389,16 @@ student, broke a 40-bit challenge in three and a half hours.
 
 In June 1991 Phil Zimmermann, a software engineer in Colorado, released
 **PGP** ("Pretty Good Privacy"), free software that let anyone encrypt and
-sign e-mail with RSA and the IDEA cipher. He was prompted by a Senate bill
+sign e-mail with RSA and a symmetric cipher of his own, BassOmatic. Eli
+Biham soon showed BassOmatic was weak, and PGP 2.0 (1992) replaced it with
+the IDEA cipher. Zimmermann was prompted by a Senate bill
 that year whose language would have pushed makers of secure equipment to
 let the government read plaintext. A friend posted it to the internet, and
 it spread worldwide within days.
 
 Zimmermann was soon in trouble twice over. RSA Data Security accused him of
-infringing its patent, a dispute later settled when MIT released a version
-using the licensed RSAREF library. And from 1993 a federal grand jury
+infringing its patent, a dispute resolved for non-commercial use when MIT
+released a version built on RSA's licensed RSAREF library. And from 1993 a federal grand jury
 investigated whether PGP's spread abroad had broken export law. The case
 was dropped in January 1996 without charges. In 1995 MIT Press published
 PGP's complete source code as a printed book, on the reasoning that books
@@ -408,8 +411,8 @@ standard, OpenPGP, are on the [OpenPGP page](../protocols/OpenPGP.md).
 On 16 April 1993 the White House announced the **Clipper chip**, a
 government-designed encryption chip for telephones. It used a classified
 NSA cipher, Skipjack, with 80-bit keys. The catch was *key escrow*: each
-chip's unique key would be split into two halves held by two government
-agencies, and every call would carry a *Law Enforcement Access Field*
+chip's unique key would be split into two parts, each useless on its
+own, held by two government agencies, and every call would carry a *Law Enforcement Access Field*
 (LEAF) from which police with a warrant could recover the call's key.
 The standard was issued as FIPS 185 in February 1994, and AT&T built a
 secure phone with the chip.
@@ -428,8 +431,9 @@ Two court cases made the export rules hard to defend. In 1995 Daniel J.
 Bernstein, then a Berkeley graduate student, backed by the Electronic
 Frontier Foundation, sued for the right to publish the source code of his
 cipher, Snuffle, without a licence. In 1996 a federal judge ruled that
-source code is speech protected by the First Amendment, and an appeals
-court agreed in 1999. In a separate case, *Junger v. Daley*, the Sixth
+source code is speech protected by the First Amendment. An appeals court
+panel agreed in 1999, but the full court withdrew that opinion to rehear
+the case, and it was eventually dismissed without a final ruling. In a separate case, *Junger v. Daley*, the Sixth
 Circuit court of appeals ruled in April 2000 that "computer source code
 is an expressive means for the exchange of information and ideas about
 computer programming" and is protected.
@@ -440,8 +444,8 @@ Commerce Department, and in January 2000 new rules allowed most
 encryption software to be exported after a one-time review. Strong
 cryptography became something anyone could build into a product sold
 anywhere. The argument about lawful access did not end; it returned in
-the 2010s over encrypted phones and messaging, as the internet-era page
-tells.
+the 2010s over encrypted phones and messaging, as the
+[internet era](08-Internet-Era.md#the-second-crypto-war) page tells.
 
 ## What this era left behind
 
@@ -452,7 +456,8 @@ tells.
   logarithms. Both fall to a large quantum computer, which is why the
   post-quantum story begins here too.
 - **Cryptography as public science**, with open papers, open standards and
-  open code, and the law's eventual acceptance that code is speech.
+  open code, and court rulings, *Junger* above all, that treat source
+  code as protected speech.
 - **A standing argument** about whether governments should be able to read
   encrypted traffic, which every generation since has had again.
 
@@ -477,7 +482,7 @@ tells.
 - Loren M. Kohnfelder, *Towards a Practical Public-Key Cryptosystem* (BSc thesis, MIT, 1978) / Leslie Lamport, "Constructing Digital Signatures from a One Way Function" (SRI CSL-98, 1979) / Ralph C. Merkle, *Secrecy, Authentication, and Public Key Systems* (PhD thesis, Stanford, 1979)
 - Neal Koblitz, "Elliptic Curve Cryptosystems", *Mathematics of Computation* 48 (1987), pp. 203–209 / Victor S. Miller, "Use of Elliptic Curves in Cryptography" (CRYPTO '85)
 - Matt Blaze, "Protocol Failure in the Escrowed Encryption Standard", *Proceedings of the 2nd ACM Conference on Computer and Communications Security* (1994), pp. 59–67 / NIST, FIPS 185, *Escrowed Encryption Standard* (1994)
-- *Bernstein v. United States Department of Justice*, 176 F.3d 1132 (9th Cir. 1999) / *Junger v. Daley*, 209 F.3d 481 (6th Cir. 2000)
+- *Bernstein v. United States Department of Justice*, 176 F.3d 1132 (9th Cir. 1999), rehearing en banc granted and opinion withdrawn, 192 F.3d 1308 (9th Cir. 1999) / *Junger v. Daley*, 209 F.3d 481 (6th Cir. 2000)
 - Steven Levy, *Crypto: How the Code Rebels Beat the Government, Saving Privacy in the Digital Age* (Viking, 2001) / Whitfield Diffie and Susan Landau, *Privacy on the Line: The Politics of Wiretapping and Encryption* (MIT Press, 1998; updated 2007)
 
 *Weaker sources:* search summaries for the date and place of Cocks's December 1997 talk and the wording of Ellis's report title; Merkle's account on his own website of the 1974 course proposal and its rejection; Levy's *Crypto* for the Passover night, NSA's reaction to the Gardner column and Doligez's 1995 break; Zimmermann's own statements about the June 1991 release and the January 1996 end of the investigation; Inman's claim about NSA in the 1960s, which rests on interviews.

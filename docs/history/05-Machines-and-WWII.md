@@ -69,15 +69,17 @@ The idea occurred to several people at almost the same time:
 
 The commercial Enigma, sold from 1923, was meant for banks and companies
 and sold poorly. The German navy adopted a version in 1926 and the army in
-1928. Two additions made the military machine:
+1928. Two features defined the machine the Germans used:
 
 - A **reflector** (*Umkehrwalze*) at the far end of the rotors, which
-  sends the current back through them by a different path. Its designer
-  Willi Korn's idea made the machine *self-reciprocal*: the same settings
+  sends the current back through them by a different path. Willi Korn
+  patented it in 1926, and it was already in the commercial models of the
+  mid-1920s. It made the machine *self-reciprocal*: the same settings
   encrypt and decrypt. It also meant that **no letter could ever encrypt
   to itself**, a small flaw that turned out to matter a great deal.
-- A **plugboard** (*Steckerbrett*) at the front, added for the army in
-  1930. Cables swap pairs of letters before and after the rotors.
+- A **plugboard** (*Steckerbrett*) at the front, the true military
+  addition, introduced for the army in 1930. Cables swap pairs of letters
+  before and after the rotors.
 
 An operator typed a letter, current ran through the plugboard, the three
 rotors, the reflector, back through the rotors and plugboard, and a lamp
@@ -205,7 +207,9 @@ office, was selling secrets to French intelligence. In 1931 and 1932 he
 handed Captain Gustave Bertrand operating instructions for Enigma and the
 daily keys for some months, including September and October 1932. French
 codebreakers judged the machine unbreakable even with these. Bertrand
-passed copies to the Poles in December 1932.
+passed the material to the Poles, starting in December 1931, and in
+December 1932 the Bureau's chief, Gwido Langer, gave Rejewski the keys
+for September and October 1932.
 
 ### Rejewski's equations
 
@@ -245,12 +249,14 @@ what the Bureau could afford.
 
 ### The Pyry meeting
 
-On 25 and 26 July 1939, five weeks before Germany invaded Poland, the
+On 25 and 26 July 1939 (some accounts say 26 and 27), five weeks before
+Germany invaded Poland, the
 Polish Bureau hosted British and French codebreakers at its secret centre
 in the Kabaty forest at Pyry, outside Warsaw. The British were Alastair
-Denniston, head of the Government Code and Cypher School, and Dilly Knox,
-its leading Enigma expert, who had been stuck on the very keyboard-wiring
-question Rejewski had guessed. The Poles explained everything and promised
+Denniston, head of the Government Code and Cypher School; Dilly Knox, its
+leading Enigma expert, who had been stuck on the very keyboard-wiring
+question Rejewski had guessed; and Commander Humphrey Sandwith of the
+Admiralty's interception service. The Poles explained everything and promised
 each country a replica Enigma, with the designs of the sheets and the
 bomba.
 
@@ -383,8 +389,9 @@ senior Bletchley codebreaker, worked out both texts and with them about
 
 Bill Tutte, a 24-year-old chemistry graduate, then studied that key. By
 writing it out in rows of different lengths he found a repeat every 41
-characters, and over the next few months he deduced the whole logical
-structure of the machine, all twelve wheels and how they moved, without
+characters, and over the next few months, with help from colleagues in
+the Research Section, he deduced the whole logical structure of the
+machine, all twelve wheels and how they moved, without
 ever seeing one. It is often called one of the greatest intellectual
 feats of the war.
 
@@ -544,9 +551,10 @@ perfect cipher, broken because of how its keys were made and handled.
   Bletchley.
 - **The weakest link is the operator.** Doubled keys, cribs and reused
   pads did more to break ciphers than mathematics alone.
-- **Decades of silence.** Bletchley's story stayed secret until F. W.
-  Winterbotham's *The Ultra Secret* in 1974, and much of it until the
-  2000s, so the history of computing and of the war was written for years
+- **Decades of silence.** Enigma's breaking was first described by the
+  Polish historian Władysław Kozaczuk in 1967 and by Bertrand in 1973;
+  Ultra reached English readers with F. W. Winterbotham's *The Ultra
+  Secret* in 1974, and much of the detail stayed secret until the 2000s, so the history of computing and of the war was written for years
   without it.
 
 ## See also
@@ -567,7 +575,7 @@ perfect cipher, broken because of how its keys were made and handled.
 - Gordon Welchman, *The Hut Six Story* (McGraw-Hill, 1982) / Alan Turing, *Treatise on the Enigma* ("Prof's Book", c. 1940; declassified, US National Archives)
 - *General Report on Tunny, with Emphasis on Statistical Methods* (GC&CS, 1945; released to the UK National Archives, HW 25/4 and 25/5, in 2000) / B. Jack Copeland (ed.), *Colossus: The Secrets of Bletchley Park's Codebreaking Computers* (Oxford University Press, 2006) / W. T. Tutte, "Fish and I" (lecture, University of Waterloo, 1998)
 - Stephen Budiansky, *Battle of Wits: The Complete Story of Codebreaking in World War II* (Free Press, 2000)
-- NSA Center for Cryptologic History, *The Friedman Legacy* (1992) and Frank B. Rowlett, *The Story of Magic* (Aegean Park Press, 1998) / Edwin T. Layton, *"And I Was There": Pearl Harbor and Midway* (Morrow, 1985)
+- NSA Center for Cryptologic History, *The Friedman Legacy* (1992) and Frank B. Rowlett, *The Story of Magic* (Aegean Park Press, 1998) / Edwin T. Layton with Roger Pineau and John Costello, *"And I Was There": Pearl Harbor and Midway—Breaking the Secrets* (Morrow, 1985)
 - Robert L. Benson, *The Venona Story* (NSA Center for Cryptologic History, 2001; reprinted 2019) / John Earl Haynes and Harvey Klehr, *Venona: Decoding Soviet Espionage in America* (Yale University Press, 1999)
 - F. W. Winterbotham, *The Ultra Secret* (Weidenfeld & Nicolson, 1974)
 

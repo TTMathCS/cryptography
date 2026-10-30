@@ -15,12 +15,12 @@ mathematically unbreakable, if you can live with its rules.
 
 | When | Who | What |
 |---|---|---|
-| 1837, 1844 | Cooke and Wheatstone; Morse | electric telegraphs in Britain and the US |
+| 1837–1844 | Cooke and Wheatstone; Morse | electric telegraphs in Britain and the US |
 | 1845 | Francis O. J. Smith | the first code book for telegraph messages |
 | 1843 | Edgar Allan Poe | "The Gold-Bug" makes ciphers popular reading |
 | 1854 | Charles Babbage | breaks the keyword cipher, but doesn't publish |
 | 1854 | Charles Wheatstone | the Playfair cipher |
-| 1861–1865 | US Civil War | the first war fought with telegraph ciphers |
+| 1861–1865 | US Civil War | the first war to lean heavily on telegraph ciphers |
 | 1863 | Friedrich Kasiski | publishes the general attack on keyword ciphers |
 | 1883 | Auguste Kerckhoffs | *La cryptographie militaire*: only the key is secret |
 | 1882 | Frank Miller | a one-time pad in a banker's telegraph code |
@@ -34,9 +34,10 @@ mathematically unbreakable, if you can live with its rules.
 
 ### Codes for a price per word
 
-William Fothergill Cooke and Charles Wheatstone opened the first
-commercial electric telegraph in Britain in 1837, and Samuel Morse sent
-"What hath God wrought" from Washington to Baltimore in 1844. Within a
+William Fothergill Cooke and Charles Wheatstone patented their electric
+telegraph in 1837, and their first commercial line, along the Great
+Western Railway out of London, went into service in 1839. Samuel Morse
+sent "What hath God wrought" from Washington to Baltimore in 1844. Within a
 decade, wires linked the big cities of Europe and North America; the
 first lasting transatlantic cable opened in 1866.
 
@@ -74,11 +75,15 @@ letters 1, 6, 11, 16 and so on are all shifted by the same amount.
 ### Babbage, 1854
 
 Charles Babbage (1791–1871), the inventor of the Difference Engine and the
-Analytical Engine, was an enthusiastic codebreaker. In 1854 a Bristol
-dentist, John Hall Brock Thwaites, presented a "new" cipher in the
-*Journal of the Society of Arts*. Babbage pointed out that it was an old
-keyword cipher. Thwaites challenged him to break a sample: Tennyson's poem
-"The Vision of Sin", enciphered with the keyword EMILY. Babbage did.
+Analytical Engine, was an enthusiastic codebreaker. In 1854 (some
+accounts say 1853) a Bristol dentist, John Hall Brock Thwaites, presented
+a "new" cipher in the *Journal of the Society of Arts*. Babbage pointed
+out that it was an old keyword cipher. Thwaites challenged him to find the
+keys he had used on a passage of Shakespeare's *The Tempest*, and Babbage
+found them: "two" and "combined". Popular accounts also tell of Babbage
+solving Tennyson's poem "The Vision of Sin" enciphered with the keyword
+EMILY; the details of both stories come from secondary retellings of his
+papers and differ between them.
 
 He never published his method; it was found in his notebooks after his
 death. Ole Franksen suggested in 1985 that British intelligence kept it
@@ -108,7 +113,7 @@ The *Kasiski examination* has two steps:
 
 ### Trying it
 
-The keyword here is EMILY, as in Thwaites's challenge. The program doesn't
+The keyword here is EMILY, from the Tennyson story. The program doesn't
 know it: it finds the key length from the repeats, then picks for each
 column the shift whose letter counts best match English.
 
@@ -265,12 +270,13 @@ The French cryptologist Étienne Bazeries, who later broke the Rossignols'
 reinvented it in 1891 with 20 disks. The US Army adopted a version with 25
 aluminium disks as the M-94 in 1922 and used it into the Second World War,
 along with a flat strip version, the M-138-A, used by the State
-Department.
+Department, the Army and the Navy.
 
 ### The US Civil War: the first telegraph war
 
 The American Civil War (1861–1865) was the first war in which armies
-relied on the telegraph. The Union's military telegraph, run by former
+relied heavily on the telegraph; the British and French had used it in
+the Crimea a few years before. The Union's military telegraph, run by former
 Western Union men, used *route transpositions*: the words of a message
 were written in a grid and read off along a prearranged path, with code
 words standing in for names and places and dummy words added at the ends.
@@ -337,8 +343,9 @@ became a large organized profession.
 In August 1914 Sir Alfred Ewing, the Admiralty's director of naval
 education, began gathering mathematicians, linguists and classicists to
 read German naval signals. The group, known as Room 40 after its office in
-the Admiralty Old Building, came under Captain William Reginald "Blinker"
-Hall when he became Director of Naval Intelligence that autumn.
+the Admiralty Old Building, worked closely with Captain William Reginald
+"Blinker" Hall, who became Director of Naval Intelligence that autumn;
+Ewing ran it until 1917, when it passed fully to Hall's division.
 
 Luck gave it a start. In the first months of the war the Allies captured
 all three main German naval code books: the *SKM* from the cruiser
@@ -360,8 +367,9 @@ Germany would provide money, and Mexico would "reconquer the lost
 territory in Texas, New Mexico, and Arizona". Mexico should also invite
 Japan to join.
 
-Germany had sent it partly over the American State Department's own cable,
-which President Wilson had let Germany use for peace talks. The cable ran
+Germany sent it over the American State Department's own cable, which
+President Wilson had let Germany use for peace talks (by the usual
+account it went by other routes as well). The cable ran
 through Britain, and Room 40 copied everything on it. Two of its
 codebreakers, Nigel de Grey and the Reverend William Montgomery, read the
 message in German code 0075 within hours, at first with gaps.
@@ -385,7 +393,8 @@ changed, but it is the classic case of codebreaking shaping events.
 
 ### ADFGVX and the radiogram of victory
 
-On 1 March 1918, before its great spring offensive, the German army
+In early March 1918 (sources give the 1st or the 5th), during its great
+spring offensive, the German army
 introduced a new field cipher designed by Fritz Nebel. It used only the
 letters A, D, F, G and X, chosen because they sound very different in
 Morse code. Each plaintext letter was replaced by its row and column in a
@@ -449,8 +458,9 @@ letters or numbers, each sheet used once and destroyed.
 Even this had a forerunner. In 2011 Bellovin found an 1882 telegraph code
 book by Frank Miller, a Sacramento banker, which describes adding random
 numbers from a list to the code numbers and crossing each one out once
-used. That is a one-time pad, 35 years before Vernam. There is no sign
-that Vernam or Mauborgne knew of it.
+used. That is a one-time pad, 35 years before Vernam. Bellovin found no
+proof that Vernam or Mauborgne knew of it, though he suggested Mauborgne
+might have heard of it through his colleague Parker Hitt.
 
 ### Why it can't be broken
 
@@ -506,8 +516,10 @@ itself, delivered in advance by a trusted route. That is fine for a spy
 with a pad hidden in a cigarette lighter, or for the Washington–Moscow
 hotline, which ran on one-time tapes after 1963, but impossible for a
 whole army, let alone the internet. In the early 1920s the German Foreign
-Office adopted one-time pads for its diplomatic code, and its traffic
-became unreadable. Most of the rest of cryptographic history is about
+Office adopted one-time pads for its diplomatic code, which made its
+traffic far harder to read, although its pads came from a machine rather
+than true chance, and American codebreakers attacked them in the Second
+World War. Most of the rest of cryptographic history is about
 getting close to one-time-pad security with a short key. The modern
 answer is a *stream cipher* such as [ChaCha20](../04-symmetric-ciphers/ChaCha.md),
 which stretches a 256-bit key into a long pseudo-random pad, and a key
@@ -551,4 +563,4 @@ agree on that key.
 - Steven M. Bellovin, "Frank Miller: Inventor of the One-Time Pad", *Cryptologia* 35, no. 3 (2011), pp. 203–222 / Bellovin, "Vernam, Mauborgne, and Friedman: The One-Time Pad and the Index of Coincidence", in *The New Codebreakers* (Springer LNCS 9100, 2016)
 - William F. Friedman, *The Index of Coincidence and Its Applications in Cryptography* (Riverbank Publication 22, 1922)
 
-*Weaker sources:* search summaries of the Wikipedia articles on the Vigenère cipher (Thwaites, EMILY, the 1854 date), Georges Painvin and the ADFGVX cipher (1 March and 2 June 1918, the V added around the start of June); Wemyss Reid's *Memoirs of Lyon Playfair* (1899) for the Foreign Office anecdote, known to me through retellings; the "BAFUZ" code word, a made-up example of the style rather than a quotation from a real code book.
+*Weaker sources:* search summaries of the Wikipedia articles on the Vigenère cipher (Thwaites, *The Tempest*, the keys "two" and "combined", the 1854 date) and Simon Singh's *The Code Book* (1999) for the Tennyson and EMILY story, Georges Painvin and the ADFGVX cipher (1 March and 2 June 1918, the V added around the start of June); Wemyss Reid's *Memoirs of Lyon Playfair* (1899) for the Foreign Office anecdote, known to me through retellings; the "BAFUZ" code word, a made-up example of the style rather than a quotation from a real code book.

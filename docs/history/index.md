@@ -50,15 +50,16 @@ The turning points, with a link to the page that tells each story.
 | 1997 | [GCHQ reveals](07-Public-Key.md#gchqs-secret) that its staff found public-key methods in 1970–1974 | The same ideas, discovered first in secret |
 | 1991–2000 | PGP, the Clipper chip and the US export fights: the [crypto wars](07-Public-Key.md#the-crypto-wars) | The "crypto wars" over who may use strong encryption |
 | 1994 | Peter Shor's quantum algorithm for factoring | A future quantum computer would break RSA and elliptic curves |
-| 1995 | SSL ships in Netscape Navigator; SSH is written | Encryption for everyone's network traffic |
-| 1996–1999 | Timing and power-analysis attacks | Hardware leaks keys even when the math is sound |
-| 1998 | The EFF's Deep Crack finds a DES key in 56 hours | Proof that 56-bit keys were too short |
-| 2001 | AES is published as FIPS 197 | A cipher chosen in an open, worldwide competition |
-| 2004–2017 | MD5, then SHA-1, collisions | Hash functions break in practice |
-| 2013 | The Snowden documents | Mass surveillance, and a backdoored random number generator |
-| 2014 | Heartbleed | One bug in OpenSSL exposes much of the web |
-| 2015–2016 | Let's Encrypt starts issuing free certificates | Encrypted web traffic becomes the default |
-| 2018 | TLS 1.3 is published | A faster, cleaner protocol with forward secrecy built in |
+| 1995 | [SSL](08-Internet-Era.md#ssl-at-netscape) ships in Netscape Navigator; [SSH](08-Internet-Era.md#ssh) is written | Encryption for everyone's network traffic |
+| 1996–1999 | [Timing and power-analysis attacks](09-Hardware-and-Engineering.md#side-channels) | Hardware leaks keys even when the math is sound |
+| 1998 | The EFF's [Deep Crack](09-Hardware-and-Engineering.md#deep-crack) finds a DES key in 56 hours | Proof that 56-bit keys were too short |
+| 2001 | [AES](08-Internet-Era.md#aes-a-cipher-chosen-in-public) is published as FIPS 197 | A cipher chosen in an open, worldwide competition |
+| 2004–2017 | [MD5, then SHA-1, collisions](08-Internet-Era.md#md5-and-sha-1) | Hash functions break in practice |
+| 2013 | The [Snowden documents](08-Internet-Era.md#snowden-and-dual_ec_drbg) | Mass surveillance, and a backdoored random number generator |
+| 2014 | [Heartbleed](08-Internet-Era.md#heartbleed-2014) | One bug in OpenSSL exposes much of the web |
+| 2015–2016 | [Let's Encrypt](08-Internet-Era.md#lets-encrypt-and-https-everywhere) starts issuing free certificates | Encrypted web traffic becomes the default |
+| 2016 | WhatsApp switches a billion users to the [Signal protocol](08-Internet-Era.md#from-otr-to-signal) | End-to-end encryption for ordinary messaging |
+| 2018 | [TLS 1.3](08-Internet-Era.md#from-ssl-to-tls-13) is published | A faster, cleaner protocol with forward secrecy built in |
 | 2016–2024 | NIST's post-quantum competition | ML-KEM, ML-DSA and SLH-DSA become standards in August 2024 |
 
 ## How to read this section
@@ -79,10 +80,12 @@ The pages run in time order, and each one stands on its own:
    GCHQ, Crypto AG, Feistel and Lucifer, DES and its key
 7. [Public-key cryptography](07-Public-Key.md): Merkle, Diffie–Hellman,
    RSA, GCHQ's secret, elliptic curves, PGP, Clipper and the crypto wars
-8. The internet era: SSL and TLS, AES, broken hashes, famous bugs,
-   Snowden, end-to-end messaging
-9. Hardware and engineering: smart cards to secure enclaves, side
-   channels, cracking machines, quantum key distribution
+8. [The internet era](08-Internet-Era.md): SSL to TLS 1.3, SSH, the AES
+   competition, broken hashes, famous bugs, Snowden and Dual_EC, Let's
+   Encrypt, Signal and end-to-end messaging
+9. [Hardware and engineering](09-Hardware-and-Engineering.md): HSMs, smart
+   cards, TPMs and secure enclaves, AES instructions, side channels,
+   cracking machines, security keys, quantum key distribution
 10. Quantum and post-quantum: Shor, the NIST competition, the new
     standards and the move to them
 

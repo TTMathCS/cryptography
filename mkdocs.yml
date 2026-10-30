@@ -68,6 +68,8 @@ nav:
       - history/05-Machines-and-WWII.md
       - history/06-Shannon-to-DES.md
       - history/07-Public-Key.md
+      - history/08-Internet-Era.md
+      - history/09-Hardware-and-Engineering.md
   - Key exchange:
       - 01-key-exchange/Diffie-Hellman.md
       - 01-key-exchange/ECDH.md

@@ -35,10 +35,10 @@ open research community that has run cryptography ever since.
 
 Claude Shannon (1916–2001) was a Bell Labs mathematician who had already
 shown, in his 1937 master's thesis, that electrical switching circuits
-could do Boolean logic. During the war he worked on secure telephone
-systems, including SIGSALY, the Bell Labs voice-encryption system that
-linked Roosevelt and Churchill, and met Alan Turing when Turing visited
-Bell Labs in 1943.
+could do Boolean logic. During the war he was consulted on the
+encryption of SIGSALY, the Bell Labs voice-encryption system that linked
+Washington and London, and met Alan Turing when Turing visited Bell Labs
+in 1943.
 
 On 1 September 1945 he finished a classified report, "A Mathematical
 Theory of Cryptography". The famous 1948 paper that founded information
@@ -76,10 +76,9 @@ science.
   simple substitution and mixing steps many times, a *product cipher*.
 
 That last idea is the blueprint for every modern block cipher, from DES to
-[AES](../04-symmetric-ciphers/AES.md). Shannon also stated what later
-became the standard assumption, with a nod to
-[Kerckhoffs](04-Telegraph-Age.md#kerckhoffss-rules): "the enemy knows the
-system being used".
+[AES](../04-symmetric-ciphers/AES.md). Shannon also took as his working
+assumption what [Kerckhoffs](04-Telegraph-Age.md#kerckhoffss-rules) had
+argued in 1883: "the enemy knows the system being used".
 
 ## The secret agencies
 
@@ -266,30 +265,37 @@ weakness?
 
 A 1978 inquiry by the US Senate Select Committee on Intelligence
 concluded, in its unclassified summary, that NSA had "convinced IBM that a
-reduced key size was sufficient" and had helped with the S-boxes, but had
-not tampered with the design or planted any weakness.
+reduced key size was sufficient" and had "indirectly assisted in the
+development of the S-box structures", but had not tampered with the
+design. Accounts still differ on how much NSA changed: Tuchman said NSA
+"did not dictate a single wire", while Konheim remembered the S-boxes
+coming back different.
 
 ### The S-boxes were stronger, not weaker
 
 The answer came in 1990, when Eli Biham and Adi Shamir published
 *differential cryptanalysis*, a general attack that tracks how
 differences between pairs of plaintexts propagate through a cipher's
-rounds. It broke many ciphers of the time, including Japan's FEAL.
-Against DES it needed 2⁴⁷ chosen plaintexts, more than an attacker could
-realistically get, because DES's S-boxes happened to resist it unusually
-well.
+rounds. It broke many ciphers of the time, including Japan's FEAL. Their
+first paper beat brute force only on DES cut down to 15 rounds or fewer;
+in 1992 they reached the full 16 rounds, and even then it needed 2⁴⁷
+chosen plaintexts, more than an attacker could realistically get, because
+DES's S-boxes resisted it unusually well.
 
 It wasn't luck. In 1994 Don Coppersmith of IBM explained that the team had
 known about the technique in 1974, calling it the "T-attack", and had
-designed the S-boxes to resist it. NSA had asked IBM to keep it secret,
-and it stayed secret for sixteen years. In 1993 Mitsuru Matsui found
-another general method, *linear cryptanalysis*, which DES had not been
-designed against; it needed 2⁴³ known plaintexts, and in 1994 Matsui ran
-it for real, recovering a key in about 50 days on twelve workstations.
+designed the S-boxes to resist it; after discussions with NSA, it was
+decided to keep the technique secret, and it stayed secret for sixteen
+years. In 1993 Mitsuru Matsui found another general method, *linear
+cryptanalysis*, which DES had not been designed against. His first
+version needed 2⁴⁷ known plaintexts and an improved one 2⁴³, and in 1994
+he ran the improved attack for real, recovering a key in about 50 days on
+twelve workstations.
 
-So the history settled both questions in an unexpected way. The secret
-changes made DES stronger against clever attacks, and the short key made
-it weaker against the simplest one.
+So the history answered both questions, though not as the critics
+expected. Whoever had the final word on them, the S-boxes made DES
+stronger against clever attacks, and the short key made it weaker against
+the simplest one.
 
 ### The key falls
 
@@ -321,7 +327,9 @@ DES challenges. In 1997 a volunteer network of ordinary computers found
 the first key after 96 days. In July 1998 the Electronic Frontier
 Foundation's purpose-built machine, *Deep Crack*, which cost under
 $250,000, found one in 56 hours, and in January 1999, working with
-distributed.net's volunteers, in 22 hours and 15 minutes. Each AES-128 key, by contrast, would take that machine about
+distributed.net's volunteers, in 22 hours and 15 minutes. The
+[hardware page](09-Hardware-and-Engineering.md#deep-crack) tells how the
+machine was built. Each AES-128 key, by contrast, would take that machine about
 10²⁰ years.
 
 DES lived on as **Triple DES**: encrypt, decrypt and encrypt again with
@@ -339,7 +347,7 @@ cipher gave academics something concrete to analyse, and the argument
 about it made cryptography respectable as a university subject.
 
 - **1977:** the first issue of *Cryptologia*, a journal founded by Brian
-  Winkel, Cipher Deavours, David Kahn and Louis Kruh.
+  Winkel, Cipher Deavours, David Kahn, Louis Kruh and Greg Mellen.
 - **1981:** the first CRYPTO conference, at the University of California,
   Santa Barbara.
 - **1982:** the International Association for Cryptologic Research (IACR)
@@ -371,7 +379,8 @@ chip, stayed classified until 1998.
   tools for judging every block cipher since.
 - **A lesson about key length.** 56 bits was a choice, not a law of
   nature, and the cost of searching keys falls every year. AES, chosen in
-  2001, starts at 128 bits.
+  2000 and published in 2001, starts at 128 bits; see the
+  [internet era](08-Internet-Era.md#aes-a-cipher-chosen-in-public).
 - **Distrust of secret design**, from DES's S-boxes to Crypto AG, which
   open competitions were later designed to answer.
 
@@ -393,7 +402,7 @@ chip, stayed classified until 1998.
 - National Bureau of Standards, *Data Encryption Standard*, FIPS PUB 46 (January 1977) / FIPS PUB 81, *DES Modes of Operation* (December 1980) / NIST, withdrawal of FIPS 46-3 (19 May 2005)
 - Whitfield Diffie and Martin E. Hellman, "Exhaustive Cryptanalysis of the NBS Data Encryption Standard", *Computer* 10, no. 6 (June 1977), pp. 74–84
 - US Senate Select Committee on Intelligence, *Unclassified Summary: Involvement of NSA in the Development of the Data Encryption Standard* (95th Congress, 1978)
-- Eli Biham and Adi Shamir, "Differential Cryptanalysis of DES-like Cryptosystems", *Journal of Cryptology* 4 (1991), pp. 3–72 (CRYPTO '90) / Mitsuru Matsui, "Linear Cryptanalysis Method for DES Cipher" (EUROCRYPT '93) and "The First Experimental Cryptanalysis of the Data Encryption Standard" (CRYPTO '94)
+- Eli Biham and Adi Shamir, "Differential Cryptanalysis of DES-like Cryptosystems", *Journal of Cryptology* 4 (1991), pp. 3–72 (CRYPTO '90) and "Differential Cryptanalysis of the Full 16-round DES" (CRYPTO '92) / Mitsuru Matsui, "Linear Cryptanalysis Method for DES Cipher" (EUROCRYPT '93) and "The First Experimental Cryptanalysis of the Data Encryption Standard" (CRYPTO '94)
 - Don Coppersmith, "The Data Encryption Standard (DES) and Its Strength against Attacks", *IBM Journal of Research and Development* 38, no. 3 (1994), pp. 243–250
 - Electronic Frontier Foundation, *Cracking DES: Secrets of Encryption Research, Wiretap Politics and Chip Design* (O'Reilly, 1998)
 - Steven Levy, *Crypto: How the Code Rebels Beat the Government, Saving Privacy in the Digital Age* (Viking, 2001)
