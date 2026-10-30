@@ -136,9 +136,12 @@ print(cmac(key, m + xor(m, t)) == t)     # False
 Raw CBC-MAC accepts a two-block message nobody tagged. The same trick on
 a CMAC tag fails.
 
-In real code, PyCA `cryptography` has `cmac.CMAC(algorithms.AES(key))`,
-and GMAC is `AESGCM(key).encrypt(nonce, b"", data)`, which returns only
-the 16-byte tag. Those need the library and weren't run for this page.
+In real code, PyCA `cryptography` (`pip install cryptography`) has
+`cmac.CMAC(algorithms.AES(key))`, and GMAC is
+`AESGCM(key).encrypt(nonce, b"", data)`, which returns only the 16-byte
+tag. Run with cryptography 50.0.1 on Python 3.13, CMAC gives the four
+RFC 4493 tags, and GMAC matches NIST's GCM test vectors that have no
+plaintext.
 
 ## Security notes
 
