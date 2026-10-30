@@ -60,8 +60,8 @@ The idea occurred to several people at almost the same time:
   based on work by two Dutch naval officers.
 - **Arvid Damm** in Sweden filed a patent in 1919. His company was later
   taken over by Boris Hagelin, who built a business on pin-wheel machines
-  and in 1952 founded Crypto AG in Switzerland, whose later story is a
-  scandal of its own.
+  and in 1952 founded Crypto AG in Switzerland, whose
+  [later story](06-Shannon-to-DES.md#crypto-ag) is a scandal of its own.
 
 ## Enigma
 
@@ -553,6 +553,8 @@ perfect cipher, broken because of how its keys were made and handled.
 
 - [The telegraph age](04-Telegraph-Age.md): Vernam, the one-time pad and
   the dangers of reusing it
+- [From Shannon to DES](06-Shannon-to-DES.md): the theory and the
+  agencies that came after the war
 - [AES](../04-symmetric-ciphers/AES.md): a modern cipher built so that
   knowing some plaintext, Bletchley's favourite tool, doesn't help
 

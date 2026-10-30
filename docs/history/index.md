@@ -44,11 +44,11 @@ The turning points, with a link to the page that tells each story.
 | 1932 | Marian Rejewski [reconstructs the wiring](05-Machines-and-WWII.md#poland-the-first-break) of the military Enigma | Mathematics enters codebreaking |
 | 1940–1944 | [Bletchley Park's](05-Machines-and-WWII.md#bletchley-park) bombes break Enigma; [Colossus](05-Machines-and-WWII.md#lorenz-and-colossus) attacks the Lorenz cipher | Codebreaking at industrial scale, and the first electronic computers |
 | 1943–1980 | The [Venona](05-Machines-and-WWII.md#venona) project reads reused Soviet one-time pads | The one-time pad is only as safe as its key handling |
-| 1949 | Claude Shannon publishes "Communication Theory of Secrecy Systems" | Cryptography becomes a mathematical science |
-| 1977 | DES becomes the first public standard cipher | Strong encryption for business, and a fight over key length |
-| 1976–1977 | Diffie–Hellman key exchange, then RSA | Public-key cryptography: strangers agree on secrets in the open |
-| 1997 | GCHQ reveals that its staff found public-key methods in 1970–1974 | The same ideas, discovered first in secret |
-| 1991–1999 | PGP, the Clipper chip and the US export fights | The "crypto wars" over who may use strong encryption |
+| 1949 | Claude Shannon publishes ["Communication Theory of Secrecy Systems"](06-Shannon-to-DES.md#shannon-secrecy-becomes-mathematics) | Cryptography becomes a mathematical science |
+| 1977 | [DES](06-Shannon-to-DES.md#des) becomes the first public standard cipher | Strong encryption for business, and a fight over key length |
+| 1976–1977 | [Diffie–Hellman](07-Public-Key.md#diffie-and-hellman) key exchange, then [RSA](07-Public-Key.md#rsa) | Public-key cryptography: strangers agree on secrets in the open |
+| 1997 | [GCHQ reveals](07-Public-Key.md#gchqs-secret) that its staff found public-key methods in 1970–1974 | The same ideas, discovered first in secret |
+| 1991–2000 | PGP, the Clipper chip and the US export fights: the [crypto wars](07-Public-Key.md#the-crypto-wars) | The "crypto wars" over who may use strong encryption |
 | 1994 | Peter Shor's quantum algorithm for factoring | A future quantum computer would break RSA and elliptic curves |
 | 1995 | SSL ships in Netscape Navigator; SSH is written | Encryption for everyone's network traffic |
 | 1996–1999 | Timing and power-analysis attacks | Hardware leaks keys even when the math is sound |
@@ -75,9 +75,10 @@ The pages run in time order, and each one stands on its own:
    Kerckhoffs, Room 40 and the Zimmermann telegram, the one-time pad
 5. [Machines and World War II](05-Machines-and-WWII.md): rotor machines,
    Enigma, Poland and Bletchley Park, Colossus, Purple, Venona
-6. From Shannon to DES: the theory, the agencies, the first public standard
-7. Public-key cryptography: Diffie–Hellman, RSA, GCHQ's secret, the crypto
-   wars
+6. [From Shannon to DES](06-Shannon-to-DES.md): Shannon's theory, NSA and
+   GCHQ, Crypto AG, Feistel and Lucifer, DES and its key
+7. [Public-key cryptography](07-Public-Key.md): Merkle, Diffie–Hellman,
+   RSA, GCHQ's secret, elliptic curves, PGP, Clipper and the crypto wars
 8. The internet era: SSL and TLS, AES, broken hashes, famous bugs,
    Snowden, end-to-end messaging
 9. Hardware and engineering: smart cards to secure enclaves, side

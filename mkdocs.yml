@@ -66,6 +66,8 @@ nav:
       - history/03-Renaissance.md
       - history/04-Telegraph-Age.md
       - history/05-Machines-and-WWII.md
+      - history/06-Shannon-to-DES.md
+      - history/07-Public-Key.md
   - Key exchange:
       - 01-key-exchange/Diffie-Hellman.md
       - 01-key-exchange/ECDH.md
