@@ -73,8 +73,9 @@ d(2n + 3 + h′). For 128s (n = 16, k = 14, a = 12, d = 7, h′ = 9) that is
 
 ## Example (Python)
 
-Needs `liboqs-python` with liboqs 0.15 or later. Older versions only have
-SPHINCS+, whose signatures differ from FIPS 205.
+Needs `pip install liboqs-python` (its first import builds the liboqs C library if it is missing) with liboqs 0.15
+or later. Older versions only have SPHINCS+, whose signatures differ from
+FIPS 205. liboqs-python 0.16 first prints `liboqs-python faulthandler is disabled`.
 
 ```python
 import oqs

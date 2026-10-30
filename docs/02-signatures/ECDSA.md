@@ -44,7 +44,8 @@ the risk — or use [Ed25519](EdDSA.md), which builds that in.
 
 ## Example (Python)
 
-Correct ECDSA needs curve point arithmetic, so use a vetted library:
+Correct ECDSA needs curve point arithmetic, so use a vetted library, here
+PyCA `cryptography` (`pip install cryptography`):
 
 ```python
 from cryptography.hazmat.primitives.asymmetric import ec

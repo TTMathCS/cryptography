@@ -74,9 +74,10 @@ its worry about Falcon. Verification is plain integer math; signing is not.
 
 ## Example (Python)
 
-Needs `liboqs-python`. liboqs ships Falcon as submitted in round 3. FIPS 206
-is set to change details (such as hashing the public key into each
-signature), so these signatures won't verify as FN-DSA.
+Needs `pip install liboqs-python` (its first import builds the liboqs C library if it is missing). liboqs ships
+Falcon as submitted in round 3. FIPS 206 is set to change details (such as
+hashing the public key into each signature), so these signatures won't
+verify as FN-DSA. liboqs-python 0.16 first prints `liboqs-python faulthandler is disabled`.
 
 ```python
 import oqs

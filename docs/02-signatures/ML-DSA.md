@@ -58,7 +58,8 @@ deterministic mode is also allowed.
 
 ## Example (Python)
 
-Needs `liboqs-python`; the standard library has no ML-DSA.
+Needs `pip install liboqs-python` (its first import builds the liboqs C library if it is missing). The standard
+library has no ML-DSA. liboqs-python 0.16 first prints `liboqs-python faulthandler is disabled`.
 
 ```python
 import oqs

@@ -205,7 +205,8 @@ priv.public_key().verify(sig, b"message")   # raises if invalid
 ```
 
 `Ed448PrivateKey` works the same way, with 114-byte signatures. PyCA has no
-ctx or ph variants. This needs the library and wasn't run for this page.
+ctx or ph variants. Needs `pip install cryptography`. Run with version
+50.0.1 on Python 3.13, it prints nothing: `verify` returns without raising.
 
 ## Security notes
 

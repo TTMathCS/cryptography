@@ -30,8 +30,9 @@ Everyone shares three domain parameters: a large prime `p`, a prime `q` dividing
 
 The per-signature secret `k` is DSA's sharp edge. If `k` is ever **reused** for
 two messages, or even slightly **predictable**, anyone can solve for the private
-key `x` from the public signatures. This is exactly how the Sony PlayStation 3
-signing key leaked. Modern practice derives `k` deterministically from the
+key `x` from the public signatures. Sony's PlayStation 3 signing key leaked
+this way in 2010, through the same mistake in [ECDSA](ECDSA.md): a fixed `k`.
+Modern practice derives `k` deterministically from the
 message and key (RFC 6979), and [Ed25519](EdDSA.md) bakes that in by design —
 see [Why does randomness matter](../FAQ.md).
 
