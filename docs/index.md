@@ -9,6 +9,8 @@ When SSH or TLS connects, it picks one algorithm for each job: a key exchange,
 a signature, a cipher, a MAC and a hash. The tables below list the algorithms
 themselves. [Protocols](protocols/index.md) shows the other side: what SSH,
 TLS, WireGuard, Signal and others actually run.
+New readers can start with [History](history/index.md), which tells how these
+algorithms came to be, from Caesar's cipher to post-quantum keys.
 
 **Columns:** *Size* is the key, output or group size (B means bytes).
 *Security* is the classical strength in bits: about 2ⁿ work to break it, so
