@@ -105,6 +105,7 @@ with oqs.Signature("SLH_DSA_PURE_SHA2_128S") as verifier:
 
 - [ML-DSA](ML-DSA.md): the main post-quantum signature, which this backs up
 - [FN-DSA](FN-DSA.md): the compact lattice signature
+- [LMS and XMSS](Stateful-Hash-Signatures.md): the stateful hash-based signatures
 - [SHA-2](../07-hash/SHA-2.md) / [SHA-3](../07-hash/SHA-3.md): the hashes it is
   built from
 

@@ -78,6 +78,7 @@ The full worked numbers are in the [Cryptography FAQ](../FAQ.md).
 
 - [ECDSA](ECDSA.md) / [Ed25519](EdDSA.md) — smaller-key signature alternatives
 - [Miller-Rabin](../10-math-foundations/Miller-Rabin-Primality-Test.md) — how the primes are found
+- [Blind signatures](Blind-Signatures.md) — RSA signing without seeing the message
 - [Cryptography FAQ](../FAQ.md) — key sizes, precomputation, quantum
 
 ## References
