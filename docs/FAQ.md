@@ -198,7 +198,7 @@ how strong the algorithm. Real breaks have come from exactly this:
   every time, which leaked its private signing key.
 
 Always use the operating system's cryptographic generator (`/dev/urandom`,
-`getrandom`, `CryptGenRandom`), never a plain `rand()`.
+`getrandom`, `BCryptGenRandom`), never a plain `rand()`.
 
 ---
 
