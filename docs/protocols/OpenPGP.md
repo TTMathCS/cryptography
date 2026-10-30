@@ -113,7 +113,7 @@ P-256 subkey. GnuPG 2.5.23 (September 2026) added `--allow-9980` to read RFC
 With GnuPG installed (it isn't on a stock Mac):
 
 ```
-gpg --version                                   # algorithms this gpg knows, AEAD modes too
+gpg --version                                   # algorithm names this gpg knows (AEAD modes: --list-packets)
 gpg --quick-gen-key "Name <you@example.com>" default
 gpg --list-keys --with-subkey-fingerprints
 gpg --list-packets message.gpg                  # algorithm IDs in each packet

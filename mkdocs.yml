@@ -160,4 +160,7 @@ nav:
   - Tools:
       - tools/openssl.md
       - tools/keytool.md
+      - tools/ssh-keygen.md
+      - tools/gpg.md
+      - tools/age.md
   - FAQ: FAQ.md
