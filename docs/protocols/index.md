@@ -15,10 +15,10 @@ Protocols with a link have their own page.
 | [OpenPGP](OpenPGP.md) | RFC 9580 (2024), RFC 4880 (2007); post-quantum RFC 9980 (2026) | GnuPG (follows its own LibrePGP draft), Sequoia, OpenPGP.js |
 | S/MIME | RFC 8551 (2019), CMS RFC 5652 (2009) | Outlook, Apple Mail, Thunderbird |
 | [WireGuard](WireGuard.md) | whitepaper (2017), Noise framework | Linux kernel 5.6+, wireguard-go, WireGuardNT, BoringTun |
-| IPsec / IKEv2 | RFC 7296 (2014), RFC 4303 (2005) | strongSwan, Libreswan, Windows |
+| [IPsec / IKEv2](IPsec.md) | RFC 7296 (2014), RFC 4301 and RFC 4303 (2005) | strongSwan, Libreswan, Linux XFRM, Windows, macOS / iOS |
 | [Signal](Signal.md) | PQXDH (2023), Double Ratchet (2016, SPQR added 2025) specs | libsignal (Signal); WhatsApp and Google Messages also use the protocol |
-| MLS | RFC 9420 (2023) | OpenMLS, Webex, Discord |
-| JOSE / JWT | RFC 7515–7519 (2015) | jose, PyJWT, Nimbus |
+| [MLS](MLS.md) | RFC 9420 (2023), architecture RFC 9750 (2025) | OpenMLS, mls-rs, MLSpp; Discord calls, Webex |
+| [JOSE / JWT](JWT.md) | RFC 7515–7519 (2015), RFC 8725 (2020); ML-DSA RFC 9964 (2026) | panva jose, PyJWT, Nimbus JOSE+JWT, go-jose |
 | Kerberos | RFC 4120 (2005) | MIT Kerberos, Heimdal, Active Directory |
 | Wi-Fi WPA2 / WPA3 | IEEE 802.11i (2004), WPA3 (2018) | hostapd, wpa_supplicant |
 | DNSSEC | RFC 4033–4035 (2005) | BIND, Knot, Unbound, PowerDNS |
@@ -38,10 +38,10 @@ Protocols with a link have their own page.
 | [OpenPGP](OpenPGP.md) | X25519 | Ed25519 | AES-256-OCB | in AEAD | SHA-256/512 | Argon2, HKDF |
 | S/MIME | RSA-OAEP, ECDH | RSA, ECDSA | AES-GCM, AES-CBC | in AEAD | SHA-256 | X9.63 KDF |
 | [WireGuard](WireGuard.md) | X25519 (+ optional PSK) | none (pinned keys) | ChaCha20-Poly1305 | in AEAD; keyed BLAKE2s on handshakes | BLAKE2s | HKDF (HMAC-BLAKE2s) |
-| IPsec / IKEv2 | ECDH P-256 / X25519 (+ ML-KEM, RFC 9370) | RSA, ECDSA or PSK | AES-GCM | HMAC-SHA-256 | SHA-256 | prf+ (HMAC-SHA-256) |
+| [IPsec / IKEv2](IPsec.md) | ECDH P-256 / X25519 (ML-KEM-768 opt-in, RFC 9370) | RSA, ECDSA or PSK | AES-GCM (ESP), AES-CBC (IKE) | in AEAD (ESP); HMAC-SHA-256-128 (IKE) | SHA-256 | prf+ (HMAC-SHA-256) |
 | [Signal](Signal.md) | X25519 + Kyber-1024; ML-KEM-768 in SPQR | XEdDSA | AES-256-CBC | HMAC-SHA-256 | SHA-256/512 | HKDF |
-| MLS | HPKE (X25519) | Ed25519 | AES-128-GCM | in AEAD | SHA-256 | HKDF |
-| JOSE / JWT | ECDH-ES, RSA-OAEP | ES256, RS256, EdDSA | A256GCM | HS256 | SHA-256 | ConcatKDF, PBES2 |
+| [MLS](MLS.md) | HPKE (X25519) | Ed25519 | AES-128-GCM | in AEAD; HMAC-SHA-256 confirmation tags | SHA-256 | HKDF |
+| [JOSE / JWT](JWT.md) | ECDH-ES, RSA-OAEP | RS256, ES256, Ed25519 | A256GCM, A128CBC-HS256 | HS256 | SHA-256 | Concat KDF, PBES2 (PBKDF2) |
 | Kerberos | — (PKINIT: DH) | — (PKINIT: certificates) | AES-256-CTS | HMAC-SHA1-96 / SHA-384-192 | SHA-1 / SHA-384 | PBKDF2 |
 | Wi-Fi WPA3 | SAE (Dragonfly) | — | AES-CCMP, GCMP-256 | CMAC (management frames) | SHA-256 | 802.11 KDF, PBKDF2 (WPA2) |
 | DNSSEC | — | ECDSA P-256, RSA-SHA-256, Ed25519 | — | — | SHA-256 | — |
