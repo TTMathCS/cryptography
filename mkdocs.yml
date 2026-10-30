@@ -61,6 +61,8 @@ nav:
       - 10-math-foundations/Mersenne-Primes.md
       - 10-math-foundations/Fermat-Primes.md
   - Protocols:
+      - protocols/index.md
       - protocols/SSH.md
+      - protocols/TLS-1.3.md
       - protocols/PKI.md
   - FAQ: FAQ.md

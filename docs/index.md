@@ -5,8 +5,8 @@ standard, release year and where it stands today.*
 
 When SSH or TLS connects, it picks one algorithm for each job: a key exchange,
 a signature, a cipher, a MAC and a hash. The tables below list the algorithms
-themselves. The protocol pages, [SSH](protocols/SSH.md) and
-[PKI](protocols/PKI.md), cover how they get used.
+themselves. [Protocols](protocols/index.md) shows the other side: what SSH,
+TLS, WireGuard, Signal and others actually run.
 
 **Columns:** *Released* is the year the algorithm first appeared. *Standard* is
 the RFC, FIPS or other document that defines it. *Deprecated* says when and by
