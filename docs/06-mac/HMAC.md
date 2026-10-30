@@ -67,7 +67,7 @@ early on the first wrong byte, and that timing difference can leak the right tag
 
 ## See also
 
-- [SHA](../07-hash/SHA.md) — the hash HMAC is built on
+- [SHA-2](../07-hash/SHA-2.md) — the hash HMAC is built on
 - [Key Derivation and Password Hashing](../08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md) — HKDF and PBKDF2 use HMAC
 - [Cryptography FAQ](../FAQ.md) — encrypt vs. sign vs. hash
 

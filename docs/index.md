@@ -135,9 +135,9 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 
 | Family | Algorithm | Standard | Released | Deprecated | Status |
 |---|---|---|---|---|---|
-| [SHA-2](07-hash/SHA.md) | SHA-256/384/512 | FIPS 180-4 (2015), RFC 6234 (2011) | 2001 | — | Recommended |
+| [SHA-2](07-hash/SHA-2.md) | SHA-256/384/512 | FIPS 180-4 (2015), RFC 6234 (2011) | 2001 | — | Recommended |
 | | SHA-224, SHA-512/256 | FIPS 180-4 (2015) | 2004 / 2012 | — | Acceptable |
-| [SHA-3](07-hash/SHA.md) | SHA3-256/384/512 | FIPS 202 (2015) | 2008 | — | Recommended |
+| [SHA-3](07-hash/SHA-3.md) | SHA3-256/384/512 | FIPS 202 (2015) | 2008 | — | Recommended |
 | | SHAKE128/256 | FIPS 202 (2015) | 2015 | — | Recommended |
 | | Keccak-256 | — | 2008 | — | Acceptable |
 | BLAKE | BLAKE2b / BLAKE2s | RFC 7693 (2015) | 2012 | — | Recommended |

@@ -54,7 +54,8 @@ nav:
   - MAC:
       - 06-mac/HMAC.md
   - Hash functions:
-      - 07-hash/SHA.md
+      - 07-hash/SHA-2.md
+      - 07-hash/SHA-3.md
   - KDF and password hashing:
       - 08-kdf-password-hashing/Key-Derivation-and-Password-Hashing.md
   - Math foundations:
