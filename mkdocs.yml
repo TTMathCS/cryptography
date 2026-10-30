@@ -64,6 +64,8 @@ nav:
       - history/01-Ancient.md
       - history/02-Arab-Cryptanalysis.md
       - history/03-Renaissance.md
+      - history/04-Telegraph-Age.md
+      - history/05-Machines-and-WWII.md
   - Key exchange:
       - 01-key-exchange/Diffie-Hellman.md
       - 01-key-exchange/ECDH.md

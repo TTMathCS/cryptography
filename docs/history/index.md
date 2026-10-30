@@ -36,14 +36,14 @@ The turning points, with a link to the page that tells each story.
 | 1553 | Giovan Battista Bellaso publishes the [keyword cipher](03-Renaissance.md#bellaso-and-the-keyword) later called "Vigenère" | Called unbreakable for three centuries |
 | 1587 | [Mary, Queen of Scots](03-Renaissance.md#mary-queen-of-scots), is executed after her ciphered letters are read | Codebreaking decides the fate of a queen |
 | 1600s | The Rossignols build Louis XIV's [Great Cipher](03-Renaissance.md#france-the-rossignols-and-the-great-cipher) | A code that stayed unread for 200 years |
-| 1854–1863 | Charles Babbage, then Friedrich Kasiski, break the Vigenère cipher | The "indecipherable cipher" falls |
-| 1883 | Auguste Kerckhoffs publishes *La cryptographie militaire* | The rule that only the key, not the method, may be secret |
-| 1917 | British codebreakers read the Zimmermann telegram | Helps bring the United States into the First World War |
-| 1917–1919 | Gilbert Vernam's teleprinter cipher leads to the one-time pad | The only cipher that can be proven unbreakable |
-| 1918 | Arthur Scherbius files his patent for the rotor machine that becomes Enigma | Cipher machines go commercial |
-| 1932 | Marian Rejewski reconstructs the wiring of the military Enigma | Mathematics enters codebreaking |
-| 1940–1944 | Bletchley Park's bombes break Enigma; Colossus attacks the Lorenz cipher | Codebreaking at industrial scale, and the first electronic computers |
-| 1943–1980 | The Venona project reads reused Soviet one-time pads | The one-time pad is only as safe as its key handling |
+| 1854–1863 | Charles Babbage, then Friedrich Kasiski, [break the Vigenère cipher](04-Telegraph-Age.md#the-keyword-cipher-falls) | The "indecipherable cipher" falls |
+| 1883 | Auguste Kerckhoffs publishes [*La cryptographie militaire*](04-Telegraph-Age.md#kerckhoffss-rules) | The rule that only the key, not the method, may be secret |
+| 1917 | British codebreakers read the [Zimmermann telegram](04-Telegraph-Age.md#the-zimmermann-telegram) | Helps bring the United States into the First World War |
+| 1917–1919 | Gilbert Vernam's teleprinter cipher leads to the [one-time pad](04-Telegraph-Age.md#vernam-and-the-one-time-pad) | The only cipher that can be proven unbreakable |
+| 1918 | Arthur Scherbius files his patent for the [rotor machine](05-Machines-and-WWII.md#rotor-machines) that becomes Enigma | Cipher machines go commercial |
+| 1932 | Marian Rejewski [reconstructs the wiring](05-Machines-and-WWII.md#poland-the-first-break) of the military Enigma | Mathematics enters codebreaking |
+| 1940–1944 | [Bletchley Park's](05-Machines-and-WWII.md#bletchley-park) bombes break Enigma; [Colossus](05-Machines-and-WWII.md#lorenz-and-colossus) attacks the Lorenz cipher | Codebreaking at industrial scale, and the first electronic computers |
+| 1943–1980 | The [Venona](05-Machines-and-WWII.md#venona) project reads reused Soviet one-time pads | The one-time pad is only as safe as its key handling |
 | 1949 | Claude Shannon publishes "Communication Theory of Secrecy Systems" | Cryptography becomes a mathematical science |
 | 1977 | DES becomes the first public standard cipher | Strong encryption for business, and a fight over key length |
 | 1976–1977 | Diffie–Hellman key exchange, then RSA | Public-key cryptography: strangers agree on secrets in the open |
@@ -71,10 +71,10 @@ The pages run in time order, and each one stands on its own:
    analysis, and the scholars who built on it
 3. [The Renaissance](03-Renaissance.md): cipher disks, the "Vigenère"
    cipher, nomenclators, Mary Queen of Scots, the black chambers
-4. The telegraph age: Vigenère broken, Kerckhoffs, Zimmermann, the one-time
-   pad
-5. Machines and World War II: rotor machines, Enigma, Bletchley Park,
-   Colossus, Venona
+4. [The telegraph age](04-Telegraph-Age.md): Vigenère broken, Playfair,
+   Kerckhoffs, Room 40 and the Zimmermann telegram, the one-time pad
+5. [Machines and World War II](05-Machines-and-WWII.md): rotor machines,
+   Enigma, Poland and Bletchley Park, Colossus, Purple, Venona
 6. From Shannon to DES: the theory, the agencies, the first public standard
 7. Public-key cryptography: Diffie–Hellman, RSA, GCHQ's secret, the crypto
    wars

@@ -15,9 +15,9 @@ as surviving texts show, it was born in the Arabic-speaking world.
 
 | When | Who | What |
 |---|---|---|
-| 700s | al-Khalil ibn Ahmad (718–786), Basra | *Book of Cryptographic Messages* (lost) |
+| 700s | al-Khalil ibn Ahmad (c. 718 – c. 786/791), Basra | *Book of Cryptographic Messages* (lost) |
 | c. 850 | al-Kindi (c. 801–873), Baghdad | the oldest surviving description of frequency analysis |
-| 900s | Ibn Wahshiyya | a book of old and secret alphabets |
+| 900s | attributed to Ibn Wahshiyya | a book of old and secret alphabets |
 | 1200s | Ibn Dunaynir | ciphers built on arithmetic with letter values |
 | 1200s | Ibn 'Adlan (1187–1268) | how long a message must be for counting to work |
 | 1300s | Ibn ad-Durayhim (1312–1361), Damascus | worked solutions; letters with several substitutes |
@@ -41,7 +41,7 @@ Three kinds of expertise came together:
 
 - **Administration.** The caliphate ran on paper. Its chanceries (*diwan*)
   wrote letters to governors and generals across an empire stretching from
-  Spain to Central Asia, and some of those letters were sent in cipher.
+  North Africa to Central Asia, and some of those letters were sent in cipher.
 - **Language study.** Arab grammarians studied Arabic in great detail:
   how words are built from roots of three consonants, which letters can
   follow which, how poetry scans. To read the Qur'an correctly, scholars
@@ -65,7 +65,7 @@ translation.
 ## Al-Khalil and the first book
 
 The oldest known Arabic book on the subject belongs to al-Khalil ibn Ahmad
-al-Farahidi (718–786), a grammarian from Basra. He worked out the rules of
+al-Farahidi (born about 718, died 786 or 791), a grammarian from Basra. He worked out the rules of
 Arabic poetic meter and began the first Arabic dictionary, the *Kitab
 al-'Ayn*. To make sure the dictionary missed nothing, he listed every
 possible arrangement of letters that could form a root and then checked
@@ -220,15 +220,17 @@ key length.
 
 ### Ibn Wahshiyya's alphabets
 
-Ibn Wahshiyya, an author of the 9th or 10th century from Iraq, compiled a
-book of old and secret alphabets, *Kitab shawq al-mustaham* ("The Book of
-the Frenzied Devotee's Desire to Learn the Riddles of Ancient Scripts").
-It lists dozens of scripts, some real, some magical, some apparently
-invented, and includes Egyptian hieroglyphs. Joseph Hammer, the Austrian
-orientalist, published an English translation in London in 1806. In 2005
-the Egyptologist Okasha El-Daly argued that Ibn Wahshiyya correctly
+A book of old and secret alphabets, *Kitab shawq al-mustaham* ("The Book
+of the Frenzied Devotee's Desire to Learn the Riddles of Ancient Scripts"),
+goes under the name of Ibn Wahshiyya, an author of the 9th or 10th century
+from Iraq, though scholars such as Jaakko Hämeen-Anttila doubt that he
+wrote it. It lists dozens of scripts, some real, some magical, some
+apparently invented, and includes Egyptian hieroglyphs. Joseph Hammer, the
+Austrian orientalist, published an English translation in London in 1806.
+In 2005 the Egyptologist Okasha El-Daly argued that its author correctly
 understood that some hieroglyphs stand for sounds, centuries before
-Champollion; other scholars think that claim goes too far.
+Champollion; other scholars, among them Elliott Colla, find the evidence
+too thin.
 
 ### Ibn Dunaynir and Ibn 'Adlan: the 13th century
 
@@ -328,6 +330,6 @@ was a response to frequency analysis:
 - Ibrahim A. Al-Kadi, "Origins of Cryptology: The Arab Contributions", *Cryptologia* 16, no. 2 (1992), pp. 97–126
 - Dimitri Gutas, *Greek Thought, Arabic Culture: The Graeco-Arabic Translation Movement in Baghdad and Early 'Abbasid Society* (Routledge, 1998)
 - al-Qalqashandi, *Subh al-a'sha fi sina'at al-insha* (1412; printed Cairo, 1913–1919)
-- Ibn Wahshiyya, trans. Joseph Hammer, *Ancient Alphabets and Hieroglyphic Characters Explained* (London, 1806) / Okasha El-Daly, *Egyptology: The Missing Millennium: Ancient Egypt in Medieval Arabic Writings* (UCL Press, 2005)
+- Ibn Wahshiyya (attrib.), trans. Joseph Hammer, *Ancient Alphabets and Hieroglyphic Characters Explained* (London, 1806) / Okasha El-Daly, *Egyptology: The Missing Millennium: Ancient Egypt in Medieval Arabic Writings* (UCL Press, 2005) / Jaakko Hämeen-Anttila, *The Last Pagans of Iraq: Ibn Wahshiyya and His Nabatean Agriculture* (Brill, 2006) / Elliott Colla, *Conflicted Antiquities* (Duke University Press, 2007)
 
 *Weaker sources:* search summaries of the Wikipedia articles on Ibn 'Adlan and Ibn al-Durayhim (the 90-letter rule, no-space cryptograms, dates) and of the Muslim Heritage article "Arab Origins of Cryptology" (the 1979 manuscript search, the Süleymaniye find); the attribution of the first arithmetical cipher to Ibn Dunaynir, which rests on the series' editors as summarized in secondary papers; Simon Singh, *The Code Book* (1999), for the wording of the al-Kindi passage paraphrased above.

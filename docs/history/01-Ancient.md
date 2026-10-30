@@ -353,8 +353,9 @@ pair of coordinates turns out to be one of the most reused ideas in
 cryptography. Russian political prisoners in the 19th century knocked out
 the row and column of each letter on their cell walls. American prisoners
 of war in Hanoi used the same tap code from 1965, on a 5 × 5 Latin grid with
-C standing in for K. And in 1918 the German army's ADFGVX cipher started by
-turning each letter into grid coordinates, then shuffled them.
+C standing in for K. And in 1918 the German army's
+[ADFGVX cipher](04-Telegraph-Age.md#adfgvx-and-the-radiogram-of-victory)
+started by turning each letter into grid coordinates, then shuffled them.
 
 ```python
 greek = "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ"     # Polybius's 24 letters

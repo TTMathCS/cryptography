@@ -79,14 +79,12 @@ of entries.
 
 ### Homophones and nulls
 
-A cipher key for the Duchy of Mantua dated 1401 gives each vowel several
-different symbols. Kahn takes this as the first sign in the West that
+A cipher key from the Gonzaga chancery in Mantua, dated 1401, gives each
+vowel several different symbols. Kahn takes this as the first sign in the West that
 someone knew about frequency analysis: if E can be written four different
 ways, no single symbol in the ciphertext stands out as "the common one".
 Symbols that stand for the same letter are called *homophones* ("same
-sound"). Some historians have questioned Kahn's reading and think the
-extra symbols mainly made a letter look more mysterious, but the effect on
-letter counts is the same either way.
+sound").
 
 Keys also added *nulls*, symbols that meant nothing and were scattered
 through the text to upset counts and word lengths.
@@ -186,8 +184,8 @@ the other.
 - The **outer, fixed ring** has 24 cells: 20 capital letters (Latin needs
   no H, K or Y, and J, U and W were not separate letters) and the digits 1
   to 4.
-- The **inner, movable ring** has 24 lowercase letters in a scrambled
-  order.
+- The **inner, movable ring** has 24 symbols in a scrambled order: 23
+  lowercase letters and *&* for "et".
 
 The two correspondents have identical disks and agree on one letter of the
 inner ring as the *index*. To encrypt, the sender turns the inner ring so
@@ -315,8 +313,9 @@ The first two books turned out to be cryptography in disguise: the
 "incantations" are cover texts, and the hidden message is in, say, the
 first letters of alternate words. The third book, full of tables of
 planetary numbers, resisted for five centuries and was taken as genuine
-magic. In 1996 it was solved, independently, by Jim Reeds, a mathematician
-at AT&T Labs, and by the German scholar Thomas Ernst. The numbers hide
+magic. Thomas Ernst, a German graduate student, solved it and published
+his solution in 1996; Jim Reeds, a mathematician at AT&T Labs, solved it
+independently in 1998 before finding Ernst's paper. The numbers hide
 ordinary test messages, among them a warning that the bearer of the letter
 is a rogue and a thief.
 
@@ -327,8 +326,9 @@ is a rogue and a thief.
 Trithemius changed the alphabet with every letter but always in the same
 order. The missing piece was a *key*: a short secret that decides which
 alphabet to use for each letter. Giovan Battista Bellaso, a secretary from
-Brescia in the service of Cardinal Rodolfo Pio da Carpi, supplied it in a
-small book printed in 1553, *La cifra del Sig. Giovan Battista Bellaso*.
+Brescia, supplied it in a small book printed in 1553, *La cifra del Sig.
+Giovan Battista Bellaso*. (Vigenère says Bellaso served Cardinal Rodolfo
+Pio da Carpi; Bellaso himself mentions serving Cardinal Duranti.)
 
 Bellaso's idea: agree on a keyword, which he called a *countersign*. Write
 it above the message, repeating it as needed. Each keyword letter picks
@@ -376,9 +376,11 @@ cipher [('V', 11), ('T', 9), ('F', 9), ('M', 9), ('O', 8)]
 
 The counts are much flatter, and the commonest cipher letter has nothing
 to do with E. Against al-Kindi's method alone this cipher holds. It became
-known as *le chiffre indéchiffrable*, the indecipherable cipher, and kept
-that reputation until the 1850s, when it was finally broken: the
-repeating keyword leaves a pattern after all.
+known as *le chiffre indéchiffrable*, the indecipherable cipher. Babbage
+broke it privately around 1854 and Kasiski published a general attack in
+1863, but the reputation outlived them both: the repeating keyword leaves
+a pattern, as the [telegraph age](04-Telegraph-Age.md#the-keyword-cipher-falls)
+page shows.
 
 ### Porta, Cardano and Vigenère
 
@@ -443,19 +445,23 @@ with frequency analysis and the usual guesswork.
 
 In July 1586 Anthony Babington, a young gentleman, wrote to Mary about a
 plan: foreign troops would invade, Mary would be freed, and six
-gentlemen would kill Elizabeth. On 17 July Mary replied, approving the
-plan. Phelippes is said to have drawn a gallows on his copy. Walsingham
-had Phelippes add a forged postscript in the same cipher asking Babington
-for the names of the six, though by then it hardly mattered. Babington
-and his friends were arrested in August and executed in September.
+gentlemen would kill Elizabeth. On 17 July Mary replied. Her original
+letter does not survive; what survives is a copy made by Walsingham's
+office, which reads as approving the plan, and Phelippes is said to have
+drawn a gallows on it. Walsingham had Phelippes add a forged postscript in
+the same cipher asking Babington for the names of the six, and the British
+Library notes that other passages may have been altered too. Babington and
+his friends were arrested in August and executed in September.
 
-Mary was tried at Fotheringhay Castle in October 1586. Her deciphered
-letter was the core of the case against her. She was beheaded at
-Fotheringhay on 8 February 1587.
+Mary was tried at Fotheringhay Castle in October 1586. The deciphered
+letter was the core of the case against her. She denied consenting to
+Elizabeth's death, and historians still debate how far the copy reflects
+what she wrote. She was beheaded at Fotheringhay on 8 February 1587.
 
-The lesson is about trust in a cipher. Mary wrote openly about killing a
-queen because she believed her cipher hid it. A weak cipher is worse than
-none: it makes people say things they otherwise would not write down.
+The lesson is about trust in a cipher. Mary wrote about the plot at all
+because she believed her cipher hid it. A weak cipher is worse than none:
+it makes people say things they otherwise would not write down, and it
+gives the reader a chance to change them.
 
 ### Her lost letters, read in 2023
 
@@ -493,10 +499,11 @@ broke it in 1893 after about three years of work. His key insight was that
 the numbers stood for syllables. One letter, from the war minister Louvois
 in 1691, ordered the arrest of General Vivien de Bulonde for retreating
 at the siege of Cuneo, and said he was to be held at the fortress of
-Pignerol and allowed out on the ramparts only wearing a mask. Bazeries
-suggested Bulonde was the famous Man in the Iron Mask. That theory is
-rejected now: Bulonde was released and lived on, and the dates and
-details don't fit.
+Pignerol and allowed onto the ramparts with "330 309". Bazeries guessed
+that this pair of code groups, which appears nowhere else, meant *masque*,
+and suggested Bulonde was the famous Man in the Iron Mask. That theory is
+rejected now: the reading is a guess, Bulonde was released and lived on,
+and the dates don't fit.
 
 France also ran a *cabinet noir* ("black cabinet") at the post office,
 where letters were opened, read and resealed. The name stuck for every
@@ -569,13 +576,13 @@ about to change what ciphers had to do.
 ## References
 
 - David Kahn, *The Codebreakers* (rev. ed., Scribner, 1996), chapters 3–5: Lavinde, Mantua 1401, Simonetta, Soro, the Argentis, Alberti, Trithemius, Bellaso, Porta, Cardano, Vigenère, the Rossignols, Viète, Wallis and Willes, Vienna's black chamber
-- Leon Battista Alberti, *De componendis cifris* (c. 1466–67), ed. and trans. in Augusto Buonafalce and others, *A Treatise on Ciphers* (Galimberti, Turin, 1997)
-- Johannes Trithemius, *Polygraphiae libri sex* (Oppenheim, 1518) and *Steganographia* (Frankfurt, 1606) / Jim Reeds, "Solved: The Ciphers in Book III of Trithemius's Steganographia", *Cryptologia* 22, no. 4 (1998) / Thomas Ernst, "Schwarzweiße Magie: Der Schlüssel zum dritten Buch der Steganographia des Trithemius", *Daphnis* 25 (1996)
+- Leon Battista Alberti, *De componendis cifris* (c. 1466–67): *Dello scrivere in cifra* (Galimberti, Turin, 1994) and *A Treatise on Ciphers*, trans. A. Zaccagnini, foreword by David Kahn (Galimberti, Turin, 1997)
+- Johannes Trithemius, *Polygraphiae libri sex* (for Johann Haselberg; printed at Basel or Oppenheim, 1518) and *Steganographia* (Frankfurt, 1606) / Jim Reeds, "Solved: The Ciphers in Book III of Trithemius's Steganographia", *Cryptologia* 22, no. 4 (1998) / Thomas Ernst, "Schwarzweiße Magie: Der Schlüssel zum dritten Buch der Steganographia des Trithemius", *Daphnis* 25 (1996)
 - Giovan Battista Bellaso, *La cifra del Sig. Giovan Battista Bellaso* (Venice, 1553) / Giambattista della Porta, *De furtivis literarum notis* (Naples, 1563) / Blaise de Vigenère, *Traicté des chiffres, ou secrètes manières d'escrire* (Paris, 1586)
 - Paul-M. Perret, "Les règles de Cicco Simonetta pour le déchiffrement des écritures secrètes", *Bibliothèque de l'École des chartes* 51 (1890) / Augusto Buonafalce, "Cicco Simonetta's Cipher-Breaking Rules", *Cryptologia* 32, no. 1 (2008)
-- George Lasry, Norbert Biermann and Satoshi Tomokiyo, "Deciphering Mary Stuart's Lost Letters from 1578–1584", *Cryptologia* 47, no. 2 (2023)
+- George Lasry, Norbert Biermann and Satoshi Tomokiyo, "Deciphering Mary Stuart's Lost Letters from 1578–1584", *Cryptologia* 47, no. 2 (2023) / The National Archives, SP 53/18/53 (the copy of Mary's letter of 17 July 1586), described in the British Library's "The gallows letter"
 - John Guy, *My Heart Is My Own: The Life of Mary Queen of Scots* (Fourth Estate, 2004), on Chartley, Gifford, Phelippes and the trial
 - Kari Anne Rand, "The Authorship of *The Equatorie of the Planetis* Revisited", *Studia Neophilologica* 87 (2015)
 - Étienne Bazeries, *Les chiffres secrets dévoilés* (Paris, 1901)
 
-*Weaker sources:* search summaries of the Wikipedia articles on Giovanni Soro (his 1506 appointment and the papal test ciphers), Gabriele de Lavinde, the Great Cipher (the 587 numbers) and the Equatorie (Price, Westwyk); MacTutor's biography of Viète for the 15 March 1590 date; news coverage of the 2023 Mary Stuart letters (57 letters, Castelnau, BnF misfiling); a 2017 paper, known to me only through a blog summary, questioning Kahn's reading of the 1401 homophones; the gallows sketch on Phelippes's copy and Porta's egg trick, which rest on retellings.
+*Weaker sources:* search summaries of the Wikipedia articles on Giovanni Soro (his 1506 appointment and the papal test ciphers), Gabriele de Lavinde, the Great Cipher (the 587 numbers) and the Equatorie (Price, Westwyk); MacTutor's biography of Viète for the 15 March 1590 date; news coverage of the 2023 Mary Stuart letters (57 letters, Castelnau, BnF misfiling); the Bellaso article on Wikipedia for his patrons; the gallows sketch on Phelippes's copy and Porta's egg trick, which rest on retellings.
