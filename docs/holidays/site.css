@@ -1,0 +1,12 @@
+/* the holiday badge on every page (holidays/site.js) */
+.holiday-badge { position: fixed; left: calc(env(safe-area-inset-left, 0px) + 14px); bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); z-index: 2147482000;
+  display: flex; align-items: center; gap: 10px; padding: 7px 8px 7px 14px; border-radius: 999px; background: rgba(18, 11, 9, 0.88);
+  border: 1px solid var(--holiday); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45); color: #f4e6d4; font: 600 14px/1.2 "Saira Condensed", "Arial Narrow", sans-serif;
+  letter-spacing: 0.05em; text-transform: uppercase; animation: holiday-in 0.6s ease-out both; }
+.holiday-badge span { color: var(--holiday); }
+.holiday-badge button { border: 0; background: none; color: #f4e6d4; opacity: 0.6; font-size: 18px; line-height: 1; cursor: pointer; padding: 2px 6px; }
+.holiday-badge button:hover, .holiday-badge button:focus-visible { opacity: 1; }
+@keyframes holiday-in { from { opacity: 0; transform: translateY(8px); } }
+@media (prefers-reduced-motion: reduce) { .holiday-badge { animation: none; } }
+@media print { .holiday-badge { display: none; } }
+body.viewing .holiday-badge { display: none; }   /* not over a picture opened large (city/plan/pictures.js) */

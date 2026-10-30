@@ -1,3 +1,79 @@
+/* the Mars look of akadian.ca (Mars-Home/site.css): dark sand, cream ink, rust and sky-blue; its own fonts */
+[data-md-color-scheme="slate"] {
+  color-scheme: dark;
+  --mars-bg: #120b09;
+  --mars-ink: #f4e6d4;
+  --mars-dim: #cdb096;
+  --mars-rust: #eea66f;
+  --mars-glow: #9cc9ea;
+  --mars-panel: #1c110e;
+
+  --md-default-bg-color: var(--mars-bg);
+  --md-default-bg-color--light: rgba(18, 11, 9, 0.7);
+  --md-default-bg-color--lighter: rgba(18, 11, 9, 0.3);
+  --md-default-bg-color--lightest: rgba(18, 11, 9, 0.12);
+  --md-default-fg-color: var(--mars-ink);
+  --md-default-fg-color--light: var(--mars-dim);
+  --md-default-fg-color--lighter: rgba(244, 230, 212, 0.32);
+  --md-default-fg-color--lightest: rgba(244, 230, 212, 0.16);
+
+  --md-primary-fg-color: #2a1812;
+  --md-primary-fg-color--light: #5b3624;
+  --md-primary-fg-color--dark: #1a100c;
+  --md-primary-bg-color: var(--mars-ink);
+  --md-primary-bg-color--light: rgba(244, 230, 212, 0.7);
+  --md-accent-fg-color: var(--mars-rust);
+  --md-accent-fg-color--transparent: rgba(238, 166, 111, 0.12);
+  --md-accent-bg-color: #1a100c;
+
+  --md-typeset-color: var(--mars-ink);
+  --md-typeset-a-color: var(--mars-glow);
+  --md-code-bg-color: var(--mars-panel);
+  --md-code-fg-color: var(--mars-ink);
+  --md-typeset-table-color: rgba(244, 230, 212, 0.16);
+  --md-typeset-table-color--light: rgba(244, 230, 212, 0.05);
+  --md-footer-bg-color: #0d0806;
+  --md-footer-bg-color--dark: #080504;
+}
+
+:root {
+  --md-text-font: "IBM Plex Sans";
+  --md-code-font: "IBM Plex Mono";
+  --mars-display: "Saira Condensed", "Arial Narrow", system-ui, sans-serif;
+}
+
+/* the header: the Mars sunset of the homepage, laid sideways */
+.md-header {
+  background: linear-gradient(90deg, #2a1812 0%, #5b3624 55%, #8a573a 100%);
+  box-shadow: 0 1px 0 rgba(244, 230, 212, 0.12);
+}
+
+.md-header__title {
+  font-family: var(--mars-display);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3 {
+  font-family: var(--mars-display);
+  color: var(--md-default-fg-color);
+  letter-spacing: 0.01em;
+}
+
+.md-typeset h1 { font-weight: 700; }
+.md-typeset h2 { font-weight: 600; border-bottom: 1px solid var(--md-default-fg-color--lightest); padding-bottom: 0.2em; }
+
+.md-typeset table:not([class]) th {
+  background: var(--mars-panel);
+  font-family: var(--mars-display);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 /* wider page; the right-hand contents panel lives in the left one (toc.integrate) */
 .md-grid {
   max-width: 80rem;
@@ -12,10 +88,11 @@
   }
 
   .md-nav--primary > .md-nav__list > .md-nav__item > .md-nav__link {
-    color: var(--md-typeset-a-color);
+    color: var(--mars-rust);
+    font-family: var(--mars-display);
     font-weight: 700;
-    font-size: .64rem;
-    letter-spacing: .06em;
+    font-size: .72rem;
+    letter-spacing: .08em;
     text-transform: uppercase;
   }
 
@@ -24,4 +101,26 @@
     padding-left: .5rem;
     border-left: 2px solid var(--md-default-fg-color--lightest);
   }
+}
+
+/* status colours in tables (set by javascripts/status.js) */
+:root {
+  --st-good: #66bb6a;
+  --st-old: #ffb74d;
+  --st-bad: #ef5350;
+  --st-draft: #a8998a;
+}
+
+.md-typeset td.st-good { color: var(--st-good); font-weight: 700; }
+.md-typeset td.st-old { color: var(--st-old); font-weight: 700; }
+.md-typeset td.st-draft { color: var(--st-draft); font-style: italic; }
+.md-typeset td.st-bad { color: var(--st-bad); font-weight: 700; }
+
+.md-typeset td.st-strike {
+  color: var(--st-bad);
+  text-decoration: line-through;
+}
+
+.md-typeset td.st-strike a {
+  color: inherit;
 }

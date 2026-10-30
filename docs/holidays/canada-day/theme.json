@@ -1,0 +1,8 @@
+{
+  "name": "Canada Day",
+  "greet": "Happy Canada Day from Mars",
+  "accent": "#e0574f",
+  "date": {
+    "on": "07-01"
+  }
+}

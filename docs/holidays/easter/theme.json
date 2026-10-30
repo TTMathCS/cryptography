@@ -1,0 +1,9 @@
+{
+  "name": "Easter",
+  "greet": "Happy Easter from Mars",
+  "accent": "#c9b4f0",
+  "date": {
+    "day": "easter",
+    "after": 1
+  }
+}

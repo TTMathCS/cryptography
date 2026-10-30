@@ -1,0 +1,8 @@
+{
+  "name": "Labour Day",
+  "greet": "Happy Labour Day from Mars",
+  "accent": "#9cc9ea",
+  "date": {
+    "day": "labour"
+  }
+}

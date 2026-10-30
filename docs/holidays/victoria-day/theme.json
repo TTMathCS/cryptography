@@ -1,0 +1,8 @@
+{
+  "name": "Victoria Day",
+  "greet": "Happy Victoria Day from Mars",
+  "accent": "#8fc7a8",
+  "date": {
+    "day": "victoria"
+  }
+}

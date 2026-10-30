@@ -1,0 +1,9 @@
+{
+  "name": "New Year",
+  "greet": "Happy New Year from Mars",
+  "accent": "#f2d27a",
+  "date": {
+    "on": "01-01",
+    "lead": 5
+  }
+}

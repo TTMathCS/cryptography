@@ -13,19 +13,19 @@ theme:
     - search.highlight
     - content.code.copy
   palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      toggle:
-        icon: material/weather-night
-        name: Dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      toggle:
-        icon: material/weather-sunny
-        name: Light mode
+    scheme: slate
+    primary: custom
+    accent: custom
+  font: false
 
 extra_css:
+  - fonts/fonts.css
   - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/status.js
+  - path: holidays/badge.js
+    type: module
 
 markdown_extensions:
   - toc:

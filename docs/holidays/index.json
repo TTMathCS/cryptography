@@ -1,0 +1,15 @@
+{
+  "themes": [
+    {"name": "newyear", "on": true},
+    {"name": "christmas", "on": true},
+    {"name": "family-day", "on": true},
+    {"name": "easter", "on": true},
+    {"name": "victoria-day", "on": true},
+    {"name": "canada-day", "on": true},
+    {"name": "civic-holiday", "on": true},
+    {"name": "labour-day", "on": true},
+    {"name": "thanksgiving", "on": true},
+    {"name": "halloween", "on": true},
+    {"name": "remembrance-day", "on": true}
+  ]
+}

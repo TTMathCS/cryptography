@@ -1,0 +1,11 @@
+{
+  "name": "Halloween",
+  "greet": "Happy Halloween from Mars",
+  "accent": "#ff8a1f",
+  "date": {
+    "on": "10-31"
+  },
+  "home": true,
+  "campus": true,
+  "icon": "🎃"
+}
