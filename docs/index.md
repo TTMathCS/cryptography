@@ -36,14 +36,14 @@ Families with a link have their own page. The rest get theirs in later updates.
 | | ECDH Brainpool | 256 / 384 / 512-bit key | 128 / 192 / 256 | RFC 5639 (2010) | 2005 | — | Acceptable |
 | [ML-KEM](01-key-exchange/ML-KEM.md) (PQ, lattice) | ML-KEM-512/768/1024 | 800 / 1,184 / 1,568 B public key | 128 / 192 / 256 | FIPS 203 (2024) | 2017 | — | Recommended |
 | | X25519 + ML-KEM-768 hybrid | 1,216 B key share | 192 | IETF drafts (TLS, SSH) | 2024 | — | Recommended |
-| [NTRU Prime](01-key-exchange/NTRU-Prime.md) (PQ, lattice) | sntrup761 + X25519 hybrid | 1,190 B key share | 128 | IETF draft | 2016 | — | Acceptable |
-| [Code-based](01-key-exchange/Code-Based-KEMs.md) (PQ) | HQC | 2,249 – 7,245 B public key | 128 / 192 / 256 | NIST pick 2025, standard due ~2027 | 2017 | — | Draft |
-| | Classic McEliece | 261 KB – 1.36 MB public key | 128 – 256 | ISO draft | 1978 | — | Acceptable |
+| [NTRU Prime](01-key-exchange/NTRU-Prime.md) (PQ, lattice) | sntrup761 + X25519 hybrid | 1,190 B key share | 128 | RFC 9941 (2026) | 2016 | — | Acceptable |
+| [Code-based](01-key-exchange/Code-Based-KEMs.md) (PQ) | HQC | 2,241 – 7,237 B public key | 128 / 192 / 256 | NIST pick 2025, standard due ~2027 | 2017 | — | Draft |
+| | Classic McEliece | 261 KB – 1.36 MB public key | 128 – 256 | ISO/IEC 18033-2 Amd 2 (2026) | 1978 | BSI advises against new use (2026) | Acceptable |
 | [RSA key transport](02-signatures/RSA.md) | RSA-encrypted session key | 2048–4096-bit key | 112–140 | RFC 5246 (TLS 1.2) | 1977 | dropped in TLS 1.3, RFC 8446 (2018) | Legacy |
 | [PAKE](01-key-exchange/PAKE.md) (password-based) | SAE / Dragonfly | 256-bit group (P-256) | 128 | RFC 7664 (2015), IEEE 802.11 (WPA3) | 2008 | — | Recommended |
 | | OPAQUE | 256-bit group | 128 | RFC 9807 (2025) | 2018 | — | Recommended |
 | | SPAKE2 | 256-bit group | 128 | RFC 9382 (2023) | 2005 | — | Acceptable |
-| | CPace | 256-bit group | 128 | IETF draft | 2019 | — | Draft |
+| | CPace | 256-bit group | 128 | IRTF CFRG draft | 2019 | — | Draft |
 | | SRP | 2048-bit and larger group | 112+ | RFC 2945 (2000), RFC 5054 (2007) | 1998 | — | Legacy |
 
 The current SSH and TLS defaults run X25519 and ML-KEM-768 side by side and

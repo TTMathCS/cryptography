@@ -5,8 +5,8 @@ Generic questions that come up for more than one algorithm in this guide.
 ## Questions
 
 1. [Can an attacker just pre-calculate everything and look up the answer?](#can-an-attacker-just-pre-calculate-everything-and-look-up-the-answer)
-2. [Does precomputing password hashes work?](#does-precomputing-password-hashes-work-yes--if-they-arent-salted)
-3. [Symmetric or asymmetric — which should I use?](#symmetric-or-asymmetric--which-should-i-use)
+2. [Does precomputing password hashes work?](#does-precomputing-password-hashes-work-yes-if-they-arent-salted)
+3. [Symmetric or asymmetric — which should I use?](#symmetric-or-asymmetric-which-should-i-use)
 4. [What's the difference between encrypting, signing, and hashing?](#whats-the-difference-between-encrypting-signing-and-hashing)
 5. [Will quantum computers break all of this?](#will-quantum-computers-break-all-of-this)
 6. [Can I keep the algorithm secret instead of the key?](#can-i-keep-the-algorithm-secret-instead-of-the-key)
