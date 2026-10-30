@@ -160,8 +160,8 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 | Family | Algorithm | Size | Security (bits) | Standard | Released | Deprecated | Status |
 |---|---|---|---|---|---|---|---|
 | [HKDF](08-kdf-password-hashing/HKDF.md) | HKDF | up to 255 × hash output | — | RFC 5869 (2010) | 2010 | — | Recommended |
-| [NIST KDFs](08-kdf-password-hashing/NIST-KDFs.md) | KBKDF | any output length | — | SP 800-108 (2009) | 2009 | — | Acceptable |
-| | one-step KDF (ConcatKDF) | any output length | — | SP 800-56A (2006) | 2006 | — | Acceptable |
+| [NIST KDFs](08-kdf-password-hashing/NIST-KDFs.md) | KBKDF | any output length | — | SP 800-108 (2008, Rev. 1 2022) | 2008 | — | Acceptable |
+| | one-step KDF (ConcatKDF) | any output length | — | SP 800-56C Rev. 2 (2020), first in SP 800-56A (2006) | 2006 | — | Acceptable |
 | | X9.63 KDF | any output length | — | ANSI X9.63 (2001) | 2001 | — | Acceptable |
 | [Argon2](08-kdf-password-hashing/Argon2.md) | Argon2id | any output, 19 MiB+ memory | — | RFC 9106 (2021) | 2015 | — | Recommended |
 | | Argon2i / Argon2d | any output, set memory | — | RFC 9106 (2021) | 2015 | — | Acceptable |
@@ -169,7 +169,7 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 | | yescrypt | 256-bit output | — | — | 2015 | — | Acceptable |
 | [bcrypt](08-kdf-password-hashing/bcrypt.md) | bcrypt | 184-bit hash, 72 B input max | — | — | 1999 | — | Acceptable |
 | [PBKDF](08-kdf-password-hashing/PBKDF2.md) | PBKDF2 | any output (keep ≤ hash size) | — | RFC 2898 (2000), RFC 8018 (2017), SP 800-132 (2010) | 2000 | — | Acceptable |
-| | [PBKDF1](08-kdf-password-hashing/Retired.md#pbkdf1) | ≤160-bit output | — | RFC 2898 (2000) | 1993 | RFC 8018 (2017) | Legacy |
+| | [PBKDF1](08-kdf-password-hashing/Retired.md#pbkdf1) | ≤160-bit output | — | RFC 2898 (2000) | 1993 | RFC 2898 (2000): compatibility only | Legacy |
 | [Unix crypt](08-kdf-password-hashing/Retired.md#unix-crypt) | sha256crypt / sha512crypt | 256 / 512-bit output | — | — | 2007 | — | Legacy |
 | | DES-crypt, MD5-crypt | 8-char password / 128-bit output | — | — | 1979 / 1994 | MD5-crypt retired by its author (2012) | Broken |
 
