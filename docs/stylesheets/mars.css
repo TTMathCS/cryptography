@@ -105,7 +105,7 @@
   font-size: 1.05rem;
 }
 
-/* the site name links home: Mars orange and underlined under the pointer (the header is dark in both schemes) */
+/* the site name links to this site's first page: Mars orange and underlined under the pointer (the header is dark in both schemes) */
 /* hover: a solid line draws under the name and a back arrow slides in, so it reads as "go home" */
 .md-header__title .home-link { color: inherit; cursor: pointer; text-decoration: none; padding-bottom: 0.1em;
   background: linear-gradient(currentColor, currentColor) left bottom / 0 2px no-repeat;
