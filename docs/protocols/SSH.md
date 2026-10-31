@@ -61,7 +61,7 @@ Upstream OpenSSH 10 lists, preferred first.
 
 | Category | In use | Standard | Legacy or retired |
 |---|---|---|---|
-| Key exchange | `mlkem768x25519-sha256`, `sntrup761x25519-sha512`, `curve25519-sha256`, `ecdh-sha2-nistp256/384/521`, `diffie-hellman-group-exchange-sha256`, `diffie-hellman-group16-sha512` | IETF draft, IETF draft, RFC 8731, RFC 5656, RFC 4419, RFC 8268 | `diffie-hellman-group1-sha1`, `diffie-hellman-group14-sha1`, `diffie-hellman-group-exchange-sha1` (RFC 9142, 2022) |
+| Key exchange | `mlkem768x25519-sha256`, `sntrup761x25519-sha512`, `curve25519-sha256`, `ecdh-sha2-nistp256/384/521`, `diffie-hellman-group-exchange-sha256`, `diffie-hellman-group16-sha512` | IETF draft, RFC 9941 (2026), RFC 8731, RFC 5656, RFC 4419, RFC 8268 | `diffie-hellman-group1-sha1`, `diffie-hellman-group14-sha1`, `diffie-hellman-group-exchange-sha1` (RFC 9142, 2022) |
 | Signature (host and user keys) | `ssh-ed25519`, `ecdsa-sha2-nistp256`, `rsa-sha2-512`, `rsa-sha2-256`, `sk-ssh-ed25519@openssh.com` (FIDO keys), `-cert-v01` certificate forms | RFC 8709, RFC 5656, RFC 8332, OpenSSH spec | `ssh-rsa` with SHA-1 (off since 8.8, 2021), `ssh-dss` (removed in 10.0, 2025) |
 | Signature, post-quantum | `ssh-mldsa44-ed25519`: on since 10.6 (October 2026), last in the host and user key lists | IETF draft | `ssh-mldsa44-ed25519@openssh.com`, the experimental form in 10.4 and 10.5: such keys must be remade |
 | Cipher | `chacha20-poly1305@openssh.com`, `aes128-gcm@openssh.com`, `aes256-gcm@openssh.com`, `aes128/192/256-ctr` | OpenSSH spec, RFC 5647, RFC 4344 | `aes*-cbc`, `3des-cbc`, `blowfish-cbc`, `arcfour` (RFC 8758, 2020) |
@@ -175,6 +175,6 @@ Avoid DSA and SHA-1 `ssh-rsa` keys — Git hosts no longer accept them.
 - [RFC 4253: SSH transport layer](https://www.rfc-editor.org/rfc/rfc4253)
 - [RFC 9142: SSH key exchange recommendations](https://www.rfc-editor.org/rfc/rfc9142)
 - [RFC 8731: curve25519-sha256](https://www.rfc-editor.org/rfc/rfc8731) / [RFC 8709: Ed25519 keys](https://www.rfc-editor.org/rfc/rfc8709) / [RFC 8332: RSA with SHA-2](https://www.rfc-editor.org/rfc/rfc8332)
-- [draft-ietf-sshm-mlkem-hybrid-kex](https://datatracker.ietf.org/doc/draft-ietf-sshm-mlkem-hybrid-kex/)
+- [draft-ietf-sshm-mlkem-hybrid-kex](https://datatracker.ietf.org/doc/draft-ietf-sshm-mlkem-hybrid-kex/) / [RFC 9941: sntrup761x25519-sha512](https://www.rfc-editor.org/rfc/rfc9941)
 - [OpenSSH release notes](https://www.openssh.com/releasenotes.html)
 - [GitHub: Generating a new SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
