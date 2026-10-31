@@ -42,9 +42,9 @@ which is why you use HMAC instead of just hashing `K || m` yourself.
 ## Example (Python)
 
 ```python
-import hmac, hashlib
+import hmac, hashlib, secrets
 
-key = b"shared secret"
+key = secrets.token_bytes(32)   # a random 32-byte key, shared with the receiver
 message = b"transfer $100 to Bob"
 
 tag = hmac.new(key, message, hashlib.sha256).digest()
@@ -59,9 +59,14 @@ early on the first wrong byte, and that timing difference can leak the right tag
 ## Security notes
 
 - HMAC is only as secret as the key — store and share it like any other secret.
-- Strength tracks the hash: HMAC-SHA256 gives ~256-bit security and is the safe
-  default. HMAC-SHA1 is still unbroken (the SHA-1 collision attacks don't apply
-  to HMAC), but new systems should use SHA-256.
+- Strength depends on the key as well as the hash. Use a random key at least as
+  long as the hash output: 32 bytes for HMAC-SHA256. RFC 2104 strongly
+  discourages shorter keys, and a password or phrase used as the key can be
+  guessed. With such a key HMAC-SHA256 is the safe default: the best generic
+  forgery needs about 2^128 tagged messages under one key (the birthday bound,
+  RFC 2104 section 6), far out of reach. HMAC-SHA1 is still unbroken (the
+  SHA-1 collision attacks don't apply to HMAC), but new systems should use
+  SHA-256.
 - HMAC proves authenticity, not freshness — add a timestamp or nonce if you need
   to stop replay of an old, validly-tagged message.
 
