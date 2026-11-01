@@ -80,5 +80,7 @@ early on the first wrong byte, and that timing difference can leak the right tag
 
 ## References
 
-- RFC 2104: HMAC: Keyed-Hashing for Message Authentication
-- FIPS 198-1: The Keyed-Hash Message Authentication Code (HMAC)
+- [RFC 2104: HMAC: Keyed-Hashing for Message Authentication](https://www.rfc-editor.org/rfc/rfc2104) (1997)
+- [FIPS 198-1: The Keyed-Hash Message Authentication Code (HMAC)](https://csrc.nist.gov/pubs/fips/198-1/final) (2008).
+  In June 2025 NIST asked for comments, until 23 July 2025, on a plan to withdraw FIPS 198-1 and move its
+  content into a new Special Publication, SP 800-224. That changes where HMAC is written down, not HMAC itself.
