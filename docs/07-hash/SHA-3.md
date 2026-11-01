@@ -18,7 +18,8 @@ In March 2025 NIST decided to update FIPS 202. The update improves the text and
 reflects that SHA-1 and Triple DES have been withdrawn; the SHA-3 functions
 themselves don't change. The streaming interface for SHAKE goes into the
 revision of SP 800-185, whose draft came out in October 2026 (see
-[KMAC](../06-mac/KMAC.md)).
+[KMAC](../06-mac/KMAC.md)). The October 2024 draft of SP 800-131A Rev. 3 also
+proposes retiring the 224-bit hashes, SHA3-224 included; it is still a draft.
 
 | Function | Output | Use |
 |---|---|---|
@@ -78,4 +79,5 @@ print(hashlib.shake_128(b"hello world").hexdigest(16))   # 16 bytes out
 ## References
 
 - [FIPS 202: SHA-3 Standard](https://csrc.nist.gov/pubs/fips/202/final) / [NIST, "Decision to Update FIPS 202 and Revise SP 800-185" (2025)](https://csrc.nist.gov/news/2025/decision-to-update-fips-202-and-revise-sp-800-185)
+- [NIST SP 800-131A Rev. 3, initial public draft (2024)](https://csrc.nist.gov/pubs/sp/800/131/a/r3/ipd)
 - [The Keccak team](https://keccak.team/keccak.html)

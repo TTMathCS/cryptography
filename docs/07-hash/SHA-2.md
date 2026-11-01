@@ -22,6 +22,9 @@ The standard that defines it, FIPS 180-4, is due for a rewrite. In 2023 NIST
 decided to revise it: take SHA-1 out, fold in the hash guidance from SP
 800-107, tidy the text and update the references. SHA-2 itself stays as it
 is. Work on the draft had not started when NIST announced the decision.
+Separately, the October 2024 draft of SP 800-131A Rev. 3 proposes a schedule
+for retiring the 224-bit hashes, SHA-224 among them, as NIST moves from 112-bit
+to 128-bit security; it is still a draft.
 
 | Variant | Digest | Block | Notes |
 |---|---|---|---|
@@ -93,4 +96,5 @@ print(h.hexdigest() == digest)   # True
 ## References
 
 - [FIPS 180-4: Secure Hash Standard](https://csrc.nist.gov/pubs/fips/180-4/upd1/final) / [NIST, "Decision to Revise FIPS 180-4" (2023)](https://csrc.nist.gov/news/2023/decision-to-revise-fips-180-4)
+- [NIST SP 800-131A Rev. 3, initial public draft (2024)](https://csrc.nist.gov/pubs/sp/800/131/a/r3/ipd)
 - [RFC 6234: SHA-2 in C, with test vectors](https://www.rfc-editor.org/rfc/rfc6234)
