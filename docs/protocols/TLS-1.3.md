@@ -63,7 +63,7 @@ secret → master secret, each step mixing in the transcript hash.
 
 | Category | In use | Standard | Legacy or retired |
 |---|---|---|---|
-| Key exchange (`supported_groups`) | `X25519MLKEM768`, `x25519`, `secp256r1`, `secp384r1`, `ffdhe2048` and larger | IETF draft (ecdhe-mlkem), RFC 8446 + RFC 7748, RFC 8446, RFC 7919 | RSA key transport, static DH, custom DH groups (all removed in 1.3) |
+| Key exchange (`supported_groups`) | `X25519MLKEM768`, `x25519`, `secp256r1`, `secp384r1`, `ffdhe2048` and larger | RFC 10024 (2026), RFC 8446 + RFC 7748, RFC 8446, RFC 7919 | RSA key transport, static DH, custom DH groups (all removed in 1.3) |
 | Signature (`signature_algorithms`) | `ecdsa_secp256r1_sha256`, `rsa_pss_rsae_sha256`, `ed25519`; ML-DSA in drafts | RFC 8446, IETF draft | `rsa_pkcs1_sha1`, `ecdsa_sha1`; `rsa_pkcs1_*` only inside certificates, never in the handshake |
 | Cipher suites (AEAD) | `TLS_AES_128_GCM_SHA256`, `TLS_AES_256_GCM_SHA384`, `TLS_CHACHA20_POLY1305_SHA256`, `TLS_AES_128_CCM_SHA256` | RFC 8446 | CBC suites, RC4 (RFC 7465), 3DES, NULL and export suites (TLS 1.2 and older) |
 | MAC | built into the AEAD; HMAC in Finished and HKDF | RFC 8446, RFC 2104 | HMAC-MD5 / HMAC-SHA-1 record MACs (old CBC suites) |
@@ -129,5 +129,5 @@ OpenSSL 3 gets TLS 1.3 and a `TLS_` suite from any server that offers it.
 - [RFC 8446: TLS 1.3](https://www.rfc-editor.org/rfc/rfc8446)
 - [RFC 8996: deprecating TLS 1.0 and 1.1](https://www.rfc-editor.org/rfc/rfc8996)
 - [RFC 9001: TLS in QUIC](https://www.rfc-editor.org/rfc/rfc9001)
-- [draft-ietf-tls-ecdhe-mlkem](https://datatracker.ietf.org/doc/draft-ietf-tls-ecdhe-mlkem/)
+- [RFC 10024: Post-Quantum Traditional (PQ/T) Hybrid Key Agreement Mechanisms for TLS 1.3](https://www.rfc-editor.org/rfc/rfc10024) (August 2026; X25519MLKEM768, SecP256r1MLKEM768, SecP384r1MLKEM1024)
 - [IANA TLS parameters](https://www.iana.org/assignments/tls-parameters/)

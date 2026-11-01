@@ -38,7 +38,7 @@ Every family name opens its own page; in Math foundations each algorithm has one
 | | ECDH P-256/384/521 | 256 / 384 / 521-bit key | 128 / 192 / 256 | SP 800-56A (2006), RFC 8422 (2018) | 1999 | NIST IR 8547: 2030 / 2035 | Acceptable |
 | | ECDH Brainpool | 256 / 384 / 512-bit key | 128 / 192 / 256 | RFC 5639 (2010) | 2005 | — | Acceptable |
 | [ML-KEM](01-key-exchange/ML-KEM.md) (PQ, lattice) | ML-KEM-512/768/1024 | 800 / 1,184 / 1,568 B public key | 128 / 192 / 256 | FIPS 203 (2024) | 2017 | — | Recommended |
-| | X25519 + ML-KEM-768 hybrid | 1,216 B key share | 192 | IETF drafts (TLS, SSH) | 2024 | — | Recommended |
+| | X25519 + ML-KEM-768 hybrid | 1,216 B key share | 192 | RFC 10024 (TLS, 2026), RFC 10042 (SSH, 2026) | 2024 | — | Recommended |
 | [NTRU Prime](01-key-exchange/NTRU-Prime.md) (PQ, lattice) | sntrup761 + X25519 hybrid | 1,190 B key share | 128 | RFC 9941 (2026) | 2016 | — | Acceptable |
 | [Code-based](01-key-exchange/Code-Based-KEMs.md) (PQ) | HQC | 2,241 – 7,237 B public key | 128 / 192 / 256 | NIST pick 2025, standard due ~2027 | 2017 | — | Draft |
 | | Classic McEliece | 261 KB – 1.36 MB public key | 128 – 256 | ISO/IEC 18033-2 Amd 2 (2026) | 1978 | BSI advises against new use (2026) | Acceptable |

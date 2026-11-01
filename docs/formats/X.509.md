@@ -14,7 +14,7 @@ Baseline Requirements (BRs). **Used by:** [TLS 1.3](../protocols/TLS-1.3.md),
 [S/MIME](../protocols/S-MIME.md), [IKEv2](../protocols/IPsec.md),
 [Kerberos](../protocols/Kerberos.md) PKINIT, [FIDO2](../protocols/FIDO2.md)
 attestation, [JWT](../protocols/JWT.md) `x5c`, code signing. "Certificate"
-alone means X.509; [SSH](../protocols/SSH.md) (draft-miller-ssh-cert) and
+alone means X.509; [SSH](../protocols/SSH.md) (draft-ietf-sshm-cert) and
 [OpenPGP](../protocols/OpenPGP.md) have formats of their own.
 
 ## One certificate, field by field
@@ -173,7 +173,7 @@ Root X1 in Mozilla's root list (NSS `certdata.txt`).
 - [RFC 3279](https://www.rfc-editor.org/rfc/rfc3279) / [RFC 4055](https://www.rfc-editor.org/rfc/rfc4055) / [RFC 5480](https://www.rfc-editor.org/rfc/rfc5480) / [RFC 5758](https://www.rfc-editor.org/rfc/rfc5758) / [RFC 8410](https://www.rfc-editor.org/rfc/rfc8410): algorithm identifiers
 - [RFC 9881: ML-DSA](https://www.rfc-editor.org/rfc/rfc9881) ([source](https://github.com/lamps-wg/dilithium-certificates)) / [RFC 9909: SLH-DSA](https://www.rfc-editor.org/rfc/rfc9909) ([source](https://github.com/lamps-wg/x509-slhdsa)) / [RFC 9935: ML-KEM](https://www.rfc-editor.org/rfc/rfc9935) ([source](https://github.com/lamps-wg/kyber-certificates)) / [RFC 9802: HSS and XMSS](https://www.rfc-editor.org/rfc/rfc9802) / [draft-ietf-lamps-pq-composite-sigs](https://datatracker.ietf.org/doc/draft-ietf-lamps-pq-composite-sigs/) ([source](https://github.com/lamps-wg/draft-composite-sigs))
 - [RFC 6962: Certificate Transparency](https://www.rfc-editor.org/rfc/rfc6962) (Sections 3.1, 3.3) / [Chrome CT policy](https://github.com/GoogleChrome/CertificateTransparency/blob/master/ct_policy.md) / [RFC 6125](https://www.rfc-editor.org/rfc/rfc6125) (Section 6.4.4) / [RFC 9525](https://www.rfc-editor.org/rfc/rfc9525) / [RFC 2986: PKCS #10](https://www.rfc-editor.org/rfc/rfc2986) / [RFC 8555: ACME](https://www.rfc-editor.org/rfc/rfc8555)
-- [CA/Browser Forum TLS Baseline Requirements](https://github.com/cabforum/servercert/blob/main/docs/BR.md) (v2.3.1, Sections 1.2.2, 6.1.5, 6.3.2, 7.1.2.7, 7.1.3.2) / [draft-miller-ssh-cert](https://datatracker.ietf.org/doc/draft-miller-ssh-cert/) (named in OpenSSH's [`PROTOCOL`](https://github.com/openssh/openssh-portable/blob/master/PROTOCOL))
+- [CA/Browser Forum TLS Baseline Requirements](https://github.com/cabforum/servercert/blob/main/docs/BR.md) (v2.3.1, Sections 1.2.2, 6.1.5, 6.3.2, 7.1.2.7, 7.1.3.2) / [draft-ietf-sshm-cert](https://datatracker.ietf.org/doc/draft-ietf-sshm-cert/) (the SSH working group's version of draft-miller-ssh-cert) (named in OpenSSH's [`PROTOCOL`](https://github.com/openssh/openssh-portable/blob/master/PROTOCOL))
 - [OpenSSL CHANGES.md](https://github.com/openssl/openssl/blob/master/CHANGES.md) (1.0.1k) / [OpenSSL 3.0 `apps/include/apps.h`](https://github.com/openssl/openssl/blob/openssl-3.0/apps/include/apps.h) (`SERIAL_RAND_BITS`) / [.NET `X509Certificate2.Thumbprint`](https://learn.microsoft.com/dotnet/api/system.security.cryptography.x509certificates.x509certificate2.thumbprint) / [NSS `certdata.txt`](https://github.com/nss-dev/nss/blob/master/lib/ckfw/builtins/certdata.txt)
 
 *Weaker sources:* search-engine summaries of RFC Editor pages that could not be

@@ -104,5 +104,5 @@ print(secret_sender == secret_receiver)   # True: 32 shared bytes, run them thro
 ## References
 
 - [FIPS 203: ML-KEM](https://csrc.nist.gov/pubs/fips/203/final)
-- [draft-ietf-tls-ecdhe-mlkem](https://datatracker.ietf.org/doc/draft-ietf-tls-ecdhe-mlkem/)
+- [RFC 10024: hybrid ML-KEM key agreement for TLS 1.3](https://www.rfc-editor.org/rfc/rfc10024) (2026) / [RFC 10042: hybrid ML-KEM key exchange for SSH](https://www.rfc-editor.org/rfc/rfc10042) (2026)
 - [NIST Post-Quantum Cryptography project](https://csrc.nist.gov/projects/post-quantum-cryptography)

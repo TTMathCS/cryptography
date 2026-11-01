@@ -449,7 +449,7 @@ default was SSH. OpenSSH 9.0, in April 2022, made the hybrid
 OpenSSH 9.9 (2024) added `mlkem768x25519-sha256`, 10.0 (April 2025) made it
 the default, and 10.1 began warning users when a connection doesn't use a
 post-quantum key exchange. The NTRU Prime hybrid was published as RFC 9941
-in 2026. See the [SSH page](../protocols/SSH.md).
+in 2026, and the ML-KEM one as RFC 10042 in August 2026. See the [SSH page](../protocols/SSH.md).
 
 ### TLS and the web
 
@@ -460,8 +460,9 @@ iOS 26 and macOS 26 offered it by default from September 2025. OpenSSL 3.5
 (April 2025) included ML-KEM, ML-DSA and SLH-DSA and put the hybrid first.
 Cloudflare reported that about half of the human web traffic it handled
 used post-quantum key exchange by late 2025, and about two-thirds by
-spring 2026. The [TLS 1.3 page](../protocols/TLS-1.3.md) shows a
-connection using it.
+spring 2026. The IETF published the TLS hybrids as RFC 10024 in August
+2026. The [TLS 1.3 page](../protocols/TLS-1.3.md) shows a connection
+using it.
 
 ### Messaging
 
