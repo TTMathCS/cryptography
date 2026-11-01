@@ -44,7 +44,10 @@
   // the guide's minimize and close buttons, and Escape inside it, send "guide-close" from www.akadian.ca
   addEventListener("message", function (e) { if (e.origin === GUIDE && e.data === "guide-close") panel(false); });
   addEventListener("keydown", function (e) { if (e.key === "Escape" && p && p.classList.contains("open")) panel(false); });
-  // open on the last page, it opens again here (a wide screen only: on a phone it would cover the page just opened)
-  var was = ""; try { was = sessionStorage.getItem("guidePanel"); } catch (e) {}
+  // open on the last page, or a link in the guide on the Mars site led here (#guide), it opens again here (a wide screen
+  // only: on a phone it would cover the page just opened)
+  var was = location.hash === "#guide" ? "1" : "";
+  if (was) history.replaceState(null, "", location.pathname + location.search);
+  else try { was = sessionStorage.getItem("guidePanel"); } catch (e) {}
   if (was === "1" && innerWidth > 640) panel(true);
 })();
