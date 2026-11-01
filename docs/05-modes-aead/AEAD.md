@@ -58,6 +58,11 @@ multiply instructions it is very fast, and TLS 1.3 makes
   2⁻³³. A counter has no such limit; TLS 1.3 XORs the record number into a
   fixed IV.
 - Up to 2³⁹ − 256 bits, about 64 GB, per message.
+- **A revision is coming.** In March 2024 NIST decided to revise SP 800-38D:
+  drop tags shorter than 96 bits, confirm that TLS 1.3's nonce
+  construction is approved, and clarify the other nonce rules. A second
+  call for early comments (June 2026) adds wGCM for 256-bit blocks; there
+  is no draft text yet.
 
 ### ChaCha20-Poly1305
 
@@ -99,6 +104,8 @@ up front, and it only ever runs AES forwards, which keeps chips small. The
 nonce is 7 to 13 bytes, the tag 4 to 16. WPA2 and WPA3 (CCMP), Bluetooth LE
 and IEEE 802.15.4 (Zigbee, Thread) use it, and TLS 1.3 defines two CCM
 suites.
+NIST decided in April 2025 to revise SP 800-38C, together with CMAC's
+SP 800-38B; no draft has appeared yet.
 
 ### AES-OCB
 
@@ -227,11 +234,11 @@ two halves of ChaCha20-Poly1305 run from the standard library on the
 ## References
 
 - [RFC 5116: An Interface and Algorithms for Authenticated Encryption](https://www.rfc-editor.org/rfc/rfc5116) (Sections 2, 3.2, 5)
-- [NIST SP 800-38D: GCM and GMAC (2007)](https://csrc.nist.gov/pubs/sp/800/38/d/final) (Sections 5.2.1, 8) / McGrew and Viega, "The Security and Performance of the Galois/Counter Mode (GCM) of Operation" (INDOCRYPT 2004)
+- [NIST SP 800-38D: GCM and GMAC (2007)](https://csrc.nist.gov/pubs/sp/800/38/d/final) (Sections 5.2.1, 8) / [NIST to revise SP 800-38D (2024)](https://csrc.nist.gov/news/2024/nist-to-revise-sp-80038d-gcm-and-gmac-modes) / [second pre-draft call (2026)](https://csrc.nist.gov/pubs/sp/800/38/d/r1/2prd) / McGrew and Viega, "The Security and Performance of the Galois/Counter Mode (GCM) of Operation" (INDOCRYPT 2004)
 - [Böck, Zauner, Devlin, Somorovsky and Jovanovic, "Nonce-Disrespecting Adversaries" (WOOT 2016)](https://eprint.iacr.org/2016/475)
 - [RFC 8439: ChaCha20 and Poly1305 for IETF Protocols](https://www.rfc-editor.org/rfc/rfc8439) (Sections 2.8, 4) / [Bernstein, "ChaCha, a variant of Salsa20" (2008)](https://cr.yp.to/chacha/chacha-20080128.pdf)
 - [RFC 8452: AES-GCM-SIV](https://www.rfc-editor.org/rfc/rfc8452) (Sections 4, 9) / Gueron and Lindell, "GCM-SIV: Full Nonce Misuse-Resistant Authenticated Encryption at Under One Cycle per Byte" (CCS 2015)
-- [RFC 3610: CCM](https://www.rfc-editor.org/rfc/rfc3610) / [NIST SP 800-38C](https://csrc.nist.gov/pubs/sp/800/38/c/upd1/final) / IEEE 802.11 (CCMP)
+- [RFC 3610: CCM](https://www.rfc-editor.org/rfc/rfc3610) / [NIST SP 800-38C](https://csrc.nist.gov/pubs/sp/800/38/c/upd1/final) ([decision to revise, 2025](https://csrc.nist.gov/news/2025/decision-to-revise-sp-800-38b-and-38c)) / IEEE 802.11 (CCMP)
 - [RFC 7253: OCB](https://www.rfc-editor.org/rfc/rfc7253) / Rogaway, Bellare, Black and Krovetz (CCS 2001) / Inoue, Iwata, Minematsu and Poettering, "Cryptanalysis of OCB2" (CRYPTO 2019) / [Rogaway, OCB licensing](https://web.cs.ucdavis.edu/~rogaway/ocb/license.htm) / [RFC 9580: OpenPGP](https://www.rfc-editor.org/rfc/rfc9580) (Section 9.6) / [Mosh](https://mosh.org/)
 - [RFC 10032: The AEGIS Authenticated Encryption Algorithms (2026)](https://www.rfc-editor.org/rfc/rfc10032) (Sections 1, 9) / Wu and Preneel, "AEGIS: A Fast Authenticated Encryption Algorithm" (SAC 2013) / [CAESAR final portfolio](https://competitions.cr.yp.to/caesar-submissions.html)
 - [NIST SP 800-232: Ascon-Based Lightweight Cryptography Standards (August 2025)](https://csrc.nist.gov/pubs/sp/800/232/final) (Sections 1, 4.2–4.4, 5) / [Ascon home page](https://ascon.isec.tugraz.at/)
