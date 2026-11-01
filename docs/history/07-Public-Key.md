@@ -447,6 +447,68 @@ anywhere. The argument about lawful access did not end; it returned in
 the 2010s over encrypted phones and messaging, as the
 [internet era](08-Internet-Era.md#the-second-crypto-war) page tells.
 
+## Can these be broken today?
+
+Not the ideas, only the sizes. Every public-key method on this page is
+still safe against ordinary computers when the numbers are big enough,
+and every one of them falls when they are too small. All of the
+factoring and discrete-logarithm ones would fall to a large quantum
+computer, which is the story of the [last page](10-Quantum-and-Post-Quantum.md).
+
+| Method | Broken today? | The attack in plain words |
+|---|---|---|
+| Merkle's puzzles | yes, for any practical size | The attacker's work is only the square of the users'. Buy a million times more computers than the users have and you keep up with puzzles a thousand times harder. |
+| Diffie–Hellman, 2048 bits and up | no | Taking discrete logarithms modulo a 2048-bit prime is out of reach. The 512-bit "export" size fell in 2015 (Logjam): one big precomputation per prime, then each connection in minutes. |
+| RSA, 2048 bits and up | no | Factoring is the known way in, and the record is 829 bits (RSA-250, 2020, about 2,700 core-years). A 512-bit key cost under four hours and about $75 of rented cloud computing in 2015. |
+| Cocks's and Williamson's GCHQ versions | the same as RSA and Diffie–Hellman | They are the same mathematics. |
+| Elliptic curves, 256 bits | no | The best attack, Pollard's rho, needs about 2¹²⁸ steps. Records stop near 117 bits. |
+| BassOmatic (PGP 1.0) | yes | Biham soon showed it weak, and PGP 2.0 replaced it with IDEA. |
+| Clipper's escrow | bypassed | Its 16-bit check meant about 65,000 tries made a fake escrow field: Blaze's 1994 attack. Skipjack itself held, apart from reduced-round attacks. |
+| Toy keys of any kind | instantly | See below. |
+
+Here is a small RSA key broken by factoring, with Pollard's rho method
+(1975). The two primes have 10 digits each, so the key is 64 bits.
+Rho finds a factor in roughly the square root of the smaller prime's
+size, about 50,000 steps here, and then the private key is one line:
+
+```python
+from math import gcd
+
+def rho(n, c=1):                           # Pollard's rho, 1975: finds a factor in about sqrt(p) steps
+    x = y = 2
+    while True:
+        x = (x * x + c) % n
+        y = (y * y + c) % n
+        y = (y * y + c) % n
+        g = gcd(abs(x - y), n)
+        if 1 < g < n:
+            return g
+        if g == n:                         # unlucky start: change the constant
+            return rho(n, c + 1)
+
+n, e = 12000000097000000133, 65537         # a 64-bit public key
+c = 11160206631264991268                   # an intercepted message
+
+p = rho(n)
+q = n // p
+d = pow(e, -1, (p - 1) * (q - 1))          # with p and q, the private key is one line
+print(p, q)
+print(pow(c, d, n).to_bytes(8, "big"))
+```
+
+Output:
+
+```
+4000000007 3000000019
+b'OSSIFRAG'
+```
+
+The same steps on a 2048-bit key would need about 2⁵¹² rho steps, and
+the best real method, the number field sieve, still needs far more than
+all the computers on Earth could do. That gap, from instant to
+impossible as the numbers grow, is what public-key cryptography rests
+on.
+
 ## What this era left behind
 
 - **Public-key cryptography**: key exchange and signatures between
@@ -482,6 +544,8 @@ the 2010s over encrypted phones and messaging, as the
 - Loren M. Kohnfelder, *Towards a Practical Public-Key Cryptosystem* (BSc thesis, MIT, 1978) / Leslie Lamport, "Constructing Digital Signatures from a One Way Function" (SRI CSL-98, 1979) / Ralph C. Merkle, *Secrecy, Authentication, and Public Key Systems* (PhD thesis, Stanford, 1979)
 - Neal Koblitz, "Elliptic Curve Cryptosystems", *Mathematics of Computation* 48 (1987), pp. 203–209 / Victor S. Miller, "Use of Elliptic Curves in Cryptography" (CRYPTO '85)
 - Matt Blaze, "Protocol Failure in the Escrowed Encryption Standard", *Proceedings of the 2nd ACM Conference on Computer and Communications Security* (1994), pp. 59–67 / NIST, FIPS 185, *Escrowed Encryption Standard* (1994)
+- Fabrice Boudot et al., "Factorization of RSA-250" (announcement, February 2020) / Luke Valenta et al., "Factoring as a Service" (Financial Cryptography 2016) / David Adrian et al., "Imperfect Forward Secrecy: How Diffie-Hellman Fails in Practice" (Logjam, ACM CCS 2015)
+- John M. Pollard, "A Monte Carlo Method for Factorization", *BIT* 15 (1975), pp. 331–334
 - *Bernstein v. United States Department of Justice*, 176 F.3d 1132 (9th Cir. 1999), rehearing en banc granted and opinion withdrawn, 192 F.3d 1308 (9th Cir. 1999) / *Junger v. Daley*, 209 F.3d 481 (6th Cir. 2000)
 - Steven Levy, *Crypto: How the Code Rebels Beat the Government, Saving Privacy in the Digital Age* (Viking, 2001) / Whitfield Diffie and Susan Landau, *Privacy on the Line: The Politics of Wiretapping and Encryption* (MIT Press, 1998; updated 2007)
 
