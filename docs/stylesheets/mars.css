@@ -21,6 +21,7 @@
   color-scheme: dark;
   --mars-bg: #120b09;
   --mars-bg-fade: rgba(18, 11, 9, 0.5);
+  --mars-bg-soft: rgba(18, 11, 9, 0.82);
   --mars-panel: #1c110e;
   --mars-rust: #eea66f;
   --mars-photo: url("../images/21-starlit-city.webp");
@@ -53,6 +54,7 @@
   color-scheme: light;
   --mars-bg: #efdecb;
   --mars-bg-fade: rgba(239, 222, 203, 0.45);
+  --mars-bg-soft: rgba(239, 222, 203, 0.86);
   --mars-panel: #e6cfb6;
   --mars-rust: #a9471c;
   --mars-photo: url("../images/27-dawn-after-storm.webp");
