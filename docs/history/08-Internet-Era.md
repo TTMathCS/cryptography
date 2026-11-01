@@ -460,6 +460,28 @@ computation](../11-advanced/MPC.md) (Yao, 1982) and Craig Gentry's first
 fully [homomorphic encryption](../11-advanced/Homomorphic-Encryption.md)
 scheme (2009), which can compute on data without decrypting it.
 
+## Can these be broken today?
+
+The algorithms chosen in public in this era still stand. What broke was
+everything around them: old versions, short hashes, bad randomness and
+plain bugs.
+
+| What | Broken today? | The attack in plain words |
+|---|---|---|
+| SSL 2.0 and 3.0 | yes | Padding oracles (POODLE, 2014) and weak export options. Servers and browsers have removed them. |
+| TLS 1.0 and 1.1 | retired | No single fatal break, but they depend on MD5 and SHA-1 and CBC padding. RFC 8996 (2021) deprecated both. |
+| TLS 1.2 set up well, and TLS 1.3 | no | No practical attack on the protocol itself. TLS 1.3 removed the options the old attacks used. |
+| RSA encryption with PKCS #1 v1.5 padding | where the server leaks | A server that reveals bad padding is a Bleichenbacher oracle: about a million altered messages decrypt a session (ROBOT, 2017). |
+| AES | no | The best attack on the full cipher is only about four times faster than trying every key. |
+| AES-GCM, ChaCha20-Poly1305 | no, if nonces never repeat | Reuse a nonce and the keystream and the authentication key leak, as on the [AEAD page](../05-modes-aead/AEAD.md). |
+| MD5 | yes, in seconds | Collisions on a laptop; chosen-prefix collisions forged a CA certificate in 2008 and Flame's code-signing certificate in 2012. |
+| SHA-1 | yes, with money | A first collision in 2017 (SHAttered); a chosen-prefix collision in 2020 that cost about $45,000 of rented GPUs. |
+| SHA-2, SHA-3 | no | No practical attack on either. |
+| Unsalted fast password hashes | yes | Graphics cards try billions of guesses a second, and one table of guesses works for every account. |
+| Debian's broken OpenSSL keys | yes, instantly | Only 32,767 keys of each type existed. List them all and look the key up, as the program above does. |
+| RSA keys that share a prime | yes, instantly | One greatest-common-divisor step between two keys splits both. |
+| Dual_EC_DRBG | for whoever holds the secret | With the hidden number behind the two points, about 32 bytes of output predict everything after. Without it, no attack is known. |
+
 ## What the internet era left behind
 
 - **Encryption by default** for web traffic, messaging and phones.
@@ -489,6 +511,7 @@ scheme (2009), which can compute on data without decrypting it.
 
 - Kipp E. B. Hickman, "The SSL Protocol" (Netscape, 1995) / A. Freier, P. Karlton and P. Kocher, RFC 6101, *The Secure Sockets Layer (SSL) Protocol Version 3.0* (historic, 2011) / T. Dierks and C. Allen, RFC 2246, *TLS 1.0* (1999) / E. Rescorla, RFC 8446, *TLS 1.3* (2018)
 - Daniel Bleichenbacher, "Chosen Ciphertext Attacks Against Protocols Based on the RSA Encryption Standard PKCS #1" (CRYPTO '98) / Serge Vaudenay, "Security Flaws Induced by CBC Padding" (EUROCRYPT 2002) / Böck, Somorovsky and Young, "Return Of Bleichenbacher's Oracle Threat (ROBOT)" (USENIX Security 2018) / Adrian et al., "Imperfect Forward Secrecy: How Diffie-Hellman Fails in Practice" (CCS 2015)
+- [RFC 8996: Deprecating TLS 1.0 and TLS 1.1](https://www.rfc-editor.org/rfc/rfc8996) (2021) / Andrey Bogdanov, Dmitry Khovratovich and Christian Rechberger, "Biclique Cryptanalysis of the Full AES" (ASIACRYPT 2011)
 - Tatu Ylönen, "SSH: Secure Login Connections over the Internet" (USENIX Security 1996) / RFC 4251–4254 (2006)
 - B. Laurie, A. Langley and E. Kasper, RFC 6962, *Certificate Transparency* (2013) / Fox-IT, *DigiNotar Certificate Authority Breach "Operation Black Tulip"* (2011) / Aas et al., "Let's Encrypt: An Automated Certificate Authority to Encrypt the Entire Web" (CCS 2019) / RFC 8555, *ACME* (2019)
 - NIST, *Report on the Development of the Advanced Encryption Standard (AES)* (October 2000) / FIPS 197 (2001) / Joan Daemen and Vincent Rijmen, *The Design of Rijndael* (Springer, 2002) / CNSS Policy No. 15 (2003)
