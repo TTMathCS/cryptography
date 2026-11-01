@@ -14,6 +14,13 @@ tag of another length is a new value, not a longer or shorter copy of the
 old one. KMACXOF gives open-ended output. KMAC is also a PRF, so NIST
 lets it drive key derivation too.
 
+A first revision is on the way. On 8 October 2026 NIST published the draft
+of SP 800-185 Revision 1 for public comment until 7 December 2026. It adds
+a streaming way to call these functions (INIT, then ABSORB as many times
+as needed, then SQUEEZE for output), for when the full input or output
+length isn't known in advance. Called in one go, every function gives the
+same result as in the 2016 version.
+
 ## How it works
 
 cSHAKE is SHAKE with two extra inputs: a function name N, which only NIST
@@ -102,6 +109,7 @@ job and every library and protocol has it.
 ## References
 
 - [NIST SP 800-185: SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash and ParallelHash (2016)](https://csrc.nist.gov/pubs/sp/800/185/final) (Sections 3–8, Table 1)
+- [NIST SP 800-185 Rev. 1, initial public draft (8 October 2026; comments until 7 December 2026)](https://csrc.nist.gov/pubs/sp/800/185/r1/ipd)
 - [FIPS 202: SHA-3 Standard](https://csrc.nist.gov/pubs/fips/202/final) / [FIPS 198-1: HMAC](https://csrc.nist.gov/pubs/fips/198-1/final)
 - [The Keccak team, "Keccak strengths"](https://keccak.team/keccak_strengths.html)
 - [NIST SP 800-56C Rev. 2 (2020)](https://csrc.nist.gov/pubs/sp/800/56/c/r2/final) (Sections 4.1, 4.2) / [NIST SP 800-108 Rev. 1 (2022)](https://csrc.nist.gov/pubs/sp/800/108/r1/upd1/final) (Section 4.4)
