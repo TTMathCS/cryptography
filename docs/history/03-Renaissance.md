@@ -547,6 +547,69 @@ resealed them with forged seals and had them back in the post by 9:30. Codebreak
 bonuses for each solved key. Austria could read the diplomatic traffic of
 most of Europe and sometimes sold the results to friendly courts.
 
+## Can these be broken today?
+
+Yes, all of them, and a laptop does it in seconds. Each one hides the
+letters but keeps the message's shape, and a computer can test thousands
+of guesses a second against that shape.
+
+| Cipher | Broken today? | The attack in plain words |
+|---|---|---|
+| Simple nomenclator | at once | Count the symbols, as [al-Kindi](02-Arab-Cryptanalysis.md) did, and guess the code words from context ("the king" turns up in every letter). |
+| Homophones and nulls | easily, by computer | Single-letter counts go flat, but letter pairs don't. A program swaps symbol meanings at random and keeps any swap that makes the text look more like the language, until it reads. That search, plus a lot of hand work, is how Lasry, Biermann and Tomokiyo read Mary Stuart's 57 lost letters in 2023. |
+| Louis XIV's Great Cipher | with work | A big nomenclator of 587 numbers, mostly for syllables, with trap numbers. Bazeries needed about three years by hand. A computer now does the counting and the climbing search fast, but the code words for names still need a person reading in context. |
+| Alberti's disk | easily | The key letters that turn the disk show where the alphabet changes. Between them, each stretch is a simple substitution, solved by counting. |
+| Trithemius's table, with no keyword | instantly | The shift moves on by one each letter, and there is no secret at all: anyone who knows the method reads it. |
+| Bellaso's keyword ("Vigenère") | in a fraction of a second | Repeats in the ciphertext give the key length (Kasiski, 1863). Then every key-th letter is a Caesar shift, solved by counting. See [the telegraph age](04-Telegraph-Age.md#the-keyword-cipher-falls). |
+| Porta's pair cipher | easily, with enough text | It is a substitution of letter pairs: count pairs instead of letters. A few hundred letters are enough for a computer. |
+| Vigenère's autokey | easily | The only secret is the one starting letter. Try all 26 and keep the one that gives English. |
+
+That last one is worth seeing, because it was the strongest idea of the
+era. Vigenère's own autokey starts from one secret letter, so there are
+only 26 keys to try. The program scores each try by how many of its
+letters are among the twelve commonest in English:
+
+```python
+A = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+ENGLISH = "ETAOINSHRDLU"                     # the twelve commonest English letters
+
+def encrypt(plain, primer):
+    out, k = "", primer                      # the key is the primer, then the plaintext itself
+    for ch in plain:
+        out += A[(A.index(ch) + A.index(k)) % 26]
+        k = ch
+    return out
+
+def decrypt(secret, primer):
+    out, k = "", primer
+    for ch in secret:
+        k = A[(A.index(ch) - A.index(k)) % 26]
+        out += k
+    return out
+
+secret = encrypt("THEFLEETSAILSFROMCADIZATDAWNONTHURSDAY", "Q")
+print("intercepted", secret)
+
+def score(text):                             # how much of the text is common letters
+    return sum(ch in ENGLISH for ch in text)
+
+for p in sorted(A, key=lambda p: -score(decrypt(secret, p)))[:3]:
+    print(p, score(decrypt(secret, p)), decrypt(secret, p))
+```
+
+Output:
+
+```
+intercepted JALJQPIXLSITDXWFAOCDLHZTWDWJBBGABLJVDY
+Q 31 THEFLEETSAILSFROMCADIZATDAWNONTHURSDAY
+F 24 EWPUWTPIDPTADUCDXRLSTOLIOPHCZCEWFGDSLN
+R 23 SIDGKFDURBHMRGQPLDZEHAZUCBVONOSITSREZZ
+```
+
+A longer secret start (a keyword instead of one letter) makes the search
+bigger, but the plaintext still feeds the key, so guessing a likely word
+anywhere in the message unlocks the text around it.
+
 ## What the Renaissance left behind
 
 - **The polyalphabetic cipher**, from Alberti, Trithemius and Bellaso: the
