@@ -551,6 +551,25 @@ Kahn also notes that the *Arthashastra*, the old Indian manual of
 statecraft attributed to Kautilya, describes a spy service whose agents
 received their instructions in secret writing.
 
+## Can these be broken today?
+
+Yes, every one, most of them by hand in minutes. Here is each method on
+this page, with the attack in plain words. The skytale and Caesar
+programs above show two of the attacks running.
+
+| Method | Broken today? | The attack in plain words |
+|---|---|---|
+| Egyptian enigmatic writing | not a cipher | No key: a reader who knows the sign games reads it. The Esna crocodile hymn is still only partly read, because the stone is damaged, not because of a secret. |
+| The potter's recipe, and number signs for syllables | at once | Unusual spellings and a fixed number table. Anyone who knows the script, or has the table, reads them. |
+| Atbash and the Kama Sutra swaps | instantly | No key at all: the swap is the method. Know it and you read it. |
+| Hidden messages (shaved head, wax tablet, hare, arrows) | as soon as you look | Nothing is scrambled. Search the courier, scrape the wax, cut open the hare. Modern versions hide data in pictures or files, and statistical tests can often spot it. |
+| Aeneas's pricked letters | as soon as you look | Hold the page to the light and copy out the marked letters. |
+| Code by agreed signs (water clocks, tallies, the Song poem code) | only with captured examples | Without the list, a mark means nothing. But every use is the same sign for the same message, so an enemy who sees signs and then sees what happens learns the code. |
+| Three-part letters | by capturing all three | Each messenger carries a fragment. An enemy needs every piece: an early form of secret splitting. |
+| Skytale | easily | Try every row length; only one gives words. Only a handful of rods are possible. |
+| Polybius square | instantly | It turns letters into number pairs but keeps every letter's count, so it falls to the same counting as a substitution, or to no attack at all if the square is the usual one. |
+| Caesar's and Augustus's shifts | instantly | Try all 25 shifts and keep the one in the language. |
+
 ## Why weak ciphers worked
 
 From a modern view, everything on this page is easy to break. Caesar's
