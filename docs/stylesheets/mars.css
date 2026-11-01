@@ -131,12 +131,18 @@
    The other pages keep the city picture behind their text */
 .mars-hero {
   --mars-hero-photo: url("../images/alien-in-the-middle.webp");
-  display: flex;
-  align-items: flex-end;
-  min-height: min(76vh, 40rem);
+  /* a banner: a wide strip of the picture, with the title on the plain page under it (Jim 1 Nov 2026: "too big",
+     "I like it to be banner") */
+  display: block;
+}
+
+.mars-hero::before {
+  content: "";
+  display: block;
+  height: clamp(9rem, 26vw, 22rem);
   background:
-    linear-gradient(180deg, transparent 35%, var(--mars-bg-fade) 70%, var(--md-default-bg-color) 100%),
-    var(--mars-hero-photo) center 40% / cover no-repeat;
+    linear-gradient(180deg, transparent 70%, var(--md-default-bg-color) 100%),
+    var(--mars-hero-photo) center 42% / cover no-repeat;
 }
 
 .mars-hero__inner {
@@ -159,6 +165,10 @@
   color: #2b1a12;
   text-shadow: 0 1px 14px rgba(239, 222, 203, 0.7);
 }
+
+/* under the banner the title sits on the plain page colour */
+.mars-hero__inner { padding-top: 1.2rem; }
+.mars-hero__title, [data-md-color-scheme="default"] .mars-hero__title { color: var(--md-default-fg-color); text-shadow: none; }
 
 .mars-hero__lead {
   max-width: 36rem;
@@ -271,10 +281,6 @@
 
 @media screen and (max-width: 44.9375em) {
   /* on a phone the whole picture sits above the title, so the alien stays in view and the words are on the plain page */
-  .mars-hero { display: block; min-height: 0; background: var(--md-default-bg-color); }
-  .mars-hero::before { content: ""; display: block; aspect-ratio: 16 / 9; background: var(--mars-hero-photo) center / cover no-repeat; }
-  .mars-hero__inner { padding-top: 1rem; }
-  .mars-hero__title, [data-md-color-scheme="default"] .mars-hero__title { color: var(--md-default-fg-color); text-shadow: none; }
   /* phones: the picture is only a faint tint at the top, so body text stays on the plain page colour (#3) */
   .md-container {
     background:
