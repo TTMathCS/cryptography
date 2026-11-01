@@ -452,6 +452,25 @@ the people who write cryptographic code to change how they work.
 - **Certification**, through FIPS 140 for government use and the
   international Common Criteria, slow and expensive but often required.
 
+## Can these be broken today?
+
+In hardware, the mathematics is rarely the weak point. Secret home-made
+ciphers fall once someone reads the chip, and good ciphers leak through
+time, power and radio unless the engineering stops them.
+
+| What | Broken today? | The attack in plain words |
+|---|---|---|
+| SIGSALY's one-time records | no, if each record was used once | It was a true one-time pad for voice. |
+| Unshielded machines and screens (the TEMPEST problem) | yes, nearby | Listen to the radio noise a device makes; it follows what the device is doing. Shielding and distance are the defence. |
+| COMP128 (early SIMs) | yes | Send chosen challenges to the card and read the key out of the answers, then clone it. |
+| GSM's A5/2 and A5/1 | yes | A5/2 falls in seconds. For A5/1, precomputed tables of about 2 TB turn a few seconds of recorded call into the key. |
+| MIFARE Classic's Crypto-1 | yes, in seconds | A 48-bit key and a weak random-number generator; a cheap reader recovers the keys of a card. |
+| Infineon RSA keys (ROCA) | yes | The primes had a hidden structure, so a 2048-bit key could be factored for tens of thousands of dollars of computing. Most affected keys were replaced after 2017. |
+| Intel SGX | broken repeatedly | Attacks such as Foreshadow read enclave memory through speculative execution. |
+| Timing, power and cache leaks | yes, against careless code | Measure how long or how much power each operation takes; when it depends on the key, the key leaks bit by bit. Constant-time code is the defence. |
+| Security keys and passkeys (FIDO2) | no practical remote attack | The key never leaves the device and signs only for the real site's name, so a phishing page gets nothing useful. |
+| Quantum key distribution | the physics no, the hardware sometimes | Real detectors can be blinded by bright light (2010), letting an eavesdropper control the result. |
+
 ## What this era left behind
 
 - **Keys in hardware** wherever possible: HSMs, smart cards, TPMs, secure
