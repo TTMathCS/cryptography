@@ -57,6 +57,11 @@ SP 800-56C Rev. 1.
 after Z (SEC 1, Section 3.6.1). NIST approves it inside ANSI X9.63 key
 agreement through SP 800-135.
 
+SP 800-135 Rev. 1 dates from 2011. In August 2024 NIST decided to revise
+it: to add more application-specific KDFs, match the coming SP 800-131A
+revision on which hash functions stay approved, and update references to
+the protocols it covers. No draft had appeared as of November 2026.
+
 ### Where HKDF fits
 
 The first SP 800-56C (2011) added a two-step method: extract, then expand. A
@@ -147,7 +152,7 @@ ANS X9.63 (as copied into PyCA `cryptography`'s test vectors).
 
 - [NIST SP 800-108 Rev. 1 (2022, updated 2024)](https://csrc.nist.gov/pubs/sp/800/108/r1/upd1/final) (Sections 4.1–4.4, 6.7, Appendix B) / [SP 800-108 (2009)](https://csrc.nist.gov/pubs/sp/800/108/upd1/final)
 - [NIST SP 800-56C Rev. 2 (2020)](https://csrc.nist.gov/pubs/sp/800/56/c/r2/final) (Sections 4.1, 5, Appendix A) / NIST SP 800-56A (2006), Section 5.8.1
-- [NIST SP 800-135 Rev. 1 (2011)](https://csrc.nist.gov/pubs/sp/800/135/r1/final) (Section 5.1) / [SEC 1 v2.0 (2009)](https://www.secg.org/sec1-v2.pdf) (Section 3.6.1) / [CAVS 12.0 X9.63 KDF vectors, PyCA copy](https://github.com/pyca/cryptography/blob/main/vectors/cryptography_vectors/KDF/ansx963_2001.txt)
+- [NIST SP 800-135 Rev. 1 (2011)](https://csrc.nist.gov/pubs/sp/800/135/r1/final) (Section 5.1) ([decision to revise, August 2024](https://csrc.nist.gov/News/2024/decision-to-revise-sp-800135-rev-1)) / [SEC 1 v2.0 (2009)](https://www.secg.org/sec1-v2.pdf) (Section 3.6.1) / [CAVS 12.0 X9.63 KDF vectors, PyCA copy](https://github.com/pyca/cryptography/blob/main/vectors/cryptography_vectors/KDF/ansx963_2001.txt)
 - [NIST ACVP, "KDA HKDF" test spec](https://pages.nist.gov/ACVP/draft-hammett-acvp-kas-kdf-hkdf.html) (Section 6.2.1)
 - [NIST, "NIST to Update Special Publication 800-56A and Revise 800-56C" (2026)](https://csrc.nist.gov/news/2026/nist-to-revise-key-establishment-recommendations)
 - [RFC 7518: JSON Web Algorithms](https://www.rfc-editor.org/rfc/rfc7518) (Section 4.6.2, Appendix C) / [RFC 8009: AES-SHA2 for Kerberos 5](https://www.rfc-editor.org/rfc/rfc8009) (Section 3, Appendix A)
