@@ -14,6 +14,12 @@ in 2015. SHA-2 is still fine, so SHA-3 is mostly the safety net, but it has
 become the hash inside the new post-quantum standards
 ([ML-KEM](../01-key-exchange/ML-KEM.md), [ML-DSA](../02-signatures/ML-DSA.md)).
 
+In March 2025 NIST decided to update FIPS 202. The update improves the text and
+reflects that SHA-1 and Triple DES have been withdrawn; the SHA-3 functions
+themselves don't change. The streaming interface for SHAKE goes into the
+revision of SP 800-185, whose draft came out in October 2026 (see
+[KMAC](../06-mac/KMAC.md)).
+
 | Function | Output | Use |
 |---|---|---|
 | SHA3-224 / 256 / 384 / 512 | fixed | drop-in for the SHA-2 sizes |
@@ -71,5 +77,5 @@ print(hashlib.shake_128(b"hello world").hexdigest(16))   # 16 bytes out
 
 ## References
 
-- [FIPS 202: SHA-3 Standard](https://csrc.nist.gov/pubs/fips/202/final)
+- [FIPS 202: SHA-3 Standard](https://csrc.nist.gov/pubs/fips/202/final) / [NIST, "Decision to Update FIPS 202 and Revise SP 800-185" (2025)](https://csrc.nist.gov/news/2025/decision-to-update-fips-202-and-revise-sp-800-185)
 - [The Keccak team](https://keccak.team/keccak.html)

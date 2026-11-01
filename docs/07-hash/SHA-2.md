@@ -18,6 +18,11 @@ key. A good one is:
 SHA-2 was designed by the NSA and published by NIST in 2001. It is what
 certificates, TLS, SSH, Git's SHA-256 mode and Bitcoin all lean on.
 
+The standard that defines it, FIPS 180-4, is due for a rewrite. In 2023 NIST
+decided to revise it: take SHA-1 out, fold in the hash guidance from SP
+800-107, tidy the text and update the references. SHA-2 itself stays as it
+is. Work on the draft had not started when NIST announced the decision.
+
 | Variant | Digest | Block | Notes |
 |---|---|---|---|
 | SHA-256 | 256-bit | 512-bit | the default almost everywhere |
@@ -87,5 +92,5 @@ print(h.hexdigest() == digest)   # True
 
 ## References
 
-- [FIPS 180-4: Secure Hash Standard](https://csrc.nist.gov/pubs/fips/180-4/upd1/final)
+- [FIPS 180-4: Secure Hash Standard](https://csrc.nist.gov/pubs/fips/180-4/upd1/final) / [NIST, "Decision to Revise FIPS 180-4" (2023)](https://csrc.nist.gov/news/2023/decision-to-revise-fips-180-4)
 - [RFC 6234: SHA-2 in C, with test vectors](https://www.rfc-editor.org/rfc/rfc6234)
