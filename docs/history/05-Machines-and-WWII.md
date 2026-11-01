@@ -540,6 +540,52 @@ made public from 1995.
 Venona is the clearest lesson in the whole history: a mathematically
 perfect cipher, broken because of how its keys were made and handled.
 
+## Can these be broken today?
+
+Most of them, yes, and the machines that took rooms of bombes now take a
+laptop. The secret was never the machine: once it is known, the key is
+all that's left, and these keys are small by modern standards.
+
+| System | Broken today? | The attack in plain words |
+|---|---|---|
+| Enigma | yes, by computer | With a crib, a modern version of Turing's bombe search runs in minutes. Without one, a program climbs: try rotor settings, then improve the plugboard a swap at a time while the text looks more like German. In 2006 the Enigma@home project used volunteers' computers to read naval messages that had stayed unbroken since 1942. |
+| Lorenz (Tunny) | yes, by computer | Colossus counted how often bits agreed, to find the wheel settings one group at a time. In 2007, at a rebuilt Colossus's challenge, Joachim Schüth read a Lorenz message on a laptop in 46 seconds. |
+| Purple | yes | It was solved by hand from the ciphertext alone in 1940. The stepping switches follow a pattern; find it and the machine can be rebuilt on paper. |
+| M-209 | yes, by computer | Short pin-wheels repeat. Published programs (Lasry, Kopal and Wacker, 2016) recover the key from ciphertext alone. |
+| Typex and SIGABA | not easily | Neither was broken in its day. SIGABA's irregular stepping removed the patterns that sank Enigma. Later academic studies describe attacks that need known plaintext and a great deal of computing. |
+| Codebooks with additives (JN-25, Naval Cypher No. 3) | yes, with enough traffic | Messages that used the same stretch of the additive book line up; subtract them and the additive drops out, then rebuild the code meanings one group at a time from context. |
+| Navajo code talkers | not by codebreaking | A language and code words, not a cipher. Only a fluent speaker who learned the code words could read it. |
+| Venona one-time pads, printed twice | yes | Matching pages cancel out when subtracted, as on the [telegraph page](04-Telegraph-Age.md#why-it-cant-be-broken). |
+
+Here is the first step of the bombe in a few lines. This made-up
+weather message was encrypted with the simulator above (rotors II, I,
+III, start QEV, ten plugs). The codebreaker guesses it contains
+WETTERVORHERSAGE somewhere, and uses the rule that Enigma never turns a
+letter into itself to rule out every place where the guess and the
+ciphertext share a letter:
+
+```python
+secret = "TMZLIZMVFAIWQEEGAGJPZEGGUTZHEQUTKMHBTFJHGENXFUSDDIIOWFGTNZHPEQN"
+crib = "WETTERVORHERSAGE"                 # "weather forecast": a good guess
+
+places = range(len(secret) - len(crib) + 1)
+kept = [at for at in places               # Enigma never turns a letter into itself,
+        if all(p != c for p, c in zip(crib, secret[at:]))]   # so any match rules a place out
+print("ruled out", len(places) - len(kept), "of", len(places))
+print("left for the bombe:", kept)
+```
+
+Output:
+
+```
+ruled out 29 of 48
+left for the bombe: [0, 2, 5, 7, 14, 15, 16, 19, 21, 32, 35, 36, 38, 39, 41, 42, 43, 46, 47]
+```
+
+The right place, 16, is one of the 19 left. The bombe then took each
+place in turn and tested rotor orders and starts against the letter
+links the crib makes there.
+
 ## What the war left behind
 
 - **Codebreaking as industry.** Bletchley Park, Arlington Hall and their
@@ -578,5 +624,6 @@ perfect cipher, broken because of how its keys were made and handled.
 - NSA Center for Cryptologic History, *The Friedman Legacy* (1992) and Frank B. Rowlett, *The Story of Magic* (Aegean Park Press, 1998) / Edwin T. Layton with Roger Pineau and John Costello, *"And I Was There": Pearl Harbor and Midway—Breaking the Secrets* (Morrow, 1985)
 - Robert L. Benson, *The Venona Story* (NSA Center for Cryptologic History, 2001; reprinted 2019) / John Earl Haynes and Harvey Klehr, *Venona: Decoding Soviet Espionage in America* (Yale University Press, 1999)
 - F. W. Winterbotham, *The Ultra Secret* (Weidenfeld & Nicolson, 1974)
+- George Lasry, Nils Kopal and Arno Wacker, "Ciphertext-only cryptanalysis of Hagelin M-209 pins and lugs", *Cryptologia* 40, no. 2 (2016)
 
-*Weaker sources:* search summaries of the National Museum of Computing and bombe.org.uk pages (the March and August 1940 bombe dates, 211 British bombes), of Colossus histories (delivery in January, working on 5 February 1944, valve counts of 1,500–1,600 and 2,400–2,500), of the GCHQ page on the Pyry meeting, and of Wikipedia's Venona article (about 2,200–3,000 messages; the 349 names, as counted by Haynes and Klehr); the US Navy bombe count, which secondary sources give variously.
+*Weaker sources:* search summaries of the National Museum of Computing and bombe.org.uk pages (the March and August 1940 bombe dates, 211 British bombes), of Colossus histories (delivery in January, working on 5 February 1944, valve counts of 1,500–1,600 and 2,400–2,500), of the GCHQ page on the Pyry meeting, and of Wikipedia's Venona article (about 2,200–3,000 messages; the 349 names, as counted by Haynes and Klehr); the US Navy bombe count, which secondary sources give variously; news reports of the M4 Message Breaking Project (Stefan Krah, 2006) and of Joachim Schüth's 46-second laptop break at the 2007 Cipher Event; for Typex and SIGABA, the general shape of later academic attacks (Mark Stamp and colleagues), not checked in detail.
