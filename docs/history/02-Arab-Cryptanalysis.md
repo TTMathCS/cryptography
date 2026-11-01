@@ -299,6 +299,24 @@ worked it out themselves. Independent discovery is quite possible: the
 method follows naturally once enough literate people try to read each
 other's secret letters.
 
+## Can these be broken today?
+
+Yes. The ciphers on this page all keep the language's patterns somewhere,
+and the method these scholars wrote down is still the way in.
+
+| Cipher | Broken today? | The attack in plain words |
+|---|---|---|
+| Simple substitution (one mixed alphabet) | in seconds | Count letters, as in the program above, then fix the guesses with common short words. A computer does the same by climbing: swap two letters of the key, keep the swap if the text looks more like the language. |
+| Secret or invented alphabets | in seconds, once transcribed | New shapes are still one shape per letter, so it is simple substitution under another name. |
+| Number ciphers from the *abjad* values | instantly | The numbers follow a public order. Undo the sum and the letters come back; at worst it is a simple substitution again. |
+| Letter-pair homophones (Ibn ad-Durayhim) | easily | Each letter has only a limited set of spellings, and every spelling still stands for one letter. Counting pairs of symbols, plus a climbing search over which spellings belong together, reads it. |
+| Transposition (al-Qalqashandi's list) | easily | Letter counts are untouched, so the text is plainly in the language. Try rearrangements until words appear, as with the [skytale](01-Ancient.md#trying-it). |
+
+Ibn 'Adlan's warning still holds: with very short messages, the counts
+can mislead, and a cipher of a few dozen letters may have more than one
+sensible reading. A modern cipher such as [AES](../04-symmetric-ciphers/AES.md) is built so
+that even huge amounts of ciphertext give an attacker no practical help.
+
 ## What changed
 
 After al-Kindi, a monoalphabetic substitution, however cleverly mixed, could
