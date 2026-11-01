@@ -34,6 +34,7 @@ theme:
 extra_css:
   - fonts/fonts.css
   - stylesheets/mars.css
+  - stylesheets/ask.css
 
 extra:
   homepage: https://www.akadian.ca/
@@ -42,6 +43,7 @@ extra_javascript:
   - javascripts/status.js
   - javascripts/mars-link.js
   - javascripts/home-link.js
+  - javascripts/ask.js
   - path: holidays/badge.js
     type: module
 

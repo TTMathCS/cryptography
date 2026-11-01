@@ -1,0 +1,33 @@
+/* the "Ask" button and the guide's panel (javascripts/ask.js), the same look as on www.akadian.ca (Mars-Home nav.css) */
+.ask-bubble { position: fixed; z-index: 50; right: calc(env(safe-area-inset-right, 0px) + 16px); bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  height: 44px; min-width: 44px; padding: 0 11px; box-sizing: border-box; display: flex; align-items: center;
+  border-radius: 999px; background: #1f9a55; color: #fff; text-decoration: none; white-space: nowrap;
+  border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+  font: 600 15px/1 "Saira Condensed", "Arial Narrow", system-ui, sans-serif; letter-spacing: 0.04em; transition: background 0.2s; }
+.md-typeset .ask-bubble, .ask-bubble:hover, .ask-bubble:focus { color: #fff; }
+.ask-bubble svg { flex: none; }
+.ask-bubble .ask-say { max-width: 0; overflow: hidden; opacity: 0; transition: max-width 0.45s ease, opacity 0.3s ease, margin 0.45s ease; }
+.ask-bubble:hover .ask-say, .ask-bubble:focus-visible .ask-say { max-width: 12em; opacity: 1; margin: 0 2px 0 8px; }
+.ask-bubble:hover { background: #24b062; }
+.ask-bubble:focus-visible { outline: 2px solid #9cc9ea; outline-offset: 3px; }
+
+.guide-panel { position: fixed; z-index: 2147483001; right: calc(env(safe-area-inset-right, 0px) + 16px); bottom: calc(env(safe-area-inset-bottom, 0px) + 72px);
+  width: min(400px, calc(100vw - 32px)); height: min(640px, calc(100vh - 110px)); border-radius: 20px; overflow: hidden;
+  border: 1px solid rgba(238, 166, 111, 0.6); background: #261a14;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.75), 0 0 0 6px rgba(0, 0, 0, 0.25), 0 0 46px rgba(228, 120, 60, 0.18);
+  opacity: 0; transform: translateY(14px) scale(0.97); transform-origin: bottom right; pointer-events: none; visibility: hidden;
+  transition: opacity 0.18s, transform 0.18s, visibility 0s 0.18s; }
+.guide-panel.open { opacity: 1; transform: none; pointer-events: auto; visibility: visible; transition: opacity 0.18s, transform 0.18s; }
+.guide-panel::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 36px; background: linear-gradient(135deg, #c96a3b 0%, #a4471f 100%); }
+.guide-panel iframe { width: 100%; height: 100%; border: 0; display: block; position: relative; opacity: 0; transition: opacity 0.15s; }
+.guide-panel.ready iframe { opacity: 1; }
+
+@media (max-width: 640px) {
+  .ask-bubble { right: calc(env(safe-area-inset-right, 0px) + 12px); bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); height: 40px; min-width: 40px; padding: 0 9px; }
+  .ask-bubble .ask-more { display: none; }
+  .guide-panel { inset: 0; width: auto; height: auto; border-radius: 0; border: 0; }
+  html.guide-open, html.guide-open body { overflow: hidden; }
+  html.guide-open .ask-bubble { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .ask-bubble .ask-say, .guide-panel, .guide-panel.open { transition: none; } }
+@media print { .ask-bubble, .guide-panel { display: none; } }
