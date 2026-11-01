@@ -526,6 +526,26 @@ which stretches a 256-bit key into a long pseudo-random pad, and a key
 exchange such as [Diffie–Hellman](../01-key-exchange/Diffie-Hellman.md) to
 agree on that key.
 
+## Can these be broken today?
+
+Every cipher on this page except one falls to a computer in seconds. The
+exception is the one-time pad, used correctly.
+
+| Cipher | Broken today? | The attack in plain words |
+|---|---|---|
+| Commercial codebooks | at once, with the book | Codes were sold openly. Without the book, the same code word for the same phrase repeats, and context fills it in, as Room 40 did with the Zimmermann telegram. |
+| Keyword ("Vigenère") cipher | in a fraction of a second | Kasiski's repeats give the key length; then each column is a Caesar shift. The program above does it. |
+| Playfair | in seconds | The same pair always gives the same pair. A computer climbs: change the 5 × 5 square a little, keep the change if the text looks more like English. A few hundred letters are enough. |
+| Wheel cipher (Jefferson, Bazeries, M-94) | easily, with a guessed word | The disk order is the key, and the disks themselves are often captured. Guess a likely word: each plain letter and its cipher letter must sit the same distance apart on their disk, which rules out almost every order. The Marquis de Viaris broke Bazeries's cylinder this way in 1893. |
+| Route transposition (Union army) | easily | Letters and words are only moved, so they are all still there. Try the likely grids and paths until sentences appear; the code words for names need context. |
+| ADFGVX | easily, by computer | Painvin needed weeks of work and messages with matching beginnings. Today a program tries column orders and checks whether the resulting pairs behave like letters of a substitution. |
+| One-time pad, used once with a truly random pad | never | No attack exists: every message of that length fits. Shannon proved it. |
+| One-time pad, reused | easily | Subtract two messages and the pad drops out, as the program above shows. Guess a word in one, read the other. That is how Venona worked. |
+
+The rule that came out of this age, Kerckhoffs's, is the one these
+attacks prove: assume the enemy knows the method, because sooner or later
+the enemy will.
+
 ## What the telegraph age left behind
 
 - **The keyword cipher was dead.** After Kasiski, no repeating-key cipher
