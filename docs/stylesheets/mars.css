@@ -139,10 +139,10 @@
 .mars-hero::before {
   content: "";
   display: block;
-  height: clamp(9rem, 26vw, 22rem);
-  background:
-    linear-gradient(180deg, transparent 70%, var(--md-default-bg-color) 100%),
-    var(--mars-hero-photo) center 42% / cover no-repeat;
+  /* the whole picture, never cropped (Jim 1 Nov 2026: "show all the contents ... not trimmed"): it keeps its 16:9
+     shape inside the strip, and the space-black band fills the sides on wide screens */
+  height: clamp(9rem, 56.25vw, 26rem);
+  background: #07080c var(--mars-hero-photo) center / contain no-repeat;
 }
 
 .mars-hero__inner {
