@@ -11,7 +11,10 @@ in the main table.
 
 PBKDF2 (Password-Based Key Derivation Function 2) comes from RSA Labs' PKCS #5
 v2.0, published as RFC 2898 in 2000 and updated as RFC 8018 in 2017. NIST
-approves it in SP 800-132. You meet it in:
+approves it in SP 800-132 (December 2010). In May 2023 NIST decided to revise
+SP 800-132: the new version is to approve a memory-hard password function as
+well and add more guidance on using PBKDF2. No draft had been posted as of
+1 November 2026. You meet it in:
 
 - **Wi-Fi WPA2:** PBKDF2-HMAC-SHA1, 4,096 iterations, with the network name as
   the salt.
@@ -79,5 +82,5 @@ on. The time depends on your CPU.
 
 - [RFC 8018: PKCS #5 v2.1](https://www.rfc-editor.org/rfc/rfc8018)
 - [RFC 6070: PBKDF2 test vectors](https://www.rfc-editor.org/rfc/rfc6070)
-- [NIST SP 800-132](https://csrc.nist.gov/pubs/sp/800/132/final)
+- [NIST SP 800-132 (2010)](https://csrc.nist.gov/pubs/sp/800/132/final) / [NIST, "Decision to Revise NIST SP 800-132" (11 May 2023)](https://csrc.nist.gov/news/2023/decision-to-revise-nist-sp-800-132)
 - [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)

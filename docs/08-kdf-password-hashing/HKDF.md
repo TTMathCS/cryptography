@@ -87,4 +87,4 @@ In real code use a library version, such as `HKDF` from PyCA `cryptography`
 
 - [RFC 5869: HKDF](https://www.rfc-editor.org/rfc/rfc5869)
 - [Krawczyk, "Cryptographic Extraction and Key Derivation: The HKDF Scheme" (2010)](https://eprint.iacr.org/2010/264)
-- NIST SP 800-56C: the same extract-then-expand idea in NIST form
+- [NIST SP 800-56C Rev. 2 (2020)](https://csrc.nist.gov/pubs/sp/800/56/c/r2/final): the same extract-then-expand idea in NIST form (the two-step KDF, Section 5)
