@@ -15,6 +15,14 @@ encryption, VPNs.
 It works on fixed 128-bit blocks with a 128-, 192-, or 256-bit key (10, 12, or 14
 rounds respectively).
 
+A wider AES may follow. Rijndael was designed with larger blocks too, and in
+December 2024 NIST proposed standardizing Rijndael-256: 256-bit blocks with a
+single 256-bit key, for systems that encrypt very large amounts of data under
+one key. NIST planned to write a draft standard and took comments until 25 June
+2025. In June 2026 it asked for feedback on wGCM, a version of GCM for the wider
+block (see [Block-cipher MACs](../06-mac/Block-Cipher-MACs.md)). Neither is a
+standard yet.
+
 ## How it works
 
 AES arranges each 16-byte block as a 4×4 byte matrix (the *state*) and runs it
@@ -87,5 +95,6 @@ pt = aead.decrypt(nonce, ct, header)         # raises if tampered
 
 ## References
 
-- FIPS 197: Advanced Encryption Standard (AES)
+- [FIPS 197: Advanced Encryption Standard (AES)](https://csrc.nist.gov/pubs/fips/197/final) (2001, updated 2023)
 - NIST SP 800-38A / 800-38D: Block Cipher Modes (CBC/CTR, GCM)
+- [NIST, "NIST Proposes to Standardize a Wider Variant of AES" (24 December 2024)](https://csrc.nist.gov/News/2024/nist-proposes-to-standardize-wider-variant-of-aes)
