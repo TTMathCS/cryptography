@@ -273,7 +273,13 @@
   .mars-hero::before { content: ""; display: block; aspect-ratio: 16 / 9; background: var(--mars-hero-photo) center / cover no-repeat; }
   .mars-hero__inner { padding-top: 1rem; }
   .mars-hero__title, [data-md-color-scheme="default"] .mars-hero__title { color: var(--md-default-fg-color); text-shadow: none; }
-  .md-container { background-size: auto, 200% auto, auto; }
+  /* phones: the picture is only a faint tint at the top, so body text stays on the plain page colour (#3) */
+  .md-container {
+    background:
+      linear-gradient(180deg, var(--mars-bg-soft) 0, var(--md-default-bg-color) 9rem),
+      var(--mars-photo) center top / 200% auto no-repeat,
+      var(--md-default-bg-color);
+  }
 }
 
 /* the wordmark reads "Mars – Cryptography", like the homepage's "Mars – your new home";
