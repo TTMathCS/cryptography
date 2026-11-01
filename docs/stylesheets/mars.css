@@ -124,14 +124,17 @@
     var(--md-default-bg-color);
 }
 
-/* the homepage: the dome full width, the title at its foot */
+/* the homepage: the "alien in the middle" picture full width (sealed letters flying from a Mars relay to Earth while a
+   small alien listens in; from akadian.ca's Talk to Earth page, Jim 1 Nov 2026, issue #3), the title at its foot.
+   The other pages keep the city picture behind their text */
 .mars-hero {
+  --mars-hero-photo: url("../images/alien-in-the-middle.webp");
   display: flex;
   align-items: flex-end;
   min-height: min(76vh, 40rem);
   background:
     linear-gradient(180deg, transparent 35%, var(--mars-bg-fade) 70%, var(--md-default-bg-color) 100%),
-    var(--mars-photo) center 42% / cover no-repeat;
+    var(--mars-hero-photo) center 40% / cover no-repeat;
 }
 
 .mars-hero__inner {
@@ -265,7 +268,11 @@
 }
 
 @media screen and (max-width: 44.9375em) {
-  .mars-hero { min-height: 60vh; }
+  /* on a phone the whole picture sits above the title, so the alien stays in view and the words are on the plain page */
+  .mars-hero { display: block; min-height: 0; background: var(--md-default-bg-color); }
+  .mars-hero::before { content: ""; display: block; aspect-ratio: 16 / 9; background: var(--mars-hero-photo) center / cover no-repeat; }
+  .mars-hero__inner { padding-top: 1rem; }
+  .mars-hero__title, [data-md-color-scheme="default"] .mars-hero__title { color: var(--md-default-fg-color); text-shadow: none; }
   .md-container { background-size: auto, 200% auto, auto; }
 }
 
