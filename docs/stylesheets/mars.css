@@ -131,18 +131,40 @@
    The other pages keep the city picture behind their text */
 .mars-hero {
   --mars-hero-photo: url("../images/alien-in-the-middle.webp");
-  /* a banner: a wide strip of the picture, with the title on the plain page under it (Jim 1 Nov 2026: "too big",
-     "I like it to be banner") */
-  display: block;
+  /* a full-width banner that never crops the picture (Jim 1 Nov 2026: "banner", "show all the contents, not trimmed",
+     "fit the screen"): the whole picture sits on the right at the banner's height, a soft blurred copy of it fills
+     the rest of the width, and the title sits on the left over the blur */
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  --mars-hero-h: clamp(16rem, 30vw, 27rem);
+  height: var(--mars-hero-h);
+  background: #07080c;
 }
 
 .mars-hero::before {
   content: "";
-  display: block;
-  /* the whole picture, never cropped (Jim 1 Nov 2026: "show all the contents ... not trimmed"): it keeps its 16:9
-     shape inside the strip, and the space-black band fills the sides on wide screens */
-  height: clamp(9rem, 56.25vw, 26rem);
-  background: #07080c var(--mars-hero-photo) center / contain no-repeat;
+  position: absolute;
+  inset: -2rem;
+  z-index: -2;
+  background: var(--mars-hero-photo) center / cover no-repeat;
+  filter: blur(26px) brightness(0.5) saturate(1.1);
+}
+
+.mars-hero::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  aspect-ratio: 16 / 9;
+  background: var(--mars-hero-photo) center / contain no-repeat;
+  /* the left edge melts into the blur */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 14%);
 }
 
 .mars-hero__inner {
@@ -166,16 +188,22 @@
   text-shadow: 0 1px 14px rgba(239, 222, 203, 0.7);
 }
 
-/* under the banner the title sits on the plain page colour */
-.mars-hero__inner { padding-top: 1.2rem; }
-.mars-hero__title, [data-md-color-scheme="default"] .mars-hero__title { color: var(--md-default-fg-color); text-shadow: none; }
+/* over the dark blur the title and lead are light in both colour schemes */
+.mars-hero .mars-hero__inner { padding-top: 0; padding-bottom: 0; }
+/* the text stays in the blurred strip left of the picture (picture width = height x 16/9) */
+.mars-hero .mars-hero__title,
+.mars-hero .mars-hero__lead { max-width: max(16rem, calc(100vw - var(--mars-hero-h) * 16 / 9 - 2.4rem)); }
+.mars-hero .mars-pill { color: #f4e6d4; border-color: rgba(244, 230, 212, 0.55); background: rgba(10, 8, 6, 0.35); }
+.mars-hero .mars-pill:hover { color: #fff; border-color: #eea66f; }
+.mars-hero__title, [data-md-color-scheme="default"] .mars-hero__title { color: #f4e6d4; text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6); }
 
 .mars-hero__lead {
   max-width: 36rem;
   margin: 0.6rem 0 0;
   font-size: 0.9rem;
   line-height: 1.5;
-  color: var(--md-default-fg-color);
+  color: #ecdccb;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.6);
 }
 
 .mars-hero__go {
@@ -280,6 +308,15 @@
 }
 
 @media screen and (max-width: 44.9375em) {
+  /* on a phone: the whole picture across the width, the title on the plain page under it */
+  .mars-hero { flex-direction: column; align-items: stretch; height: auto; background: var(--md-default-bg-color); }
+  .mars-hero::before { display: none; }
+  .mars-hero::after { order: -1; position: static; display: block; width: 100%; aspect-ratio: 16 / 9; -webkit-mask-image: none; mask-image: none; }
+  .mars-hero .mars-hero__inner { padding: 1rem 0.8rem 1.6rem; }
+  .mars-hero .mars-hero__title, .mars-hero .mars-hero__lead { max-width: none; }
+  .mars-hero .mars-pill { color: var(--md-default-fg-color); border-color: var(--md-default-fg-color--lighter); background: var(--md-default-bg-color--lighter); }
+  .mars-hero__title, [data-md-color-scheme="default"] .mars-hero__title { color: var(--md-default-fg-color); text-shadow: none; }
+  .mars-hero__lead { color: var(--md-default-fg-color); text-shadow: none; }
   /* on a phone the whole picture sits above the title, so the alien stays in view and the words are on the plain page */
   /* phones: the picture is only a faint tint at the top, so body text stays on the plain page colour (#3) */
   .md-container {
