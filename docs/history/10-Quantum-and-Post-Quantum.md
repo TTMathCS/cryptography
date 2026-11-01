@@ -517,6 +517,28 @@ start now, finish around 2035.
   states to start by the end of 2026, protect high-risk systems by 2030,
   and finish as far as possible by 2035.
 
+## Can these be broken today?
+
+This page is the one where "today" and "tomorrow" differ. As of November
+2026, no quantum computer can break anything in use; the question is what
+a large one would do.
+
+| Algorithm | Broken today? | With a large quantum computer |
+|---|---|---|
+| RSA, Diffie–Hellman, elliptic curves | no | Yes. Shor's algorithm finds the factors or the discrete logarithm directly. Estimates have fallen to under a million noisy qubits for RSA-2048 and under half a million for 256-bit curves, far beyond any machine built so far. Recorded traffic can be broken later, which is why the move is happening now. |
+| AES-128, AES-256 | no | Grover's search halves the key's strength in bits, but its steps can't be spread over many machines the way classical ones can. AES-256 keeps a wide margin; NIST still counts AES-128 as safe. |
+| SHA-256, SHA-3 | no | Grover helps only a little against preimages, and collisions barely at all. |
+| Rainbow | yes, on a laptop | Beullens's 2022 attack recovers a key in about a weekend. |
+| SIKE | yes, in minutes | Castryck and Decru's 2022 attack uses old mathematics on genus-two curves; no quantum computer needed. |
+| ML-KEM, ML-DSA, FN-DSA | no | No known quantum or classical attack beyond the parameters' design margin. Lattice problems are younger than factoring, so the community keeps checking (see Chen's withdrawn 2024 claim). |
+| SLH-DSA, LMS, XMSS | no | They rest only on hash functions, the most conservative choice. LMS and XMSS fail if a one-time key is ever used twice. |
+| HQC, Classic McEliece | no | Code-based; McEliece's 1978 design has survived nearly fifty years. |
+| Any of them in careless code | sometimes | Timing leaks like KyberSlash (2023–2024) recover keys from the code, not the mathematics. |
+
+The Grover program above shows the square-root speedup on 64 boxes. Run
+against a real key, it would need a fault-tolerant quantum computer, and
+none exists yet.
+
 ## What is still open
 
 As of October 2026:
