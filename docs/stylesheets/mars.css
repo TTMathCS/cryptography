@@ -21,6 +21,7 @@
   color-scheme: dark;
   --mars-bg: #120b09;
   --mars-bg-fade: rgba(18, 11, 9, 0.5);
+  --mars-bg-soft: rgba(18, 11, 9, 0.82);
   --mars-panel: #1c110e;
   --mars-rust: #eea66f;
   --mars-photo: url("../images/21-starlit-city.webp");
@@ -53,6 +54,7 @@
   color-scheme: light;
   --mars-bg: #efdecb;
   --mars-bg-fade: rgba(239, 222, 203, 0.45);
+  --mars-bg-soft: rgba(239, 222, 203, 0.86);
   --mars-panel: #e6cfb6;
   --mars-rust: #a9471c;
   --mars-photo: url("../images/27-dawn-after-storm.webp");
@@ -130,8 +132,8 @@
   align-items: flex-end;
   min-height: min(76vh, 40rem);
   background:
-    linear-gradient(180deg, transparent 35%, var(--mars-bg-fade) 70%, var(--md-default-bg-color) 100%),
-    var(--mars-photo) center 42% / cover no-repeat;
+    linear-gradient(180deg, transparent 55%, var(--mars-bg-fade) 68%, var(--mars-bg-soft) 80%, var(--md-default-bg-color) 100%),
+    url("../images/alien-in-the-middle.webp") center 45% / cover no-repeat;
 }
 
 .mars-hero__inner {
@@ -265,7 +267,15 @@
 }
 
 @media screen and (max-width: 44.9375em) {
-  .mars-hero { min-height: 60vh; }
+  /* phones: the whole picture above the words (the alien stays in view), the words on the plain page colour */
+  .mars-hero {
+    min-height: 0;
+    padding-top: calc(56.25vw * 1.25 - 1rem);
+    background:
+      linear-gradient(180deg, transparent calc(56.25vw * 1.25 - 5rem), var(--md-default-bg-color) calc(56.25vw * 1.25)),
+      url("../images/alien-in-the-middle.webp") 62% top / 125% auto no-repeat,
+      var(--md-default-bg-color);
+  }
   .md-container { background-size: auto, 200% auto, auto; }
 }
 
