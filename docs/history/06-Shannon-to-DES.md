@@ -368,6 +368,69 @@ Blowfish in 1993. The [retired ciphers page](../04-symmetric-ciphers/Retired.md)
 tells what became of each. NSA's own Skipjack, designed for the Clipper
 chip, stayed classified until 1998.
 
+## Can these be broken today?
+
+This is where the answers start to change. The old ciphers fell to
+counting; these fall, if at all, to a key too short or a block too small.
+
+| Cipher | Broken today? | The attack in plain words |
+|---|---|---|
+| Crypto AG's rigged machines | yes, by design | The weakness was built in for the CIA and BND to use. Without the design, a customer couldn't know. |
+| Lucifer | yes, in its published forms | Biham and Shamir's differential cryptanalysis breaks the Lucifer variants faster than trying every key. |
+| DES | yes, in hours | Try every one of the 2⁵⁶ keys against one known block. Deep Crack did it in 56 hours in 1998; a rack of FPGA chips, like the public crack.sh service of 2012, takes about a day. |
+| Triple DES | not by key search | Two or three keys put trying every key out of reach. Its 64-bit block is the problem: after about 32 GB under one key, repeated blocks leak data (the Sweet32 attack, 2016). NIST disallowed it for new encryption after 2023. |
+| FEAL | yes, easily | Differential and linear cryptanalysis need only a handful of chosen or known plaintexts for the 4-round version. |
+| RC4 | yes, in practice | Its keystream is slightly biased, and with enough encryptions of the same secret, the biases reveal it. WEP fell this way; TLS banned RC4 in 2015 (RFC 7465). |
+| RC2, at its 40-bit export size | yes, instantly | The key is short enough to try them all on one computer. |
+| IDEA, Blowfish | no practical break | No attack on the full cipher is much faster than trying every key, but their 64-bit blocks hit the same Sweet32 limit as Triple DES. |
+| Skipjack | not the full cipher | Biham, Biryukov and Shamir broke 31 of its 32 rounds in 1999. Its 80-bit key is now too short for new use. |
+
+DES's weakness is the simplest attack of all: know one block of
+plaintext and its ciphertext, then try keys until one fits. This toy
+Feistel cipher has a 16-bit key, so the search is instant. Every extra
+key bit doubles the work:
+
+```python
+import hashlib
+
+def F(half, key, rnd):
+    data = key.to_bytes(2, "big") + bytes([rnd]) + half.to_bytes(4, "big")
+    return int.from_bytes(hashlib.sha256(data).digest()[:4], "big")
+
+def feistel(block, key, rounds=8):
+    L, R = block >> 32, block & 0xFFFFFFFF
+    for rnd in range(rounds):
+        L, R = R, L ^ F(R, key, rnd)
+    return (R << 32) | L
+
+secret_key = 0xBEEF                       # a 16-bit key: 65,536 possibilities
+known_plain = 0x0123456789ABCDEF          # a block the attacker knows, e.g. a fixed header
+known_cipher = feistel(known_plain, secret_key)
+
+for guess in range(2 ** 16):              # try every key in turn
+    if feistel(known_plain, guess) == known_cipher:
+        print(f"key found: {guess:04X} after {guess + 1:,} tries")
+        break
+
+for bits in (16, 40, 56, 128):
+    print(f"{bits:3}-bit key: {2 ** bits:.1e} keys, {2 ** (bits - 16):.1e} times this search")
+```
+
+Output:
+
+```
+key found: BEEF after 48,880 tries
+ 16-bit key: 6.6e+04 keys, 1.0e+00 times this search
+ 40-bit key: 1.1e+12 keys, 1.7e+07 times this search
+ 56-bit key: 7.2e+16 keys, 1.1e+12 times this search
+128-bit key: 3.4e+38 keys, 5.2e+33 times this search
+```
+
+A 40-bit export key is about seventeen million of these searches, an
+afternoon on one modern computer with a fast cipher. DES's 56 bits is a
+trillion: too much for a laptop, easy for special hardware. A 128-bit
+key is out of reach for any machine that could be built.
+
 ## What this era left behind
 
 - **A theory.** Shannon's perfect secrecy, unicity distance, and
@@ -406,5 +469,7 @@ chip, stayed classified until 1998.
 - Don Coppersmith, "The Data Encryption Standard (DES) and Its Strength against Attacks", *IBM Journal of Research and Development* 38, no. 3 (1994), pp. 243–250
 - Electronic Frontier Foundation, *Cracking DES: Secrets of Encryption Research, Wiretap Politics and Chip Design* (O'Reilly, 1998)
 - Steven Levy, *Crypto: How the Code Rebels Beat the Government, Saving Privacy in the Digital Age* (Viking, 2001)
+- Karthikeyan Bhargavan and Gaëtan Leurent, "On the Practical (In-)Security of 64-bit Block Ciphers: Collision Attacks on HTTP over TLS and OpenVPN" (Sweet32), ACM CCS 2016 / [RFC 7465: Prohibiting RC4 Cipher Suites](https://www.rfc-editor.org/rfc/rfc7465) (2015)
+- Eli Biham, Alex Biryukov and Adi Shamir, "Cryptanalysis of Skipjack Reduced to 31 Rounds Using Impossible Differentials", EUROCRYPT 1999
 
-*Weaker sources:* search summaries of the Washington Post / ZDF / SRF reporting of February 2020 and of the Crypto Museum's "Operation Rubicon" pages (the 1970 purchase, the BND's exit in the early 1990s, the CIA's in 2018, the country counts); Wikipedia's DES article for Konheim's S-box remark and the quoted wording of the Johnson history, whose declassified text I could not open; the second NBS solicitation (August 1974; NIST's own history gives 17 August, other sources 27 August).
+*Weaker sources:* search summaries of the Washington Post / ZDF / SRF reporting of February 2020 and of the Crypto Museum's "Operation Rubicon" pages (the 1970 purchase, the BND's exit in the early 1990s, the CIA's in 2018, the country counts); Wikipedia's DES article for Konheim's S-box remark and the quoted wording of the Johnson history, whose declassified text I could not open; the second NBS solicitation (August 1974; NIST's own history gives 17 August, other sources 27 August). Also the crack.sh service's own description (about a day per DES key, 2012).
