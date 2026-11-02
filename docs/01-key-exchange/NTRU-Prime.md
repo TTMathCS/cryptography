@@ -96,6 +96,72 @@ print(len(public_key), len(ciphertext), secret_sender == secret_receiver)   # 11
 - Use a vetted, constant-time implementation. OpenSSH's code comes from
   SUPERCOP, and liboqs now uses that same code.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: NTRU with tiny polynomials"
+
+    The classic NTRU textbook example (Hoffstein, Pipher and Silverman), with polynomials of 7 coefficients
+    modulo `x⁷ − 1`, small modulus `p = 3` and big modulus `q = 41`. Streamlined NTRU Prime uses the same idea
+    in a different ring (below). Coefficients are listed from `x⁰` up; checked with Python:
+
+    | Step | Value |
+    |---|---|
+    | Secret `f` | `[−1, 0, 1, 1, −1, 0, 1]` = −1 + x² + x³ − x⁴ + x⁶ |
+    | Secret `g` | `[0, −1, −1, 0, 1, 0, 1]` = −x − x² + x⁴ + x⁶ |
+    | `f⁻¹ mod 41` | `[37, 2, 40, 21, 31, 26, 8]` |
+    | `f⁻¹ mod 3` | `[1, 1, 1, 1, 0, −1, 1]` |
+    | Public key `h = 3·f⁻¹·g mod 41` | `[8, 37, 24, 32, 6, 38, 19]` |
+    | Message `m`, random `r` | `m = [1, 0, 0, −1, 1, 0, −1]`, `r = [−1, 1, 0, 0, 0, −1, 1]` |
+    | Ciphertext `e = r·h + m mod 41` | `[25, 4, 39, 0, 5, 20, 30]` |
+    | `a = f·e mod 41`, centered | `[4, −2, −4, 4, −8, 4, 2]` (all small) |
+    | `m = f⁻¹·a mod 3` | `[1, 0, 0, −1, 1, 0, −1]`, the message |
+
+??? abstract "The math, with formulas"
+
+    **Why decryption works.** `f·e = f·r·h + f·m = 3·r·g + f·m (mod q)`. Every polynomial on the right has
+    small coefficients, so the true integer result is smaller than `q/2` and reducing mod `q` changes nothing.
+    Reducing that mod 3 kills `3·r·g`, leaving `f·m`; multiplying by `f⁻¹ mod 3` gives `m`.
+
+    **Streamlined NTRU Prime (sntrup761)** changes three things:
+
+    - The ring is `Z_q[x]/(x⁷⁶¹ − x − 1)` with `q = 4591`. The polynomial is irreducible mod `q`, so the ring is
+      a field: every non-zero element has an inverse, and there are no extra symmetries to exploit.
+    - The public key is `h = g / (3f)`. Encapsulation picks `r` with exactly 286 coefficients ±1 and sends
+      `c = Round(h·r)`, each coefficient rounded to a multiple of 3. The rounding is the error term.
+    - Decapsulation computes `3f·c mod q`, which is `g·r` plus small noise; reduce mod 3, divide by `g mod 3` to
+      get `r`, then re-encrypt to check, and hash `r` into the key. The parameters are chosen so it never
+      fails.
+
+    | | Ring degree p | q | weight w | Public key | Ciphertext | Shared secret |
+    |---|---|---|---|---|---|---|
+    | sntrup761 | 761 | 4591 | 286 | 1,158 B | 1,039 B | 32 B |
+
+??? tip "Watch it step by step: NTRU decryption"
+
+    <div class="mars-steps" markdown>
+
+    1. Bob's secrets are the small polynomials `f` and `g`; his public key is `h = 3·f⁻¹·g mod 41`.
+    2. Alice hides `m = [1, 0, 0, −1, 1, 0, −1]` with a random small `r`: `e = r·h + m = [25, 4, 39, 0, 5, 20, 30]`.
+    3. To anyone else, `e` looks like 7 random numbers mod 41.
+    4. Bob multiplies by `f`: `f·e = 3·r·g + f·m`, which comes out as the small `[4, −2, −4, 4, −8, 4, 2]`.
+    5. He reduces mod 3: the `3·r·g` part vanishes, leaving `f·m mod 3`.
+    6. He multiplies by `f⁻¹ mod 3` and gets `[1, 0, 0, −1, 1, 0, −1]`: Alice's message.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Polynomial rings and inverses:** inverting `f` mod a prime uses the extended Euclidean algorithm for
+      polynomials.
+    - **Lattices:** the NTRU lattice is built from `h`; the secret `(f, g)` is an unusually short vector in it.
+      Finding it is the shortest-vector problem: see [Hard problems](../10-math-foundations/Hard-Problems.md).
+    - **Irreducible polynomials and fields:** why `x⁷⁶¹ − x − 1` was chosen over `xⁿ + 1` (no subfields, no
+      automorphisms, a hedge against algebraic attacks).
+    - **Rounding as noise** ("learning with rounding") instead of adding random errors.
+    - Compare [ML-KEM](ML-KEM.md), which uses module lattices and noise added on purpose.
+
 ## See also
 
 - [ML-KEM](ML-KEM.md): the NIST KEM that took over as the default

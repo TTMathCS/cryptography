@@ -45,6 +45,7 @@ extra_javascript:
   - javascripts/home-link.js
   - javascripts/ask.js
   - javascripts/modexp.js
+  - javascripts/steps.js
   - path: holidays/badge.js
     type: module
 
@@ -57,6 +58,7 @@ markdown_extensions:
   - tables
   - admonition
   - pymdownx.details
+  - md_in_html
   - attr_list
   - pymdownx.highlight
   - pymdownx.superfences

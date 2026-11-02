@@ -66,6 +66,68 @@ print(pow(B, a, p) == pow(A, b, p))  # True: both now hold g^(ab) mod p
 - Quantum computers break the discrete log — see
   [ML-KEM](ML-KEM.md).
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: Diffie-Hellman with small numbers"
+
+    The textbook example, with prime `p = 23` and generator `g = 5` (real groups use primes of 2,048 bits or
+    more). Checked with Python's `pow`:
+
+    | Step | Alice | Bob |
+    |---|---|---|
+    | Secret | `a = 6` | `b = 15` |
+    | Public value | `A = 5⁶ mod 23 = 15625 mod 23 = 8` | `B = 5¹⁵ mod 23 = 19` |
+    | Send | `8` to Bob | `19` to Alice |
+    | Shared secret | `19⁶ mod 23 = 2` | `8¹⁵ mod 23 = 2` |
+
+    Both get `2 = 5^(6·15) mod 23`. An eavesdropper sees `23, 5, 8, 19`; to find the 2 they must find `a` from
+    `5ᵃ ≡ 8 (mod 23)`. Here they can try all 22 exponents; at 2,048 bits that is hopeless.
+
+??? abstract "The math, with formulas"
+
+    **Why both sides agree.** Powers multiply: `Bᵃ = (gᵇ)ᵃ = g^(ab) = (gᵃ)ᵇ = Aᵇ (mod p)`.
+
+    **The group.** The numbers `1 … p−1` under multiplication mod `p` form a cyclic group of order `p − 1`; a
+    generator `g` reaches every element. Real deployments use a **safe prime** `p = 2q + 1` (`q` prime) and a
+    `g` of order `q`, so the group has no small subgroups an attacker could use (RFC 7919 groups, e.g.
+    `ffdhe2048`).
+
+    **Discrete logarithm.** Given `g`, `p` and `A = gᵃ mod p`, finding `a` is the discrete log problem. The
+    best classical attack, the number field sieve, runs in time about
+    `exp((64/9)^(1/3) · (ln p)^(1/3) · (ln ln p)^(2/3))`, which puts a 2,048-bit `p` near 112-bit security.
+
+    **Checks the receiver must make.** Reject `A` unless `1 < A < p − 1`, and for a prime-order subgroup check
+    `A^q ≡ 1 (mod p)`. A value like `1` or `p − 1` forces the shared secret into a tiny set.
+
+??? tip "Watch it step by step: two strangers agree on 2"
+
+    <div class="mars-steps" markdown>
+
+    1. Everyone, including the eavesdropper Eve, knows `p = 23` and `g = 5`.
+    2. Alice picks a secret `a = 6` and keeps it. Bob picks `b = 15` and keeps it.
+    3. Alice computes `A = 5⁶ mod 23 = 8` and sends 8. Eve sees 8.
+    4. Bob computes `B = 5¹⁵ mod 23 = 19` and sends 19. Eve sees 19.
+    5. Alice raises Bob's 19 to her secret: `19⁶ mod 23 = 2`.
+    6. Bob raises Alice's 8 to his secret: `8¹⁵ mod 23 = 2`.
+    7. Both hold 2. Eve holds 8 and 19, and would need `a` or `b` to get 2.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Modular exponentiation**, done quickly by square and multiply (see the step-by-step box on
+      [RSA](../02-signatures/RSA.md#going-deeper)).
+    - **Cyclic groups and generators:** why `gᵃ` can land on every element, and why the order of the group
+      decides which attacks work (Pohlig–Hellman breaks groups whose order has only small factors).
+    - **The discrete log problem** and its relatives (computational and decisional Diffie-Hellman): see
+      [Hard problems](../10-math-foundations/Hard-Problems.md).
+    - **Safe primes** are found with primality tests such as
+      [Miller-Rabin](../10-math-foundations/Miller-Rabin-Primality-Test.md).
+    - **Quantum computers:** Shor's algorithm solves discrete logs too, which is why
+      [ML-KEM](ML-KEM.md) is joining DH in hybrids.
+
 ## See also
 
 - [X25519](ECDH.md) — the modern elliptic-curve version

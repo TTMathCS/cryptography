@@ -221,6 +221,79 @@ too, on 56 and 32 bytes.
   if long-term secrecy matters. NIST IR 8547 deprecates ECDH after 2030 and
   disallows it after 2035.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: ECDH on a tiny curve"
+
+    The curve `y² = x³ + 2x + 2` over the numbers mod 17, with base point `G = (5, 1)`. Adding `G` to itself
+    walks through 18 points and then reaches the point at infinity, so `G` has order 19. Checked with Python:
+
+    | Step | Alice | Bob |
+    |---|---|---|
+    | Secret scalar | `a = 3` | `b = 10` |
+    | Public point | `Q_A = 3·G = (10, 6)` | `Q_B = 10·G = (7, 11)` |
+    | Shared point | `3·Q_B = (13, 10)` | `10·Q_A = (13, 10)` |
+
+    Both equal `30·G = 11·G = (13, 10)`, since `30 mod 19 = 11`. The shared secret is the x-coordinate, `13`.
+    Real curves have about 2²⁵⁵ points, so `a` cannot be found by walking.
+
+??? abstract "The math, with formulas"
+
+    **Adding two points** `P = (x₁, y₁)` and `Q = (x₂, y₂)` on `y² = x³ + ax + b` (mod `p`):
+
+    ```
+    slope λ = (y₂ − y₁) / (x₂ − x₁)          if P ≠ Q
+    slope λ = (3x₁² + a) / (2y₁)             if P = Q (doubling)
+    x₃ = λ² − x₁ − x₂
+    y₃ = λ(x₁ − x₃) − y₁
+    ```
+
+    "Divide" means multiply by the inverse mod `p`.
+
+    **Worked: 3·G with G = (5, 1).** Doubling:
+    `λ = (3·25 + 2) / (2·1) = 77 · 2⁻¹ = 77 · 9 = 693 ≡ 13`, then `x₃ = 169 − 10 = 159 ≡ 6`,
+    `y₃ = 13·(5 − 6) − 1 = −14 ≡ 3`, so `2G = (6, 3)`. Adding `G`:
+    `λ = (1 − 3)/(5 − 6) = 2`, `x₃ = 4 − 6 − 5 = −7 ≡ 10`, `y₃ = 2·(6 − 10) − 3 = −11 ≡ 6`, so `3G = (10, 6)`.
+
+    **Why both sides agree.** Scalar multiplication commutes: `a·(b·G) = (ab)·G = b·(a·G)`.
+
+    **X25519.** RFC 7748 works only with the x-coordinate (called `u`) on the Montgomery curve
+    `v² = u³ + 486662u² + u` mod `2²⁵⁵ − 19`, using the Montgomery ladder: for each of 255 key bits it does one
+    combined add-and-double, the same work whatever the bit, so timing reveals nothing.
+
+    **Security.** The best attack on a well-chosen curve is Pollard's rho, about `√(π·n/4)` steps for a group
+    of order `n`: about 2¹²⁶ for Curve25519 and 2¹²⁸ for P-256, so a 256-bit curve matches a 3,072-bit DH group.
+
+??? tip "Watch it step by step: computing 3·G"
+
+    <div class="mars-steps" markdown>
+
+    1. Start with `G = (5, 1)` on `y² = x³ + 2x + 2 (mod 17)`. The scalar is `3 = 11` in binary.
+    2. First bit 1: the running point is `G = (5, 1)`.
+    3. Next bit: double. Tangent slope `λ = (3·5² + 2)/(2·1) ≡ 13 (mod 17)`.
+    4. `x = 13² − 5 − 5 ≡ 6`, `y = 13·(5 − 6) − 1 ≡ 3`, so `2G = (6, 3)`.
+    5. That bit is 1, so add `G`: chord slope `λ = (1 − 3)/(5 − 6) = 2`.
+    6. `x = 2² − 6 − 5 ≡ 10`, `y = 2·(6 − 10) − 3 ≡ 6`, so `3G = (10, 6)`: Alice's public key.
+    7. Bob does the same with 10 to get `(7, 11)`; each multiplies the other's point and both land on `(13, 10)`.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Finite fields:** arithmetic mod a prime, where every non-zero number has an inverse (found with the
+      extended Euclidean algorithm or Fermat's `x^(p−2)`).
+    - **Elliptic curves as a group:** the chord-and-tangent rule turns the points into a group; see
+      [Elliptic curves](../10-math-foundations/Elliptic-Curves.md).
+    - **Hasse's bound:** a curve mod `p` has `p + 1 − t` points with `|t| ≤ 2√p`, so curve sizes are always
+      close to `p`.
+    - **Cofactors:** Curve25519 has `8·ℓ` points; clamping makes every key a multiple of 8 so small subgroups
+      don't leak bits.
+    - **The elliptic-curve discrete log problem** and why no sub-exponential attack is known for good curves:
+      [Hard problems](../10-math-foundations/Hard-Problems.md). Shor's algorithm breaks it on a quantum
+      computer.
+
 ## See also
 
 - [Elliptic curves](../10-math-foundations/Elliptic-Curves.md): the curve math, the named curves and twist security

@@ -115,6 +115,76 @@ For real use, take a reviewed implementation of the RFC, such as `opaque-ke`
 - Check every received group element and never reuse x or y (RFC 9382).
 - SRP leaks the salt and has no TLS 1.3 version.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: SPAKE2 with small numbers"
+
+    The group is the numbers mod `p = 23` with generator `g = 5`. The fixed elements are `M = 7` and `N = 11`
+    (in real SPAKE2 nobody knows their logarithms). The password hashes to `w = 4`. Checked with Python:
+
+    | Step | Alice | Bob |
+    |---|---|---|
+    | Secret | `x = 6` | `y = 15` |
+    | DH value | `gˣ = 5⁶ mod 23 = 8` | `gʸ = 5¹⁵ mod 23 = 19` |
+    | Mask | `Mʷ = 7⁴ mod 23 = 9` | `Nʷ = 11⁴ mod 23 = 13` |
+    | Send | `pA = 8 · 9 mod 23 = 3` | `pB = 19 · 13 mod 23 = 17` |
+    | Unmask | `pB / Nʷ = 17 · 13⁻¹ = 17 · 16 mod 23 = 19` | `pA / Mʷ = 3 · 9⁻¹ = 3 · 18 mod 23 = 8` |
+    | Shared value | `19⁶ mod 23 = 2` | `8¹⁵ mod 23 = 2` |
+
+    An attacker who recorded 3 and 17 and tries password guesses `w = 1, 2, 3, 5` with Alice's side would get
+    9, 1, 18, 13: all look equally plausible, and only an online try against Bob tells right from wrong.
+
+??? abstract "The math, with formulas"
+
+    **SPAKE2 (RFC 9382).** In a prime-order group with generator `G`, fixed `M`, `N`, and `w` from a slow
+    password hash:
+
+    ```
+    Alice:  pA = x·G + w·M          Bob:  pB = y·G + w·N
+    Alice:  K = x·(pB − w·N) = xy·G      Bob:  K = y·(pA − w·M) = xy·G
+    key = Hash(A, B, pA, pB, K, w)
+    ```
+
+    (Written additively, as on elliptic curves; the sample uses multiplication mod 23.)
+
+    **Why a recording is useless.** For each guess `w′`, `pA − w′·M` is some valid group element, so every
+    guess gives a consistent-looking transcript. Checking a guess needs the key confirmation, which needs a
+    live run.
+
+    **Why M and N must have unknown logs.** If `M = m·G` with `m` known, an attacker posing as Bob can compute
+    `pA − w′·M = x·G + (w − w′)·m·G` and test guesses offline. RFC 9382 makes `M` and `N` by hashing a fixed
+    string to the curve.
+
+    **CPace** (draft-irtf-cfrg-cpace) maps `H(password, session id)` to a point `G'` and runs plain Diffie-Hellman with `G'`.
+    **OPAQUE (RFC 9807)** stores only an OPRF-protected envelope on the server, so the server never sees the
+    password and a stolen database cannot be attacked with precomputation.
+
+??? tip "Watch it step by step: a password-masked handshake"
+
+    <div class="mars-steps" markdown>
+
+    1. Alice and Bob both know the password, which hashes to `w = 4`. Everyone knows `g = 5`, `M = 7`, `N = 11`.
+    2. Alice picks secret `x = 6`: `5⁶ = 8`, masked with `7⁴ = 9`, sends `8·9 mod 23 = 3`.
+    3. Bob picks secret `y = 15`: `5¹⁵ = 19`, masked with `11⁴ = 13`, sends `19·13 mod 23 = 17`.
+    4. Alice removes Bob's mask with her copy of `w`: `17 / 13 = 19`, then `19⁶ mod 23 = 2`.
+    5. Bob removes Alice's mask: `3 / 9 = 8`, then `8¹⁵ mod 23 = 2`.
+    6. Both hold 2 and prove it to each other with a MAC. With a wrong password the values differ and the MAC
+       fails, giving an attacker one guess per attempt.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Diffie-Hellman** ([Diffie-Hellman](Diffie-Hellman.md), [ECDH](ECDH.md)) and the discrete log
+      problem.
+    - **Hashing to a curve** (RFC 9380): turning a password or string into a group element with no known log.
+    - **Oblivious PRFs** (RFC 9497) for OPAQUE: the server evaluates `F(k, password)` on a blinded input.
+    - **Slow password hashing** ([Argon2](../08-kdf-password-hashing/Argon2.md), [scrypt](../08-kdf-password-hashing/scrypt.md))
+      so each online or stolen-database guess costs real work.
+    - **Inverses mod p** (extended Euclid), used to remove the mask.
+
 ## See also
 
 - [Diffie-Hellman](Diffie-Hellman.md) / [ECDH](ECDH.md): the exchange a PAKE builds on

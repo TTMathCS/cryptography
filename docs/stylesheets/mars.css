@@ -410,3 +410,6 @@
 .md-typeset details > summary { background: transparent !important; font-weight: 600; }
 .md-typeset details > summary::before { background-color: var(--md-typeset-a-color) !important; }
 .md-typeset details > summary::after { color: var(--md-default-fg-color--light); }
+.mars-steps__count { align-self: center; margin-left: 0.4rem; font-size: 0.75rem; color: var(--md-default-fg-color--light); }
+.md-typeset .mars-steps ol > li { padding: 0.2rem 0.4rem; border-radius: 6px; }
+.md-typeset .mars-steps ol > li.is-now { background: rgba(238, 166, 111, 0.18); }

@@ -102,6 +102,80 @@ for name in ["HQC-1", "Classic-McEliece-6688128"]:
   sampling (2022), a chosen-ciphertext flaw fixed in the August 2025 spec, and
   compiler-made secret-dependent branches (CVE-2025-52473).
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: McEliece-style encryption with a 7-bit code"
+
+    Classic McEliece uses a secret Goppa code of length 6,688 that fixes 128 errors. The same steps work
+    with the Hamming code of length 7, which fixes 1 error (far too small to be secure). The parity-check
+    matrix `H` has the 7 non-zero 3-bit columns:
+
+    ```
+         1 1 0 1 1 0 0
+    H =  1 0 1 1 0 1 0
+         0 1 1 1 0 0 1
+    ```
+
+    | Step | Calculation | Value |
+    |---|---|---|
+    | Secret error vector (weight 1) | the message is "position 3" | `e = 0010000` |
+    | Ciphertext = syndrome | `H·e`: the 3rd column of `H` | `s = 011` |
+    | Decode | which column of `H` equals `011`? | column 3 |
+    | Shared secret | hash of `e` and `s` | |
+
+    The same code also carries data: the message `1011` encodes to the codeword `1011010`; flip bit 3 to get
+    `1001010`, whose syndrome is again `011`, so the receiver flips bit 3 back. In the real scheme `H` is
+    hidden by a random change of basis and column shuffle, so it looks like a random matrix.
+
+??? abstract "The math, with formulas"
+
+    **Linear codes.** A code is the set of bit vectors `c` with `H·c = 0` (mod 2). If a received `y = c + e`,
+    then `H·y = H·e`: the syndrome depends only on the error.
+
+    **Classic McEliece (Niederreiter form).** Key generation picks a binary Goppa code given by a secret
+    polynomial `g(x)` of degree `t` over GF(2^m) and `n` field elements; it publishes `H` in systematic form
+    `[I | T]` (only `T` is stored). Encapsulation picks `e` with exactly `t` ones and sends `C = H·e`.
+    Decapsulation uses the secret `g(x)` to decode (Berlekamp–Massey) and recover `e`; the key is a
+    SHAKE256 hash of `e` and `C`.
+
+    | | n | t | m | Public key | Ciphertext |
+    |---|---|---|---|---|---|
+    | mceliece348864 | 3,488 | 64 | 12 | 261,120 B | 96 B |
+    | mceliece6688128 | 6,688 | 128 | 13 | 1,044,992 B | 208 B |
+
+    **HQC** uses quasi-cyclic codes: vectors of length `n` multiplied as polynomials mod `xⁿ − 1`. With sparse
+    secrets `x`, `y`: public `s = x + h·y`; ciphertext `u = r₁ + h·r₂`, `v = encode(m) + s·r₂ + e`; decryption
+    computes `v − u·y = encode(m) + (x·r₂ − r₁·y + e)` and the public Reed-Muller/Reed-Solomon decoder removes
+    the sparse bracket.
+
+    **Why it is hard.** Decoding a random linear code (syndrome decoding) is NP-hard in general. The best
+    attacks are information-set decoding (Prange 1962 and its successors), still exponential after 60 years,
+    with only a square-root speed-up from Grover's algorithm on a quantum computer.
+
+??? tip "Watch it step by step: hiding and finding one error"
+
+    <div class="mars-steps" markdown>
+
+    1. Bob's code is the Hamming code; its check matrix `H` has the 7 non-zero 3-bit columns.
+    2. Alice picks a secret error: a 1 in position 3, `e = 0010000`.
+    3. She sends only the syndrome `H·e = 011`, the 3rd column of `H`.
+    4. Bob, who knows the code's structure, finds which column is `011`: column 3.
+    5. He has `e`. Both hash `e` and `011` into the shared key.
+    6. With a scrambled `H` of 6,688 columns and 128 errors, nobody without the secret Goppa code can do step 4.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Linear algebra over GF(2):** bits, with XOR as addition.
+    - **Finite fields GF(2^m)** and polynomials over them: Goppa codes are defined by a polynomial `g(x)`.
+    - **Syndrome decoding** and **information-set decoding**: the hard problem and the best attack.
+    - **Quasi-cyclic codes** (HQC, BIKE): smaller keys from cyclic structure, at the cost of a less-studied
+      problem.
+    - Compare the lattice KEMs [ML-KEM](ML-KEM.md) and [NTRU Prime](NTRU-Prime.md).
+
 ## See also
 
 - [ML-KEM](ML-KEM.md): the lattice KEM these back up
