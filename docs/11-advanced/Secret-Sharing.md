@@ -121,6 +121,71 @@ print(rebuild(shares[2:]).to_bytes(11, "big"))                       # b'open se
 - **Shares never expire.** A holder who leaves keeps a working share. Split
   a new secret, or better, rotate the key itself.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: 2-of-3 sharing mod 17"
+
+    Secret `s = 13`. For a threshold of 2 the polynomial is a line: pick one random coefficient, here 10, so
+    `f(x) = 13 + 10x mod 17`. Checked with Python:
+
+    | Step | Calculation | Value |
+    |---|---|---|
+    | Share 1 | `f(1) = 23 mod 17` | (1, 6) |
+    | Share 2 | `f(2) = 33 mod 17` | (2, 16) |
+    | Share 3 | `f(3) = 43 mod 17` | (3, 9) |
+    | Rebuild from 1 and 3: λ₁ | `3 / (3 − 1) = 3 · 2⁻¹ = 3 · 9 mod 17` | 10 |
+    | λ₃ | `1 / (1 − 3) = −2⁻¹ = −9 mod 17` | 8 |
+    | Secret | `6 · 10 + 9 · 8 = 132 mod 17` | **13** |
+
+    `2⁻¹ mod 17 = 9` because `2 · 9 = 18 ≡ 1`. The other pairs work too: shares 1 and 2 use λ = 2, 16, and
+    shares 2 and 3 use λ = 3, 15; both give 13. One share alone says nothing: through (1, 6) there is a line
+    for every possible secret, (0, 0) with slope 6, (0, 1) with slope 5, and so on.
+
+??? abstract "The math, with formulas"
+
+    Over a prime field `F_p`, with threshold t and shares at x = 1 … n:
+
+    ```
+    f(x)  = s + a₁x + a₂x² + … + aₜ₋₁xᵗ⁻¹   (mod p),    share i = (i, f(i))
+    λᵢ    = Π (j in S, j ≠ i)  xⱼ / (xⱼ − xᵢ)   (mod p)
+    s     = f(0) = Σ (i in S)  λᵢ · yᵢ        (mod p)
+    ```
+
+    - **Lagrange coefficients** depend only on which shares are used, not on their values. So they can be
+      worked out before the shares arrive.
+    - **Perfect secrecy:** for t − 1 shares and any guess g, exactly one polynomial of degree t − 1 passes
+      through them and (0, g). Every secret is equally likely.
+    - **Feldman check:** with `Cₖ = g^aₖ` (and `C₀ = g^s`), holder i checks `g^f(i) = Π Cₖ^(iᵏ)`.
+    - **Linear:** adding two sharings point by point gives a sharing of the sum. Distributed key generation
+      and threshold signatures rest on this.
+
+??? tip "Watch it step by step: split 13, then rebuild it"
+
+    <div class="mars-steps" markdown>
+
+    1. The secret 13 is the height of a line where it crosses x = 0.
+    2. A random slope, 10, fixes the line `f(x) = 13 + 10x mod 17`.
+    3. Hand out three points on it: (1, 6), (2, 16), (3, 9).
+    4. Holders 1 and 3 meet. Their Lagrange weights at x = 0 are 10 and 8.
+    5. `6 · 10 + 9 · 8 = 132`, and `132 mod 17 = 13`. The secret is back.
+    6. Holder 1 alone has one point. Any line through it could be the right one.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Polynomials over a finite field:** a nonzero polynomial of degree d has at most d roots, so t points
+      fix a polynomial of degree t − 1, and only one.
+    - **Modular inverses:** each division in λᵢ is a multiplication by an inverse mod p, found with extended
+      Euclid or `a^(p−2)`. That is why p must be prime.
+    - **Reed–Solomon codes:** a list of Shamir shares is a Reed–Solomon codeword (McEliece and Sarwate,
+      1981), so error-correcting decoders can rebuild the secret even when some shares are wrong.
+    - **Discrete log** keeps Feldman's commitments from giving away the coefficients: see
+      [hard problems](../10-math-foundations/Hard-Problems.md).
+    - Used in: [threshold signatures](Threshold-Signatures.md) and [multi-party computation](MPC.md).
+
 ## See also
 
 - [Threshold signatures](Threshold-Signatures.md): sign with the shares, never rebuild the key

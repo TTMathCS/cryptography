@@ -158,6 +158,71 @@ print(verify(b"slot 43", pi))           # None
 - A quantum computer could recover the secret key from the public key and
   compute every output. RFC 9381 has no post-quantum VRF.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: a discrete-log VRF mod 23"
+
+    The ECVRF steps, written multiplicatively in the subgroup of order `q = 11` mod `p = 23`, generator
+    `g = 2`. The hashed input point and the challenge are made up; the rest is checked with Python:
+
+    | Step | Calculation | Value |
+    |---|---|---|
+    | Keys | `x = 6`, `Y = 2⁶ mod 23` | Y = 18 |
+    | Hash input to the group | `H = hash_to_group(Y, α)`, say | H = 3 |
+    | VRF point | `Γ = Hˣ = 3⁶ mod 23` | Γ = 16 |
+    | Nonce | `k = 5`: `U = 2⁵`, `V = 3⁵` mod 23 | U = 9, V = 13 |
+    | Challenge | `c = Hash(Y, H, Γ, U, V)`, say | c = 7 |
+    | Response | `s = k + c·x = 5 + 42 mod 11` | s = 3 |
+    | Verify U | `gˢ · Y⁻ᶜ = 8 · 6⁻¹ = 8 · 4 mod 23` | 9 = U |
+    | Verify V | `Hˢ · Γ⁻ᶜ = 4 · 18⁻¹ = 4 · 9 mod 23` | 13 = V |
+    | Output | `β = SHA-256(Γ)`, Γ as one byte | `c555eab4…` |
+
+    The verifier recomputes U and V from the proof (Γ, c, s), hashes again and gets the same c. A false
+    Γ = 12 would give V = 6 instead of 13, a different hash, and the proof would fail.
+
+??? abstract "The math, with formulas"
+
+    In ECVRF notation (additive, base point B, secret x, public key `Y = x·B`):
+
+    ```
+    Prove:   H = encode_to_curve(Y, α),   Γ = x·H
+             c = Hash(Y, H, Γ, k·B, k·H),  s = k + c·x  (mod q),   π = (Γ, c, s)
+    Verify:  U = s·B − c·Y,   V = s·H − c·Γ,   accept if Hash(Y, H, Γ, U, V) = c
+    Output:  β = Hash(cofactor · Γ)
+    ```
+
+    - **Why it verifies:** `s·B − c·Y = (k + cx)·B − c·x·B = k·B`, and the same for H.
+    - **Uniqueness:** Γ is fixed by x and α, and the proof shows Γ uses the same x as Y. So no second Γ
+      passes for the same input.
+    - **Pseudorandomness:** telling Γ from random without x is a decisional Diffie-Hellman problem.
+    - **RSA-FDH-VRF:** `π = m^d mod n`, `β = Hash(π)`; one e-th root per m gives uniqueness.
+
+??? tip "Watch it step by step: prove and verify one output"
+
+    <div class="mars-steps" markdown>
+
+    1. The key holder's secret is 6. Its public key is `2⁶ = 18`.
+    2. The input α hashes to the group element 3. Raising it to the secret gives Γ = 16.
+    3. A nonce 5 gives the pair U = 9 and V = 13. The hash of everything gives c = 7.
+    4. The response is `s = 5 + 7 · 6 = 47 ≡ 3 (mod 11)`. The proof is (16, 7, 3).
+    5. The verifier rebuilds `U = 2³ · 18⁻⁷ = 9` and `V = 3³ · 16⁻⁷ = 13`. Same hash, same c: accepted.
+    6. The output β is a hash of Γ = 16. Nobody without the secret could have found it first.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Discrete log:** getting x from Y must be infeasible, or anyone could compute every output:
+      [hard problems](../10-math-foundations/Hard-Problems.md).
+    - **Chaum–Pedersen proof:** shows two pairs `(B, Y)` and `(H, Γ)` share one exponent, a two-sided
+      Schnorr proof. See [zero-knowledge proofs](Zero-Knowledge.md).
+    - **Fiat–Shamir:** the challenge c is a hash, so the proof needs no live verifier.
+    - **Hashing to curves** (RFC 9380): H must be a point whose discrete log nobody knows.
+    - **Elliptic curves:** the real groups are P-256 and edwards25519:
+      [elliptic curves](../10-math-foundations/Elliptic-Curves.md).
+
 ## See also
 
 - [OPRF](OPRF.md): the same kind of keyed hash, computed blind for a client
