@@ -31,28 +31,28 @@ GnuPG's default key was DSA with an ElGamal subkey until versions 1.4.10 and
 
 ## How it works
 
-Take a group with generator `g` of prime order `q`, for example the squares
-modulo a safe prime `p = 2q + 1`.
+Take a group with generator $g$ of prime order $q$, for example the squares
+modulo a safe prime $p = 2q + 1$.
 
-- **Keys:** a secret `x`; the public key is `h = gˣ`.
-- **Encrypt** a group element `m`: pick a fresh random `k`, send
-  `c₁ = gᵏ` and `c₂ = m·hᵏ`.
-- **Decrypt:** `m = c₂ / c₁ˣ`, because `c₁ˣ = gˣᵏ = hᵏ`.
+- **Keys:** a secret $x$; the public key is $h = g^x$.
+- **Encrypt** a group element $m$: pick a fresh random $k$, send
+  $c_1 = g^k$ and $c_2 = m \cdot h^k$.
+- **Decrypt:** $m = c_2 / c_1^x$, because $c_1^x = g^{xk} = h^k$.
 
-`c₁` is a Diffie-Hellman key share made for this one message, and `hᵏ` is the
+$c_1$ is a Diffie-Hellman key share made for this one message, and $h^k$ is the
 shared secret, used as a mask. If the decisional Diffie-Hellman problem is
-hard in the group, `m` stays hidden. Three things follow:
+hard in the group, $m$ stays hidden. Three things follow:
 
 - **Double size.** Two group elements go out for one element of message: 512
   bytes in a 2048-bit group. The message has to be encoded into the group
   first, so in practice it only ever carried a session key.
-- **Malleable.** Anyone can multiply `c₂` by `t`, and the receiver will
-  decrypt `t·m`. So it is not secure against chosen-ciphertext attacks.
+- **Malleable.** Anyone can multiply $c_2$ by $t$, and the receiver will
+  decrypt $t \cdot m$. So it is not secure against chosen-ciphertext attacks.
 - **Homomorphic.** Multiplying two ciphertexts part by part gives an
-  encryption of `m₁·m₂`, and `(c₁·gʳ, c₂·hʳ)` re-randomizes a ciphertext
+  encryption of $m_1 \cdot m_2$, and $(c_1 \cdot g^r, c_2 \cdot h^r)$ re-randomizes a ciphertext
   without changing the message.
 
-**Exponential ElGamal** encrypts `gᵐ` instead of `m`. Now multiplying
+**Exponential ElGamal** encrypts $g^m$ instead of $m$. Now multiplying
 ciphertexts adds the messages. Decryption ends with a discrete log, which is
 only feasible when the result is small, like a vote count.
 
@@ -110,14 +110,14 @@ print(next(n for n in range(len(votes) + 1) if pow(g, n, p) == t))   # 3
 
 ## Security notes
 
-- Encode messages into the subgroup. In the group above, `c₂` reveals whether
-  `m` is a square mod `p`.
-- Never reuse `k`. Two messages under the same `k` share a mask, so knowing
+- Encode messages into the subgroup. In the group above, $c_2$ reveals whether
+  $m$ is a square mod $p$.
+- Never reuse $k$. Two messages under the same $k$ share a mask, so knowing
   one gives the other.
 - OpenPGP's PKCS#1 v1.5 padding is open to padding-oracle attacks
   (RFC 9580, Section 13.5).
 - Libraries disagree on details such as the shape of the group and the size
-  of `k`. De Feo, Poettering and Sorniotti (CCS 2021) showed that an OpenPGP
+  of $k$. De Feo, Poettering and Sorniotti (CCS 2021) showed that an OpenPGP
   key made by one library and used by another can leak plaintexts, and in
   some cases the secret key.
 - Use groups of 2048 bits or more. A quantum computer breaks every size.
@@ -128,48 +128,48 @@ Each part below starts closed; open the ones you want.
 
 ??? example "Sample calculation: ElGamal with small numbers"
 
-    The group is the numbers mod `p = 23` with generator `g = 5`. Messages are numbers 1 to 22. Checked with
+    The group is the numbers mod $p = 23$ with generator $g = 5$. Messages are numbers 1 to 22. Checked with
     Python:
 
     | Step | Calculation | Value |
     |---|---|---|
-    | Private key | `x = 6` | |
-    | Public key | `h = 5⁶ mod 23` | `h = 8` |
-    | Message, fresh random `k` | `m = 10`, `k = 3` | |
-    | `c₁` | `gᵏ = 5³ mod 23 = 125 mod 23` | `c₁ = 10` |
-    | Mask | `hᵏ = 8³ mod 23 = 512 mod 23` | `6` |
-    | `c₂` | `m · hᵏ = 10 · 6 mod 23 = 60 mod 23` | `c₂ = 14` |
-    | Decrypt: mask again | `c₁ˣ = 10⁶ mod 23` | `6` |
-    | Remove it | `c₂ · 6⁻¹ = 14 · 4 mod 23 = 56 mod 23` | `m = 10` |
+    | Private key | $x = 6$ | |
+    | Public key | $h = 5^6 \bmod 23$ | $h = 8$ |
+    | Message, fresh random $k$ | $m = 10$, $k = 3$ | |
+    | $c_1$ | $g^k = 5^3 \bmod 23 = 125 \bmod 23$ | $c_1 = 10$ |
+    | Mask | $h^k = 8^3 \bmod 23 = 512 \bmod 23$ | $6$ |
+    | $c_2$ | $m \cdot h^k = 10 \cdot 6 \bmod 23 = 60 \bmod 23$ | $c_2 = 14$ |
+    | Decrypt: mask again | $c_1^x = 10^6 \bmod 23$ | $6$ |
+    | Remove it | $c_2 \cdot 6^{-1} = 14 \cdot 4 \bmod 23 = 56 \bmod 23$ | $m = 10$ |
 
-    **Multiplying ciphertexts multiplies messages.** `E(3)` with `k = 4` is `(4, 6)`. Multiplying it into
-    `E(10)` part by part gives `(10·4, 14·6) mod 23 = (17, 15)`, which decrypts to `7 = 10 · 3 mod 23`.
+    **Multiplying ciphertexts multiplies messages.** $E(3)$ with $k = 4$ is $(4, 6)$. Multiplying it into
+    $E(10)$ part by part gives $(10 \cdot 4, 14 \cdot 6) \bmod 23 = (17, 15)$, which decrypts to $7 = 10 \cdot 3 \bmod 23$.
 
 ??? abstract "The math, with formulas"
 
-    **Encrypt:** `c₁ = gᵏ`, `c₂ = m · hᵏ` (mod `p`), with a fresh random `k`. **Decrypt:** `m = c₂ · (c₁ˣ)⁻¹`.
+    **Encrypt:** $c_1 = g^k$, $c_2 = m \cdot h^k \pmod{p}$, with a fresh random $k$. **Decrypt:** $m = c_2 \cdot (c_1^x)^{-1}$.
 
-    **Why it works:** `c₁ˣ = (gᵏ)ˣ = (gˣ)ᵏ = hᵏ`, the same mask the sender used. It is Diffie-Hellman with a
-    one-time key pair `(k, gᵏ)`, the shared secret used as a multiplicative mask.
+    **Why it works:** $c_1^x = (g^k)^x = (g^x)^k = h^k$, the same mask the sender used. It is Diffie-Hellman with a
+    one-time key pair $(k, g^k)$, the shared secret used as a multiplicative mask.
 
-    **Security.** Recovering `m` without `x` means computing `g^(xk)` from `gˣ` and `gᵏ` (the computational
-    Diffie-Hellman problem). Not learning *anything* about `m` needs the decisional version, which holds only
-    in a prime-order subgroup and with `m` encoded inside it; in the full group mod `p`, whether `m` is a
+    **Security.** Recovering $m$ without $x$ means computing $g^{xk}$ from $g^x$ and $g^k$ (the computational
+    Diffie-Hellman problem). Not learning *anything* about $m$ needs the decisional version, which holds only
+    in a prime-order subgroup and with $m$ encoded inside it; in the full group mod $p$, whether $m$ is a
     square leaks.
 
-    **Homomorphic and malleable.** `E(m₁)·E(m₂) = (g^(k₁+k₂), m₁m₂·h^(k₁+k₂)) = E(m₁m₂)`. Useful for voting and
-    mix-nets (exponential ElGamal puts `m` in the exponent, `gᵐ`, to make it additive); dangerous elsewhere,
-    since anyone can turn an encryption of `m` into one of `2m`. ECIES and HPKE avoid this with an AEAD.
+    **Homomorphic and malleable.** $E(m_1) \cdot E(m_2) = (g^{k_1+k_2}, m_1 m_2 \cdot h^{k_1+k_2}) = E(m_1 m_2)$. Useful for voting and
+    mix-nets (exponential ElGamal puts $m$ in the exponent, $g^m$, to make it additive); dangerous elsewhere,
+    since anyone can turn an encryption of $m$ into one of $2m$. ECIES and HPKE avoid this with an AEAD.
 
 ??? tip "Watch it step by step: encrypt and decrypt 10"
 
     <div class="mars-steps" markdown>
 
-    1. Bob's public key is `h = 5⁶ mod 23 = 8`; his private key `x = 6` stays secret.
-    2. Alice picks a fresh `k = 3` and sends `c₁ = 5³ mod 23 = 10`.
-    3. She computes the mask `8³ mod 23 = 6` and sends `c₂ = 10 · 6 mod 23 = 14`.
-    4. Bob rebuilds the mask from `c₁`: `10⁶ mod 23 = 6`.
-    5. He divides it out: `14 · 6⁻¹ = 14 · 4 mod 23 = 10`. That is Alice's message.
+    1. Bob's public key is $h = 5^6 \bmod 23 = 8$; his private key $x = 6$ stays secret.
+    2. Alice picks a fresh $k = 3$ and sends $c_1 = 5^3 \bmod 23 = 10$.
+    3. She computes the mask $8^3 \bmod 23 = 6$ and sends $c_2 = 10 \cdot 6 \bmod 23 = 14$.
+    4. Bob rebuilds the mask from $c_1$: $10^6 \bmod 23 = 6$.
+    5. He divides it out: $14 \cdot 6^{-1} = 14 \cdot 4 \bmod 23 = 10$. That is Alice's message.
 
     </div>
 
@@ -177,11 +177,11 @@ Each part below starts closed; open the ones you want.
 
     - **Diffie-Hellman** and the CDH and DDH problems: [Diffie-Hellman](../01-key-exchange/Diffie-Hellman.md),
       [Hard problems](../10-math-foundations/Hard-Problems.md).
-    - **Quadratic residues:** why the full group mod `p` leaks one bit, and why prime-order subgroups fix it.
+    - **Quadratic residues:** why the full group mod $p$ leaks one bit, and why prime-order subgroups fix it.
     - **Homomorphic encryption:** ElGamal is multiplicatively homomorphic; see
       [Homomorphic encryption](../11-advanced/Homomorphic-Encryption.md).
-    - **Probabilistic encryption:** the same message encrypts differently every time because of `k`.
-    - **The elliptic-curve version**, where `c₂ = M + k·Q` for a message point `M`.
+    - **Probabilistic encryption:** the same message encrypts differently every time because of $k$.
+    - **The elliptic-curve version**, where $c_2 = M + k \cdot Q$ for a message point $M$.
 
 ## See also
 

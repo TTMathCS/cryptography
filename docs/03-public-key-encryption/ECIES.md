@@ -27,25 +27,25 @@ It was standardized several times, each with its own menu:
 
 ## How it works
 
-The recipient has a key pair `(d, Q = d·G)`. To encrypt `M` (SEC 1 form):
+The recipient has a key pair $(d, Q = d \cdot G)$. To encrypt $M$ (SEC 1 form):
 
-1. Pick a fresh ephemeral key `k` and compute `R = k·G`.
-2. The shared secret `Z` is the x coordinate of `k·Q`.
-3. Run `Z` through the KDF and split the output into an encryption key `EK`
-   and a MAC key `MK`.
-4. Encrypt `EM = ENC(EK, M)` and compute the tag `D = MAC(MK, EM)`.
-5. Send `R ‖ EM ‖ D`.
+1. Pick a fresh ephemeral key $k$ and compute $R = k \cdot G$.
+2. The shared secret $Z$ is the $x$ coordinate of $k \cdot Q$.
+3. Run $Z$ through the KDF and split the output into an encryption key $\mathit{EK}$
+   and a MAC key $\mathit{MK}$.
+4. Encrypt $\mathit{EM} = \mathrm{ENC}(\mathit{EK}, M)$ and compute the tag $D = \mathrm{MAC}(\mathit{MK}, \mathit{EM})$.
+5. Send $R \,\Vert\, \mathit{EM} \,\Vert\, D$.
 
-The recipient computes `d·R`, the same point, derives the same keys, checks
+The recipient computes $d \cdot R$, the same point, derives the same keys, checks
 the tag and only then decrypts. Each key encrypts one message, so SEC 1 even
 uses a zero IV for CBC and CTR. The extra bytes are one point (32 for
 X25519, 33 or 65 for P-256) and a tag, where ElGamal doubles the message.
 
 **Variants.** Every step is an option: KDF, cipher and MAC, plain or
-cofactor Diffie-Hellman, compressed points or not, and whether `R` goes into
-the KDF. ISO 18033-2 hashes `R` in by default. SEC 1 hashes only `Z` (plus
+cofactor Diffie-Hellman, compressed points or not, and whether $R$ goes into
+the KDF. ISO 18033-2 hashes $R$ in by default. SEC 1 hashes only $Z$ (plus
 optional shared info), which leaves what it calls benign malleability:
-re-encoding `R`, say compressed instead of uncompressed, gives a second valid
+re-encoding $R$, say compressed instead of uncompressed, gives a second valid
 ciphertext of the same message. Newer variants swap the cipher and MAC for
 one AEAD such as AES-GCM. Two products that both "do ECIES" usually can't
 read each other's messages.
@@ -71,7 +71,7 @@ read each other's messages.
 
 ## Example (Python)
 
-An ECIES-style scheme in the AEAD shape: X25519, HKDF-SHA256 with `R` and
+An ECIES-style scheme in the AEAD shape: X25519, HKDF-SHA256 with $R$ and
 the recipient key in the info string, and AES-128-GCM. Needs PyCA
 `cryptography` (`pip install cryptography`). Run with version 50.0.1 on
 Python 3.13, it prints `53 b'hello'`.
@@ -107,12 +107,12 @@ Each line is a choice some standard pins down differently. The
 
 ## Security notes
 
-- Validate `R`: check it is on the curve, or use X25519 or cofactor
+- Validate $R$: check it is on the curve, or use X25519 or cofactor
   Diffie-Hellman. An invalid point can leak bits of the private key through
   small-subgroup attacks.
-- Hash `R` and the recipient key into the KDF, as ISO 18033-2 and HPKE do.
+- Hash $R$ and the recipient key into the KDF, as ISO 18033-2 and HPKE do.
 - Check the tag before decrypting, in constant time.
-- No sender authentication: anyone with `Q` can encrypt. Sign the message if
+- No sender authentication: anyone with $Q$ can encrypt. Sign the message if
   the sender matters.
 - A quantum computer breaks it like all elliptic-curve schemes; see the
   post-quantum part of [HPKE](HPKE.md).
@@ -123,55 +123,57 @@ Each part below starts closed; open the ones you want.
 
 ??? example "Sample calculation: ECIES with a tiny curve"
 
-    Bob's key from the [ECDH](../01-key-exchange/ECDH.md#going-deeper) example: curve `y² = x³ + 2x + 2 (mod
-    17)`, `G = (5, 1)`, private `b = 10`, public `Q_B = (7, 11)`. The KDF and MAC are real SHA-256 and HMAC, cut
+    Bob's key from the [ECDH](../01-key-exchange/ECDH.md#going-deeper) example: curve $y^2 = x^3 + 2x + 2 \pmod{17}$,
+    $G = (5, 1)$, private $b = 10$, public $Q_B = (7, 11)$. The KDF and MAC are real SHA-256 and HMAC, cut
     short to fit; checked with Python:
 
     | Step | Calculation | Value |
     |---|---|---|
-    | Ephemeral key | Alice picks `a = 3`, `R = 3·G` | `R = (10, 6)` |
-    | Shared point | `3·Q_B` | `(13, 10)` |
+    | Ephemeral key | Alice picks $a = 3$, $R = 3 \cdot G$ | $R = (10, 6)$ |
+    | Shared point | $3 \cdot Q_B$ | $(13, 10)$ |
     | KDF | `SHA-256("13")`, first 6 bytes | `3fdb a35f04dc` |
     | Split | 2-byte stream key, 4-byte MAC key | `3fdb`, `a35f04dc` |
     | Encrypt `"Hi"` = `48 69` | XOR with `3f db` | `77 b2` |
     | Tag | `HMAC-SHA256(a35f04dc, 77b2)`, first 4 bytes | `7ea8cbf6` |
-    | Send | `R`, ciphertext, tag | `(10, 6)`, `77b2`, `7ea8cbf6` |
+    | Send | $R$, ciphertext, tag | $(10, 6)$, `77b2`, `7ea8cbf6` |
 
-    Bob computes `10·R = (13, 10)`, runs the same KDF, checks the tag, and XORs `77 b2` with `3f db` to get
+    Bob computes $10 \cdot R = (13, 10)$, runs the same KDF, checks the tag, and XORs `77 b2` with `3f db` to get
     `48 69`, "Hi".
 
 ??? abstract "The math, with formulas"
 
-    **Encrypt to `Q_B`:**
+    **Encrypt to $Q_B$:**
 
-    ```
-    r ← random,  R = r·G
-    Z = x-coordinate of r·Q_B
-    (k_enc ‖ k_mac) = KDF(Z, R, shared info)
-    c = Enc(k_enc, m),  t = MAC(k_mac, c ‖ shared info)
-    send (R, c, t)
-    ```
+    $$
+    \begin{aligned}
+    & r \leftarrow \text{random}, \quad R = r \cdot G \\
+    & Z = x\text{-coordinate of } r \cdot Q_B \\
+    & (k_{\mathrm{enc}} \,\Vert\, k_{\mathrm{mac}}) = \mathrm{KDF}(Z, R, \text{shared info}) \\
+    & c = \mathrm{Enc}(k_{\mathrm{enc}}, m), \quad t = \mathrm{MAC}(k_{\mathrm{mac}}, c \,\Vert\, \text{shared info}) \\
+    & \text{send } (R, c, t)
+    \end{aligned}
+    $$
 
-    **Decrypt:** `Z = x(b·R)`; derive the same keys; check `t` before decrypting.
+    **Decrypt:** $Z = x(b \cdot R)$; derive the same keys; check $t$ before decrypting.
 
-    **Why it works:** `b·R = b·r·G = r·(b·G) = r·Q_B`, as in ECDH.
+    **Why it works:** $b \cdot R = b \cdot r \cdot G = r \cdot (b \cdot G) = r \cdot Q_B$, as in ECDH.
 
-    **Why each piece is there.** The fresh `R` makes every ciphertext different (no deterministic leaks). The
+    **Why each piece is there.** The fresh $R$ makes every ciphertext different (no deterministic leaks). The
     KDF turns the structured point into uniform keys. The MAC (or an AEAD) stops the malleability of
-    [ElGamal](ElGamal.md): a tampered `c` fails the check. Checking that `R` is on the curve stops
-    invalid-curve attacks. SEC 1 offers XOR or a block cipher for `Enc`; modern profiles use AES-GCM or
+    [ElGamal](ElGamal.md): a tampered $c$ fails the check. Checking that $R$ is on the curve stops
+    invalid-curve attacks. SEC 1 offers XOR or a block cipher for $\mathrm{Enc}$; modern profiles use AES-GCM or
     ChaCha20-Poly1305, which is what [HPKE](HPKE.md) standardized.
 
 ??? tip "Watch it step by step: sealing \"Hi\" to Bob"
 
     <div class="mars-steps" markdown>
 
-    1. Bob's public key is the point `(7, 11)`.
-    2. Alice makes a one-time key `a = 3` and the point `R = 3·G = (10, 6)`.
-    3. She computes `3·(7, 11) = (13, 10)`; only she and Bob can get this point.
+    1. Bob's public key is the point $(7, 11)$.
+    2. Alice makes a one-time key $a = 3$ and the point $R = 3 \cdot G = (10, 6)$.
+    3. She computes $3 \cdot (7, 11) = (13, 10)$; only she and Bob can get this point.
     4. SHA-256 of "13" gives the stream key `3fdb` and the MAC key `a35f04dc`.
-    5. "Hi" (`48 69`) XOR `3f db` is `77 b2`; the HMAC tag is `7ea8cbf6`. She sends `R`, `77b2` and the tag.
-    6. Bob computes `10·(10, 6) = (13, 10)`, derives the same keys, checks the tag and recovers "Hi".
+    5. "Hi" (`48 69`) XOR `3f db` is `77 b2`; the HMAC tag is `7ea8cbf6`. She sends $R$, `77b2` and the tag.
+    6. Bob computes $10 \cdot (10, 6) = (13, 10)$, derives the same keys, checks the tag and recovers "Hi".
 
     </div>
 

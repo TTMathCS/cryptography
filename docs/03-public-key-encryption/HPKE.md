@@ -30,21 +30,21 @@ AES-128-GCM (`0x0020`, `0x0001`, `0x0001`).
 
 DHKEM is ECDH wrapped as a KEM:
 
-- **Encap(pkR):** make an ephemeral key pair, compute `DH(skE, pkR)` and send
-  `enc = pkE`. The shared secret is HKDF over the DH output, with `enc` and
-  `pkR` as context.
-- **Decap(enc, skR):** compute `DH(skR, enc)` and derive the same secret.
+- **$\mathrm{Encap}(\mathit{pkR})$:** make an ephemeral key pair, compute $\mathrm{DH}(\mathit{skE}, \mathit{pkR})$ and send
+  $\mathit{enc} = \mathit{pkE}$. The shared secret is HKDF over the DH output, with $\mathit{enc}$ and
+  $\mathit{pkR}$ as context.
+- **$\mathrm{Decap}(\mathit{enc}, \mathit{skR})$:** compute $\mathrm{DH}(\mathit{skR}, \mathit{enc})$ and derive the same secret.
 
 A key schedule then mixes the shared secret with the mode, an optional
 pre-shared key and the application's `info` string. Out come an AEAD key, a
 base nonce and an exporter secret. The resulting context seals messages in
-order (nonce = base nonce XOR a counter) and can `Export()` extra secrets.
+order ($\text{nonce} = \text{base nonce} \oplus \text{counter}$) and can `Export()` extra secrets.
 
 | Mode | Id | Who the sender is proven to be |
 |---|---|---|
 | base | `0x00` | nobody: anyone with the public key can send |
 | psk | `0x01` | a holder of the pre-shared key |
-| auth | `0x02` | the owner of a static key (a second DH, `DH(skS, pkR)`) |
+| auth | `0x02` | the owner of a static key (a second DH, $\mathrm{DH}(\mathit{skS}, \mathit{pkR})$) |
 | auth_psk | `0x03` | both |
 
 The encapsulation adds 32 bytes for X25519 or 65 for P-256, and the AEAD a
@@ -104,9 +104,9 @@ print(len(ct), suite.decrypt(ct, sk, info=b"demo v1"))          # 53 b'hello': 3
 
 ## Security notes
 
-- No forward secrecy for the recipient: whoever later gets `skR` can read
+- No forward secrecy for the recipient: whoever later gets $\mathit{skR}$ can read
   every base-mode message sent to it, so rotate keys.
-- Auth mode allows key-compromise impersonation: with `skR`, an attacker can
+- Auth mode allows key-compromise impersonation: with $\mathit{skR}$, an attacker can
   forge messages to that recipient from any sender.
 - No replay protection, and the plaintext length shows; the application
   handles both.
@@ -124,15 +124,15 @@ Each part below starts closed; open the ones you want.
 
     | Step | Value |
     |---|---|
-    | Receiver public key `pkR` | `3948cfe0…80815c4d` |
-    | Sender's ephemeral `enc = pkE` | `37fda356…f1bf4431` (32 bytes, sent first) |
-    | `dh = X25519(skE, pkR)` | `b3b5c19e…c9c72e35` |
-    | `shared_secret` = HKDF of `dh`, `enc`, `pkR` | `fe0e18c9…7d2ea1fc` |
-    | Key schedule: `key` | `4531685d41d65f03dc48f6b8302c05b0` (16 bytes for AES-128) |
-    | Key schedule: `base_nonce` | `56d890e5accaaf011cff4b7d` (12 bytes) |
-    | Message 0: nonce = `base_nonce ⊕ 0` | `…4b7d` |
-    | Message 1: nonce = `base_nonce ⊕ 1` | `…4b7c` |
-    | Message 2: nonce = `base_nonce ⊕ 2` | `…4b7f` |
+    | Receiver public key $\mathit{pkR}$ | `3948cfe0…80815c4d` |
+    | Sender's ephemeral $\mathit{enc} = \mathit{pkE}$ | `37fda356…f1bf4431` (32 bytes, sent first) |
+    | $\mathit{dh} = \mathrm{X25519}(\mathit{skE}, \mathit{pkR})$ | `b3b5c19e…c9c72e35` |
+    | $\mathit{shared\_secret}$ = HKDF of $\mathit{dh}$, $\mathit{enc}$, $\mathit{pkR}$ | `fe0e18c9…7d2ea1fc` |
+    | Key schedule: $\mathit{key}$ | `4531685d41d65f03dc48f6b8302c05b0` (16 bytes for AES-128) |
+    | Key schedule: $\mathit{base\_nonce}$ | `56d890e5accaaf011cff4b7d` (12 bytes) |
+    | Message 0: nonce = $\mathit{base\_nonce} \oplus 0$ | `…4b7d` |
+    | Message 1: nonce = $\mathit{base\_nonce} \oplus 1$ | `…4b7c` |
+    | Message 2: nonce = $\mathit{base\_nonce} \oplus 2$ | `…4b7f` |
     | Seal "Beauty is truth, truth beauty", aad "Count-0" | `f938558b…3c512a` (29 bytes + 16-byte tag) |
 
 ??? abstract "The math, with formulas"
@@ -140,29 +140,37 @@ Each part below starts closed; open the ones you want.
     **Labeled HKDF.** Every HKDF call is prefixed with `"HPKE-v1"` and a suite id, so outputs for different
     uses or suites can never collide:
 
-    ```
-    LabeledExtract(salt, label, ikm)   = HKDF-Extract(salt, "HPKE-v1" ‖ suite_id ‖ label ‖ ikm)
-    LabeledExpand(prk, label, info, L) = HKDF-Expand(prk, I2OSP(L, 2) ‖ "HPKE-v1" ‖ suite_id ‖ label ‖ info, L)
-    ```
+    $$
+    \begin{aligned}
+    \mathrm{LabeledExtract}(\mathit{salt}, \mathit{label}, \mathit{ikm}) &= \mathrm{HKDF\text{-}Extract}(\mathit{salt},\, \texttt{"HPKE-v1"} \,\Vert\, \mathit{suite\_id} \,\Vert\, \mathit{label} \,\Vert\, \mathit{ikm}) \\
+    \mathrm{LabeledExpand}(\mathit{prk}, \mathit{label}, \mathit{info}, L) &= \mathrm{HKDF\text{-}Expand}(\mathit{prk},\, \mathrm{I2OSP}(L, 2) \,\Vert\, \texttt{"HPKE-v1"} \,\Vert\, \mathit{suite\_id} \,\Vert\, \mathit{label} \,\Vert\, \mathit{info},\, L)
+    \end{aligned}
+    $$
 
     **DHKEM:**
-    `shared_secret = LabeledExpand(LabeledExtract("", "eae_prk", dh), "shared_secret", enc ‖ pkR, Nsecret)`.
-    Including `enc` and `pkR` binds the secret to this exchange.
+
+    $$
+    \mathit{shared\_secret} = \mathrm{LabeledExpand}\big(\mathrm{LabeledExtract}(\texttt{""}, \texttt{"eae\_prk"}, \mathit{dh}),\, \texttt{"shared\_secret"},\, \mathit{enc} \,\Vert\, \mathit{pkR},\, N_{\mathrm{secret}}\big)
+    $$
+
+    Including $\mathit{enc}$ and $\mathit{pkR}$ binds the secret to this exchange.
 
     **Key schedule:**
 
-    ```
-    context = mode ‖ LabeledExtract("", "psk_id_hash", psk_id) ‖ LabeledExtract("", "info_hash", info)
-    secret  = LabeledExtract(shared_secret, "secret", psk)
-    key        = LabeledExpand(secret, "key", context, Nk)
-    base_nonce = LabeledExpand(secret, "base_nonce", context, Nn)
-    exporter   = LabeledExpand(secret, "exp", context, Nh)
-    ```
+    $$
+    \begin{aligned}
+    \mathit{context} &= \mathit{mode} \,\Vert\, \mathrm{LabeledExtract}(\texttt{""}, \texttt{"psk\_id\_hash"}, \mathit{psk\_id}) \,\Vert\, \mathrm{LabeledExtract}(\texttt{""}, \texttt{"info\_hash"}, \mathit{info}) \\
+    \mathit{secret} &= \mathrm{LabeledExtract}(\mathit{shared\_secret}, \texttt{"secret"}, \mathit{psk}) \\
+    \mathit{key} &= \mathrm{LabeledExpand}(\mathit{secret}, \texttt{"key"}, \mathit{context}, N_k) \\
+    \mathit{base\_nonce} &= \mathrm{LabeledExpand}(\mathit{secret}, \texttt{"base\_nonce"}, \mathit{context}, N_n) \\
+    \mathit{exporter} &= \mathrm{LabeledExpand}(\mathit{secret}, \texttt{"exp"}, \mathit{context}, N_h)
+    \end{aligned}
+    $$
 
-    **Sealing message `i`:** `nonce = base_nonce ⊕ I2OSP(i, Nn)`, then AEAD. The counter never repeats, so no
-    nonce repeats; after `2⁹⁶ − 1` messages the context must stop.
+    **Sealing message $i$:** $\mathit{nonce} = \mathit{base\_nonce} \oplus \mathrm{I2OSP}(i, N_n)$, then AEAD. The counter never repeats, so no
+    nonce repeats; after $2^{96} - 1$ messages the context must stop.
 
-    **Auth mode** adds a second DH with the sender's static key: `dh = DH(skE, pkR) ‖ DH(skS, pkR)`.
+    **Auth mode** adds a second DH with the sender's static key: $\mathit{dh} = \mathrm{DH}(\mathit{skE}, \mathit{pkR}) \,\Vert\, \mathrm{DH}(\mathit{skS}, \mathit{pkR})$.
 
 ??? tip "Watch it step by step: one sealed message"
 
@@ -172,7 +180,7 @@ Each part below starts closed; open the ones you want.
     2. The sender makes a one-time key pair and computes the Diffie-Hellman value with the receiver's key.
     3. HKDF turns that value, the one-time public key and the receiver's key into the shared secret.
     4. The key schedule mixes in the mode and the `info` string and outputs an AES key and a base nonce.
-    5. The sender seals message 0 with nonce `base_nonce ⊕ 0`, message 1 with `base_nonce ⊕ 1`, and so on.
+    5. The sender seals message 0 with nonce $\mathit{base\_nonce} \oplus 0$, message 1 with $\mathit{base\_nonce} \oplus 1$, and so on.
     6. It sends the one-time public key once, then the ciphertexts.
     7. The receiver repeats steps 2 to 4 with its private key and opens the messages in order.
 

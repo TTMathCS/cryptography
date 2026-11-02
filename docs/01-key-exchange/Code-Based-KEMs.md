@@ -37,25 +37,25 @@ out mceliece348864, and the designers recommend the mceliece6 sizes.
 **Classic McEliece** (mceliece6688128):
 
 - **Key generation:** pick a secret Goppa code of length 6,688 that corrects
-  up to 128 errors. Publish a scrambled form of its parity-check matrix H:
-  1,664 × 5,024 bits, the 1 MB key.
-- **Encapsulate:** pick a random error vector e with exactly 128 ones. The
-  ciphertext is the syndrome H·e, 1,664 bits. The shared secret is a hash of
-  e and the ciphertext.
-- **Decapsulate:** the secret code structure decodes the syndrome back to e.
+  up to 128 errors. Publish a scrambled form of its parity-check matrix $H$:
+  $1{,}664 \times 5{,}024$ bits, the 1 MB key.
+- **Encapsulate:** pick a random error vector $e$ with exactly 128 ones. The
+  ciphertext is the syndrome $H \cdot e$, 1,664 bits. The shared secret is a hash of
+  $e$ and the ciphertext.
+- **Decapsulate:** the secret code structure decodes the syndrome back to $e$.
   Without it, that is the syndrome decoding problem.
 
 **HQC** works on bit vectors of length 17,669 (HQC-1), multiplied as
 polynomials:
 
-- **Key generation:** secret sparse vectors x, y. The public key is a random h
-  and s = x + h·y.
-- **Encrypt** m: pick sparse r₁, r₂, e; send u = r₁ + h·r₂ and
-  v = encode(m) + s·r₂ + e.
-- **Decrypt:** v − u·y = encode(m) + (x·r₂ − r₁·y + e). The bracket is
+- **Key generation:** secret sparse vectors $x$, $y$. The public key is a random $h$
+  and $s = x + h \cdot y$.
+- **Encrypt** $m$: pick sparse $r_1$, $r_2$, $e$; send $u = r_1 + h \cdot r_2$ and
+  $v = \mathrm{encode}(m) + s \cdot r_2 + e$.
+- **Decrypt:** $v - u \cdot y = \mathrm{encode}(m) + (x \cdot r_2 - r_1 \cdot y + e)$. The bracket is
   sparse, so a fixed public code (Reed-Muller inside Reed-Solomon) strips it.
 
-In HQC the code is public and the secret is y. A Fujisaki–Okamoto transform
+In HQC the code is public and the secret is $y$. A Fujisaki–Okamoto transform
 makes it a KEM, as in ML-KEM.
 
 ## When to use it
@@ -94,7 +94,7 @@ for name in ["HQC-1", "Classic-McEliece-6688128"]:
 - McEliece's 1978 parameters fell to better generic decoding in 2008; larger
   ones held. Attacks on the hidden Goppa structure have improved since 2024,
   and one 2026 estimate puts key recovery for every Classic McEliece set at
-  2¹²⁷ to 2¹⁴⁵ operations: below the claimed levels, far from practical.
+  $2^{127}$ to $2^{145}$ operations: below the claimed levels, far from practical.
 - On 1 October 2026 Germany's BSI advised against Classic McEliece in new
   developments for now. It says no practical attack exists on its
   recommended parameters.
@@ -110,44 +110,46 @@ Each part below starts closed; open the ones you want.
 
     Classic McEliece uses a secret Goppa code of length 6,688 that fixes 128 errors. The same steps work
     with the Hamming code of length 7, which fixes 1 error (far too small to be secure). The parity-check
-    matrix `H` has the 7 non-zero 3-bit columns:
+    matrix $H$ has the 7 non-zero 3-bit columns:
 
-    ```
-         1 1 0 1 1 0 0
-    H =  1 0 1 1 0 1 0
-         0 1 1 1 0 0 1
-    ```
+    $$
+    H = \begin{pmatrix}
+    1 & 1 & 0 & 1 & 1 & 0 & 0 \\
+    1 & 0 & 1 & 1 & 0 & 1 & 0 \\
+    0 & 1 & 1 & 1 & 0 & 0 & 1
+    \end{pmatrix}
+    $$
 
     | Step | Calculation | Value |
     |---|---|---|
-    | Secret error vector (weight 1) | the message is "position 3" | `e = 0010000` |
-    | Ciphertext = syndrome | `H·e`: the 3rd column of `H` | `s = 011` |
-    | Decode | which column of `H` equals `011`? | column 3 |
-    | Shared secret | hash of `e` and `s` | |
+    | Secret error vector (weight 1) | the message is "position 3" | $e = 0010000$ |
+    | Ciphertext = syndrome | $H \cdot e$: the 3rd column of $H$ | $s = 011$ |
+    | Decode | which column of $H$ equals `011`? | column 3 |
+    | Shared secret | hash of $e$ and $s$ | |
 
     The same code also carries data: the message `1011` encodes to the codeword `1011010`; flip bit 3 to get
-    `1001010`, whose syndrome is again `011`, so the receiver flips bit 3 back. In the real scheme `H` is
+    `1001010`, whose syndrome is again `011`, so the receiver flips bit 3 back. In the real scheme $H$ is
     hidden by a random change of basis and column shuffle, so it looks like a random matrix.
 
 ??? abstract "The math, with formulas"
 
-    **Linear codes.** A code is the set of bit vectors `c` with `H·c = 0` (mod 2). If a received `y = c + e`,
-    then `H·y = H·e`: the syndrome depends only on the error.
+    **Linear codes.** A code is the set of bit vectors $c$ with $H \cdot c = 0 \pmod{2}$. If a received $y = c + e$,
+    then $H \cdot y = H \cdot e$: the syndrome depends only on the error.
 
     **Classic McEliece (Niederreiter form).** Key generation picks a binary Goppa code given by a secret
-    polynomial `g(x)` of degree `t` over GF(2^m) and `n` field elements; it publishes `H` in systematic form
-    `[I | T]` (only `T` is stored). Encapsulation picks `e` with exactly `t` ones and sends `C = H·e`.
-    Decapsulation uses the secret `g(x)` to decode (Berlekamp–Massey) and recover `e`; the key is a
-    SHAKE256 hash of `e` and `C`.
+    polynomial $g(x)$ of degree $t$ over $\mathrm{GF}(2^m)$ and $n$ field elements; it publishes $H$ in systematic form
+    $[I \mid T]$ (only $T$ is stored). Encapsulation picks $e$ with exactly $t$ ones and sends $C = H \cdot e$.
+    Decapsulation uses the secret $g(x)$ to decode (Berlekamp–Massey) and recover $e$; the key is a
+    SHAKE256 hash of $e$ and $C$.
 
-    | | n | t | m | Public key | Ciphertext |
+    | | $n$ | $t$ | $m$ | Public key | Ciphertext |
     |---|---|---|---|---|---|
     | mceliece348864 | 3,488 | 64 | 12 | 261,120 B | 96 B |
     | mceliece6688128 | 6,688 | 128 | 13 | 1,044,992 B | 208 B |
 
-    **HQC** uses quasi-cyclic codes: vectors of length `n` multiplied as polynomials mod `xⁿ − 1`. With sparse
-    secrets `x`, `y`: public `s = x + h·y`; ciphertext `u = r₁ + h·r₂`, `v = encode(m) + s·r₂ + e`; decryption
-    computes `v − u·y = encode(m) + (x·r₂ − r₁·y + e)` and the public Reed-Muller/Reed-Solomon decoder removes
+    **HQC** uses quasi-cyclic codes: vectors of length $n$ multiplied as polynomials mod $x^n - 1$. With sparse
+    secrets $x$, $y$: public $s = x + h \cdot y$; ciphertext $u = r_1 + h \cdot r_2$, $v = \mathrm{encode}(m) + s \cdot r_2 + e$; decryption
+    computes $v - u \cdot y = \mathrm{encode}(m) + (x \cdot r_2 - r_1 \cdot y + e)$ and the public Reed-Muller/Reed-Solomon decoder removes
     the sparse bracket.
 
     **Why it is hard.** Decoding a random linear code (syndrome decoding) is NP-hard in general. The best
@@ -158,19 +160,19 @@ Each part below starts closed; open the ones you want.
 
     <div class="mars-steps" markdown>
 
-    1. Bob's code is the Hamming code; its check matrix `H` has the 7 non-zero 3-bit columns.
-    2. Alice picks a secret error: a 1 in position 3, `e = 0010000`.
-    3. She sends only the syndrome `H·e = 011`, the 3rd column of `H`.
+    1. Bob's code is the Hamming code; its check matrix $H$ has the 7 non-zero 3-bit columns.
+    2. Alice picks a secret error: a 1 in position 3, $e = 0010000$.
+    3. She sends only the syndrome $H \cdot e = 011$, the 3rd column of $H$.
     4. Bob, who knows the code's structure, finds which column is `011`: column 3.
-    5. He has `e`. Both hash `e` and `011` into the shared key.
-    6. With a scrambled `H` of 6,688 columns and 128 errors, nobody without the secret Goppa code can do step 4.
+    5. He has $e$. Both hash $e$ and `011` into the shared key.
+    6. With a scrambled $H$ of 6,688 columns and 128 errors, nobody without the secret Goppa code can do step 4.
 
     </div>
 
 ??? info "The math underneath"
 
-    - **Linear algebra over GF(2):** bits, with XOR as addition.
-    - **Finite fields GF(2^m)** and polynomials over them: Goppa codes are defined by a polynomial `g(x)`.
+    - **Linear algebra over $\mathrm{GF}(2)$:** bits, with XOR as addition.
+    - **Finite fields $\mathrm{GF}(2^m)$** and polynomials over them: Goppa codes are defined by a polynomial $g(x)$.
     - **Syndrome decoding** and **information-set decoding**: the hard problem and the best attack.
     - **Quasi-cyclic codes** (HQC, BIKE): smaller keys from cyclic structure, at the cost of a less-studied
       problem.

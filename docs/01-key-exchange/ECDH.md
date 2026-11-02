@@ -11,7 +11,7 @@ the main table.
 ## What it is
 
 ECDH is [Diffie-Hellman](Diffie-Hellman.md) with the points of an elliptic
-curve in place of numbers mod p. Two parties each generate a key pair, swap
+curve in place of numbers mod $p$. Two parties each generate a key pair, swap
 public keys, and independently compute the same shared secret. An
 eavesdropper who sees both public keys still can't recover it. Koblitz and
 Miller proposed curves for this independently in 1985, and the keys are
@@ -24,21 +24,21 @@ and age.
 
 | Member | Curve | Public key | Shared secret | Security (bits) | Spec | Check incoming keys |
 |---|---|---|---|---|---|---|
-| X25519 | Curve25519, Montgomery, p = 2²⁵⁵ − 19 | 32 B | 32 B | ~128 | RFC 7748 | no; reject an all-zero result |
-| X448 | Curve448, Montgomery, p = 2⁴⁴⁸ − 2²²⁴ − 1 | 56 B | 56 B | ~224 | RFC 7748 | no; reject an all-zero result |
+| X25519 | Curve25519, Montgomery, $p = 2^{255} - 19$ | 32 B | 32 B | ~128 | RFC 7748 | no; reject an all-zero result |
+| X448 | Curve448, Montgomery, $p = 2^{448} - 2^{224} - 1$ | 56 B | 56 B | ~224 | RFC 7748 | no; reject an all-zero result |
 | ECDH P-256 / P-384 / P-521 | NIST, short Weierstrass | 65 / 97 / 133 B | 32 / 48 / 66 B | 128 / 192 / 256 | SP 800-56A | yes, always |
 | ECDH Brainpool | brainpoolP256r1 / P384r1 / P512r1 | 65 / 97 / 129 B | 32 / 48 / 64 B | 128 / 192 / 256 | RFC 5639 | yes, always |
 
-Weierstrass public keys are counted uncompressed (0x04, x, y), the form
+Weierstrass public keys are counted uncompressed (0x04, $x$, $y$), the form
 TLS 1.3 uses.
 
 ## How it works
 
-Every member does the same thing. Each side has a private scalar `d` and a
-public point `Q = d·G`, the base point `G` added to itself `d` times. Alice
-computes `d_A · Q_B`, Bob computes `d_B · Q_A`, and both equal
-`d_A · d_B · G`. Security rests on the elliptic-curve discrete log problem:
-recovering `d` from `Q` is infeasible. The
+Every member does the same thing. Each side has a private scalar $d$ and a
+public point $Q = d \cdot G$, the base point $G$ added to itself $d$ times. Alice
+computes $d_A \cdot Q_B$, Bob computes $d_B \cdot Q_A$, and both equal
+$d_A \cdot d_B \cdot G$. Security rests on the elliptic-curve discrete log problem:
+recovering $d$ from $Q$ is infeasible. The
 [Elliptic curves](../10-math-foundations/Elliptic-Curves.md) page has the
 point arithmetic, the curve shapes and where each curve came from.
 
@@ -48,7 +48,7 @@ through a KDF before use.
 ### X25519 and X448
 
 Curve25519 (Bernstein, 2006) is a Montgomery curve where the whole
-computation uses only the x-coordinate, called u in RFC 7748. The Montgomery
+computation uses only the $x$-coordinate, called $u$ in RFC 7748. The Montgomery
 ladder does the same steps for every key bit, which makes the code simple
 and constant-time.
 
@@ -70,15 +70,15 @@ TLS 1.3 has both as `x25519` and `x448`; SSH has `curve25519-sha256` and
 ### ECDH on the NIST curves
 
 NIST SP 800-56A (2006, now Rev. 3 from 2018) defines the ECDH schemes that
-FIPS modules may use. The public key is a point (x, y); TLS 1.3 sends it
-uncompressed, and the shared secret is the x-coordinate of the result.
+FIPS modules may use. The public key is a point $(x, y)$; TLS 1.3 sends it
+uncompressed, and the shared secret is the $x$-coordinate of the result.
 
 Here the receiver must check every incoming point: not the point at
-infinity, both coordinates in [0, p − 1], and on the curve. The P-curves
+infinity, both coordinates in $[0, p - 1]$, and on the curve. The P-curves
 have cofactor 1, so that covers the subgroup check too (SP 800-56A section
 5.6.2.3; TLS 1.3 section 4.2.8.2). Skipping it opens the **invalid-curve
-attack**. The addition formulas never use the curve's constant b, so a
-point that isn't on P-256 is still on some other curve y² = x³ − 3x + b′,
+attack**. The addition formulas never use the curve's constant $b$, so a
+point that isn't on P-256 is still on some other curve $y^2 = x^3 - 3x + b'$,
 which may have a small subgroup. A server that multiplies such a point by
 its static key leaks the key modulo that small order. Enough such points
 and the Chinese remainder theorem give the whole key (Biehl, Meyer and
@@ -87,8 +87,8 @@ Müller, 2000).
 - In 2015 Jager, Schwenk and Somorovsky pulled TLS server keys out of two
   popular Java libraries this way.
 - In 2018 Biham and Neumann showed that Bluetooth pairing authenticated
-  only the x-coordinates and many chips didn't check the points. Setting
-  both y-coordinates to 0 let a man in the middle learn the key in half of
+  only the $x$-coordinates and many chips didn't check the points. Setting
+  both $y$-coordinates to 0 let a man in the middle learn the key in half of
   the pairings between two such devices (CVE-2018-5383).
 
 Fresh keys per session (ECDHE) limit the damage, since each private key is
@@ -97,7 +97,7 @@ used once, but check the point anyway.
 ### Brainpool
 
 RFC 5639 (2010), from Germany's BSI and secunet: curves from 160 to 512
-bits whose primes come from the digits of π and coefficients from e, an
+bits whose primes come from the digits of $\pi$ and coefficients from $e$, an
 answer to the NIST curves' unexplained seeds. Each size has a random
 "r1" curve and a twisted "t1" version. ECDH works exactly as on the
 P-curves, with the same checks, but runs slower because the primes have no
@@ -120,7 +120,7 @@ curves.
   [ML-KEM](ML-KEM.md).
 - **P-256 or P-384** when FIPS 140 validation or a standard requires it.
   SP 800-56A Rev. 3 doesn't include X25519 or X448. In January 2026 NIST
-  said it will update SP 800-56A to approve x-coordinate-only ECC key
+  said it will update SP 800-56A to approve $x$-coordinate-only ECC key
   agreement and to match the curves in SP 800-186, which lists Curve25519
   and Curve448.
 - **X448** for a larger margin; **Brainpool** only where a profile asks
@@ -129,7 +129,7 @@ curves.
 ## Example (Python)
 
 X25519 and X448 from the standard library: one Montgomery ladder, checked
-against the RFC 7748 test vectors. The last line feeds in the point u = 0,
+against the RFC 7748 test vectors. The last line feeds in the point $u = 0$,
 which has order 2. Python's big integers make no timing promises, so this
 is for reading only.
 
@@ -227,68 +227,70 @@ Each part below starts closed; open the ones you want.
 
 ??? example "Sample calculation: ECDH on a tiny curve"
 
-    The curve `y² = x³ + 2x + 2` over the numbers mod 17, with base point `G = (5, 1)`. Adding `G` to itself
-    walks through 18 points and then reaches the point at infinity, so `G` has order 19. Checked with Python:
+    The curve $y^2 = x^3 + 2x + 2$ over the numbers mod 17, with base point $G = (5, 1)$. Adding $G$ to itself
+    walks through 18 points and then reaches the point at infinity, so $G$ has order 19. Checked with Python:
 
     | Step | Alice | Bob |
     |---|---|---|
-    | Secret scalar | `a = 3` | `b = 10` |
-    | Public point | `Q_A = 3·G = (10, 6)` | `Q_B = 10·G = (7, 11)` |
-    | Shared point | `3·Q_B = (13, 10)` | `10·Q_A = (13, 10)` |
+    | Secret scalar | $a = 3$ | $b = 10$ |
+    | Public point | $Q_A = 3 \cdot G = (10, 6)$ | $Q_B = 10 \cdot G = (7, 11)$ |
+    | Shared point | $3 \cdot Q_B = (13, 10)$ | $10 \cdot Q_A = (13, 10)$ |
 
-    Both equal `30·G = 11·G = (13, 10)`, since `30 mod 19 = 11`. The shared secret is the x-coordinate, `13`.
-    Real curves have about 2²⁵⁵ points, so `a` cannot be found by walking.
+    Both equal $30 \cdot G = 11 \cdot G = (13, 10)$, since $30 \bmod 19 = 11$. The shared secret is the $x$-coordinate, $13$.
+    Real curves have about $2^{255}$ points, so $a$ cannot be found by walking.
 
 ??? abstract "The math, with formulas"
 
-    **Adding two points** `P = (x₁, y₁)` and `Q = (x₂, y₂)` on `y² = x³ + ax + b` (mod `p`):
+    **Adding two points** $P = (x_1, y_1)$ and $Q = (x_2, y_2)$ on $y^2 = x^3 + ax + b \pmod{p}$:
 
-    ```
-    slope λ = (y₂ − y₁) / (x₂ − x₁)          if P ≠ Q
-    slope λ = (3x₁² + a) / (2y₁)             if P = Q (doubling)
-    x₃ = λ² − x₁ − x₂
-    y₃ = λ(x₁ − x₃) − y₁
-    ```
+    $$
+    \begin{aligned}
+    \lambda &= \frac{y_2 - y_1}{x_2 - x_1} && \text{if } P \ne Q \\
+    \lambda &= \frac{3x_1^2 + a}{2y_1} && \text{if } P = Q \text{ (doubling)} \\
+    x_3 &= \lambda^2 - x_1 - x_2 \\
+    y_3 &= \lambda(x_1 - x_3) - y_1
+    \end{aligned}
+    $$
 
-    "Divide" means multiply by the inverse mod `p`.
+    "Divide" means multiply by the inverse mod $p$.
 
-    **Worked: 3·G with G = (5, 1).** Doubling:
-    `λ = (3·25 + 2) / (2·1) = 77 · 2⁻¹ = 77 · 9 = 693 ≡ 13`, then `x₃ = 169 − 10 = 159 ≡ 6`,
-    `y₃ = 13·(5 − 6) − 1 = −14 ≡ 3`, so `2G = (6, 3)`. Adding `G`:
-    `λ = (1 − 3)/(5 − 6) = 2`, `x₃ = 4 − 6 − 5 = −7 ≡ 10`, `y₃ = 2·(6 − 10) − 3 = −11 ≡ 6`, so `3G = (10, 6)`.
+    **Worked: $3 \cdot G$ with $G = (5, 1)$.** Doubling:
+    $\lambda = (3 \cdot 25 + 2) / (2 \cdot 1) = 77 \cdot 2^{-1} = 77 \cdot 9 = 693 \equiv 13$, then $x_3 = 169 - 10 = 159 \equiv 6$,
+    $y_3 = 13 \cdot (5 - 6) - 1 = -14 \equiv 3$, so $2G = (6, 3)$. Adding $G$:
+    $\lambda = (1 - 3)/(5 - 6) = 2$, $x_3 = 4 - 6 - 5 = -7 \equiv 10$, $y_3 = 2 \cdot (6 - 10) - 3 = -11 \equiv 6$, so $3G = (10, 6)$.
 
-    **Why both sides agree.** Scalar multiplication commutes: `a·(b·G) = (ab)·G = b·(a·G)`.
+    **Why both sides agree.** Scalar multiplication commutes: $a \cdot (b \cdot G) = (ab) \cdot G = b \cdot (a \cdot G)$.
 
-    **X25519.** RFC 7748 works only with the x-coordinate (called `u`) on the Montgomery curve
-    `v² = u³ + 486662u² + u` mod `2²⁵⁵ − 19`, using the Montgomery ladder: for each of 255 key bits it does one
+    **X25519.** RFC 7748 works only with the $x$-coordinate (called $u$) on the Montgomery curve
+    $v^2 = u^3 + 486662u^2 + u$ mod $2^{255} - 19$, using the Montgomery ladder: for each of 255 key bits it does one
     combined add-and-double, the same work whatever the bit, so timing reveals nothing.
 
-    **Security.** The best attack on a well-chosen curve is Pollard's rho, about `√(π·n/4)` steps for a group
-    of order `n`: about 2¹²⁶ for Curve25519 and 2¹²⁸ for P-256, so a 256-bit curve matches a 3,072-bit DH group.
+    **Security.** The best attack on a well-chosen curve is Pollard's rho, about $\sqrt{\pi n / 4}$ steps for a group
+    of order $n$: about $2^{126}$ for Curve25519 and $2^{128}$ for P-256, so a 256-bit curve matches a 3,072-bit DH group.
 
 ??? tip "Watch it step by step: computing 3·G"
 
     <div class="mars-steps" markdown>
 
-    1. Start with `G = (5, 1)` on `y² = x³ + 2x + 2 (mod 17)`. The scalar is `3 = 11` in binary.
-    2. First bit 1: the running point is `G = (5, 1)`.
-    3. Next bit: double. Tangent slope `λ = (3·5² + 2)/(2·1) ≡ 13 (mod 17)`.
-    4. `x = 13² − 5 − 5 ≡ 6`, `y = 13·(5 − 6) − 1 ≡ 3`, so `2G = (6, 3)`.
-    5. That bit is 1, so add `G`: chord slope `λ = (1 − 3)/(5 − 6) = 2`.
-    6. `x = 2² − 6 − 5 ≡ 10`, `y = 2·(6 − 10) − 3 ≡ 6`, so `3G = (10, 6)`: Alice's public key.
-    7. Bob does the same with 10 to get `(7, 11)`; each multiplies the other's point and both land on `(13, 10)`.
+    1. Start with $G = (5, 1)$ on $y^2 = x^3 + 2x + 2 \pmod{17}$. The scalar is $3 = 11_2$ in binary.
+    2. First bit 1: the running point is $G = (5, 1)$.
+    3. Next bit: double. Tangent slope $\lambda = (3 \cdot 5^2 + 2)/(2 \cdot 1) \equiv 13 \pmod{17}$.
+    4. $x = 13^2 - 5 - 5 \equiv 6$, $y = 13 \cdot (5 - 6) - 1 \equiv 3$, so $2G = (6, 3)$.
+    5. That bit is 1, so add $G$: chord slope $\lambda = (1 - 3)/(5 - 6) = 2$.
+    6. $x = 2^2 - 6 - 5 \equiv 10$, $y = 2 \cdot (6 - 10) - 3 \equiv 6$, so $3G = (10, 6)$: Alice's public key.
+    7. Bob does the same with 10 to get $(7, 11)$; each multiplies the other's point and both land on $(13, 10)$.
 
     </div>
 
 ??? info "The math underneath"
 
     - **Finite fields:** arithmetic mod a prime, where every non-zero number has an inverse (found with the
-      extended Euclidean algorithm or Fermat's `x^(p−2)`).
+      extended Euclidean algorithm or Fermat's $x^{p-2}$).
     - **Elliptic curves as a group:** the chord-and-tangent rule turns the points into a group; see
       [Elliptic curves](../10-math-foundations/Elliptic-Curves.md).
-    - **Hasse's bound:** a curve mod `p` has `p + 1 − t` points with `|t| ≤ 2√p`, so curve sizes are always
-      close to `p`.
-    - **Cofactors:** Curve25519 has `8·ℓ` points; clamping makes every key a multiple of 8 so small subgroups
+    - **Hasse's bound:** a curve mod $p$ has $p + 1 - t$ points with $\lvert t \rvert \le 2\sqrt{p}$, so curve sizes are always
+      close to $p$.
+    - **Cofactors:** Curve25519 has $8 \cdot \ell$ points; clamping makes every key a multiple of 8 so small subgroups
       don't leak bits.
     - **The elliptic-curve discrete log problem** and why no sub-exponential attack is known for good curves:
       [Hard problems](../10-math-foundations/Hard-Problems.md). Shor's algorithm breaks it on a quantum

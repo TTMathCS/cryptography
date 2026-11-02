@@ -17,14 +17,14 @@ replaced it.
 
 ## How it works
 
-Both sides agree on public parameters: a large prime `p` and a generator `g`.
+Both sides agree on public parameters: a large prime $p$ and a generator $g$.
 
-1. Alice picks secret `a`, sends `A = gᵃ mod p`. Bob picks secret `b`, sends `B = g^b mod p`.
-2. Alice computes `Bᵃ mod p`, Bob computes `A^b mod p`.
-3. Both equal `g^(ab) mod p` — the shared secret.
+1. Alice picks secret $a$, sends $A = g^a \bmod p$. Bob picks secret $b$, sends $B = g^b \bmod p$.
+2. Alice computes $B^a \bmod p$, Bob computes $A^b \bmod p$.
+3. Both equal $g^{ab} \bmod p$ — the shared secret.
 
-An eavesdropper sees `p, g, A, B` but can't get `g^(ab)` without solving the
-discrete log to recover `a` or `b`.
+An eavesdropper sees $p, g, A, B$ but can't get $g^{ab}$ without solving the
+discrete log to recover $a$ or $b$.
 
 ## When to use it
 
@@ -33,7 +33,7 @@ discrete log to recover `a` or `b`.
 - **Use ephemeral keys (DHE/ECDHE) for forward secrecy** — a fresh key pair per
   session means a later key compromise can't decrypt past traffic.
 - **Prefer [X25519](ECDH.md)** for new systems: smaller, faster, harder to
-  misuse than classic mod-`p` DH.
+  misuse than classic mod-$p$ DH.
 
 ## Example (Python)
 
@@ -60,9 +60,9 @@ print(pow(B, a, p) == pow(A, b, p))  # True: both now hold g^(ab) mod p
 - **Plain DH has no authentication** — it's wide open to a man-in-the-middle who
   swaps the public values. Combine it with a signature
   ([Ed25519](../02-signatures/EdDSA.md)) or certificate.
-- **Derive, don't use raw.** Feed `g^(ab)` through a KDF
+- **Derive, don't use raw.** Feed $g^{ab}$ through a KDF
   ([HKDF](../08-kdf-password-hashing/HKDF.md)) before it becomes a cipher key.
-- Use ephemeral keys for forward secrecy; use ≥2048-bit `p` for classic DH.
+- Use ephemeral keys for forward secrecy; use ≥2048-bit $p$ for classic DH.
 - Quantum computers break the discrete log — see
   [ML-KEM](ML-KEM.md).
 
@@ -72,46 +72,46 @@ Each part below starts closed; open the ones you want.
 
 ??? example "Sample calculation: Diffie-Hellman with small numbers"
 
-    The textbook example, with prime `p = 23` and generator `g = 5` (real groups use primes of 2,048 bits or
+    The textbook example, with prime $p = 23$ and generator $g = 5$ (real groups use primes of 2,048 bits or
     more). Checked with Python's `pow`:
 
     | Step | Alice | Bob |
     |---|---|---|
-    | Secret | `a = 6` | `b = 15` |
-    | Public value | `A = 5⁶ mod 23 = 15625 mod 23 = 8` | `B = 5¹⁵ mod 23 = 19` |
-    | Send | `8` to Bob | `19` to Alice |
-    | Shared secret | `19⁶ mod 23 = 2` | `8¹⁵ mod 23 = 2` |
+    | Secret | $a = 6$ | $b = 15$ |
+    | Public value | $A = 5^6 \bmod 23 = 15625 \bmod 23 = 8$ | $B = 5^{15} \bmod 23 = 19$ |
+    | Send | 8 to Bob | 19 to Alice |
+    | Shared secret | $19^6 \bmod 23 = 2$ | $8^{15} \bmod 23 = 2$ |
 
-    Both get `2 = 5^(6·15) mod 23`. An eavesdropper sees `23, 5, 8, 19`; to find the 2 they must find `a` from
-    `5ᵃ ≡ 8 (mod 23)`. Here they can try all 22 exponents; at 2,048 bits that is hopeless.
+    Both get $2 = 5^{6 \cdot 15} \bmod 23$. An eavesdropper sees $23, 5, 8, 19$; to find the 2 they must find $a$ from
+    $5^a \equiv 8 \pmod{23}$. Here they can try all 22 exponents; at 2,048 bits that is hopeless.
 
 ??? abstract "The math, with formulas"
 
-    **Why both sides agree.** Powers multiply: `Bᵃ = (gᵇ)ᵃ = g^(ab) = (gᵃ)ᵇ = Aᵇ (mod p)`.
+    **Why both sides agree.** Powers multiply: $B^a = (g^b)^a = g^{ab} = (g^a)^b = A^b \pmod{p}$.
 
-    **The group.** The numbers `1 … p−1` under multiplication mod `p` form a cyclic group of order `p − 1`; a
-    generator `g` reaches every element. Real deployments use a **safe prime** `p = 2q + 1` (`q` prime) and a
-    `g` of order `q`, so the group has no small subgroups an attacker could use (RFC 7919 groups, e.g.
+    **The group.** The numbers $1, \ldots, p-1$ under multiplication mod $p$ form a cyclic group of order $p - 1$; a
+    generator $g$ reaches every element. Real deployments use a **safe prime** $p = 2q + 1$ ($q$ prime) and a
+    $g$ of order $q$, so the group has no small subgroups an attacker could use (RFC 7919 groups, e.g.
     `ffdhe2048`).
 
-    **Discrete logarithm.** Given `g`, `p` and `A = gᵃ mod p`, finding `a` is the discrete log problem. The
+    **Discrete logarithm.** Given $g$, $p$ and $A = g^a \bmod p$, finding $a$ is the discrete log problem. The
     best classical attack, the number field sieve, runs in time about
-    `exp((64/9)^(1/3) · (ln p)^(1/3) · (ln ln p)^(2/3))`, which puts a 2,048-bit `p` near 112-bit security.
+    $\exp\big((64/9)^{1/3} \cdot (\ln p)^{1/3} \cdot (\ln \ln p)^{2/3}\big)$, which puts a 2,048-bit $p$ near 112-bit security.
 
-    **Checks the receiver must make.** Reject `A` unless `1 < A < p − 1`, and for a prime-order subgroup check
-    `A^q ≡ 1 (mod p)`. A value like `1` or `p − 1` forces the shared secret into a tiny set.
+    **Checks the receiver must make.** Reject $A$ unless $1 < A < p - 1$, and for a prime-order subgroup check
+    $A^q \equiv 1 \pmod{p}$. A value like $1$ or $p - 1$ forces the shared secret into a tiny set.
 
 ??? tip "Watch it step by step: two strangers agree on 2"
 
     <div class="mars-steps" markdown>
 
-    1. Everyone, including the eavesdropper Eve, knows `p = 23` and `g = 5`.
-    2. Alice picks a secret `a = 6` and keeps it. Bob picks `b = 15` and keeps it.
-    3. Alice computes `A = 5⁶ mod 23 = 8` and sends 8. Eve sees 8.
-    4. Bob computes `B = 5¹⁵ mod 23 = 19` and sends 19. Eve sees 19.
-    5. Alice raises Bob's 19 to her secret: `19⁶ mod 23 = 2`.
-    6. Bob raises Alice's 8 to his secret: `8¹⁵ mod 23 = 2`.
-    7. Both hold 2. Eve holds 8 and 19, and would need `a` or `b` to get 2.
+    1. Everyone, including the eavesdropper Eve, knows $p = 23$ and $g = 5$.
+    2. Alice picks a secret $a = 6$ and keeps it. Bob picks $b = 15$ and keeps it.
+    3. Alice computes $A = 5^6 \bmod 23 = 8$ and sends 8. Eve sees 8.
+    4. Bob computes $B = 5^{15} \bmod 23 = 19$ and sends 19. Eve sees 19.
+    5. Alice raises Bob's 19 to her secret: $19^6 \bmod 23 = 2$.
+    6. Bob raises Alice's 8 to his secret: $8^{15} \bmod 23 = 2$.
+    7. Both hold 2. Eve holds 8 and 19, and would need $a$ or $b$ to get 2.
 
     </div>
 
@@ -119,7 +119,7 @@ Each part below starts closed; open the ones you want.
 
     - **Modular exponentiation**, done quickly by square and multiply (see the step-by-step box on
       [RSA](../02-signatures/RSA.md#going-deeper)).
-    - **Cyclic groups and generators:** why `gᵃ` can land on every element, and why the order of the group
+    - **Cyclic groups and generators:** why $g^a$ can land on every element, and why the order of the group
       decides which attacks work (Pohlig–Hellman breaks groups whose order has only small factors).
     - **The discrete log problem** and its relatives (computational and decisional Diffie-Hellman): see
       [Hard problems](../10-math-foundations/Hard-Problems.md).

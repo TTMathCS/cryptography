@@ -39,16 +39,16 @@ exchange:
    key, and sends the ciphertext.
 3. The receiver **decapsulates** with its private key and gets the same secret.
 
-Inside, everything is polynomials with 256 coefficients modulo q = 3329,
+Inside, everything is polynomials with 256 coefficients modulo $q = 3329$,
 arranged in small vectors and matrices (rank 2, 3 or 4 for the three sizes):
 
-- **Key generation:** pick a matrix **A** from a seed, a small secret vector
-  **s** and a small error **e**. The public key is **t** = **A**·**s** + **e**.
-  Without the error, solving for **s** would be easy linear algebra; with it,
+- **Key generation:** pick a matrix $\mathbf{A}$ from a seed, a small secret vector
+  $\mathbf{s}$ and a small error $\mathbf{e}$. The public key is $\mathbf{t} = \mathbf{A} \mathbf{s} + \mathbf{e}$.
+  Without the error, solving for $\mathbf{s}$ would be easy linear algebra; with it,
   that is the hard lattice problem.
 - **Encapsulate:** encode a random message into the polynomial noise and
-  encrypt it with **t**. The shared secret is a hash of that message.
-- **Decapsulate:** use **s** to strip the noise and recover the message, then
+  encrypt it with $\mathbf{t}$. The shared secret is a hash of that message.
+- **Decapsulate:** use $\mathbf{s}$ to strip the noise and recover the message, then
   re-encrypt it to check the ciphertext was honest. A forged ciphertext gives a
   random-looking secret instead of an error (the Fujisaki–Okamoto transform,
   which makes it safe against chosen-ciphertext attacks).
@@ -99,59 +99,59 @@ Each part below starts closed; open the ones you want.
 ??? example "Sample calculation: the idea of ML-KEM with one number"
 
     ML-KEM works with polynomials of 256 coefficients in vectors of 2 to 4. The same idea fits in single
-    numbers mod `q = 3329` (ML-KEM's own modulus). This toy is not secure; it only shows why noise does not
+    numbers mod $q = 3329$ (ML-KEM's own modulus). This toy is not secure; it only shows why noise does not
     stop decryption. Checked with Python:
 
     | Step | Calculation | Value |
     |---|---|---|
-    | Public `a`, secret `s`, small error `e` | `a = 1234`, `s = 2`, `e = 1` | |
-    | Public key | `t = a·s + e = 2468 + 1` | `t = 2469` |
-    | Sender: random small `r`, errors `e₁`, `e₂`; bit `m = 1` | `r = 3`, `e₁ = −1`, `e₂ = 1` | |
-    | Ciphertext part 1 | `u = a·r + e₁ = 3702 − 1 mod 3329` | `u = 372` |
-    | Ciphertext part 2 | `v = t·r + e₂ + m·1665 = 7407 + 1 + 1665 mod 3329` | `v = 2415` |
-    | Receiver | `w = v − s·u = 2415 − 744` | `w = 1671` |
-    | Round | 1671 is 6 away from 1665 and 1658 away from 0 | `m = 1` |
+    | Public $a$, secret $s$, small error $e$ | $a = 1234$, $s = 2$, $e = 1$ | |
+    | Public key | $t = a \cdot s + e = 2468 + 1$ | $t = 2469$ |
+    | Sender: random small $r$, errors $e_1$, $e_2$; bit $m = 1$ | $r = 3$, $e_1 = -1$, $e_2 = 1$ | |
+    | Ciphertext part 1 | $u = a \cdot r + e_1 = 3702 - 1 \bmod 3329$ | $u = 372$ |
+    | Ciphertext part 2 | $v = t \cdot r + e_2 + m \cdot 1665 = 7407 + 1 + 1665 \bmod 3329$ | $v = 2415$ |
+    | Receiver | $w = v - s \cdot u = 2415 - 744$ | $w = 1671$ |
+    | Round | 1671 is 6 away from 1665 and 1658 away from 0 | $m = 1$ |
 
-    The leftover `w − m·1665 = e·r + e₂ − s·e₁ = 3 + 1 + 2 = 6` is small because every secret and error is
-    small. Without `s`, `u` and `v` look like random numbers mod 3329.
+    The leftover $w - m \cdot 1665 = e \cdot r + e_2 - s \cdot e_1 = 3 + 1 + 2 = 6$ is small because every secret and error is
+    small. Without $s$, $u$ and $v$ look like random numbers mod 3329.
 
 ??? abstract "The math, with formulas"
 
-    **The ring.** Polynomials with 256 coefficients modulo `x²⁵⁶ + 1` and modulo `q = 3329`. Multiplying by `x`
+    **The ring.** Polynomials with 256 coefficients modulo $x^{256} + 1$ and modulo $q = 3329$. Multiplying by $x$
     shifts the coefficients and the top one comes back negated.
 
-    **Key generation (FIPS 203, K-PKE).** From a seed, expand a `k × k` matrix **A** of random polynomials.
-    Sample small **s** and **e** (coefficients from −η to η). Publish `t = A·s + e`.
+    **Key generation (FIPS 203, K-PKE).** From a seed, expand a $k \times k$ matrix $\mathbf{A}$ of random polynomials.
+    Sample small $\mathbf{s}$ and $\mathbf{e}$ (coefficients from $-\eta$ to $\eta$). Publish $\mathbf{t} = \mathbf{A} \mathbf{s} + \mathbf{e}$.
 
-    **Encryption** of a 32-byte message `m`: sample small **r**, **e₁**, `e₂`;
-    `u = Aᵀ·r + e₁`, `v = tᵀ·r + e₂ + ⌈q/2⌉·m` (each bit of `m` becomes 0 or 1665 in one coefficient).
-    Then compress: `u` to `d_u` bits a coefficient, `v` to `d_v` bits.
+    **Encryption** of a 32-byte message $m$: sample small $\mathbf{r}$, $\mathbf{e}_1$, $e_2$;
+    $\mathbf{u} = \mathbf{A}^\mathsf{T} \mathbf{r} + \mathbf{e}_1$, $v = \mathbf{t}^\mathsf{T} \mathbf{r} + e_2 + \lceil q/2 \rceil \cdot m$ (each bit of $m$ becomes 0 or 1665 in one coefficient).
+    Then compress: $\mathbf{u}$ to $d_u$ bits a coefficient, $v$ to $d_v$ bits.
 
-    **Decryption:** `v − sᵀ·u = eᵀ·r + e₂ − sᵀ·e₁ + ⌈q/2⌉·m`. Each coefficient is near 0 or near 1665;
-    round to get `m`. Decryption fails only if the noise passes `q/4 ≈ 832`: FIPS 203 puts the chance at about
-    2⁻¹³⁹ for ML-KEM-512, 2⁻¹⁶⁵ for ML-KEM-768 and 2⁻¹⁷⁵ for ML-KEM-1024.
+    **Decryption:** $v - \mathbf{s}^\mathsf{T} \mathbf{u} = \mathbf{e}^\mathsf{T} \mathbf{r} + e_2 - \mathbf{s}^\mathsf{T} \mathbf{e}_1 + \lceil q/2 \rceil \cdot m$. Each coefficient is near 0 or near 1665;
+    round to get $m$. Decryption fails only if the noise passes $q/4 \approx 832$: FIPS 203 puts the chance at about
+    $2^{-139}$ for ML-KEM-512, $2^{-165}$ for ML-KEM-768 and $2^{-175}$ for ML-KEM-1024.
 
-    | | k | η₁ | d_u | d_v | Public key | Ciphertext | Security |
+    | | $k$ | $\eta_1$ | $d_u$ | $d_v$ | Public key | Ciphertext | Security |
     |---|---|---|---|---|---|---|---|
     | ML-KEM-512 | 2 | 3 | 10 | 4 | 800 B | 768 B | category 1 (AES-128) |
     | ML-KEM-768 | 3 | 2 | 10 | 4 | 1,184 B | 1,088 B | category 3 (AES-192) |
     | ML-KEM-1024 | 4 | 2 | 11 | 5 | 1,568 B | 1,568 B | category 5 (AES-256) |
 
-    **Fast multiplication (NTT).** 3329 = 13·256 + 1, so mod 3329 there is a 256th root of unity (17). The
+    **Fast multiplication (NTT).** $3329 = 13 \cdot 256 + 1$, so mod 3329 there is a 256th root of unity (17). The
     number-theoretic transform turns a polynomial product into 128 small products, like a Fourier transform.
 
-    **Fujisaki–Okamoto.** Decapsulation re-encrypts the recovered `m` and compares; on a mismatch it returns
-    a pseudorandom key derived from a secret value `z`, so an attacker learns nothing from forged ciphertexts.
+    **Fujisaki–Okamoto.** Decapsulation re-encrypts the recovered $m$ and compares; on a mismatch it returns
+    a pseudorandom key derived from a secret value $z$, so an attacker learns nothing from forged ciphertexts.
 
 ??? tip "Watch it step by step: one bit through the noise"
 
     <div class="mars-steps" markdown>
 
-    1. Bob publishes `a = 1234` and `t = 2469`. Only he knows `t = 1234·2 + 1`.
-    2. Alice wants to send the bit 1. She picks small `r = 3`, `e₁ = −1`, `e₂ = 1`.
-    3. She sends `u = 1234·3 − 1 ≡ 372`.
-    4. She sends `v = 2469·3 + 1 + 1665 ≡ 2415` (the 1665 carries the bit).
-    5. Bob computes `v − 2·u = 2415 − 744 = 1671`.
+    1. Bob publishes $a = 1234$ and $t = 2469$. Only he knows $t = 1234 \cdot 2 + 1$.
+    2. Alice wants to send the bit 1. She picks small $r = 3$, $e_1 = -1$, $e_2 = 1$.
+    3. She sends $u = 1234 \cdot 3 - 1 \equiv 372$.
+    4. She sends $v = 2469 \cdot 3 + 1 + 1665 \equiv 2415$ (the 1665 carries the bit).
+    5. Bob computes $v - 2 \cdot u = 2415 - 744 = 1671$.
     6. 1671 is close to 1665 (the bit 1), far from 0 (the bit 0). Bob reads 1.
     7. In ML-KEM this happens for 256 bits at once; the 32-byte message is hashed into the shared key.
 
@@ -159,16 +159,16 @@ Each part below starts closed; open the ones you want.
 
 ??? info "The math underneath"
 
-    - **Learning with errors (LWE)** and its module form (MLWE): solving `t = A·s + e` for small `s` is hard
-      because of the small `e`. See [Hard problems](../10-math-foundations/Hard-Problems.md).
-    - **Lattices:** recovering `s` means finding a short vector in a lattice of dimension about `256·k`. The
+    - **Learning with errors (LWE)** and its module form (MLWE): solving $\mathbf{t} = \mathbf{A} \mathbf{s} + \mathbf{e}$ for small $\mathbf{s}$ is hard
+      because of the small $\mathbf{e}$. See [Hard problems](../10-math-foundations/Hard-Problems.md).
+    - **Lattices:** recovering $\mathbf{s}$ means finding a short vector in a lattice of dimension about $256 \cdot k$. The
       best attacks (BKZ lattice reduction, sieving) take time exponential in the dimension, on classical and
       quantum computers alike.
-    - **Polynomial rings** `Z_q[x]/(x²⁵⁶ + 1)` and the **number-theoretic transform**, the integer cousin of
+    - **Polynomial rings** $\mathbb{Z}_q[x]/(x^{256} + 1)$ and the **number-theoretic transform**, the integer cousin of
       the FFT.
     - **Centered binomial distribution:** the small coefficients are sums of coin flips, cheap to sample in
       constant time.
-    - **SHA-3 and SHAKE** ([SHA-3](../07-hash/SHA-3.md)) expand the seed into **A** and derive the keys.
+    - **SHA-3 and SHAKE** ([SHA-3](../07-hash/SHA-3.md)) expand the seed into $\mathbf{A}$ and derive the keys.
 
 ## See also
 
