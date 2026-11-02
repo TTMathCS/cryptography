@@ -56,6 +56,60 @@ def sieve(n):
   of 3 and 5 trims it further.
 - The sieve is often the first stage that feeds candidates into stronger tests.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: the primes up to 100"
+
+    Sieving 2 … 100 needs only the primes up to `√100 = 10`:
+
+    | Prime | Start crossing at | Numbers newly crossed out |
+    |---|---|---|
+    | 2 | 4 | 49 (4, 6, 8, …, 100) |
+    | 3 | 9 | 16 (9, 15, 21, …, 99: odd multiples only, the even ones are gone) |
+    | 5 | 25 | 6 (25, 35, 55, 65, 85, 95) |
+    | 7 | 49 | 3 (49, 77, 91) |
+    | 11 | 121 > 100 | stop |
+
+    99 numbers − 74 crossed out = **25 primes** below 100, which matches `π(100) = 25`. To a million the same
+    method leaves 78,498.
+
+??? abstract "The math, with formulas"
+
+    - **Work:** each prime p ≤ √n crosses out about `n/p` numbers, so the total is
+      `n · Σ 1/p ≈ n · ln ln n` (Mertens' second theorem). For n = 10⁹ that is under 3n.
+    - **How many primes survive:** `π(n) ≈ n / ln n` (the prime number theorem), more precisely `Li(n)`.
+    - **Why stop at √n:** a composite `m ≤ n` has a prime factor `≤ √m ≤ √n`, so it was already crossed out.
+    - **Segmented sieve:** sieve `[lo, hi)` with the base primes `≤ √hi`; each prime starts at
+      `max(p², ⌈lo/p⌉ · p)`. Memory is `O(√hi + (hi − lo))`.
+    - **Density in key generation:** a random odd 1024-bit number is prime with probability about
+      `2 / ln(2¹⁰²⁴) ≈ 1/355`; sieving out small factors first skips most candidates before any
+      [Miller-Rabin](Miller-Rabin-Primality-Test.md) round.
+
+??? tip "Watch it step by step: sieving to 30"
+
+    <div class="mars-steps" markdown>
+
+    1. Write 2 to 30. Nothing is crossed out yet.
+    2. 2 is prime. Cross out 4, 6, 8, …, 30.
+    3. 3 is prime. Cross out 9, 15, 21, 27 (6, 12, … are gone already).
+    4. 5 is prime. Cross out 25. (5 × 7 = 35 is past 30.)
+    5. The next survivor is 7, and 7² = 49 > 30. Stop.
+    6. What is left is prime: 2, 3, 5, 7, 11, 13, 17, 19, 23, 29.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Fundamental theorem of arithmetic:** every integer above 1 factors into primes in one way, so
+      crossing out multiples of primes removes every composite.
+    - **The prime number theorem** (Hadamard and de la Vallée Poussin, 1896) and **Mertens' theorems** (1874)
+      give the counts and the running time.
+    - **Wheel factorization** and the **sieve of Atkin** cut the constant factor; the **quadratic and
+      number field sieves** borrow the crossing-out idea to factor RSA moduli, see
+      [hard problems](Hard-Problems.md).
+
 ## See also
 
 - [Miller-Rabin](Miller-Rabin-Primality-Test.md) — for individual large numbers

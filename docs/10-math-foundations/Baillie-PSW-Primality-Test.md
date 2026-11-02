@@ -100,6 +100,68 @@ def baillie_psw(n):
   certificate.
 - It's deterministic and exact for all `n < 2⁶⁴`.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: 2047 fools base 2 but not Lucas"
+
+    **2047 = 23 × 89** is the smallest number that passes a strong Fermat test base 2:
+    `2046 = 1023 · 2¹`, and `2¹⁰²³ ≡ 1 (mod 2047)`. Step 1 says "probably prime".
+
+    Step 2, the strong Lucas test:
+
+    | Step | Value |
+    |---|---|
+    | Selfridge D: Jacobi symbols for 5, −7, … | `(5/2047) = −1`, so D = 5, P = 1, Q = (1 − D)/4 = −1 |
+    | `n + 1 = 2048 = d · 2ˢ` | d = 1, s = 11 |
+    | `U₁` (must be 0 to pass) | 1 |
+    | `V₁, V₂, V₄, V₈, …, V₁₀₂₄` mod 2047 (one must be 0) | 1, 3, 7, 47, 160, 1034, 620, 1609, 1471, 160, 1034 |
+
+    None is 0, so **2047 is composite**. With P = 1 and Q = −1 the sequences are the Fibonacci numbers
+    `Uₖ = Fₖ` and the Lucas numbers `Vₖ = Lₖ`; for a prime n with `(5/n) = −1`, `F(n+1)` would be divisible by
+    n, but `F₂₀₄₈ mod 2047 = 1957`.
+
+??? abstract "The math, with formulas"
+
+    **Lucas sequences** with parameters P, Q and `D = P² − 4Q`:
+
+    ```
+    U₀ = 0, U₁ = 1, Uₖ₊₁ = P·Uₖ − Q·Uₖ₋₁           V₀ = 2, V₁ = P, Vₖ₊₁ = P·Vₖ − Q·Vₖ₋₁
+    U₂ₖ = Uₖ·Vₖ,   V₂ₖ = Vₖ² − 2Qᵏ                    (doubling: log₂ n steps, like square-and-multiply)
+    ```
+
+    For a prime n not dividing 2QD: `U(n − (D/n)) ≡ 0 (mod n)`. The **strong** version, with
+    `n − (D/n) = d · 2ˢ` and d odd: `U_d ≡ 0` or `V(d·2ʳ) ≡ 0` for some `0 ≤ r < s`.
+
+    **Baillie-PSW:** n passes if it is a strong probable prime base 2 **and** a strong Lucas probable prime
+    with Selfridge's D (the first of 5, −7, 9, −11, … with `(D/n) = −1`; if n is a perfect square no such D
+    exists, so check that first).
+
+    - **No counterexample:** none below 2⁶⁴ (Gilchrist checked every base-2 strong pseudoprime on Feitsma
+      and Galway's list). Pomerance gave a heuristic in 1984 that infinitely many exist; none has been found.
+
+??? tip "Watch it step by step: the two tests"
+
+    <div class="mars-steps" markdown>
+
+    1. Throw out small cases: even numbers, small prime factors, perfect squares.
+    2. Strong Fermat base 2 on 2047: `2¹⁰²³ mod 2047 = 1`. Passes.
+    3. Find D: the Jacobi symbol (5/2047) is −1, so D = 5, P = 1, Q = −1.
+    4. Compute Lucas numbers modulo 2047 by doubling: V₁ = 1, V₂ = 3, V₄ = 7, V₈ = 47, …
+    5. None of U₁, V₁, V₂, …, V₁₀₂₄ is 0 mod 2047.
+    6. Composite. A real prime would have hit 0 somewhere in that list.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Quadratic fields:** Lucas sequences live in `Z[√D]`; Fermat's test works in the integers. A
+      composite has to fool two different groups at once, which is why they rarely fail together.
+    - **Jacobi and Legendre symbols:** whether D is a square modulo n, computed by quadratic reciprocity.
+    - **Frobenius pseudoprimes** generalise both tests (Grantham, 2001).
+    - Where it is used: Go's `ProbablyPrime`, SymPy's `isprime` and PARI/GP's `ispseudoprime` all run it. See [Miller-Rabin](Miller-Rabin-Primality-Test.md).
+
 ## See also
 
 - [Miller-Rabin](Miller-Rabin-Primality-Test.md) — the base-2 half of the test

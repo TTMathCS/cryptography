@@ -196,6 +196,75 @@ take about 2^128 steps.
   process. NIST keeps backups built on different math: SLH-DSA (hashes)
   next to ML-DSA, and HQC (codes) next to ML-KEM.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: a tiny discrete log, solved by baby steps and giant steps"
+
+    Find x with `2ˣ ≡ 48 (mod 101)`. Brute force would try up to 100 values. Baby-step giant-step tries
+    about `2√100 = 20`, with `m = 10`:
+
+    Baby steps, `2ʲ mod 101` for j = 0 … 9: 1, 2, 4, 8, 16, 32, 64, 27, 54, 7.
+
+    Giant steps multiply 48 by `2⁻¹⁰ ≡ 65 (mod 101)` until a baby step appears:
+
+    | i | `48 · 65ⁱ mod 101` | In the baby table? |
+    |---|---|---|
+    | 0 | 48 | no |
+    | 1 | 90 | no |
+    | 2 | 93 | no |
+    | 3 | 86 | no |
+    | 4 | 35 | no |
+    | 5 | 53 | no |
+    | 6 | 11 | no |
+    | 7 | 8 | yes, `8 = 2³` |
+
+    So `48 · 2⁻⁷⁰ ≡ 2³`, and **x = 70 + 3 = 73**. Check: `2⁷³ mod 101 = 48`. For a 256-bit group the same
+    method needs about 2¹²⁸ steps and as much memory, which is why such groups are safe.
+
+??? abstract "The math, with formulas"
+
+    | Problem | Best classical attack | Cost |
+    |---|---|---|
+    | Factoring n | general number field sieve | `L_n[1/3, 1.923] = exp(1.923 (ln n)^(1/3) (ln ln n)^(2/3))` |
+    | Discrete log mod p | number field sieve | `L_p[1/3, 1.923]` |
+    | Elliptic-curve DLP, order n | Pollard's rho | `≈ √(πn/4)` |
+    | LWE, dimension n | BKZ with block size β, sieving inside | `≈ 2^(0.292β)` classical, `2^(0.257β)` quantum |
+    | Preimage of an n-bit hash | brute force / Grover | `2ⁿ` / `2^(n/2)` |
+    | Decoding a random linear code | information-set decoding | exponential in the error count |
+
+    `L[α, c]` interpolates between polynomial (α = 0) and exponential (α = 1) time; α = 1/3 is why RSA keys
+    grow much faster than curve keys for the same security.
+
+    **Baby-step giant-step:** write `x = i·m + j` with `m = ⌈√n⌉`; store `gʲ`, then test `y · g^(−im)`.
+    `O(√n)` time and memory. **Pollard's rho** gets the same time with almost no memory by walking a
+    pseudorandom path until it loops (the birthday paradox).
+
+??? tip "Watch it step by step: easy one way, hard the other"
+
+    <div class="mars-steps" markdown>
+
+    1. Forward: `2⁷³ mod 101` is a few squarings and multiplications. The answer is 48.
+    2. Backward: "which power of 2 gives 48?" has no shortcut formula.
+    3. Baby steps: write down 2⁰ to 2⁹.
+    4. Giant steps: keep multiplying 48 by 2⁻¹⁰ and look each result up in the list.
+    5. Step 7 finds 8 = 2³, so x = 7 · 10 + 3 = 73.
+    6. At real sizes the list would need 2¹²⁸ entries: more than any computer can hold.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **One-way functions and trapdoors:** easy to compute, hard to invert, and (for RSA) easy again with a
+      secret.
+    - **Complexity:** none of these problems is proved hard. Factoring and discrete log are believed not to
+      be NP-hard, and lattice problems have worst-case to average-case reductions (Ajtai 1996, Regev 2005).
+    - **Generic group model:** Shoup (1997) proved any algorithm that treats the group as a black box needs
+      about √n steps, which is why curves without extra structure reach that bound.
+    - **Quantum period finding:** Shor turns factoring and discrete logs into finding the period of
+      `x ↦ gˣ`, solved by the quantum Fourier transform.
+
 ## See also
 
 - [Elliptic curves](Elliptic-Curves.md): the groups behind the elliptic-curve discrete log

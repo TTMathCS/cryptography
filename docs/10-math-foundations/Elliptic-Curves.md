@@ -198,6 +198,66 @@ for reading, not for keys.
   leaks have recovered keys from real ECDSA code.
 - Every curve here falls to Shor's algorithm, at any size.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: adding points on a toy curve"
+
+    The curve from the example below: `y² = x³ + 2x + 2` over the integers mod 17, base point G = (5, 1).
+
+    | Step | Formula | Value |
+    |---|---|---|
+    | Is G on the curve? | `1² = 1` and `5³ + 2·5 + 2 = 137 = 8·17 + 1` | yes |
+    | 2G: tangent slope | `m = (3·5² + 2) / (2·1) = 77 · 2⁻¹ = 9 · 9` | 81 mod 17 = 13 |
+    | 2G: x | `13² − 5 − 5 = 159` | 6 |
+    | 2G: y | `13·(5 − 6) − 1 = −14` | 3 |
+    | 3G = 2G + G: slope | `(3 − 1)/(6 − 5)` | 2 |
+    | 3G | `x = 4 − 6 − 5 = −7`, `y = 2·(5 − 10) − 1 = −11` | (10, 6) |
+
+    `2⁻¹ mod 17 = 9` because `2 · 9 = 18 ≡ 1`. Carrying on, the multiples of G visit all 18 other points and
+    `19G = O`: the group has 19 elements, within Hasse's bound `|19 − 18| ≤ 2√17 ≈ 8.2`.
+
+??? abstract "The math, with formulas"
+
+    On `E: y² = x³ + ax + b` over `F_p` (p > 3, `4a³ + 27b² ≠ 0` so the curve has no cusps or crossings):
+
+    ```
+    P + Q:   m = (y₂ − y₁) / (x₂ − x₁)          2P:   m = (3x₁² + a) / (2y₁)
+             x₃ = m² − x₁ − x₂                         y₃ = m(x₁ − x₃) − y₁
+    −P = (x, −y),    P + O = P,    P + (−P) = O
+    ```
+
+    - **Hasse's theorem:** `|#E(F_p) − (p + 1)| ≤ 2√p`. Counting the points exactly takes Schoof's algorithm
+      (polynomial time), which is how curve designers find a prime order.
+    - **Projective coordinates** `(X : Y : Z)` with `x = X/Z`, `y = Y/Z` avoid a slow inversion on every step.
+    - **Montgomery ladder** on `By² = x³ + Ax² + x` uses x only: `x(2P)` and `x(P + Q)` from `x(P), x(Q), x(P − Q)`.
+    - **Security:** `d·G` takes about `log₂ n` doublings; getting `d` back takes about `√(πn/4)` steps with
+      Pollard's rho, so a 256-bit n gives about 2¹²⁸.
+
+??? tip "Watch it step by step: the multiples of G"
+
+    <div class="mars-steps" markdown>
+
+    1. 1G = (5, 1). The private key d is "how many times"; the public key is the point you land on.
+    2. 2G = (6, 3), by the tangent at G. 3G = (10, 6), by the line through G and 2G.
+    3. 4G = (3, 1), 5G = (9, 16), 6G = (16, 13), 7G = (0, 6). The points jump around with no visible pattern.
+    4. 13G = (16, 4). Double-and-add gets there from 13 = `1101` in binary: G, 3G, 6G, 12G, 13G.
+    5. 18G = (5, 16) = −G, the mirror image of G.
+    6. 19G = O, the point at infinity. Going back from a point to its d is the hard part.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Groups:** closure, an identity (O), inverses, and associativity, which is the non-obvious one for
+      the chord-and-tangent rule.
+    - **Finite fields** `F_p` and modular inverses (extended Euclid or `a^(p−2)`).
+    - **The ECDLP** and why the number field sieve has no analogue here: [hard problems](Hard-Problems.md).
+    - **Pairings** (Weil, Tate) map curve points to a finite field; they power BLS signatures and break
+      curves with a small embedding degree (MOV attack).
+    - **Isogenies** connect curves to each other; see SIDH and CSIDH in [hard problems](Hard-Problems.md).
+
 ## See also
 
 - [Hard problems](Hard-Problems.md): the elliptic-curve discrete log and how it is attacked
