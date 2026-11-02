@@ -144,6 +144,73 @@ print(chacha20(key, 1, nonce, ct))                 # b'see you at noon'
   reaches 7 rounds of ChaCha, at about 2¹⁴² operations for the best one
   (2026), and 8 rounds of Salsa20.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: one quarter round, from RFC 8439"
+
+    RFC 8439 §2.1.1 tests the quarter round on four 32-bit words. Each line was recomputed here with Python
+    and matches the RFC:
+
+    | Step | Operation | Result |
+    |---|---|---|
+    | Start | | `a = 11111111`, `b = 01020304`, `c = 9b8d6f43`, `d = 01234567` |
+    | 1 | `a += b; d ^= a; d <<<= 16` | `a = 12131415`, `d = 51721330` |
+    | 2 | `c += d; b ^= c; b <<<= 12` | `c = ecff8273`, `b = d8177edf` |
+    | 3 | `a += b; d ^= a; d <<<= 8` | `a = ea2a92f4`, `d = 5881c4bb` |
+    | 4 | `c += d; b ^= c; b <<<= 7` | `c = 4581472e`, `b = cb1cf8ce` |
+
+    All numbers are hex; `+=` is addition mod 2³², `<<<=` is rotate left. ChaCha20 runs 80 of these
+    (20 rounds of 4) on its 16-word state.
+
+??? abstract "The math, with formulas"
+
+    **The state** is a 4×4 grid of 32-bit words:
+
+    ```
+    "expa"  "nd 3"  "2-by"  "te k"       constants
+    key0    key1    key2    key3
+    key4    key5    key6    key7
+    counter nonce0  nonce1  nonce2
+    ```
+
+    **A double round** is four quarter rounds down the columns, then four along the diagonals. ChaCha20 does
+    10 double rounds, then adds the original state word by word. The 64-byte result is the keystream block
+    for that counter value; encryption is `ciphertext = plaintext ⊕ keystream`.
+
+    **ARX.** Only Addition mod 2³², Rotation and XOR: addition mixes bits non-linearly through the carries,
+    XOR and rotation spread them. No table lookups, so no cache-timing leaks, and every step runs in a fixed
+    time on any CPU.
+
+    **The final addition** makes the block function hard to invert: without it, the 20 rounds could be run
+    backwards from the output to the key.
+
+    **XChaCha20** first runs HChaCha20 (the rounds without the final addition) on the key and 16 nonce bytes
+    to get a subkey, then ChaCha20 with the remaining 8 nonce bytes: a 24-byte nonce that can be random.
+
+??? tip "Watch it step by step: the quarter round"
+
+    <div class="mars-steps" markdown>
+
+    1. Start with `a = 11111111`, `b = 01020304`, `c = 9b8d6f43`, `d = 01234567`.
+    2. Add `b` into `a`, XOR `a` into `d`, rotate `d` by 16: `a = 12131415`, `d = 51721330`.
+    3. Add `d` into `c`, XOR `c` into `b`, rotate `b` by 12: `c = ecff8273`, `b = d8177edf`.
+    4. Add `b` into `a`, XOR `a` into `d`, rotate `d` by 8: `a = ea2a92f4`, `d = 5881c4bb`.
+    5. Add `d` into `c`, XOR `c` into `b`, rotate `b` by 7: `c = 4581472e`, `b = cb1cf8ce`.
+    6. One bit changed in the input would now have spread to about half the bits of all four words.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Modular addition, XOR and rotation** on 32-bit words, and why mixing them is non-linear.
+    - **Stream ciphers:** a keystream XORed with the data; never reuse a key and nonce (see [AEAD](../05-modes-aead/AEAD.md)).
+    - **Differential cryptanalysis of ARX:** the best attacks reach 7 of ChaCha's 20 rounds.
+    - **Poly1305**, the MAC it is paired with: polynomial evaluation mod `2¹³⁰ − 5`; see
+      [Universal-hash MACs](../06-mac/Universal-Hash-MACs.md).
+    - **Salsa20** (2005), its predecessor, which mixes columns and rows instead of columns and diagonals.
+
 ## See also
 
 - [ChaCha20-Poly1305](../05-modes-aead/AEAD.md): the AEAD built on it

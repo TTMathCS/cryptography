@@ -157,6 +157,71 @@ zeros = sum(rc4(random.randbytes(16), 2)[1] == 0 for _ in range(N))
 print(zeros, round(N / 256))              # 822 391: about twice what a fair byte gives
 ```
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: RC4, and why 64-bit blocks wear out"
+
+    **RC4 with key "Key" and plaintext "Plaintext"** (the well-known test). After the key schedule shuffles
+    `S = [0 … 255]`, each output byte swaps two entries and reads a third. Recomputed with Python:
+
+    | Byte | `i` | `j = j + S[i]` | After swap `S[i] + S[j]` | Keystream `S[t]` | Plaintext | Ciphertext |
+    |---|---|---|---|---|---|---|
+    | 1 | 1 | 51 | 78 + 51 = 129 | `eb` | `50` (P) | `bb` |
+    | 2 | 2 | 183 | 198 + 132 = 330 → 74 | `9f` | `6c` (l) | `f3` |
+    | 3 | 3 | 84 | 20 + 157 = 177 | `77` | `61` (a) | `16` |
+
+    The full ciphertext is `bbf316e8d940af0ad3`.
+
+    **Sweet32 in numbers.** A 64-bit block cipher in CBC mode starts repeating ciphertext blocks after about
+    `√(2·ln 2) · 2³²` blocks for a 50% chance, which is about 37.7 GiB of data. Each repeat leaks the XOR of
+    two plaintext blocks, which is how the attack read a cookie.
+
+??? abstract "The math, with formulas"
+
+    **RC4:**
+
+    ```
+    key schedule:  for i in 0..255:  j = (j + S[i] + key[i mod len]) mod 256;  swap S[i], S[j]
+    output:        i = i + 1;  j = j + S[i];  swap S[i], S[j];  output S[(S[i] + S[j]) mod 256]
+    ```
+
+    **Its biases.** The second output byte is 0 with probability 2/256 instead of 1/256 (Mantin and Shamir,
+    2001), and the first bytes leak key bytes when keys share a prefix, which broke WEP (Fluhrer, Mantin and
+    Shamir, 2001). Many such biases together recovered TLS plaintexts (AlFardan and others, 2013).
+
+    **DES (Feistel, 16 rounds):** `Lᵢ₊₁ = Rᵢ`, `Rᵢ₊₁ = Lᵢ ⊕ f(Rᵢ, Kᵢ)`, where `f` expands 32 bits to 48, XORs the
+    round key, applies eight 6-to-4-bit S-boxes and permutes. Brute force: 2⁵⁶ ≈ 7.2 × 10¹⁶ keys.
+
+    **3DES and meet-in-the-middle.** `C = E_K3(D_K2(E_K1(P)))`. Two-key double encryption would give only 2⁵⁷
+    work: encrypt `P` under all `K1`, decrypt `C` under all `K2`, and match in the middle. That is why triple,
+    not double, and why 3 keys give 112-bit, not 168-bit, strength.
+
+    **The birthday bound.** With `b`-bit blocks, `q` random blocks collide with probability about
+    `q² / 2^(b+1)`. For `b = 64` that is a coin flip at 2³² blocks; for AES's `b = 128`, at 2⁶⁴.
+
+??? tip "Watch it step by step: RC4's first output byte"
+
+    <div class="mars-steps" markdown>
+
+    1. The key schedule has shuffled the 256 numbers in `S` using the key "Key". `S[1] = 51`.
+    2. `i` moves to 1; `j` becomes `0 + S[1] = 51`.
+    3. Swap `S[1]` and `S[51]`: now `S[1] = 78` and `S[51] = 51`.
+    4. Add them: `78 + 51 = 129`. The keystream byte is `S[129] = eb`.
+    5. The first plaintext byte "P" (`50`) XOR `eb` is `bb`, the first ciphertext byte.
+    6. Repeat for every byte. The state never resets, so a reused key gives the same keystream: never reuse one.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Feistel networks** (DES, Blowfish, CAST5) and **Lai–Massey** (IDEA).
+    - **Exhaustive key search** and Moore's law: why 56 bits fell and 128 bits will not.
+    - **Meet-in-the-middle attacks** on double encryption.
+    - **The birthday paradox:** why block size, not just key size, limits a cipher.
+    - **Statistical biases in stream ciphers**, and the distinguishers built from them.
+
 ## See also
 
 - [AES](AES.md): what replaced DES and 3DES

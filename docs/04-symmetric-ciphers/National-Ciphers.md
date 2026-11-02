@@ -127,6 +127,71 @@ print(crypt(rk[::-1], ct) == key)         # True: decrypt with the keys reversed
 - Fewer implementations means less testing, and support outside the home
   country is thin.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: the standard test vectors, recomputed"
+
+    Both ciphers' official examples use key and plaintext `0123456789abcdeffedcba9876543210`. Recomputed here
+    with Python's `cryptography` library; both match their standards:
+
+    | Cipher | Standard | Ciphertext |
+    |---|---|---|
+    | SM4 | GB/T 32907-2016, Appendix A | `681edf34d206965e86b3e94f536e4246` |
+    | Camellia-128 | RFC 3713, Appendix A | `67673138549669730857065648eabe43` |
+
+    For comparison, the same key and plaintext under AES-128 give a completely different block: each cipher is
+    its own fixed but random-looking permutation of the 2¹²⁸ possible blocks.
+
+??? abstract "The math, with formulas"
+
+    **Feistel networks (Camellia).** Split the block into halves `L`, `R`; each round
+    `Lᵢ₊₁ = Rᵢ`, `Rᵢ₊₁ = Lᵢ ⊕ F(Rᵢ, kᵢ)`. Decryption runs the same rounds with the keys reversed, whether or not
+    `F` is invertible. Camellia's `F` is an S-box layer and a byte-mixing layer (the "P-function"); every 6
+    rounds the key-dependent `FL`/`FL⁻¹` layers break up regular structure.
+
+    **Unbalanced Feistel (SM4).** The state is four 32-bit words `X₀ … X₃`. Each of 32 rounds computes
+
+    ```
+    Xᵢ₊₄ = Xᵢ ⊕ T(Xᵢ₊₁ ⊕ Xᵢ₊₂ ⊕ Xᵢ₊₃ ⊕ rkᵢ)
+    T(x) = L(τ(x)),   τ = the S-box on each byte
+    L(B) = B ⊕ (B <<< 2) ⊕ (B <<< 10) ⊕ (B <<< 18) ⊕ (B <<< 24)
+    ```
+
+    The output is `(X₃₅, X₃₄, X₃₃, X₃₂)`. The key schedule uses the same shape with a different linear map.
+
+    **SPN (ARIA, Kuznyechik).** Like AES: key XOR, S-boxes, then a linear layer. ARIA's linear layer is a
+    16×16 binary matrix (branch number 8); Kuznyechik's is a 16-byte LFSR-like transform over GF(2⁸) with the
+    polynomial `x⁸ + x⁷ + x⁶ + x + 1`.
+
+    **S-boxes.** SM4's and ARIA's S-boxes, like AES's, are built from the inverse in GF(2⁸) with affine maps.
+    Kuznyechik's S-box (shared with the Streebog hash) was presented as random, but Perrin (2019) showed a
+    hidden structure in it; no attack follows from it so far.
+
+??? tip "Watch it step by step: one SM4 round"
+
+    <div class="mars-steps" markdown>
+
+    1. The 128-bit block is four 32-bit words `X₀, X₁, X₂, X₃`.
+    2. XOR the last three words with the round key: `X₁ ⊕ X₂ ⊕ X₃ ⊕ rk₀`.
+    3. Send each of the 4 bytes of that word through the S-box.
+    4. Mix with rotations: `B ⊕ (B <<< 2) ⊕ (B <<< 10) ⊕ (B <<< 18) ⊕ (B <<< 24)`.
+    5. XOR the result into `X₀` to make the new word `X₄`. The window slides: now `X₁, X₂, X₃, X₄`.
+    6. After 32 rounds, output the last four words in reverse order. Decryption is the same with the round
+       keys reversed.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Feistel and substitution–permutation networks:** the two ways to build a block cipher.
+    - **Finite fields GF(2⁸)** for the S-boxes and linear layers, as in [AES](AES.md).
+    - **Branch numbers and MDS matrices:** how linear layers guarantee diffusion.
+    - **Differential and linear cryptanalysis**, which every one of these was designed to resist.
+    - **Luby–Rackoff (1988):** four Feistel rounds with random functions give a strong pseudorandom
+      permutation.
+
 ## See also
 
 - [AES](AES.md): the international default these sit beside
