@@ -116,6 +116,75 @@ After the reuse, a forger only needs a message whose hash matches the other
 - Only the hash has to hold. RFC 8391 rates the 256-bit sets at 128 bits
   against a quantum attacker.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: a Merkle tree of four one-time keys"
+
+    Four one-time public keys under one root, with SHA-256 cut to 8 hex digits (LMS and XMSS use 24 or 32
+    bytes). Here the leaves are hashes of the strings `pk0` … `pk3`. Checked with Python's `hashlib`:
+
+    | Node | Calculation | Value |
+    |---|---|---|
+    | Leaf 0 … 3 | `H(pk0)`, `H(pk1)`, `H(pk2)`, `H(pk3)` | `dd1d1884`, `6e73bff1`, `11e85b77`, `f7f5f313` |
+    | Left parent | `H(leaf0 ‖ leaf1)` | `171968e6` |
+    | Right parent | `H(leaf2 ‖ leaf3)` | `094f95e5` |
+    | Root (the public key) | `H(171968e6 ‖ 094f95e5)` | `0720d477` |
+
+    Signing with leaf 1: send the one-time signature, its public key `6e73bff1`, the leaf number 1, and the
+    two siblings on the way up, `dd1d1884` and `094f95e5`. The verifier hashes `dd1d1884 ‖ 6e73bff1` to
+    `171968e6`, then `171968e6 ‖ 094f95e5` to `0720d477`, the root. The state is now "next leaf: 2".
+
+??? abstract "The math, with formulas"
+
+    **Lamport (1979):** secret `x[i][b]` for `i = 1…256`, `b ∈ {0, 1}`; public `y[i][b] = H(x[i][b])`. Sign hash
+    bit `mᵢ` by revealing `x[i][mᵢ]`. One signature reveals half the secrets; a second message would reveal
+    more, so it is strictly one-time.
+
+    **Winternitz chains:** with digits in base `2^w`, sign digit `a` by revealing `H^a(x)`; verify with
+    `H^(2^w − 1 − a)(σ) = y`. A checksum `Σ (2^w − 1 − aᵢ)` is signed too, so raising any digit lowers the
+    checksum.
+
+    **Merkle tree:** `node = H(left ‖ right)`; a signature for leaf `q` carries `h` sibling hashes, and the
+    verifier rebuilds the path to the root. LMS (RFC 8554) and XMSS (RFC 8391) add per-node tweaks (the tree
+    identifier, node number) and, in XMSS, random bitmasks, so attacks on one hash call don't carry over to
+    others.
+
+    | | Heights | Signatures per key | Signature size (n = 32) |
+    |---|---|---|---|
+    | LMS, w = 8 | 5 to 25 | 2⁵ to 2²⁵ | 1,292 B to 1,932 B |
+    | XMSS-SHA2_10_256 | 10 | 1,024 | 2,500 B |
+    | XMSS-SHA2_20_256 | 20 | about 1 million | 2,820 B |
+
+    **The state rule.** Each leaf's one-time key must sign once. Reusing a leaf for two messages lets anyone
+    combine the two revealed chains and forge; so a key copied to a backup, a VM snapshot or a second HSM
+    without care is broken. SP 800-208 allows these schemes only in hardware that keeps the counter.
+
+??? tip "Watch it step by step: checking a signature against the root"
+
+    <div class="mars-steps" markdown>
+
+    1. The public key is the root `0720d477` of a tree with four one-time keys.
+    2. The signer uses leaf 1 (state: next is 1) and signs with that one-time key.
+    3. The signature includes leaf 1's public key `6e73bff1` and the sibling hashes `dd1d1884` and `094f95e5`.
+    4. The verifier checks the one-time signature with `6e73bff1`.
+    5. Then `H(dd1d1884 ‖ 6e73bff1) = 171968e6`, and `H(171968e6 ‖ 094f95e5) = 0720d477`.
+    6. That is the root, so the key belonged to this tree. The signer moves its state to leaf 2, for good.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Hash functions**, needing only second-preimage resistance (and in XMSS's proof not even collision
+      resistance): [SHA-2](../07-hash/SHA-2.md), SHAKE in [SHA-3](../07-hash/SHA-3.md).
+    - **Merkle trees** and authentication paths (Merkle, 1979).
+    - **One-time signatures:** Lamport and Winternitz, and why reuse is fatal.
+    - **Hypertrees** (HSS, XMSS^MT): trees of trees, to sign billions of messages without building one huge
+      tree.
+    - The stateless version, [SLH-DSA](SLH-DSA.md), pays for dropping the state with signatures 3 to 20 times
+      larger.
+
 ## See also
 
 - [SLH-DSA](SLH-DSA.md): the stateless hash-based signature

@@ -225,6 +225,74 @@ ctx or ph variants. Needs `pip install cryptography`. Run with version
   deprecates EdDSA after 2030 and disallows it after 2035.
 - Quantum computers break it like all ECC; see [ML-DSA](ML-DSA.md).
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: EdDSA on a tiny Edwards curve"
+
+    The twisted Edwards curve `x² + y² = 1 + 8x²y² (mod 19)` has 28 points. `B = (2, 9)` has prime order
+    `L = 7`. (Ed25519 has `L ≈ 2²⁵²`.) The hash outputs below are made up; everything else is checked with
+    Python:
+
+    | Step | Calculation | Value |
+    |---|---|---|
+    | Secret scalar | `a = 3` (Ed25519 takes it from SHA-512 of the 32-byte key) | |
+    | Public key | `A = 3·B` | `A = (3, 14)` |
+    | Nonce | `r = H(prefix ‖ M) mod L`, say | `r = 5` |
+    | Commitment | `R = 5·B` | `R = (15, 8)` |
+    | Challenge | `k = H(R ‖ A ‖ M) mod L`, say | `k = 4` |
+    | Response | `S = r + k·a mod L = 5 + 12 mod 7` | `S = 3` |
+    | Signature | `(R, S)` | `((15, 8), 3)` |
+    | Verify | `S·B = 3·B = (3, 14)`; `R + k·A = (15, 8) + (15, 8) = (3, 14)` | equal: valid |
+
+??? abstract "The math, with formulas"
+
+    **Addition on a twisted Edwards curve** `ax² + y² = 1 + dx²y²` (Ed25519: `a = −1`):
+
+    ```
+    x₃ = (x₁y₂ + y₁x₂) / (1 + d·x₁x₂y₁y₂)
+    y₃ = (y₁y₂ − a·x₁x₂) / (1 − d·x₁x₂y₁y₂)
+    ```
+
+    The same formula adds and doubles, and with `d` a non-square it never divides by zero, so there are no
+    special cases to leak timing. Worked: `2B` with `B = (2, 9)`, `a = 1`: `x = 36/2593 ≡ 17/9 ≡ 4`,
+    `y = (81 − 4)/(1 − 2592) ≡ 1/12 ≡ 8`, so `2B = (4, 8)`.
+
+    **Signing (RFC 8032):** `h = SHA-512(key)`; `a` = first half, clamped; `prefix` = second half.
+    `r = SHA-512(prefix ‖ M) mod L`, `R = r·B`, `k = SHA-512(R ‖ A ‖ M) mod L`, `S = (r + k·a) mod L`.
+
+    **Verifying:** check `S < L` and `S·B = R + k·A` (the cofactored check multiplies both sides by 8).
+
+    **Why it works:** `S·B = (r + k·a)·B = r·B + k·(a·B) = R + k·A`.
+
+    **Why the nonce is safe.** `r` is a hash of a secret and the message, so it never repeats for different
+    messages and needs no random number generator, the flaw that broke ECDSA keys.
+
+??? tip "Watch it step by step: sign and verify"
+
+    <div class="mars-steps" markdown>
+
+    1. Public: the curve, `B = (2, 9)` of order 7, and the signer's `A = 3·B = (3, 14)`. Secret: `a = 3`.
+    2. The signer derives the nonce from a secret and the message: `r = 5`, so `R = 5·B = (15, 8)`.
+    3. The challenge hashes `R`, `A` and the message: `k = 4`.
+    4. `S = 5 + 4·3 mod 7 = 3`. The signature is `R = (15, 8)` and `S = 3`.
+    5. The verifier recomputes `k = 4` from `R`, `A` and the message.
+    6. Left side `3·B = (3, 14)`. Right side `R + 4·A = (15, 8) + (15, 8) = (3, 14)`.
+    7. Both sides match: valid.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Edwards curves** (Edwards 2007; Bernstein and Lange): complete addition laws. Ed25519's curve is
+      birationally the same as Curve25519 used in [X25519](../01-key-exchange/ECDH.md).
+    - **Cofactors:** the curve has `8·L` points; small-order points are why strict and lax verification can
+      disagree (see above).
+    - **Schnorr signatures:** EdDSA is a deterministic [Schnorr](Schnorr.md) signature.
+    - **SHA-512** ([SHA-2](../07-hash/SHA-2.md)) for the key expansion, the nonce and the challenge.
+    - **The elliptic-curve discrete log problem:** [Hard problems](../10-math-foundations/Hard-Problems.md).
+
 ## See also
 
 - [X25519](../01-key-exchange/ECDH.md): key exchange on the same curve family

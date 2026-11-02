@@ -99,6 +99,73 @@ with oqs.Signature("Falcon-padded-512") as verifier:
 - Use a vetted implementation that keeps secret floating-point work constant
   time on your CPU, or one that avoids the FPU entirely.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: hash-and-sign with a short answer"
+
+    Falcon's signature is a short pair `(s₁, s₂)` with `s₁ + s₂·h ≡ c (mod q)`, where `h` is the public key and
+    `c` the hash of the message. With single numbers mod `q = 97` (Falcon uses polynomials of 512 or 1,024
+    coefficients mod 12,289), and `h = 40`, `c = 55`. Checked with Python:
+
+    | Candidate `s₂` | `s₁ = c − s₂·h mod 97` (centered) | Size `s₁² + s₂²` | Valid? |
+    |---|---|---|---|
+    | `30` | `19` | 1,261 | equation holds, but too long |
+    | `4` | `−8` | 80 | equation holds, short |
+    | `−1` | `−2` | 5 | equation holds, the shortest |
+
+    Check the best one: `−2 + (−1)·40 = −42 ≡ 55 (mod 97)`. Any `s₂` gives *some* `s₁`; the hard part is
+    making both short. Here 97 choices can be tried by hand. In Falcon-512 the search space is about 12,289⁵¹²,
+    and only the holder of the secret short basis can find a short pair.
+
+??? abstract "The math, with formulas"
+
+    **The NTRU lattice.** With small secret polynomials `f`, `g` and public `h = g·f⁻¹ mod q` (in
+    `Z_q[x]/(xⁿ + 1)`), the pairs `(s₁, s₂)` with `s₁ + s₂·h ≡ 0 (mod q)` form a lattice. Its basis from `h`
+    is long; the secret basis `[[g, −f], [G, −F]]` with `f·G − g·F = q` is short.
+
+    **Signing (GPV, 2008):** `c = H(salt ‖ m)`. Find any `(t₁, t₂)` with `t₁ + t₂·h = c`, then use the short
+    basis and the fast Fourier sampler to find a lattice vector `v` close to it, drawn from a discrete
+    Gaussian. The signature is `s = t − v`, short and with `s₁ + s₂·h = c`.
+
+    **Verifying:** recompute `c`, set `s₁ = c − s₂·h mod q`, accept if `‖(s₁, s₂)‖² ≤ ⌊β²⌋` (34,034,726 for
+    Falcon-512, 70,265,242 for Falcon-1024).
+
+    | | n | q | Public key | Signature | Category |
+    |---|---|---|---|---|---|
+    | FN-DSA-512 (Falcon-512) | 512 | 12,289 | 897 B | 666 B | 1 |
+    | FN-DSA-1024 (Falcon-1024) | 1,024 | 12,289 | 1,793 B | 1,280 B | 5 |
+
+    **Why the Gaussian.** If the sampler simply rounded, every signature would point slightly along the
+    secret basis, and averaging many signatures would reveal its shape (the attack on NTRUSign). A
+    Gaussian over the lattice coset is the same whichever basis drew it.
+
+??? tip "Watch it step by step: why only the key holder can sign"
+
+    <div class="mars-steps" markdown>
+
+    1. Public: `q = 97` and `h = 40`. The message hashes to `c = 55`.
+    2. A forger can pick any `s₂`, say 30, and solve `s₁ = 55 − 30·40 mod 97 = 19`. The equation holds.
+    3. But `(19, 30)` is long, and the verifier rejects any pair whose length is above the bound.
+    4. The key holder's short basis leads straight to a short pair: `(−2, −1)`.
+    5. The verifier checks `−2 + (−1)·40 = −42 ≡ 55 (mod 97)` and that the pair is short. Valid.
+    6. With 512 coefficients mod 12,289, trying candidates is hopeless; finding a short pair without the
+       basis is the hard lattice problem.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Lattices and short bases:** a lattice has many bases; a short, nearly orthogonal one lets you find
+      nearby lattice points (Babai's nearest-plane idea).
+    - **The short integer solution (SIS) problem** over NTRU lattices: forging means finding a short vector;
+      see [Hard problems](../10-math-foundations/Hard-Problems.md).
+    - **Discrete Gaussian sampling** and the **FFT** over `Z[x]/(xⁿ + 1)` (Falcon's "fast Fourier sampling").
+    - **The NTRU equation** `fG − gF = q`, solved with field norms and the extended Euclidean algorithm.
+    - Compare [ML-DSA](ML-DSA.md) (Fiat–Shamir, larger, easier to implement) and
+      [NTRU Prime](../01-key-exchange/NTRU-Prime.md).
+
 ## See also
 
 - [ML-DSA](ML-DSA.md): the lattice signature to use today

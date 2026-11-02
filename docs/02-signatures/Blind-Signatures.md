@@ -106,6 +106,67 @@ saw `blinded`.
   BLS** (Boldyreva, 2003) takes one round but needs pairings.
 - A quantum computer running Shor's algorithm could forge tokens.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: an RSA blind signature with small numbers"
+
+    The signer's RSA key from the [RSA](RSA.md#going-deeper) example: `n = 3233`, `e = 17`, `d = 2753`. The
+    user wants a signature on `m = 65` without the signer seeing 65. Checked with Python:
+
+    | Step | Who | Calculation | Value |
+    |---|---|---|---|
+    | Blinding factor | user | random `r = 7` (shares no factor with `n`) | |
+    | Blind | user | `m′ = m·rᵉ mod n = 65 · 2369 mod 3233` | `m′ = 2034` |
+    | Sign | signer | `s′ = m′ᵈ mod n = 2034²⁷⁵³ mod 3233` | `s′ = 883` |
+    | Unblind | user | `s = s′·r⁻¹ mod n = 883 · 462 mod 3233` | `s = 588` |
+    | Check | anyone | `588¹⁷ mod 3233` | `65`: valid |
+
+    The signer saw only 2034 and 883. The final signature 588 is exactly the ordinary RSA signature on 65,
+    and the signer cannot link it to the session where it signed 2034.
+
+??? abstract "The math, with formulas"
+
+    **Why unblinding works:**
+
+    ```
+    s′ = (m · rᵉ)ᵈ = mᵈ · r^(e·d) = mᵈ · r   (mod n)
+    s  = s′ · r⁻¹ = mᵈ                       (mod n)
+    ```
+
+    **Why the signer learns nothing.** For any message `m` the signer might guess, there is exactly one `r`
+    with `m · rᵉ = m′`, and `r` is uniformly random, so `m′` is uniformly random too.
+
+    **In practice (RFC 9474, RSABSSA).** The message is first encoded with PSS padding (and optionally a random
+    prefix), so the signer is signing `encode(m)`; the signer must use a key kept only for this purpose, since
+    it will sign whatever value it is sent.
+
+    **Other blind schemes.** Blind Schnorr and blind BLS work the same way with group elements. Privacy Pass
+    tokens (RFC 9578) use RSA blind signatures or a VOPRF.
+
+??? tip "Watch it step by step: signing a sealed envelope"
+
+    <div class="mars-steps" markdown>
+
+    1. The user has `m = 65` and the signer's public key `(3233, 17)`.
+    2. The user picks a secret `r = 7` and computes `7¹⁷ mod 3233 = 2369`.
+    3. The blinded message is `65 · 2369 mod 3233 = 2034`; only this goes to the signer.
+    4. The signer signs it: `2034²⁷⁵³ mod 3233 = 883`, and sends 883 back.
+    5. The user divides out `r`: `883 · 7⁻¹ = 883 · 462 mod 3233 = 588`.
+    6. Anyone checks `588¹⁷ mod 3233 = 65`. The signer has never seen 65 or 588.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **RSA** ([RSA](RSA.md)) and its multiplicative property: `(a·b)ᵈ = aᵈ·bᵈ (mod n)`.
+    - **Modular inverses:** `r⁻¹ mod n` with the extended Euclidean algorithm.
+    - **Uniform distributions:** why a random `r` makes `m′` carry no information about `m`.
+    - **One-more unforgeability:** the security notion for blind signatures (a user who ran the protocol `k`
+      times cannot produce `k + 1` signatures).
+    - Chaum's 1982 idea for untraceable digital cash, now used in Privacy Pass and anonymous credentials.
+
 ## See also
 
 - [RSA](RSA.md): the signature underneath

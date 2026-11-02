@@ -102,6 +102,77 @@ with oqs.Signature("SLH_DSA_PURE_SHA2_128S") as verifier:
 - FIPS 205 also defines HashSLH-DSA (signs a hash of the message); use it
   only when a protocol needs pre-hashing.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: one hash chain"
+
+    SLH-DSA is built from hash chains. Here is one chain with SHA-256 cut to 8 hex digits (real SLH-DSA uses
+    16 to 32 bytes), for base-4 digits 0 to 3. Checked with Python's `hashlib`:
+
+    | Position | Value | Role |
+    |---|---|---|
+    | 0 | `secret` | secret start of the chain |
+    | 1 | `H(secret) = 2bb80d53` | |
+    | 2 | `H(2bb80d53) = 97eff218` | |
+    | 3 | `H(97eff218) = faa88dfc` | public end of the chain |
+
+    To sign the digit 2, reveal position 2, `97eff218`. The verifier hashes it once more and checks it gets
+    the public `faa88dfc`. Anyone can hash forward (turn a 2 into a 3), nobody can hash backward (turn a 2
+    into a 1). A checksum digit, signed the same way, catches forward moves: raising a message digit lowers
+    the checksum.
+
+??? abstract "The math, with formulas"
+
+    **WOTS+ (FIPS 205 §5).** With `w = 16`, an `n`-byte message digest becomes `len₁ = 2n` base-16 digits plus
+    `len₂ = 3` checksum digits, `checksum = Σ (15 − digitᵢ)`. Each digit `aᵢ` is signed with
+    `σᵢ = chain(skᵢ, 0, aᵢ)`; the verifier computes `chain(σᵢ, aᵢ, 15 − aᵢ)` and compresses the chain ends
+    into the public key.
+
+    **Merkle trees (XMSS layer).** `2^h′` WOTS+ public keys are hashed pairwise up to one root. A signature
+    gives the leaf's WOTS+ signature and `h′` sibling hashes.
+
+    **FORS (few-time signatures).** `k` trees with `2^a` leaves each; `a` bits of the digest choose one
+    leaf per tree to reveal. Reusing FORS a few times only weakens it slowly, which is why SLH-DSA needs no
+    state.
+
+    **Hypertree.** `d` layers of XMSS trees; each tree signs the root of the one below; the bottom ones sign
+    FORS public keys. The message hash picks one bottom leaf out of `2^h` (`h = d·h′`, 63 for 128s), so
+    the same FORS key is rarely used twice.
+
+    **Signature size** (in `n`-byte values): `1 + k(a + 1) + d(2n + 3 + h′)`.
+
+    | | n | h | d | a | k | Public key | Signature |
+    |---|---|---|---|---|---|---|---|
+    | SLH-DSA-…-128s | 16 | 63 | 7 | 12 | 14 | 32 B | 7,856 B |
+    | SLH-DSA-…-128f | 16 | 66 | 22 | 6 | 33 | 32 B | 17,088 B |
+    | SLH-DSA-…-256s | 32 | 64 | 8 | 14 | 22 | 64 B | 29,792 B |
+
+??? tip "Watch it step by step: signing one digit with a hash chain"
+
+    <div class="mars-steps" markdown>
+
+    1. The signer keeps the secret `secret` and publishes the end of its chain: `H(H(H(secret))) = faa88dfc`.
+    2. The message digest's digit is 2.
+    3. The signer reveals the value after 2 hashes: `97eff218`.
+    4. The verifier hashes it 3 − 2 = 1 more time: `H(97eff218) = faa88dfc`.
+    5. That matches the public end, so the digit 2 is signed.
+    6. A forger could hash on to sign a 3, but the signed checksum would then need a smaller digit, which
+       means hashing backward: impossible.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Hash functions** and their one-wayness and second-preimage resistance: the only assumption SLH-DSA
+      needs ([SHA-2](../07-hash/SHA-2.md), [SHA-3](../07-hash/SHA-3.md)).
+    - **Merkle trees** (Merkle, 1979) and authentication paths.
+    - **Lamport and Winternitz one-time signatures**: see [Stateful hash-based signatures](Stateful-Hash-Signatures.md).
+    - **Grover's algorithm:** quantum search halves the security of a hash in bits, which is why category 1
+      uses 16-byte values, the same quantum margin as AES-128.
+    - **Few-time signatures (HORS, FORS):** security falls slowly as one key signs more messages.
+
 ## See also
 
 - [ML-DSA](ML-DSA.md): the main post-quantum signature, which this backs up
