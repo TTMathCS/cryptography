@@ -222,6 +222,75 @@ two halves of ChaCha20-Poly1305 run from the standard library on the
   caps failed attempts.
 - **Lengths leak.** Pad if the length gives something away.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: AES-GCM, and what a reused nonce gives away"
+
+    Two messages sealed with AES-128-GCM under the same key (`00 01 … 0f`) **and the same nonce** (12 zero
+    bytes), the mistake GCM cannot survive. Computed with Python's `cryptography`:
+
+    | | Plaintext | Ciphertext (first 13 bytes) |
+    |---|---|---|
+    | Message 1 | `pay alice $10` | `39b7fe73 f8f7cfef 86a95e59 50` |
+    | Message 2 | `pay steve $99` | `39b7fe73 eaefc3fa 86a95e51 59` |
+    | XOR of the two | `00000000 12180c15 00000008 09` | `00000000 12180c15 00000008 09` |
+
+    The XOR of the ciphertexts equals the XOR of the plaintexts, because both used the same keystream. Anyone
+    who knows or guesses one message reads the other, and with two tags under one nonce the authentication
+    key `H` can be solved for too, so forgeries follow (Joux's "forbidden attack", 2006). Each message also
+    carries a 16-byte tag; with distinct nonces none of this works.
+
+??? abstract "The math, with formulas"
+
+    **GCM (NIST SP 800-38D):**
+
+    ```
+    H   = AES_K(0¹²⁸)                         hash key
+    J₀  = nonce ‖ 0³¹ ‖ 1                      for a 96-bit nonce
+    Cᵢ  = Pᵢ ⊕ AES_K(J₀ + i)                   counter mode, i = 1, 2, …
+    S   = GHASH_H(A ‖ pad ‖ C ‖ pad ‖ len(A) ‖ len(C))
+    Tag = AES_K(J₀) ⊕ S
+    ```
+
+    **GHASH** treats each 16-byte block `Xᵢ` as an element of GF(2¹²⁸) (modulo
+    `x¹²⁸ + x⁷ + x² + x + 1`) and evaluates a polynomial at `H`:
+    `S = X₁·Hᵐ ⊕ X₂·Hᵐ⁻¹ ⊕ … ⊕ Xₘ·H`. Two different inputs collide with probability at most `m/2¹²⁸`, which
+    is why the tag is unforgeable as long as `H` stays secret.
+
+    **ChaCha20-Poly1305 (RFC 8439):** block 0 of ChaCha20 gives the one-time Poly1305 key `(r, s)`; blocks 1, 2, …
+    encrypt; the tag is `(Σ cᵢ·r^(q−i+1) mod 2¹³⁰ − 5) + s mod 2¹²⁸` over the AAD, the ciphertext and the
+    lengths.
+
+    **Limits.** With random 96-bit nonces, NIST caps one GCM key at 2³² messages (collision chance about
+    2⁻³³). AES-GCM-SIV (RFC 8452) derives the nonce-dependent keys and a synthetic IV from the message, so a
+    repeated nonce only reveals that two messages were identical.
+
+??? tip "Watch it step by step: sealing a message with AES-GCM"
+
+    <div class="mars-steps" markdown>
+
+    1. From the key, compute the hash key `H = AES(K, 0)`.
+    2. Build the first counter block `J₀` from the 12-byte nonce and a counter of 1.
+    3. Encrypt counters `J₀ + 1`, `J₀ + 2`, … and XOR them into the plaintext: that is the ciphertext.
+    4. Feed the associated data, the ciphertext and their lengths through GHASH: multiply and add in
+       GF(2¹²⁸) with `H`.
+    5. Encrypt `J₀` and XOR it into the GHASH result: that is the 16-byte tag.
+    6. The receiver recomputes the tag first and refuses to decrypt anything whose tag doesn't match.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Finite fields GF(2¹²⁸)** and polynomial evaluation (GHASH); the prime field mod `2¹³⁰ − 5` (Poly1305).
+    - **Universal hashing** (Carter and Wegman, 1979): a keyed hash with provably small collision
+      probability, turned into a MAC by a one-time mask. See [Universal-hash MACs](../06-mac/Universal-Hash-MACs.md).
+    - **Counter mode** and **pseudorandom permutations**: [Classic modes](Classic-Modes.md), [AES](../04-symmetric-ciphers/AES.md).
+    - **The birthday bound**, which sets nonce and data limits.
+    - **Security notions:** IND-CPA for privacy plus INT-CTXT for integrity give IND-CCA (Bellare and
+      Namprempre, 2000).
+
 ## See also
 
 - [Classic modes](Classic-Modes.md): CTR and CBC, what AEAD replaced

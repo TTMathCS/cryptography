@@ -217,6 +217,64 @@ gives the plaintext.
 - To decrypt CBC at all, check a MAC over the ciphertext first, and never
   let errors or timing depend on the padding.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: ECB shows the pattern, CBC hides it"
+
+    The 32-byte plaintext `YELLOW SUBMARINEYELLOW SUBMARINE` is the same 16-byte block twice. Encrypted with
+    AES-128 (key all zeros; CBC IV `00 01 … 0f`), computed with Python's `cryptography`:
+
+    | Mode | Block 1 | Block 2 |
+    |---|---|---|
+    | ECB | `9f966ace ece847cd 3333bb0f d5306172` | `9f966ace ece847cd 3333bb0f d5306172` |
+    | CBC | `e73b6f01 735b3920 86885f75 3cd2eca6` | `7cb33a72 35464909 f9c9847c 0c7bd12d` |
+
+    ECB turns equal blocks into equal ciphertext, which is how the famous "ECB penguin" stays visible. CBC
+    XORs each block with the previous ciphertext first, so the repeat disappears.
+
+??? abstract "The math, with formulas"
+
+    | Mode | Encrypt | Decrypt | Notes |
+    |---|---|---|---|
+    | ECB | `Cᵢ = E(Pᵢ)` | `Pᵢ = D(Cᵢ)` | equal blocks leak |
+    | CBC | `Cᵢ = E(Pᵢ ⊕ Cᵢ₋₁)`, `C₀ = IV` | `Pᵢ = D(Cᵢ) ⊕ Cᵢ₋₁` | IV must be unpredictable; needs padding |
+    | CFB | `Cᵢ = Pᵢ ⊕ E(Cᵢ₋₁)` | `Pᵢ = Cᵢ ⊕ E(Cᵢ₋₁)` | self-synchronizing stream |
+    | OFB | `Oᵢ = E(Oᵢ₋₁)`, `Cᵢ = Pᵢ ⊕ Oᵢ` | same | keystream independent of data |
+    | CTR | `Cᵢ = Pᵢ ⊕ E(nonce ‖ i)` | same | parallel; nonce must never repeat |
+
+    **The padding oracle (Vaudenay, 2002).** In CBC, `Pᵢ = D(Cᵢ) ⊕ Cᵢ₋₁`. An attacker who changes the last byte
+    of `Cᵢ₋₁` to `g` and learns only "padding OK" (last byte `01`) knows `D(Cᵢ)` ends in `g ⊕ 01`; XOR with the
+    real `Cᵢ₋₁` byte gives the plaintext byte. At most 256 tries per byte, so a 16-byte block falls in at most
+    4,096 queries. That is why CBC must be paired with a MAC checked first (encrypt-then-MAC), or replaced by
+    an AEAD.
+
+    **CTR keystream reuse.** With a repeated nonce, `C ⊕ C′ = P ⊕ P′`, the same failure as a reused one-time
+    pad.
+
+??? tip "Watch it step by step: CBC encryption"
+
+    <div class="mars-steps" markdown>
+
+    1. Split the message into 16-byte blocks and pad the last one.
+    2. XOR block 1 with a random IV, then encrypt: that is `C₁`.
+    3. XOR block 2 with `C₁`, then encrypt: that is `C₂`.
+    4. Continue: every block depends on all blocks before it.
+    5. Decryption reverses it: decrypt `Cᵢ`, then XOR with `Cᵢ₋₁`.
+    6. Equal plaintext blocks now give different ciphertext blocks, unlike ECB.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Block ciphers as pseudorandom permutations:** [AES](../04-symmetric-ciphers/AES.md).
+    - **XOR and the one-time pad:** why reusing a keystream is fatal.
+    - **IND-CPA security:** CBC with a random IV and CTR with unique nonces are secure against eavesdroppers,
+      ECB is not.
+    - **Chosen-ciphertext attacks:** padding oracles and why integrity comes first ([AEAD](AEAD.md)).
+    - **The birthday bound:** CBC and CTR wear out after about 2⁶⁴ blocks with AES (2³² with 64-bit ciphers).
+
 ## See also
 
 - [ChaCha20-Poly1305](AEAD.md): an AEAD, what to use instead

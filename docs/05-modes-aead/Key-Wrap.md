@@ -143,6 +143,70 @@ match the test vectors in RFC 3394 and RFC 5649.
 - Use it for keys, not general data. Equal plaintexts show as equal
   ciphertexts, which matters for anything that isn't random.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: RFC 3394's first test vector, recomputed"
+
+    Wrap a 128-bit key with a 128-bit key-encryption key (RFC 3394 §4.1). Recomputed with Python's
+    `cryptography.hazmat.primitives.keywrap`, matching the RFC:
+
+    | Item | Value |
+    |---|---|
+    | KEK | `000102030405060708090A0B0C0D0E0F` |
+    | Key to wrap | `00112233445566778899AABBCCDDEEFF` |
+    | Initial value `A` | `A6A6A6A6A6A6A6A6` |
+    | Wrapped (24 bytes) | `1FA68B0A8112B447 AEF34BD8FB5A7B82 9D3E862371D2CFE5` |
+
+    The output is 8 bytes longer than the input. Unwrapping must give back `A6A6A6A6A6A6A6A6` in the first 8
+    bytes; any other value means the wrong KEK or a tampered blob, and the key is refused.
+
+??? abstract "The math, with formulas"
+
+    **AES Key Wrap (RFC 3394, SP 800-38F "KW").** Split the key into `n` 64-bit blocks `R[1..n]`; set
+    `A = A6A6A6A6A6A6A6A6`. Then 6 passes:
+
+    ```
+    for j = 0 … 5:
+        for i = 1 … n:
+            B    = AES_KEK(A ‖ R[i])
+            t    = n·j + i
+            A    = MSB₆₄(B) ⊕ t
+            R[i] = LSB₆₄(B)
+    output A ‖ R[1] ‖ … ‖ R[n]
+    ```
+
+    Unwrapping runs it backwards with AES decryption and checks `A`. The 6n AES calls mix every bit of the key
+    into every output block, so the wrap acts like a wide block cipher, and the fixed `A` is a 64-bit
+    integrity check: a random change passes with chance 2⁻⁶⁴.
+
+    **KWP (RFC 5649)** pads to a multiple of 8 bytes and puts `A65959A6` and the length in `A`. **Why not GCM?**
+    Key wrap needs no nonce, so it is safe to use deterministically for keys, where a forgotten or repeated
+    nonce would be catastrophic.
+
+??? tip "Watch it step by step: one wrapping step"
+
+    <div class="mars-steps" markdown>
+
+    1. The 16-byte key becomes two 8-byte halves, `R[1]` and `R[2]`; the check value `A` starts as `A6A6…A6`.
+    2. Encrypt `A ‖ R[1]` with AES under the KEK.
+    3. The first 8 bytes, XORed with the step counter `t = 1`, become the new `A`; the last 8 replace `R[1]`.
+    4. Do the same with `R[2]` (`t = 2`).
+    5. Repeat the pass 6 times in all, 12 AES calls, with `t` running to 12.
+    6. Output `A ‖ R[1] ‖ R[2]`: `1FA68B0A…D2CFE5`. Unwrapping undoes the 12 steps and must end at `A6A6…A6`.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Deterministic authenticated encryption** (Rogaway and Shrimpton's SIV notion), which key wrap
+      provides for random keys.
+    - **Feistel-like mixing** with a block cipher: [AES](../04-symmetric-ciphers/AES.md).
+    - **Integrity checks with a fixed value** and their forgery probability.
+    - **Key hierarchies:** KEKs protect data keys in HSMs, KMSs and PKCS#11 (`CKM_AES_KEY_WRAP`).
+    - Compare [AEAD](AEAD.md) and [HPKE](../03-public-key-encryption/HPKE.md) for wrapping to a public key.
+
 ## See also
 
 - [Classic modes](Classic-Modes.md): what the plain modes leak without a check

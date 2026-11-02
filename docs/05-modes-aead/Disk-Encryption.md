@@ -155,6 +155,74 @@ Adiantum that last line would list all 256 blocks.
 - Generate K1 and K2 independently. A 512-bit XTS key is AES-256 strength,
   not 512.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: the same data in two sectors"
+
+    32 bytes of `A` written to sector 0 and to sector 1 of a disk, with AES-XTS and the 32-byte key
+    `00 01 … 1f` (two AES-128 keys). Computed with Python's `cryptography`:
+
+    | Sector | Ciphertext |
+    |---|---|
+    | 0 | `56acd179 41534308 5af0d1cd c3616b10 8298837d 89f9803e d68df446 c75f964b` |
+    | 1 | `47e56812 6b3dd416 3d7fc2f7 8936c9ca 493ff953 9b56d788 a6d6e317 cac8a8d8` |
+
+    Same data, same key, different sectors: different ciphertext, and the two 16-byte blocks inside each
+    sector differ too. What XTS cannot hide: writing the same data to the *same* sector again gives the same
+    ciphertext, so someone with two snapshots of the disk sees which blocks changed.
+
+??? abstract "The math, with formulas"
+
+    **XTS-AES (IEEE 1619, SP 800-38E)** with keys `K₁`, `K₂`, sector number `i`, block `j` inside the sector:
+
+    ```
+    T  = AES_K₂(i) ⊗ αʲ          α = x in GF(2¹²⁸), i.e. multiply by 2
+    Cⱼ = AES_K₁(Pⱼ ⊕ T) ⊕ T
+    ```
+
+    Multiplying by `α` is a 1-bit shift left with a conditional XOR of `0x87`, so each next tweak is nearly
+    free. A last partial block is handled by ciphertext stealing, so the sector size never grows. There is
+    no room for a tag: XTS gives confidentiality only, and a changed ciphertext block decrypts to 16 random
+    bytes instead of raising an error.
+
+    **Adiantum (Crowley and Biggers, 2018)** encrypts a whole 4 KiB sector as one wide block
+    (hash-encrypt-hash):
+
+    ```
+    P = (P_L, P_R)                      P_R is 16 bytes, P_L the rest
+    P_M = P_R + H(T, P_L)               H = NH then Poly1305 (an ε-universal hash)
+    C_M = AES-256(P_M)                  one block cipher call
+    C_L = P_L ⊕ XChaCha12(C_M)
+    C_R = C_M − H(T, C_L)
+    ```
+
+    Change one bit anywhere and the whole sector changes, which is stronger than XTS's 16-byte granularity.
+
+??? tip "Watch it step by step: XTS on one block"
+
+    <div class="mars-steps" markdown>
+
+    1. The sector number `i` is encrypted with the second key: `AES_K₂(i)`.
+    2. For block `j` inside the sector, multiply by 2 in GF(2¹²⁸) `j` times: that is the tweak `T`.
+    3. XOR the plaintext block with `T`.
+    4. Encrypt it with the first key.
+    5. XOR with `T` again: that is the ciphertext block, the same size as the plaintext.
+    6. The same data in another sector, or another position, gets a different `T` and so looks different.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Tweakable block ciphers** (Liskov, Rivest and Wagner, 2002) and Rogaway's XEX construction, which XTS
+      is built on.
+    - **GF(2¹²⁸) multiplication by `x`:** the doubling used for the tweaks (also in CMAC and OCB).
+    - **Wide-block encryption** and universal hashing ([Universal-hash MACs](../06-mac/Universal-Hash-MACs.md)).
+    - **Why there is no tag:** length-preserving encryption cannot detect tampering; file systems that need
+      it add integrity separately (dm-integrity, APFS's per-file keys).
+    - [AES](../04-symmetric-ciphers/AES.md), [ChaCha](../04-symmetric-ciphers/ChaCha.md).
+
 ## See also
 
 - [Classic modes](Classic-Modes.md): CBC and its bit flipping, why disks moved on

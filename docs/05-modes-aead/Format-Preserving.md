@@ -131,6 +131,70 @@ print(head + ff1(key, tweak, enc[6:12], dec=True) + tail == card)   # True
 - Six digits is the smallest domain Rev. 1 allows. One guess in a million
   hits, so limit who can call encrypt, and vary the tweak.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: NIST's first FF1 example, recomputed"
+
+    NIST's FF1 sample 1: AES-128 key `2B7E151628AED2A6ABF7158809CF4F3C`, radix 10, empty tweak. A small FF1
+    written here in Python from SP 800-38G gives the published answer:
+
+    | Step | Value |
+    |---|---|
+    | Plaintext | `0123456789` (10 digits) |
+    | Split into halves | `A = 01234`, `B = 56789` |
+    | Round 1: `y` = AES-CBC-MAC of the parameters and `B`, mod 10⁵ | `60536` |
+    | New half: `(A + y) mod 10⁵ = (1234 + 60536) mod 100000` | `61770`; then `A = 56789`, `B = 61770` |
+    | … 9 more rounds, the halves swapping each time | |
+    | Ciphertext | `2433477484` (still 10 digits) |
+
+    The output has the same format as the input, so it fits in a database column built for 10 digits.
+
+??? abstract "The math, with formulas"
+
+    **FF1 (SP 800-38G)** is a 10-round Feistel network over strings of digits in base `radix`:
+
+    ```
+    split X into A (u digits) and B (v digits)
+    for i = 0 … 9:
+        y = NUM(PRF_K(P ‖ Q(T, i, B)))           AES-CBC-MAC, extended if needed
+        m = u if i is even, else v
+        C = (NUM_radix(A) + y) mod radixᵐ
+        A, B = B, STR_radix(C, m)
+    return A ‖ B
+    ```
+
+    Decryption runs the rounds backwards with subtraction. Addition mod `radixᵐ` replaces the XOR of a
+    binary Feistel, so the halves stay valid digit strings.
+
+    **Why the domain must be large.** With few possible values, an attacker can tabulate them. Known attacks
+    (Durak and Vaudenay 2017, Hoang, Tessaro and Trieu 2018) recover or distinguish messages faster than
+    brute force when the domain is small, so SP 800-38G Rev. 1 requires `radix^minlen ≥ 1,000,000`, e.g. at
+    least 6 decimal digits, and dropped FF3 for FF3-1.
+
+??? tip "Watch it step by step: a Feistel round on digits"
+
+    <div class="mars-steps" markdown>
+
+    1. The input `0123456789` is split into `A = 01234` and `B = 56789`.
+    2. AES (as a CBC-MAC) hashes the key, tweak, round number and `B` into a big number; mod 10⁵ it is 60536.
+    3. Add it to `A`: `1234 + 60536 = 61770` (mod 100000).
+    4. Swap: the new pair is `A = 56789`, `B = 61770`.
+    5. Nine more rounds mix both halves completely.
+    6. The output `2433477484` has 10 digits; running the rounds backwards with subtraction gives
+       `0123456789` again.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Feistel networks** with modular addition (Luby–Rackoff security for enough rounds).
+    - **Numeral systems:** `NUM` and `STR` convert between digit strings and integers in any base.
+    - **Pseudorandom functions from AES** (CBC-MAC).
+    - **Small-domain attacks:** why 10⁶ is the minimum and why FF3 was weakened.
+    - [AES](../04-symmetric-ciphers/AES.md), [Block-cipher MACs](../06-mac/Block-Cipher-MACs.md).
+
 ## See also
 
 - [Block-cipher MACs](../06-mac/Block-Cipher-MACs.md): CBC-MAC, the round function inside FF1
