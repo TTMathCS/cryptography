@@ -20,7 +20,7 @@ NIST took it "in order to not rely entirely on the security of lattices"
 "Stateless" is the point. LMS and XMSS (SP 800-208) use each one-time key
 once, and the signer must remember which ones are spent; restore a backup and
 a key gets reused, which breaks security. SLH-DSA picks its one-time key from
-the message hash, out of 2⁶³ or more, so repeats are rare, and the bottom
+the message hash, out of $2^{63}$ or more, so repeats are rare, and the bottom
 layer can take a few.
 
 There are 12 parameter sets: SHA2 or SHAKE, three levels, and **s** (small
@@ -48,23 +48,23 @@ Three hash-based parts, all regenerated from a secret seed when needed:
   many random strings 15 times. To sign, reveal each chain partway, as far as
   the message's base-16 digits say. A checksum stops anyone from hashing
   forward to sign something else.
-- **A hypertree:** Merkle trees of 2^h′ WOTS+ keys each, stacked d layers
+- **A hypertree:** Merkle trees of $2^{h'}$ WOTS+ keys each, stacked $d$ layers
   deep. Each tree signs the roots of the trees below; the top root is the
   public key.
-- **FORS** at the bottom: k small Merkle trees of 2^a leaves. The message
+- **FORS** at the bottom: $k$ small Merkle trees of $2^a$ leaves. The message
   digest picks one leaf in each tree to reveal.
 
-The signature is a randomizer R, the FORS signature, and one WOTS+ signature
-plus Merkle path per layer. Counting n-byte values: 1 + k(a + 1) +
-d(2n + 3 + h′). For 128s (n = 16, k = 14, a = 12, d = 7, h′ = 9) that is
-16 × (1 + 182 + 308) = 7,856 bytes. The f sets use many short trees (128f has
+The signature is a randomizer $R$, the FORS signature, and one WOTS+ signature
+plus Merkle path per layer. Counting $n$-byte values:
+$1 + k(a + 1) + d(2n + 3 + h')$. For 128s ($n = 16$, $k = 14$, $a = 12$, $d = 7$, $h' = 9$) that is
+$16 \times (1 + 182 + 308) = 7{,}856$ bytes. The f sets use many short trees (128f has
 22 layers of height 3), so signing is faster and signatures longer.
 
 ## When to use it
 
 - **Long-lived roots of trust:** firmware, boot loaders, root CAs. Few
   signatures, many checks, decades of life. NIST's draft SP 800-230 (April
-  2026) adds smaller sets for keys that sign at most 2²⁴ times.
+  2026) adds smaller sets for keys that sign at most $2^{24}$ times.
 - **A second kind of math** next to ML-DSA, so one broken assumption can't
   take everything down.
 - **Not** for TLS handshakes or anything that signs constantly.
@@ -95,7 +95,7 @@ with oqs.Signature("SLH_DSA_PURE_SHA2_128S") as verifier:
 - Hash functions have no algebraic structure for a new attack to grab.
   Quantum search only takes a square root off hash attacks, and the
   parameters allow for it.
-- The FIPS 205 sets stay secure for up to 2⁶⁴ signatures per key.
+- The FIPS 205 sets stay secure for up to $2^{64}$ signatures per key.
 - A glitch while signing can make a WOTS+ key sign two values, enough to
   forge (Castelnovi, Martinelli and Prest, 2018). The bad signature still
   verifies, so on hardware open to tampering, sign twice and compare.
@@ -125,25 +125,25 @@ Each part below starts closed; open the ones you want.
 
 ??? abstract "The math, with formulas"
 
-    **WOTS+ (FIPS 205 §5).** With `w = 16`, an `n`-byte message digest becomes `len₁ = 2n` base-16 digits plus
-    `len₂ = 3` checksum digits, `checksum = Σ (15 − digitᵢ)`. Each digit `aᵢ` is signed with
-    `σᵢ = chain(skᵢ, 0, aᵢ)`; the verifier computes `chain(σᵢ, aᵢ, 15 − aᵢ)` and compresses the chain ends
+    **WOTS+ (FIPS 205 §5).** With $w = 16$, an $n$-byte message digest becomes $\mathit{len}_1 = 2n$ base-16 digits plus
+    $\mathit{len}_2 = 3$ checksum digits, $\mathit{checksum} = \sum_i (15 - \mathit{digit}_i)$. Each digit $a_i$ is signed with
+    $\sigma_i = \mathrm{chain}(\mathit{sk}_i, 0, a_i)$; the verifier computes $\mathrm{chain}(\sigma_i, a_i, 15 - a_i)$ and compresses the chain ends
     into the public key.
 
-    **Merkle trees (XMSS layer).** `2^h′` WOTS+ public keys are hashed pairwise up to one root. A signature
-    gives the leaf's WOTS+ signature and `h′` sibling hashes.
+    **Merkle trees (XMSS layer).** $2^{h'}$ WOTS+ public keys are hashed pairwise up to one root. A signature
+    gives the leaf's WOTS+ signature and $h'$ sibling hashes.
 
-    **FORS (few-time signatures).** `k` trees with `2^a` leaves each; `a` bits of the digest choose one
+    **FORS (few-time signatures).** $k$ trees with $2^a$ leaves each; $a$ bits of the digest choose one
     leaf per tree to reveal. Reusing FORS a few times only weakens it slowly, which is why SLH-DSA needs no
     state.
 
-    **Hypertree.** `d` layers of XMSS trees; each tree signs the root of the one below; the bottom ones sign
-    FORS public keys. The message hash picks one bottom leaf out of `2^h` (`h = d·h′`, 63 for 128s), so
+    **Hypertree.** $d$ layers of XMSS trees; each tree signs the root of the one below; the bottom ones sign
+    FORS public keys. The message hash picks one bottom leaf out of $2^h$ ($h = d \cdot h'$, 63 for 128s), so
     the same FORS key is rarely used twice.
 
-    **Signature size** (in `n`-byte values): `1 + k(a + 1) + d(2n + 3 + h′)`.
+    **Signature size** (in $n$-byte values): $1 + k(a + 1) + d(2n + 3 + h')$.
 
-    | | n | h | d | a | k | Public key | Signature |
+    | | $n$ | $h$ | $d$ | $a$ | $k$ | Public key | Signature |
     |---|---|---|---|---|---|---|---|
     | SLH-DSA-…-128s | 16 | 63 | 7 | 12 | 14 | 32 B | 7,856 B |
     | SLH-DSA-…-128f | 16 | 66 | 22 | 6 | 33 | 32 B | 17,088 B |
@@ -156,7 +156,7 @@ Each part below starts closed; open the ones you want.
     1. The signer keeps the secret `secret` and publishes the end of its chain: `H(H(H(secret))) = faa88dfc`.
     2. The message digest's digit is 2.
     3. The signer reveals the value after 2 hashes: `97eff218`.
-    4. The verifier hashes it 3 − 2 = 1 more time: `H(97eff218) = faa88dfc`.
+    4. The verifier hashes it $3 - 2 = 1$ more time: `H(97eff218) = faa88dfc`.
     5. That matches the public end, so the digit 2 is signed.
     6. A forger could hash on to sign a 3, but the signed checksum would then need a smaller digit, which
        means hashing backward: impossible.

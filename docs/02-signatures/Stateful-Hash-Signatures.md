@@ -24,9 +24,9 @@ hard to manage.
 
 | Parameter set | Signatures per key | Signature |
 |---|---|---|
-| LMS SHA-256, h = 10, w = 8 | 1,024 | 1,452 B |
-| LMS SHA-256, h = 20, w = 8 | about a million | 1,772 B |
-| LMS SHA-256/192, h = 15, w = 4 | 32,768 | 1,620 B |
+| LMS SHA-256, $h = 10$, $w = 8$ | 1,024 | 1,452 B |
+| LMS SHA-256, $h = 20$, $w = 8$ | about a million | 1,772 B |
+| LMS SHA-256/192, $h = 15$, $w = 4$ | 32,768 | 1,620 B |
 | `XMSS-SHA2_20_256` | about a million | 2,820 B |
 
 Public keys are under 70 bytes. SLH-DSA needs no counter, but its smallest
@@ -38,15 +38,15 @@ signature is 7,856 bytes and it signs far more slowly.
   random strings, the public key their hashes. To sign, reveal one string per
   pair, picked by each bit of the message hash.
 - **Winternitz chains** (Merkle credits Robert Winternitz, 1979) shrink this.
-  Each secret is hashed 2^w − 1 times to make its public value. A digit `a`
-  is signed by revealing the value after `a` hashes; the verifier hashes the
+  Each secret is hashed $2^w - 1$ times to make its public value. A digit $a$
+  is signed by revealing the value after $a$ hashes; the verifier hashes the
   rest of the way. A signed checksum stops anyone from raising a digit. LMS
-  uses w = 1, 2, 4 or 8, XMSS uses 16.
-- **A Merkle tree** puts 2^h one-time public keys under one root, which is
+  uses $w = 1, 2, 4$ or $8$, XMSS uses 16.
+- **A Merkle tree** puts $2^h$ one-time public keys under one root, which is
   the public key. A signature carries the leaf number, the one-time signature
-  and the h sibling hashes up to the root.
+  and the $h$ sibling hashes up to the root.
 
-The state is the next unused leaf; after 2^h signatures the key is spent.
+The state is the next unused leaf; after $2^h$ signatures the key is spent.
 Building a tall tree means computing every leaf, so HSS and XMSS^MT stack
 smaller trees and make the lower ones as needed.
 
@@ -67,7 +67,7 @@ LMS is simpler, and the set CNSA 2.0 recommends is an LMS one.
 
 ## Example (Python)
 
-A Lamport key with the standard library. LMS and XMSS put 2^h keys like this,
+A Lamport key with the standard library. LMS and XMSS put $2^h$ keys like this,
 with Winternitz chains, under one Merkle root.
 
 ```python
@@ -98,7 +98,7 @@ print(sum(a != b for a, b in zip(s1, s2)))   # 132 pairs now fully known
 ```
 
 After the reuse, a forger only needs a message whose hash matches the other
-124 bits, about 2¹²⁴ tries. Each further reuse roughly halves the bits left.
+124 bits, about $2^{124}$ tries. Each further reuse roughly halves the bits left.
 
 ## Security notes
 
@@ -128,8 +128,8 @@ Each part below starts closed; open the ones you want.
     | Node | Calculation | Value |
     |---|---|---|
     | Leaf 0 … 3 | `H(pk0)`, `H(pk1)`, `H(pk2)`, `H(pk3)` | `dd1d1884`, `6e73bff1`, `11e85b77`, `f7f5f313` |
-    | Left parent | `H(leaf0 ‖ leaf1)` | `171968e6` |
-    | Right parent | `H(leaf2 ‖ leaf3)` | `094f95e5` |
+    | Left parent | $H(\mathit{leaf}_0 \,\Vert\, \mathit{leaf}_1)$ | `171968e6` |
+    | Right parent | $H(\mathit{leaf}_2 \,\Vert\, \mathit{leaf}_3)$ | `094f95e5` |
     | Root (the public key) | `H(171968e6 ‖ 094f95e5)` | `0720d477` |
 
     Signing with leaf 1: send the one-time signature, its public key `6e73bff1`, the leaf number 1, and the
@@ -138,22 +138,22 @@ Each part below starts closed; open the ones you want.
 
 ??? abstract "The math, with formulas"
 
-    **Lamport (1979):** secret `x[i][b]` for `i = 1…256`, `b ∈ {0, 1}`; public `y[i][b] = H(x[i][b])`. Sign hash
-    bit `mᵢ` by revealing `x[i][mᵢ]`. One signature reveals half the secrets; a second message would reveal
+    **Lamport (1979):** secret $x[i][b]$ for $i = 1, \ldots, 256$, $b \in \{0, 1\}$; public $y[i][b] = H(x[i][b])$. Sign hash
+    bit $m_i$ by revealing $x[i][m_i]$. One signature reveals half the secrets; a second message would reveal
     more, so it is strictly one-time.
 
-    **Winternitz chains:** with digits in base `2^w`, sign digit `a` by revealing `H^a(x)`; verify with
-    `H^(2^w − 1 − a)(σ) = y`. A checksum `Σ (2^w − 1 − aᵢ)` is signed too, so raising any digit lowers the
+    **Winternitz chains:** with digits in base $2^w$, sign digit $a$ by revealing $H^a(x)$; verify with
+    $H^{2^w - 1 - a}(\sigma) = y$. A checksum $\sum_i (2^w - 1 - a_i)$ is signed too, so raising any digit lowers the
     checksum.
 
-    **Merkle tree:** `node = H(left ‖ right)`; a signature for leaf `q` carries `h` sibling hashes, and the
+    **Merkle tree:** $\mathit{node} = H(\mathit{left} \,\Vert\, \mathit{right})$; a signature for leaf $q$ carries $h$ sibling hashes, and the
     verifier rebuilds the path to the root. LMS (RFC 8554) and XMSS (RFC 8391) add per-node tweaks (the tree
     identifier, node number) and, in XMSS, random bitmasks, so attacks on one hash call don't carry over to
     others.
 
-    | | Heights | Signatures per key | Signature size (n = 32) |
+    | | Heights | Signatures per key | Signature size ($n = 32$) |
     |---|---|---|---|
-    | LMS, w = 8 | 5 to 25 | 2⁵ to 2²⁵ | 1,292 B to 1,932 B |
+    | LMS, $w = 8$ | 5 to 25 | $2^5$ to $2^{25}$ | 1,292 B to 1,932 B |
     | XMSS-SHA2_10_256 | 10 | 1,024 | 2,500 B |
     | XMSS-SHA2_20_256 | 20 | about 1 million | 2,820 B |
 

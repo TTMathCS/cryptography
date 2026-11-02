@@ -25,22 +25,22 @@ previewed the draft in September 2025 and revised the plan in September 2026.
 
 Sizes are from the round-3 Falcon specification, with signatures padded to a
 fixed length. Private keys are 1,281 and 2,305 bytes. There is no middle size:
-the ring needs n to be a power of two.
+the ring needs $n$ to be a power of two.
 
 ## How it works
 
 Falcon is "hash-and-sign" over an NTRU lattice, after Gentry, Peikert and
-Vaikuntanathan (2008). Everything is a polynomial modulo xⁿ + 1 (n = 512 or
-1024) with coefficients modulo q = 12,289.
+Vaikuntanathan (2008). Everything is a polynomial modulo $x^n + 1$ ($n = 512$ or
+$1024$) with coefficients modulo $q = 12{,}289$.
 
-- **Key generation:** pick small random polynomials f and g, then solve
-  f·G − g·F = q for F and G. The public key is h = g/f mod q. The four small
-  polynomials are a short basis of the lattice; h only gives a long one.
-- **Sign:** hash a random 40-byte salt and the message to a polynomial c. Use
-  the short basis to find a lattice point close to (c, 0). The difference is a
-  short pair (s₁, s₂) with s₁ + s₂·h = c mod q. The signature is the salt and
-  a compressed s₂.
-- **Verify:** compute s₁ = c − s₂·h mod q and check that (s₁, s₂) is short.
+- **Key generation:** pick small random polynomials $f$ and $g$, then solve
+  $f \cdot G - g \cdot F = q$ for $F$ and $G$. The public key is $h = g/f \bmod q$. The four small
+  polynomials are a short basis of the lattice; $h$ only gives a long one.
+- **Sign:** hash a random 40-byte salt and the message to a polynomial $c$. Use
+  the short basis to find a lattice point close to $(c, 0)$. The difference is a
+  short pair $(s_1, s_2)$ with $s_1 + s_2 \cdot h = c \bmod q$. The signature is the salt and
+  a compressed $s_2$.
+- **Verify:** compute $s_1 = c - s_2 \cdot h \bmod q$ and check that $(s_1, s_2)$ is short.
 
 The lattice point must follow a discrete Gaussian distribution, drawn by a
 "fast Fourier sampler" over a tree built from the private key. Otherwise each
@@ -105,34 +105,34 @@ Each part below starts closed; open the ones you want.
 
 ??? example "Sample calculation: hash-and-sign with a short answer"
 
-    Falcon's signature is a short pair `(s₁, s₂)` with `s₁ + s₂·h ≡ c (mod q)`, where `h` is the public key and
-    `c` the hash of the message. With single numbers mod `q = 97` (Falcon uses polynomials of 512 or 1,024
-    coefficients mod 12,289), and `h = 40`, `c = 55`. Checked with Python:
+    Falcon's signature is a short pair $(s_1, s_2)$ with $s_1 + s_2 \cdot h \equiv c \pmod{q}$, where $h$ is the public key and
+    $c$ the hash of the message. With single numbers mod $q = 97$ (Falcon uses polynomials of 512 or 1,024
+    coefficients mod 12,289), and $h = 40$, $c = 55$. Checked with Python:
 
-    | Candidate `s₂` | `s₁ = c − s₂·h mod 97` (centered) | Size `s₁² + s₂²` | Valid? |
+    | Candidate $s_2$ | $s_1 = c - s_2 \cdot h \bmod 97$ (centered) | Size $s_1^2 + s_2^2$ | Valid? |
     |---|---|---|---|
-    | `30` | `19` | 1,261 | equation holds, but too long |
-    | `4` | `−8` | 80 | equation holds, short |
-    | `−1` | `−2` | 5 | equation holds, the shortest |
+    | $30$ | $19$ | 1,261 | equation holds, but too long |
+    | $4$ | $-8$ | 80 | equation holds, short |
+    | $-1$ | $-2$ | 5 | equation holds, the shortest |
 
-    Check the best one: `−2 + (−1)·40 = −42 ≡ 55 (mod 97)`. Any `s₂` gives *some* `s₁`; the hard part is
-    making both short. Here 97 choices can be tried by hand. In Falcon-512 the search space is about 12,289⁵¹²,
+    Check the best one: $-2 + (-1) \cdot 40 = -42 \equiv 55 \pmod{97}$. Any $s_2$ gives *some* $s_1$; the hard part is
+    making both short. Here 97 choices can be tried by hand. In Falcon-512 the search space is about $12{,}289^{512}$,
     and only the holder of the secret short basis can find a short pair.
 
 ??? abstract "The math, with formulas"
 
-    **The NTRU lattice.** With small secret polynomials `f`, `g` and public `h = g·f⁻¹ mod q` (in
-    `Z_q[x]/(xⁿ + 1)`), the pairs `(s₁, s₂)` with `s₁ + s₂·h ≡ 0 (mod q)` form a lattice. Its basis from `h`
-    is long; the secret basis `[[g, −f], [G, −F]]` with `f·G − g·F = q` is short.
+    **The NTRU lattice.** With small secret polynomials $f$, $g$ and public $h = g \cdot f^{-1} \bmod q$ (in
+    $\mathbb{Z}_q[x]/(x^n + 1)$), the pairs $(s_1, s_2)$ with $s_1 + s_2 \cdot h \equiv 0 \pmod{q}$ form a lattice. Its basis from $h$
+    is long; the secret basis $\begin{bmatrix} g & -f \\ G & -F \end{bmatrix}$ with $f \cdot G - g \cdot F = q$ is short.
 
-    **Signing (GPV, 2008):** `c = H(salt ‖ m)`. Find any `(t₁, t₂)` with `t₁ + t₂·h = c`, then use the short
-    basis and the fast Fourier sampler to find a lattice vector `v` close to it, drawn from a discrete
-    Gaussian. The signature is `s = t − v`, short and with `s₁ + s₂·h = c`.
+    **Signing (GPV, 2008):** $c = H(\mathit{salt} \,\Vert\, m)$. Find any $(t_1, t_2)$ with $t_1 + t_2 \cdot h = c$, then use the short
+    basis and the fast Fourier sampler to find a lattice vector $v$ close to it, drawn from a discrete
+    Gaussian. The signature is $s = t - v$, short and with $s_1 + s_2 \cdot h = c$.
 
-    **Verifying:** recompute `c`, set `s₁ = c − s₂·h mod q`, accept if `‖(s₁, s₂)‖² ≤ ⌊β²⌋` (34,034,726 for
+    **Verifying:** recompute $c$, set $s_1 = c - s_2 \cdot h \bmod q$, accept if $\Vert (s_1, s_2) \Vert^2 \le \lfloor \beta^2 \rfloor$ (34,034,726 for
     Falcon-512, 70,265,242 for Falcon-1024).
 
-    | | n | q | Public key | Signature | Category |
+    | | $n$ | $q$ | Public key | Signature | Category |
     |---|---|---|---|---|---|
     | FN-DSA-512 (Falcon-512) | 512 | 12,289 | 897 B | 666 B | 1 |
     | FN-DSA-1024 (Falcon-1024) | 1,024 | 12,289 | 1,793 B | 1,280 B | 5 |
@@ -145,11 +145,11 @@ Each part below starts closed; open the ones you want.
 
     <div class="mars-steps" markdown>
 
-    1. Public: `q = 97` and `h = 40`. The message hashes to `c = 55`.
-    2. A forger can pick any `s₂`, say 30, and solve `s₁ = 55 − 30·40 mod 97 = 19`. The equation holds.
-    3. But `(19, 30)` is long, and the verifier rejects any pair whose length is above the bound.
-    4. The key holder's short basis leads straight to a short pair: `(−2, −1)`.
-    5. The verifier checks `−2 + (−1)·40 = −42 ≡ 55 (mod 97)` and that the pair is short. Valid.
+    1. Public: $q = 97$ and $h = 40$. The message hashes to $c = 55$.
+    2. A forger can pick any $s_2$, say 30, and solve $s_1 = 55 - 30 \cdot 40 \bmod 97 = 19$. The equation holds.
+    3. But $(19, 30)$ is long, and the verifier rejects any pair whose length is above the bound.
+    4. The key holder's short basis leads straight to a short pair: $(-2, -1)$.
+    5. The verifier checks $-2 + (-1) \cdot 40 = -42 \equiv 55 \pmod{97}$ and that the pair is short. Valid.
     6. With 512 coefficients mod 12,289, trying candidates is hopeless; finding a short pair without the
        basis is the hard lattice problem.
 
@@ -161,8 +161,8 @@ Each part below starts closed; open the ones you want.
       nearby lattice points (Babai's nearest-plane idea).
     - **The short integer solution (SIS) problem** over NTRU lattices: forging means finding a short vector;
       see [Hard problems](../10-math-foundations/Hard-Problems.md).
-    - **Discrete Gaussian sampling** and the **FFT** over `Z[x]/(xⁿ + 1)` (Falcon's "fast Fourier sampling").
-    - **The NTRU equation** `fG − gF = q`, solved with field norms and the extended Euclidean algorithm.
+    - **Discrete Gaussian sampling** and the **FFT** over $\mathbb{Z}[x]/(x^n + 1)$ (Falcon's "fast Fourier sampling").
+    - **The NTRU equation** $fG - gF = q$, solved with field norms and the extended Euclidean algorithm.
     - Compare [ML-DSA](ML-DSA.md) (Fiat–Shamir, larger, easier to implement) and
       [NTRU Prime](../01-key-exchange/NTRU-Prime.md).
 

@@ -29,17 +29,17 @@ NSA's CNSA 2.0 asks for ML-DSA-87.
 
 ## How it works
 
-ML-DSA is "Fiat–Shamir with aborts" over polynomials modulo q = 8,380,417:
+ML-DSA is "Fiat–Shamir with aborts" over polynomials modulo $q = 8{,}380{,}417$:
 
-- **Key generation:** pick a matrix **A** from a seed and two small secret
-  vectors **s1**, **s2**. The public key is **t** = **A**·**s1** + **s2**.
-- **Sign:** pick a random masking vector **y**, compute **w** = **A**·**y**,
-  and hash the message with the high bits of **w** into a small challenge
-  **c**. The signature is **z** = **y** + **c**·**s1**.
-- **Abort and retry:** if **z** would leak anything about **s1** (a
-  coefficient too large), throw it away and start again with a new **y**. It
+- **Key generation:** pick a matrix $\mathbf{A}$ from a seed and two small secret
+  vectors $\mathbf{s}_1$, $\mathbf{s}_2$. The public key is $\mathbf{t} = \mathbf{A} \cdot \mathbf{s}_1 + \mathbf{s}_2$.
+- **Sign:** pick a random masking vector $\mathbf{y}$, compute $\mathbf{w} = \mathbf{A} \cdot \mathbf{y}$,
+  and hash the message with the high bits of $\mathbf{w}$ into a small challenge
+  $c$. The signature is $\mathbf{z} = \mathbf{y} + c \cdot \mathbf{s}_1$.
+- **Abort and retry:** if $\mathbf{z}$ would leak anything about $\mathbf{s}_1$ (a
+  coefficient too large), throw it away and start again with a new $\mathbf{y}$. It
   takes a few tries on average.
-- **Verify:** recompute **A**·**z** − **c**·**t**, which is close to **w**,
+- **Verify:** recompute $\mathbf{A} \cdot \mathbf{z} - c \cdot \mathbf{t}$, which is close to $\mathbf{w}$,
   and check that hashing it gives the same challenge.
 
 Signing is "hedged" by default: it mixes fresh randomness with the key, so a
@@ -89,61 +89,63 @@ Each part below starts closed; open the ones you want.
 
 ??? example "Sample calculation: the idea of ML-DSA with one number"
 
-    ML-DSA works with vectors of polynomials mod `q = 8,380,417`. The same steps fit in single numbers mod
-    `q = 97`. This toy is not secure; it shows how a signature can be checked using only rounded values.
+    ML-DSA works with vectors of polynomials mod $q = 8{,}380{,}417$. The same steps fit in single numbers mod
+    $q = 97$. This toy is not secure; it shows how a signature can be checked using only rounded values.
     Checked with Python:
 
     | Step | Calculation | Value |
     |---|---|---|
-    | Public `a`, small secrets `s₁`, `s₂` | `a = 33`, `s₁ = 2`, `s₂ = 1` | |
-    | Public key | `t = a·s₁ + s₂ = 66 + 1` | `t = 67` |
-    | Random mask | `y = 20`, `w = a·y = 660 mod 97` | `w = 78` |
-    | High bits of `w` | the tens digit (rounding to steps of 10) | `7` |
-    | Challenge | `c = H(7, message)`, a small number; say | `c = 1` |
-    | Response | `z = y + c·s₁ = 20 + 2` | `z = 22` |
-    | Reject if too big | is `|z|` below the bound, say 30? | yes, keep it |
-    | Verify | `a·z − c·t = 726 − 67 = 659 mod 97 = 77`, high bits `7` | matches: valid |
+    | Public $a$, small secrets $s_1$, $s_2$ | $a = 33$, $s_1 = 2$, $s_2 = 1$ | |
+    | Public key | $t = a \cdot s_1 + s_2 = 66 + 1$ | $t = 67$ |
+    | Random mask | $y = 20$, $w = a \cdot y = 660 \bmod 97$ | $w = 78$ |
+    | High bits of $w$ | the tens digit (rounding to steps of 10) | $7$ |
+    | Challenge | $c = H(7, \text{message})$, a small number; say | $c = 1$ |
+    | Response | $z = y + c \cdot s_1 = 20 + 2$ | $z = 22$ |
+    | Reject if too big | is $\lvert z \rvert$ below the bound, say 30? | yes, keep it |
+    | Verify | $a \cdot z - c \cdot t = 726 - 67 = 659 \bmod 97 = 77$, high bits $7$ | matches: valid |
 
-    The verifier gets 77 instead of 78 because the small `s₂` was folded in; rounding to high bits hides the
+    The verifier gets 77 instead of 78 because the small $s_2$ was folded in; rounding to high bits hides the
     difference.
 
 ??? abstract "The math, with formulas"
 
-    **Key generation (FIPS 204):** expand matrix **A** (`k × l` polynomials) from a seed; sample short
-    **s₁**, **s₂**; `t = A·s₁ + s₂`, split into high part `t₁` (published) and low part `t₀` (kept).
+    **Key generation (FIPS 204):** expand matrix $\mathbf{A}$ ($k \times l$ polynomials) from a seed; sample short
+    $\mathbf{s}_1$, $\mathbf{s}_2$; $\mathbf{t} = \mathbf{A} \cdot \mathbf{s}_1 + \mathbf{s}_2$, split into high part $\mathbf{t}_1$ (published) and low part $\mathbf{t}_0$ (kept).
 
     **Signing ("Fiat–Shamir with aborts"):**
 
-    ```
-    y  ← random with coefficients below γ₁
-    w  = A·y,   w₁ = HighBits(w)
-    c  = SampleInBall(H(μ ‖ w₁))          (τ coefficients ±1, the rest 0)
-    z  = y + c·s₁
-    restart if ‖z‖∞ ≥ γ₁ − β  or  ‖LowBits(w − c·s₂)‖∞ ≥ γ₂ − β
-    ```
+    $$
+    \begin{aligned}
+    \mathbf{y} &\leftarrow \text{random with coefficients below } \gamma_1 \\
+    \mathbf{w} &= \mathbf{A} \cdot \mathbf{y}, \qquad \mathbf{w}_1 = \mathrm{HighBits}(\mathbf{w}) \\
+    c &= \mathrm{SampleInBall}(H(\mu \,\Vert\, \mathbf{w}_1)) && (\tau \text{ coefficients } \pm 1\text{, the rest } 0) \\
+    \mathbf{z} &= \mathbf{y} + c \cdot \mathbf{s}_1 \\
+    &\text{restart if } \Vert \mathbf{z} \Vert_\infty \ge \gamma_1 - \beta \ \text{ or } \ \Vert \mathrm{LowBits}(\mathbf{w} - c \cdot \mathbf{s}_2) \Vert_\infty \ge \gamma_2 - \beta
+    \end{aligned}
+    $$
 
-    The restart (rejection sampling) makes `z` independent of `s₁`; without it, many signatures would reveal
+    The restart (rejection sampling) makes $\mathbf{z}$ independent of $\mathbf{s}_1$; without it, many signatures would reveal
     the key. On average a signature takes 4.25, 5.1 or 3.85 tries for the three sizes.
 
-    **Verifying:** `w₁′ = UseHint(h, A·z − c·t₁·2ᵈ)` and accept if `c = H(μ ‖ w₁′)` and `z` is short. It works
-    because `A·z − c·t = A·y − c·s₂ = w − c·s₂`, which has the same high bits as `w`.
+    **Verifying:** $\mathbf{w}_1' = \mathrm{UseHint}(\mathbf{h}, \mathbf{A} \cdot \mathbf{z} - c \cdot \mathbf{t}_1 \cdot 2^d)$ and accept if $c = H(\mu \,\Vert\, \mathbf{w}_1')$ and $\mathbf{z}$ is short. It works
+    because $\mathbf{A} \cdot \mathbf{z} - c \cdot \mathbf{t} = \mathbf{A} \cdot \mathbf{y} - c \cdot \mathbf{s}_2 = \mathbf{w} - c \cdot \mathbf{s}_2$, which has the same high bits as $\mathbf{w}$.
 
-    | | (k, l) | η | τ | γ₁ | Public key | Signature | Category |
+    | | $(k, l)$ | $\eta$ | $\tau$ | $\gamma_1$ | Public key | Signature | Category |
     |---|---|---|---|---|---|---|---|
-    | ML-DSA-44 | (4, 4) | 2 | 39 | 2¹⁷ | 1,312 B | 2,420 B | 2 |
-    | ML-DSA-65 | (6, 5) | 4 | 49 | 2¹⁹ | 1,952 B | 3,309 B | 3 |
-    | ML-DSA-87 | (8, 7) | 2 | 60 | 2¹⁹ | 2,592 B | 4,627 B | 5 |
+    | ML-DSA-44 | (4, 4) | 2 | 39 | $2^{17}$ | 1,312 B | 2,420 B | 2 |
+    | ML-DSA-65 | (6, 5) | 4 | 49 | $2^{19}$ | 1,952 B | 3,309 B | 3 |
+    | ML-DSA-87 | (8, 7) | 2 | 60 | $2^{19}$ | 2,592 B | 4,627 B | 5 |
 
 ??? tip "Watch it step by step: sign with a mask, check with rounding"
 
     <div class="mars-steps" markdown>
 
-    1. Public: `a = 33` and `t = 67`. Secret: the small `s₁ = 2` and `s₂ = 1`, with `t = 33·2 + 1`.
-    2. The signer picks a random mask `y = 20` and computes `w = 33·20 mod 97 = 78`; its high part is 7.
-    3. The hash of 7 and the message gives the small challenge `c = 1`.
-    4. The response is `z = 20 + 1·2 = 22`. It is under the bound, so it is safe to publish (else restart).
-    5. The verifier computes `33·22 − 1·67 mod 97 = 77`; its high part is 7.
-    6. Hashing 7 with the message gives back `c = 1`, so the signature is valid.
+    1. Public: $a = 33$ and $t = 67$. Secret: the small $s_1 = 2$ and $s_2 = 1$, with $t = 33 \cdot 2 + 1$.
+    2. The signer picks a random mask $y = 20$ and computes $w = 33 \cdot 20 \bmod 97 = 78$; its high part is 7.
+    3. The hash of 7 and the message gives the small challenge $c = 1$.
+    4. The response is $z = 20 + 1 \cdot 2 = 22$. It is under the bound, so it is safe to publish (else restart).
+    5. The verifier computes $33 \cdot 22 - 1 \cdot 67 \bmod 97 = 77$; its high part is 7.
+    6. Hashing 7 with the message gives back $c = 1$, so the signature is valid.
 
     </div>
 
@@ -151,8 +153,8 @@ Each part below starts closed; open the ones you want.
 
     - **Module lattices:** Module-LWE (key recovery) and Module-SIS (forgery) are the hard problems; see
       [Hard problems](../10-math-foundations/Hard-Problems.md).
-    - **The ring** `Z_q[x]/(x²⁵⁶ + 1)` with `q = 2²³ − 2¹³ + 1`, chosen so the number-theoretic transform works
-      (512th roots of unity exist mod q).
+    - **The ring** $\mathbb{Z}_q[x]/(x^{256} + 1)$ with $q = 2^{23} - 2^{13} + 1$, chosen so the number-theoretic transform works
+      (512th roots of unity exist mod $q$).
     - **Rejection sampling:** throwing away results to make the output distribution independent of the
       secret.
     - **The Fiat–Shamir transform** (as in [Schnorr](Schnorr.md)), here proven secure in the quantum

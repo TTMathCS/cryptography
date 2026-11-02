@@ -33,14 +33,14 @@ family is [X25519](../01-key-exchange/ECDH.md).
 ## How it works
 
 - A 32-byte private seed is hashed with SHA-512. The first half, with a few
-  bits fixed, becomes the secret scalar `s`, and the public key is
-  `A = s·B` for the curve's base point `B`. The second half is a secret
+  bits fixed, becomes the secret scalar $s$, and the public key is
+  $A = s \cdot B$ for the curve's base point $B$. The second half is a secret
   prefix.
-- **Sign** message `M`: derive the nonce `r = SHA-512(prefix ‖ M) mod ℓ`
-  *deterministically*, compute `R = r·B`, then
-  `S = (r + SHA-512(R ‖ A ‖ M)·s) mod ℓ`, where ℓ is the group order. The
-  signature is `(R, S)`, 64 bytes.
-- **Verify:** check `S·B = R + SHA-512(R ‖ A ‖ M)·A`. RFC 8032 writes this
+- **Sign** message $M$: derive the nonce $r = \text{SHA-512}(\mathit{prefix} \,\Vert\, M) \bmod \ell$
+  *deterministically*, compute $R = r \cdot B$, then
+  $S = (r + \text{SHA-512}(R \,\Vert\, A \,\Vert\, M) \cdot s) \bmod \ell$, where $\ell$ is the group order. The
+  signature is $(R, S)$, 64 bytes.
+- **Verify:** check $S \cdot B = R + \text{SHA-512}(R \,\Vert\, A \,\Vert\, M) \cdot A$. RFC 8032 writes this
   with both sides multiplied by the cofactor 8 and allows either form.
 
 The main difference from ECDSA: the nonce is computed from the message,
@@ -55,8 +55,8 @@ RFC 8032 defines five variants:
   "SigEd25519 no Ed25519 collisions", a flag, and a context of up to 255
   bytes that the signer and verifier must agree on. The context keeps a
   signature made for one protocol from being accepted in another.
-- **Ed25519ph** signs SHA-512(M) instead of M, so a huge message is read
-  only once. Plain Ed25519 reads it twice, once for `r` and once for the
+- **Ed25519ph** signs $\text{SHA-512}(M)$ instead of $M$, so a huge message is read
+  only once. Plain Ed25519 reads it twice, once for $r$ and once for the
   challenge. The price: Ed25519 survives a SHA-512 collision, Ed25519ph
   doesn't. RFC 8032 says the prehash variants SHOULD NOT be used.
 - **Ed448** uses SHAKE256 with 114 bytes of output and always has the
@@ -72,14 +72,14 @@ SP 800-186. Ed25519ctx is not in it.
 
 RFC 8032 leaves room, and libraries use it differently:
 
-- **S out of range.** If a verifier doesn't check `S < ℓ`, then
-  `(R, S + ℓ)` also passes, giving a second valid signature on the same
+- **S out of range.** If a verifier doesn't check $S < \ell$, then
+  $(R, S + \ell)$ also passes, giving a second valid signature on the same
   message. RFC 8032 requires the check (section 8.4), but some early code
   skipped it.
 - **Cofactor.** The curve has 8 times as many points as the prime-order
-  group. A public key or `R` with a small-order part can pass the check
+  group. A public key or $R$ with a small-order part can pass the check
   multiplied by 8 and fail the one without, and RFC 8032 allows both.
-- **Encodings.** A y-coordinate written as a number ≥ p is accepted by some
+- **Encodings.** A y-coordinate written as a number $\ge p$ is accepted by some
   libraries and refused by others.
 
 For one signer and one verifier this lets nobody forge. It matters when
@@ -90,10 +90,10 @@ the network. Chalkias, Garillot and Nikolaenko tested popular libraries in
 
 There are two clean answers:
 
-- **Strict:** reject non-canonical encodings and small-order `A` and `R`,
-  and require `S < ℓ`.
-- **ZIP 215** (Henry de Valence, 2020; adopted by Zcash): `S` must be
-  below ℓ, `A` and `R` may be non-canonical, and only the check multiplied
+- **Strict:** reject non-canonical encodings and small-order $A$ and $R$,
+  and require $S < \ell$.
+- **ZIP 215** (Henry de Valence, 2020; adopted by Zcash): $S$ must be
+  below $\ell$, $A$ and $R$ may be non-canonical, and only the check multiplied
   by 8 may be used. Then single and batch verification always agree, since
   batch verification needs the cofactor anyway.
 
@@ -115,7 +115,7 @@ Pick one and write it down when validity is consensus-critical.
 ## Example (Python)
 
 Ed25519, Ed25519ctx and Ed25519ph from the standard library, checked
-against RFC 8032's test vectors, then the `S + ℓ` trick against a verifier
+against RFC 8032's test vectors, then the $S + \ell$ trick against a verifier
 with and without the range check. Based on RFC 8032 section 6; slow and
 not constant time.
 
@@ -214,10 +214,10 @@ ctx or ph variants. Needs `pip install cryptography`. Run with version
   advantage over [ECDSA](ECDSA.md).
 - **Keep the public key with the secret.** A signing API that takes the
   public key as a separate argument leaks the key if it is ever called with
-  the wrong one: same `r`, two different `S`, two equations. A public list
+  the wrong one: same $r$, two different $S$, two equations. A public list
   of libraries with such an API, started in 2022, had 45 entries by 2023.
 - **Faults.** Because the nonce is deterministic, a glitch during signing
-  can yield two signatures with the same `r` and reveal the key (Romailler
+  can yield two signatures with the same $r$ and reveal the key (Romailler
   and Pelissier, 2017). Hardware open to fault attacks should add
   randomness to the nonce.
 - **Choose a validation rule** where many nodes must agree (above).
@@ -231,54 +231,56 @@ Each part below starts closed; open the ones you want.
 
 ??? example "Sample calculation: EdDSA on a tiny Edwards curve"
 
-    The twisted Edwards curve `x² + y² = 1 + 8x²y² (mod 19)` has 28 points. `B = (2, 9)` has prime order
-    `L = 7`. (Ed25519 has `L ≈ 2²⁵²`.) The hash outputs below are made up; everything else is checked with
+    The twisted Edwards curve $x^2 + y^2 = 1 + 8x^2y^2 \pmod{19}$ has 28 points. $B = (2, 9)$ has prime order
+    $L = 7$. (Ed25519 has $L \approx 2^{252}$.) The hash outputs below are made up; everything else is checked with
     Python:
 
     | Step | Calculation | Value |
     |---|---|---|
-    | Secret scalar | `a = 3` (Ed25519 takes it from SHA-512 of the 32-byte key) | |
-    | Public key | `A = 3·B` | `A = (3, 14)` |
-    | Nonce | `r = H(prefix ‖ M) mod L`, say | `r = 5` |
-    | Commitment | `R = 5·B` | `R = (15, 8)` |
-    | Challenge | `k = H(R ‖ A ‖ M) mod L`, say | `k = 4` |
-    | Response | `S = r + k·a mod L = 5 + 12 mod 7` | `S = 3` |
-    | Signature | `(R, S)` | `((15, 8), 3)` |
-    | Verify | `S·B = 3·B = (3, 14)`; `R + k·A = (15, 8) + (15, 8) = (3, 14)` | equal: valid |
+    | Secret scalar | $a = 3$ (Ed25519 takes it from SHA-512 of the 32-byte key) | |
+    | Public key | $A = 3 \cdot B$ | $A = (3, 14)$ |
+    | Nonce | $r = H(\mathit{prefix} \,\Vert\, M) \bmod L$, say | $r = 5$ |
+    | Commitment | $R = 5 \cdot B$ | $R = (15, 8)$ |
+    | Challenge | $k = H(R \,\Vert\, A \,\Vert\, M) \bmod L$, say | $k = 4$ |
+    | Response | $S = r + k \cdot a \bmod L = 5 + 12 \bmod 7$ | $S = 3$ |
+    | Signature | $(R, S)$ | $((15, 8), 3)$ |
+    | Verify | $S \cdot B = 3 \cdot B = (3, 14)$; $R + k \cdot A = (15, 8) + (15, 8) = (3, 14)$ | equal: valid |
 
 ??? abstract "The math, with formulas"
 
-    **Addition on a twisted Edwards curve** `ax² + y² = 1 + dx²y²` (Ed25519: `a = −1`):
+    **Addition on a twisted Edwards curve** $ax^2 + y^2 = 1 + dx^2y^2$ (Ed25519: $a = -1$):
 
-    ```
-    x₃ = (x₁y₂ + y₁x₂) / (1 + d·x₁x₂y₁y₂)
-    y₃ = (y₁y₂ − a·x₁x₂) / (1 − d·x₁x₂y₁y₂)
-    ```
+    $$
+    \begin{aligned}
+    x_3 &= \frac{x_1 y_2 + y_1 x_2}{1 + d \cdot x_1 x_2 y_1 y_2} \\
+    y_3 &= \frac{y_1 y_2 - a \cdot x_1 x_2}{1 - d \cdot x_1 x_2 y_1 y_2}
+    \end{aligned}
+    $$
 
-    The same formula adds and doubles, and with `d` a non-square it never divides by zero, so there are no
-    special cases to leak timing. Worked: `2B` with `B = (2, 9)`, `a = 1`: `x = 36/2593 ≡ 17/9 ≡ 4`,
-    `y = (81 − 4)/(1 − 2592) ≡ 1/12 ≡ 8`, so `2B = (4, 8)`.
+    The same formula adds and doubles, and with $d$ a non-square it never divides by zero, so there are no
+    special cases to leak timing. Worked: $2B$ with $B = (2, 9)$, $a = 1$: $x = 36/2593 \equiv 17/9 \equiv 4$,
+    $y = (81 - 4)/(1 - 2592) \equiv 1/12 \equiv 8$, so $2B = (4, 8)$.
 
-    **Signing (RFC 8032):** `h = SHA-512(key)`; `a` = first half, clamped; `prefix` = second half.
-    `r = SHA-512(prefix ‖ M) mod L`, `R = r·B`, `k = SHA-512(R ‖ A ‖ M) mod L`, `S = (r + k·a) mod L`.
+    **Signing (RFC 8032):** $h = \text{SHA-512}(\mathit{key})$; $a$ = first half, clamped; $\mathit{prefix}$ = second half.
+    $r = \text{SHA-512}(\mathit{prefix} \,\Vert\, M) \bmod L$, $R = r \cdot B$, $k = \text{SHA-512}(R \,\Vert\, A \,\Vert\, M) \bmod L$, $S = (r + k \cdot a) \bmod L$.
 
-    **Verifying:** check `S < L` and `S·B = R + k·A` (the cofactored check multiplies both sides by 8).
+    **Verifying:** check $S < L$ and $S \cdot B = R + k \cdot A$ (the cofactored check multiplies both sides by 8).
 
-    **Why it works:** `S·B = (r + k·a)·B = r·B + k·(a·B) = R + k·A`.
+    **Why it works:** $S \cdot B = (r + k \cdot a) \cdot B = r \cdot B + k \cdot (a \cdot B) = R + k \cdot A$.
 
-    **Why the nonce is safe.** `r` is a hash of a secret and the message, so it never repeats for different
+    **Why the nonce is safe.** $r$ is a hash of a secret and the message, so it never repeats for different
     messages and needs no random number generator, the flaw that broke ECDSA keys.
 
 ??? tip "Watch it step by step: sign and verify"
 
     <div class="mars-steps" markdown>
 
-    1. Public: the curve, `B = (2, 9)` of order 7, and the signer's `A = 3·B = (3, 14)`. Secret: `a = 3`.
-    2. The signer derives the nonce from a secret and the message: `r = 5`, so `R = 5·B = (15, 8)`.
-    3. The challenge hashes `R`, `A` and the message: `k = 4`.
-    4. `S = 5 + 4·3 mod 7 = 3`. The signature is `R = (15, 8)` and `S = 3`.
-    5. The verifier recomputes `k = 4` from `R`, `A` and the message.
-    6. Left side `3·B = (3, 14)`. Right side `R + 4·A = (15, 8) + (15, 8) = (3, 14)`.
+    1. Public: the curve, $B = (2, 9)$ of order 7, and the signer's $A = 3 \cdot B = (3, 14)$. Secret: $a = 3$.
+    2. The signer derives the nonce from a secret and the message: $r = 5$, so $R = 5 \cdot B = (15, 8)$.
+    3. The challenge hashes $R$, $A$ and the message: $k = 4$.
+    4. $S = 5 + 4 \cdot 3 \bmod 7 = 3$. The signature is $R = (15, 8)$ and $S = 3$.
+    5. The verifier recomputes $k = 4$ from $R$, $A$ and the message.
+    6. Left side $3 \cdot B = (3, 14)$. Right side $R + 4 \cdot A = (15, 8) + (15, 8) = (3, 14)$.
     7. Both sides match: valid.
 
     </div>
@@ -287,7 +289,7 @@ Each part below starts closed; open the ones you want.
 
     - **Edwards curves** (Edwards 2007; Bernstein and Lange): complete addition laws. Ed25519's curve is
       birationally the same as Curve25519 used in [X25519](../01-key-exchange/ECDH.md).
-    - **Cofactors:** the curve has `8·L` points; small-order points are why strict and lax verification can
+    - **Cofactors:** the curve has $8 \cdot L$ points; small-order points are why strict and lax verification can
       disagree (see above).
     - **Schnorr signatures:** EdDSA is a deterministic [Schnorr](Schnorr.md) signature.
     - **SHA-512** ([SHA-2](../07-hash/SHA-2.md)) for the key expansion, the nonce and the challenge.

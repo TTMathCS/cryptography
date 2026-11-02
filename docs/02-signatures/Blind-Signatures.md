@@ -19,7 +19,7 @@ A scheme needs two things:
 
 - **Blindness:** the signer can't link a finished signature to the session
   that made it.
-- **One-more unforgeability:** n signing sessions give the client at most n
+- **One-more unforgeability:** $n$ signing sessions give the client at most $n$
   valid signatures.
 
 RFC 9474 (October 2023, from the IRTF's CFRG) specifies the RSA version. The
@@ -28,15 +28,15 @@ check it.
 
 ## How it works
 
-The signer has an [RSA](RSA.md) key: public `(n, e)`, secret `d`.
+The signer has an [RSA](RSA.md) key: public $(n, e)$, secret $d$.
 
-1. **Blind** (client): encode the message as a number `m` (RFC 9474 uses PSS
-   with SHA-384), pick a random `r` and send `m′ = m·rᵉ mod n`. With `r`
-   random, `m′` says nothing about `m`.
-2. **BlindSign** (signer): return `s′ = m′ᵈ mod n`, after checking
-   `s′ᵉ = m′` to catch faults.
-3. **Finalize** (client): `s = s′·r⁻¹ mod n`. Since `(m·rᵉ)ᵈ = mᵈ·r`, this
-   is `mᵈ`, the plain RSA signature on `m`. Verify it before use.
+1. **Blind** (client): encode the message as a number $m$ (RFC 9474 uses PSS
+   with SHA-384), pick a random $r$ and send $m' = m \cdot r^e \bmod n$. With $r$
+   random, $m'$ says nothing about $m$.
+2. **BlindSign** (signer): return $s' = m'^d \bmod n$, after checking
+   $s'^e = m'$ to catch faults.
+3. **Finalize** (client): $s = s' \cdot r^{-1} \bmod n$. Since $(m \cdot r^e)^d = m^d \cdot r$, this
+   is $m^d$, the plain RSA signature on $m$. Verify it before use.
 
 Of RFC 9474's four variants, it advises the Randomized ones: they put 32
 random bytes in front of the message, which protects clients from a
@@ -62,7 +62,7 @@ enough.
 ## Example (Python)
 
 A toy: a 150-bit key from two [Mersenne primes](../10-math-foundations/Mersenne-Primes.md),
-and a hash reduced mod `n` in place of PSS. Real keys are 2048 bits or more.
+and a hash reduced mod $n$ in place of PSS. Real keys are 2048 bits or more.
 
 ```python
 import hashlib, secrets
@@ -83,13 +83,13 @@ s = blind_sig * pow(r, -1, n) % n          # client: divide r back out
 print(pow(s, e, n) == m, s == pow(m, d, n))   # True True
 ```
 
-The second `True` shows the client holds exactly `mᵈ`, though the signer only
+The second `True` shows the client holds exactly $m^d$, though the signer only
 saw `blinded`.
 
 ## Security notes
 
 - **Use the key for nothing else.** The signer raises any number it gets to
-  `d`, so a key that also decrypts or signs anything else lets clients
+  $d$, so a key that also decrypts or signs anything else lets clients
   decrypt or sign whatever they like. RFC 9474 asks for one key per protocol
   and per variant.
 - **The signer can't see what it signs,** so it decides by who is asking
@@ -97,7 +97,7 @@ saw `blinded`.
   has the expected form.
 - **Everyone must get the same public key.** A per-client key would identify
   the client later; Privacy Pass requires a consistency check (RFC 9576).
-- **`r` must come from a secure random generator.** A signer who can guess
+- **$r$ must come from a secure random generator.** A signer who can guess
   it can unblind the message.
 - **Blind Schnorr** looks simple, but an attacker running a few hundred
   sessions at once gets one signature more than it asked for (the ROS
@@ -112,16 +112,16 @@ Each part below starts closed; open the ones you want.
 
 ??? example "Sample calculation: an RSA blind signature with small numbers"
 
-    The signer's RSA key from the [RSA](RSA.md#going-deeper) example: `n = 3233`, `e = 17`, `d = 2753`. The
-    user wants a signature on `m = 65` without the signer seeing 65. Checked with Python:
+    The signer's RSA key from the [RSA](RSA.md#going-deeper) example: $n = 3233$, $e = 17$, $d = 2753$. The
+    user wants a signature on $m = 65$ without the signer seeing 65. Checked with Python:
 
     | Step | Who | Calculation | Value |
     |---|---|---|---|
-    | Blinding factor | user | random `r = 7` (shares no factor with `n`) | |
-    | Blind | user | `m′ = m·rᵉ mod n = 65 · 2369 mod 3233` | `m′ = 2034` |
-    | Sign | signer | `s′ = m′ᵈ mod n = 2034²⁷⁵³ mod 3233` | `s′ = 883` |
-    | Unblind | user | `s = s′·r⁻¹ mod n = 883 · 462 mod 3233` | `s = 588` |
-    | Check | anyone | `588¹⁷ mod 3233` | `65`: valid |
+    | Blinding factor | user | random $r = 7$ (shares no factor with $n$) | |
+    | Blind | user | $m' = m \cdot r^e \bmod n = 65 \cdot 2369 \bmod 3233$ | $m' = 2034$ |
+    | Sign | signer | $s' = m'^d \bmod n = 2034^{2753} \bmod 3233$ | $s' = 883$ |
+    | Unblind | user | $s = s' \cdot r^{-1} \bmod n = 883 \cdot 462 \bmod 3233$ | $s = 588$ |
+    | Check | anyone | $588^{17} \bmod 3233$ | 65: valid |
 
     The signer saw only 2034 and 883. The final signature 588 is exactly the ordinary RSA signature on 65,
     and the signer cannot link it to the session where it signed 2034.
@@ -130,16 +130,18 @@ Each part below starts closed; open the ones you want.
 
     **Why unblinding works:**
 
-    ```
-    s′ = (m · rᵉ)ᵈ = mᵈ · r^(e·d) = mᵈ · r   (mod n)
-    s  = s′ · r⁻¹ = mᵈ                       (mod n)
-    ```
+    $$
+    \begin{aligned}
+    s' &= (m \cdot r^e)^d = m^d \cdot r^{e d} = m^d \cdot r && \pmod{n} \\
+    s &= s' \cdot r^{-1} = m^d && \pmod{n}
+    \end{aligned}
+    $$
 
-    **Why the signer learns nothing.** For any message `m` the signer might guess, there is exactly one `r`
-    with `m · rᵉ = m′`, and `r` is uniformly random, so `m′` is uniformly random too.
+    **Why the signer learns nothing.** For any message $m$ the signer might guess, there is exactly one $r$
+    with $m \cdot r^e = m'$, and $r$ is uniformly random, so $m'$ is uniformly random too.
 
     **In practice (RFC 9474, RSABSSA).** The message is first encoded with PSS padding (and optionally a random
-    prefix), so the signer is signing `encode(m)`; the signer must use a key kept only for this purpose, since
+    prefix), so the signer is signing $\mathrm{encode}(m)$; the signer must use a key kept only for this purpose, since
     it will sign whatever value it is sent.
 
     **Other blind schemes.** Blind Schnorr and blind BLS work the same way with group elements. Privacy Pass
@@ -149,22 +151,22 @@ Each part below starts closed; open the ones you want.
 
     <div class="mars-steps" markdown>
 
-    1. The user has `m = 65` and the signer's public key `(3233, 17)`.
-    2. The user picks a secret `r = 7` and computes `7¹⁷ mod 3233 = 2369`.
-    3. The blinded message is `65 · 2369 mod 3233 = 2034`; only this goes to the signer.
-    4. The signer signs it: `2034²⁷⁵³ mod 3233 = 883`, and sends 883 back.
-    5. The user divides out `r`: `883 · 7⁻¹ = 883 · 462 mod 3233 = 588`.
-    6. Anyone checks `588¹⁷ mod 3233 = 65`. The signer has never seen 65 or 588.
+    1. The user has $m = 65$ and the signer's public key $(3233, 17)$.
+    2. The user picks a secret $r = 7$ and computes $7^{17} \bmod 3233 = 2369$.
+    3. The blinded message is $65 \cdot 2369 \bmod 3233 = 2034$; only this goes to the signer.
+    4. The signer signs it: $2034^{2753} \bmod 3233 = 883$, and sends 883 back.
+    5. The user divides out $r$: $883 \cdot 7^{-1} = 883 \cdot 462 \bmod 3233 = 588$.
+    6. Anyone checks $588^{17} \bmod 3233 = 65$. The signer has never seen 65 or 588.
 
     </div>
 
 ??? info "The math underneath"
 
-    - **RSA** ([RSA](RSA.md)) and its multiplicative property: `(a·b)ᵈ = aᵈ·bᵈ (mod n)`.
-    - **Modular inverses:** `r⁻¹ mod n` with the extended Euclidean algorithm.
-    - **Uniform distributions:** why a random `r` makes `m′` carry no information about `m`.
-    - **One-more unforgeability:** the security notion for blind signatures (a user who ran the protocol `k`
-      times cannot produce `k + 1` signatures).
+    - **RSA** ([RSA](RSA.md)) and its multiplicative property: $(a \cdot b)^d = a^d \cdot b^d \pmod{n}$.
+    - **Modular inverses:** $r^{-1} \bmod n$ with the extended Euclidean algorithm.
+    - **Uniform distributions:** why a random $r$ makes $m'$ carry no information about $m$.
+    - **One-more unforgeability:** the security notion for blind signatures (a user who ran the protocol $k$
+      times cannot produce $k + 1$ signatures).
     - Chaum's 1982 idea for untraceable digital cash, now used in Privacy Pass and anonymous credentials.
 
 ## See also
