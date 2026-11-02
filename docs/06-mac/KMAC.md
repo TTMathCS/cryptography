@@ -99,6 +99,66 @@ job and every library and protocol has it.
   HMAC-SHA-256 with KMAC256 and a 256-bit tag.
 - Compare tags in constant time, as with HMAC.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: NIST's KMAC128 samples, recomputed"
+
+    NIST's KMAC samples use the 32-byte key `40 41 42 … 5f` and the 4-byte data `00 01 02 03`, with a
+    256-bit output. Recomputed here with a small Keccak written in Python (checked against `hashlib`'s
+    SHAKE128 first); both match NIST:
+
+    | Customization string `S` | KMAC128 output |
+    |---|---|
+    | empty | `e5780b0d3ea6f7d3a429c5706aa43a00fadbd7d49628839e3187243f456ee14e` |
+    | `My Tagged Application` | `3b1fba963cd8b0b59e8c1a6d71888b7143651af8ba0a7070c0979e2811324aa5` |
+
+    Same key, same data, different `S`: unrelated outputs. That is domain separation: one key can serve two
+    purposes without the tags of one being valid for the other.
+
+??? abstract "The math, with formulas"
+
+    **KMAC (SP 800-185)** is cSHAKE with the key in front and the output length at the end:
+
+    ```
+    newX = bytepad(encode_string(K), 168) ‖ X ‖ right_encode(L)
+    KMAC128(K, X, L, S) = cSHAKE128(newX, L, "KMAC", S)
+    cSHAKE128(X, L, N, S) = KECCAK[256](bytepad(encode_string(N) ‖ encode_string(S), 168) ‖ X ‖ 00, L)
+    ```
+
+    `left_encode(x)` and `right_encode(x)` write a length with its own byte count, so no two inputs encode the
+    same way. `bytepad(…, 168)` fills to the rate (168 bytes for the 128-bit version, 136 for KMAC256).
+
+    **Why a sponge can MAC directly.** SHA-3's capacity (256 bits for KMAC128) is never output, so there is no
+    length extension: `KECCAK(K ‖ m)` is already a secure MAC, and the HMAC double hash is unnecessary.
+    Including `L` in the input means outputs of different lengths are unrelated (asking for 32 bytes is not a
+    prefix of asking for 64).
+
+    **KMACXOF** sets `right_encode(0)` instead of `L`, for an output of any length.
+
+??? tip "Watch it step by step: KMAC as one sponge"
+
+    <div class="mars-steps" markdown>
+
+    1. Absorb the header: the function name "KMAC" and the customization string, padded to one 168-byte block.
+    2. Absorb the key, length-encoded and padded to its own 168-byte block.
+    3. Absorb the data, then the requested output length.
+    4. Each 168-byte block is XORed into the 1,600-bit state, followed by the 24-round Keccak-f permutation.
+    5. Squeeze out 32 bytes: `e5780b0d…456ee14e`.
+    6. The other 32 bytes of state (the capacity) are never revealed, which is what keeps the key safe.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **The sponge construction** and the Keccak-f[1600] permutation: [SHA-3](../07-hash/SHA-3.md).
+    - **Capacity and generic security:** about `c/2` bits against collisions, so 128 for KMAC128.
+    - **Prefix-free encodings** (`left_encode`, `encode_string`) and domain separation.
+    - **PRF security of keyed sponges** (Bertoni, Daemen, Peeters and Van Assche; Andreeva, Daemen,
+      Mennink and Van Assche, 2015).
+    - Compare [HMAC](HMAC.md), which needs two hash calls because SHA-2 allows length extension.
+
 ## See also
 
 - [HMAC](HMAC.md): the nested MAC that SHA-2 needs and KMAC doesn't

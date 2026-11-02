@@ -143,6 +143,65 @@ tag, and `verify_tag` raises `InvalidSignature` for a changed message.
 - This Python isn't constant-time. RFC 8439 warns that generic big-number
   code leaks timing.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: Poly1305's RFC 8439 example, recomputed"
+
+    RFC 8439 §2.5.2 authenticates "Cryptographic Forum Research Group" (34 bytes). Recomputed with Python's
+    `cryptography`, matching the RFC:
+
+    | Step | Value |
+    |---|---|
+    | One-time key (32 bytes) | `85d6be78…a806 · 0103808a…f51b` |
+    | `r` (first 16 bytes, clamped) | `806d5400e52447c036d555408bed685` |
+    | `s` (last 16 bytes) | `1bf54941aff6bf4afdb20dfb8a800301` |
+    | Message in 16-byte blocks, each with a `01` byte added | 3 blocks (16 + 16 + 2 bytes) |
+    | `acc = Σ blockᵢ · r^(4−i) mod 2¹³⁰ − 5`, then `+ s mod 2¹²⁸` | |
+    | Tag | `a8061dc1305136c6c22b8baf0c0127a9` |
+
+??? abstract "The math, with formulas"
+
+    **Poly1305.** With `p = 2¹³⁰ − 5` (prime) and message blocks `c₁ … c_q`:
+
+    ```
+    tag = ((c₁·r^q + c₂·r^(q−1) + … + c_q·r) mod p + s) mod 2¹²⁸
+    ```
+
+    Clamping clears 22 bits of `r` so the multiplications fit in fast 64-bit arithmetic.
+
+    **Why it is secure (Carter–Wegman).** For two different messages, the difference of their polynomials has
+    at most `q` roots, so a random `r` makes them collide with probability at most about `8q / 2¹⁰⁶` (the clamped
+    `r` has 106 free bits). Adding the secret one-time `s` hides the polynomial's value completely, like a one-time
+    pad. The catch: `(r, s)` must be fresh for every message. ChaCha20-Poly1305 derives them from block 0 of
+    the keystream for each nonce.
+
+    **GHASH** (in GCM) is the same idea in GF(2¹²⁸), with addition as XOR and `H = AES_K(0)` as the point.
+
+    **UMAC and VMAC** use NH: `Σ ((m₂ᵢ + k₂ᵢ) mod 2³²)·((m₂ᵢ₊₁ + k₂ᵢ₊₁) mod 2³²) mod 2⁶⁴`, faster still on 64-bit CPUs.
+
+??? tip "Watch it step by step: Poly1305 on a short message"
+
+    <div class="mars-steps" markdown>
+
+    1. Take a fresh 32-byte key: the first half (clamped) is `r`, the second half is `s`.
+    2. Split the message into 16-byte blocks and add a `01` byte after each, so trailing zeros still count.
+    3. Start with `acc = 0`. For each block: `acc = (acc + block) · r mod 2¹³⁰ − 5`.
+    4. After the last block, add `s` and keep the low 128 bits.
+    5. That is the tag, `a8061dc1…0127a9`. A different message gives a different polynomial, and with `r`
+       secret its value is unpredictable.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Polynomials over finite fields** and how many roots they can have.
+    - **ε-almost-universal hash families** (Carter and Wegman, 1979; Wegman and Carter, 1981).
+    - **Prime fields** like `2¹³⁰ − 5`, chosen so reduction is a shift and a multiply by 5.
+    - **One-time pads** for the final masking.
+    - Used in [AEAD](../05-modes-aead/AEAD.md) (GCM, ChaCha20-Poly1305) and [Adiantum](../05-modes-aead/Disk-Encryption.md).
+
 ## See also
 
 - [ChaCha20-Poly1305](../05-modes-aead/AEAD.md): where Poly1305 nearly always runs

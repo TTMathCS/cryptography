@@ -152,6 +152,66 @@ plaintext.
 - Short tags, such as 5G's 32 bits, are safe only where the protocol caps
   how many forgeries anyone can try.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: RFC 4493's CMAC example 2, recomputed"
+
+    AES-128-CMAC with key `2b7e151628aed2a6abf7158809cf4f3c` over one full block. Recomputed with Python's
+    `cryptography`, matching RFC 4493 and SP 800-38B:
+
+    | Step | Value |
+    |---|---|
+    | `L = AES_K(0¹²⁸)` | `7df76b0c1ab899b33e42f047b91b546f` |
+    | `K1 = L·2` (shift left; top bit was 0, so no XOR) | `fbeed618357133667c85e08f7236a8de` |
+    | Message (one full block) | `6bc1bee22e409f96e93d7e117393172a` |
+    | Last block `⊕ K1`, then AES | |
+    | Tag | `070a16b46b4d4144f79bdd9dd04a287c` |
+
+??? abstract "The math, with formulas"
+
+    **CBC-MAC.** `T = Cₙ` where `C₀ = 0`, `Cᵢ = E_K(Cᵢ₋₁ ⊕ Mᵢ)`. Secure only for messages of one fixed length:
+    from tags `T` for `M` and `T′` for `M′`, the message `M ‖ (M′₁ ⊕ T) ‖ M′₂ …` has tag `T′`.
+
+    **CMAC (OMAC1, SP 800-38B)** fixes this by changing the last block with one of two subkeys:
+
+    ```
+    L  = E_K(0¹²⁸)
+    K1 = L·x,   K2 = L·x²        in GF(2¹²⁸): shift left 1 bit, XOR 0x87 if a bit fell off
+    last block = Mₙ ⊕ K1         if Mₙ is a full block
+               = (Mₙ ‖ 10…0) ⊕ K2  otherwise
+    T = CBC-MAC_K(M₁, …, Mₙ₋₁, last block)
+    ```
+
+    **GMAC** is GCM with no plaintext: the tag is GHASH of the data, masked. It needs a unique nonce per
+    message.
+
+    **Limits.** With a 128-bit block, the tag forgery chance stays about `q²/2¹²⁸` for `q` messages, which
+    caps CMAC-AES at around 2⁴⁸ messages per key in practice.
+
+??? tip "Watch it step by step: CMAC on two blocks"
+
+    <div class="mars-steps" markdown>
+
+    1. Encrypt a block of zeros: `L = AES_K(0)`. Double it in GF(2¹²⁸) to get `K1`, and again for `K2`.
+    2. Block 1: encrypt `M₁`.
+    3. Block 2 is the last: XOR it with `K1` (or pad it and use `K2` if it is short).
+    4. XOR that into the previous result and encrypt.
+    5. The final 16 bytes are the tag; it may be truncated, but not below 64 bits.
+    6. The subkey makes the last block special, so tags cannot be glued together as in plain CBC-MAC.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **CBC-MAC** and its fixed-length security proof (Bellare, Kilian and Rogaway, 1994).
+    - **GF(2¹²⁸) doubling:** the same "multiply by x" as in XTS and OCB.
+    - **Pseudorandom permutations:** [AES](../04-symmetric-ciphers/AES.md).
+    - **The birthday bound** on 128-bit blocks.
+    - Compare [HMAC](HMAC.md) (hash-based) and [Universal-hash MACs](Universal-Hash-MACs.md) (faster, need
+      nonces).
+
 ## See also
 
 - [HMAC](HMAC.md): the hash-based MAC, the usual default

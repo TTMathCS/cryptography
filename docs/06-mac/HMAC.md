@@ -70,6 +70,69 @@ early on the first wrong byte, and that timing difference can leak the right tag
 - HMAC proves authenticity, not freshness — add a timestamp or nonce if you need
   to stop replay of an old, validly-tagged message.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: RFC 4231 test case 2, recomputed"
+
+    HMAC-SHA-256 with the key "Jefe" over "what do ya want for nothing?". Recomputed with Python's `hmac`,
+    matching RFC 4231:
+
+    | Step | Value |
+    |---|---|
+    | Key "Jefe", zero-padded to 64 bytes | `4a656665 00000000 … 00` |
+    | Inner key `K ⊕ ipad` (`ipad = 36…36`) | `7c535053 36363636 … 36` |
+    | Outer key `K ⊕ opad` (`opad = 5c…5c`) | `16393a39 5c5c5c5c … 5c` |
+    | Inner hash | `SHA-256(inner key ‖ message)` |
+    | Tag | `SHA-256(outer key ‖ inner hash)` = `5bdcc146 bf60754e 6a042426 089575c7 5a003f08 9d273983 9dec58b9 64ec3843` |
+
+    Changing one letter of the message, or the key, gives an unrelated tag.
+
+??? abstract "The math, with formulas"
+
+    **HMAC (RFC 2104, FIPS 198-1):**
+
+    ```
+    K′ = H(K) if K is longer than the block size, else K;  then pad K′ with zeros to the block size B
+    HMAC(K, m) = H( (K′ ⊕ opad) ‖ H( (K′ ⊕ ipad) ‖ m ) )
+    ipad = 0x36 repeated B times,  opad = 0x5c repeated B times     (B = 64 bytes for SHA-256)
+    ```
+
+    **Why not just `H(K ‖ m)`?** SHA-256 is a Merkle–Damgård hash: from `H(K ‖ m)` and the length of `K ‖ m`
+    anyone can compute `H(K ‖ m ‖ pad ‖ m′)` without knowing `K` (the length-extension attack). The outer hash
+    in HMAC hides the inner state, so extension fails.
+
+    **Security.** HMAC is a pseudorandom function if the hash's compression function is one (Bellare, 2006),
+    which holds even for MD5 and SHA-1, whose collisions do not break HMAC. The two different pads make the
+    inner and outer keys look independent.
+
+    **Verification** must compare tags in constant time; a byte-by-byte `==` that stops early leaks how many
+    bytes matched.
+
+??? tip "Watch it step by step: computing an HMAC"
+
+    <div class="mars-steps" markdown>
+
+    1. Pad the key "Jefe" with zeros to 64 bytes.
+    2. XOR it with 64 bytes of `0x36`: the inner key.
+    3. Hash the inner key followed by the message.
+    4. XOR the padded key with 64 bytes of `0x5c`: the outer key.
+    5. Hash the outer key followed by the inner hash.
+    6. The 32-byte result `5bdcc146…64ec3843` is the tag. The receiver recomputes it and compares in constant
+       time.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Merkle–Damgård hash functions** and length extension: [SHA-2](../07-hash/SHA-2.md).
+    - **Pseudorandom functions (PRFs):** HMAC as a PRF is what [HKDF](../08-kdf-password-hashing/HKDF.md) and
+      [PBKDF2](../08-kdf-password-hashing/PBKDF2.md) rely on.
+    - **The NMAC proof** (Bellare, Canetti and Krawczyk, 1996), of which HMAC is the practical form.
+    - **Existential unforgeability under chosen-message attack** (EUF-CMA): the security goal of a MAC.
+    - **Timing side channels** in comparisons.
+
 ## See also
 
 - [SHA-2](../07-hash/SHA-2.md) — the hash HMAC is built on

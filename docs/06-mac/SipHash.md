@@ -130,6 +130,70 @@ as `e5 45 be 49 61 ca 29 a1`.
   attacker, so those leaks don't matter.
 - Key search costs 2^128; the 64-bit output is the real limit.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: SipHash-2-4's reference vector, recomputed"
+
+    The SipHash paper's reference example: key `00 01 … 0f`, message `00 01 … 0e` (15 bytes). Recomputed with
+    a short Python version of the algorithm, matching the paper:
+
+    | Step | Value |
+    |---|---|
+    | `v0 = k0 ⊕ "somepseu"`, `v1 = k1 ⊕ "dorandom"`, `v2 = k0 ⊕ "lygenera"`, `v3 = k1 ⊕ "tedbytes"` | four 64-bit words |
+    | Block 1: bytes `00…07` as a little-endian word | 2 SipRounds |
+    | Last block: bytes `08…0e` plus the length 15 in the top byte | 2 SipRounds |
+    | Finalize: `v2 ⊕= ff`, then 4 SipRounds | |
+    | Output `v0 ⊕ v1 ⊕ v2 ⊕ v3` | `a129ca6149be45e5` |
+
+    In a hash table, the bucket is this 64-bit value mod the table size. Without the key, an attacker cannot
+    choose inputs that all land in one bucket.
+
+??? abstract "The math, with formulas"
+
+    **One SipRound** (all 64-bit, `<<<` is rotate left):
+
+    ```
+    v0 += v1;  v1 <<<= 13;  v1 ^= v0;  v0 <<<= 32
+    v2 += v3;  v3 <<<= 16;  v3 ^= v2
+    v0 += v3;  v3 <<<= 21;  v3 ^= v0
+    v2 += v1;  v1 <<<= 17;  v1 ^= v2;  v2 <<<= 32
+    ```
+
+    **SipHash-c-d:** for each 8-byte word `m`: `v3 ^= m`, `c` SipRounds, `v0 ^= m`. Then `v2 ^= 0xff`, `d`
+    SipRounds, output `v0 ⊕ v1 ⊕ v2 ⊕ v3`. SipHash-2-4 is the standard; SipHash-1-3 is the faster variant
+    Rust and Python use for hash tables.
+
+    **Why it exists: hash flooding.** With a fixed, public hash function an attacker sends many keys that
+    collide, turning each table lookup from `O(1)` into `O(n)`; `n` inserts cost `O(n²)`. In 2011 a few
+    hundred kilobytes of crafted form data kept a web server's CPU busy for minutes. A keyed PRF with a
+    random per-process key makes collisions unpredictable.
+
+    **Security target:** a 64-bit tag, so up to 2⁶⁴ work to forge; enough for hash tables and short-lived
+    checks, too short for long-term message authentication.
+
+??? tip "Watch it step by step: hashing a short key"
+
+    <div class="mars-steps" markdown>
+
+    1. Mix the 128-bit secret key into four 64-bit words, each XORed with a constant ("somepseudorandomlygeneratedbytes").
+    2. Read the message 8 bytes at a time. XOR each word into `v3`.
+    3. Run 2 SipRounds (add, rotate, XOR), then XOR the word into `v0`.
+    4. The last word carries the leftover bytes and the message length in its top byte.
+    5. Flip `v2` with `0xff` and run 4 more SipRounds.
+    6. XOR the four words together: `a129ca6149be45e5`. Mod the table size, that picks the bucket.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **ARX design** (add, rotate, XOR), as in [ChaCha](../04-symmetric-ciphers/ChaCha.md).
+    - **Pseudorandom functions** versus plain hash functions: a secret key makes outputs unpredictable.
+    - **Hash tables** and algorithmic complexity attacks (Crosby and Wallach, 2003).
+    - **The birthday bound** for 64-bit outputs.
+    - Compare [HMAC](HMAC.md) and [Universal-hash MACs](Universal-Hash-MACs.md).
+
 ## See also
 
 - [HMAC](HMAC.md): the general-purpose MAC
