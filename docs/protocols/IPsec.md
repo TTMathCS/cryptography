@@ -87,7 +87,7 @@ makes AES-GCM a MUST for ESP, which carries all the traffic.
 
 | Category | In use | Standard | Legacy or retired |
 |---|---|---|---|
-| Key exchange | P-256 (group 19), P-384, Curve25519 (31), Curve448; 2048-bit MODP (group 14) and larger | RFC 5903, RFC 8031, RFC 3526; RFC 8247 makes group 14 a MUST and 19 a SHOULD | 768, 1024 and 1536-bit MODP (groups 1, 2, 5); groups 22–24, whose seeds were never published |
+| Key exchange | **Elliptic curve:** P-256 (group 19), P-384, Curve25519 (31), Curve448<br>**Classic DH (MODP):** 2048-bit (group 14) and larger | RFC 5903, RFC 8031, RFC 3526; RFC 8247 makes group 14 a MUST and 19 a SHOULD | **Short MODP:** 768, 1024 and 1536-bit (groups 1, 2, 5)<br>**Unexplained seeds:** groups 22–24, whose seeds were never published |
 | Key exchange, post-quantum | ML-KEM-768 or ML-KEM-1024 as an extra exchange after (EC)DH; a post-quantum pre-shared key (PPK) | RFC 9370 (2023), RFC 9242 (2022), IETF draft (ikev2-mlkem); RFC 8784 (2020) | — |
 | Signature (IKE_AUTH) | RSA and RSASSA-PSS, ECDSA, Ed25519; PSK | RFC 7296, RFC 7427, RFC 8420; RFC 8247 makes RSA and PSK a MUST | DSS (SHOULD NOT); SHA-1 in signatures (MUST NOT) |
 | Signature, post-quantum | ML-DSA, SLH-DSA | IETF draft (ikev2-pqc-auth) | — |

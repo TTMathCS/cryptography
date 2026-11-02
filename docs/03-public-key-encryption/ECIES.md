@@ -20,7 +20,7 @@ It was standardized several times, each with its own menu:
 
 | Standard | Year | Notes |
 |---|---|---|
-| SEC 1 | 2000, v2.0 2009 | X9.63 or NIST concatenation KDF; XOR, 3DES-CBC, AES-CBC or AES-CTR; HMAC or CMAC |
+| SEC 1 | 2000, v2.0 2009 | **KDF:** X9.63 or NIST concatenation KDF<br>**Cipher:** XOR, 3DES-CBC, AES-CBC or AES-CTR<br>**MAC:** HMAC or CMAC |
 | ANSI X9.63 | 2001 | US financial standard; defines the X9.63 KDF most profiles use |
 | IEEE 1363a | 2004 | amendment to IEEE 1363-2000 |
 | ISO/IEC 18033-2 | 2006 | split into ECIES-KEM plus a separate DEM (cipher and MAC) |

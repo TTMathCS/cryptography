@@ -87,11 +87,11 @@ and a password learned later doesn't open old sessions.
 
 | Category | In use | Standard | Legacy or retired |
 |---|---|---|---|
-| Key exchange, Personal | SAE on P-256 (group 19, the default); P-384 and P-521 (groups 20, 21), with longer keys under SAE-EXT-KEY (AKM 24) | IEEE 802.11-2024, RFC 7664, WPA3 | PSK (AKM 2, 6): no exchange; refused on 6 GHz |
+| Key exchange, Personal | **Default:** SAE on P-256 (group 19)<br>**Longer keys:** P-384 and P-521 (groups 20, 21) under SAE-EXT-KEY (AKM 24) | IEEE 802.11-2024, RFC 7664, WPA3 | PSK (AKM 2, 6): no exchange; refused on 6 GHz |
 | Key exchange, other | Enterprise: EAP-TLS or PEAP to a RADIUS server, whose EAP session key becomes the PMK; OWE (unauthenticated ECDH, group 19) for open networks | IEEE 802.1X, RFC 5216, RFC 9190, RFC 8110 | open networks with no encryption |
 | Signature | none in Personal (SAE-PK adds an ECDSA key whose fingerprint is in the password); RSA or ECDSA server certificates in EAP | WPA3 v3.0 (SAE-PK), RFC 5216 | — |
 | Cipher (AEAD) | CCMP-128 (AES-128-CCM); GCMP-256 for Wi-Fi 7 and 192-bit mode; CCMP-256, GCMP-128 | 802.11i (2004), 802.11ad (2012), 802.11ac (2013) | TKIP (RC4 plus Michael), WEP (RC4) |
-| MAC | inside CCMP and GCMP; EAPOL-Key MIC: AES-CMAC (SAE), HMAC-SHA-1-128 (WPA2-PSK), HMAC-SHA-384 (192-bit); BIP-CMAC-128, BIP-GMAC-256 | 802.11w (2009) | Michael (TKIP), HMAC-MD5 (WPA) |
+| MAC | **Data:** inside CCMP and GCMP<br>**Handshake (EAPOL-Key MIC):** AES-CMAC (SAE), HMAC-SHA-1-128 (WPA2-PSK), HMAC-SHA-384 (192-bit)<br>**Management frames:** BIP-CMAC-128, BIP-GMAC-256 | 802.11w (2009) | Michael (TKIP), HMAC-MD5 (WPA) |
 | Hash | SHA-256; SHA-384 and SHA-512 with SAE-EXT-KEY groups 20, 21 and in 192-bit mode | FIPS 180-4 | SHA-1 (WPA2-PSK), MD5 (WPA) |
 | KDF | 802.11 KDF (HMAC-SHA-256 with a counter); HKDF in OWE and in SAE's hash-to-element (H2E) | IEEE 802.11-2024, RFC 5869 | PBKDF2 and the PRF with HMAC-SHA-1 (WPA2-PSK) |
 

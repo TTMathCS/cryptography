@@ -84,10 +84,10 @@ user's password to the chain that wraps the volume key.
 
 | Category | In use | Standard | Legacy or retired |
 |---|---|---|---|
-| Cipher (data) | AES-256-XTS (LUKS2 default); XTS-AES-128 (BitLocker default, Core Storage FileVault 2), XTS-AES-256 (BitLocker option); Adiantum without AES instructions | IEEE 1619, SP 800-38E | AES-CBC-ESSIV (cryptsetup before 1.6, 2013); AES-CBC with Elephant diffuser (Vista, 7), plain AES-CBC (Windows 8 to 10 1507) |
+| Cipher (data) | **AES-XTS:** AES-256-XTS (LUKS2 default), XTS-AES-128 (BitLocker default, Core Storage FileVault 2), XTS-AES-256 (BitLocker option)<br>**Without AES instructions:** Adiantum | IEEE 1619, SP 800-38E | **Linux:** AES-CBC-ESSIV (cryptsetup before 1.6, 2013)<br>**Windows:** AES-CBC with Elephant diffuser (Vista, 7), plain AES-CBC (Windows 8 to 10 1507) |
 | Integrity | none by default; LUKS2 `--integrity` over dm-integrity (XTS plus HMAC-SHA-256, or AEGIS-128 with random IVs), experimental | LUKS2 spec | — |
-| Key wrap | AES-XTS over AF stripes (LUKS); AES-CCM, 12-byte nonce, 16-byte tag (BitLocker); AES-KW (FileVault 2) | LUKS2 spec, RFC 3394 | — |
-| KDF, passphrase | Argon2id (LUKS2, default since cryptsetup 2.4, 2021); PBKDF2-HMAC-SHA-256 (LUKS1); salted SHA-256 × 2²⁰ (BitLocker) | RFC 9106, RFC 8018 | Argon2i (LUKS2 default 2017–2021); PBKDF2-HMAC-SHA-1 (LUKS1 before cryptsetup 1.7, 2015) |
+| Key wrap | **LUKS:** AES-XTS over AF stripes<br>**BitLocker:** AES-CCM, 12-byte nonce, 16-byte tag<br>**FileVault 2:** AES-KW | LUKS2 spec, RFC 3394 | — |
+| KDF, passphrase | **LUKS2:** Argon2id (default since cryptsetup 2.4, 2021)<br>**LUKS1:** PBKDF2-HMAC-SHA-256<br>**BitLocker:** salted SHA-256 × 2²⁰ | RFC 9106, RFC 8018 | **LUKS2:** Argon2i (default 2017–2021)<br>**LUKS1:** PBKDF2-HMAC-SHA-1 (before cryptsetup 1.7, 2015) |
 | Hash | SHA-256 (key digest, AF splitter, header checksum, BitLocker KDF) | FIPS 180-4 | SHA-1 (LUKS1 before 1.7; its digest is 20 bytes) |
 | Hardware unlock | TPM 2.0 (BitLocker, systemd-cryptenroll), FIDO2 hmac-secret, PKCS#11 smart cards, Apple Secure Enclave | TCG TPM 2.0, FIDO CTAP2 | — |
 

@@ -88,7 +88,7 @@ can't be guessed at all; FAST and SPAKE keep the material off the wire.
 
 | Category | In use | Standard | Legacy or retired |
 |---|---|---|---|
-| Enctype (cipher + MAC) | `aes256-cts-hmac-sha1-96` (MUST in RFC 4120), `aes128-cts-hmac-sha1-96`; `aes256-cts-hmac-sha384-192`, `aes128-cts-hmac-sha256-128` (MIT, Heimdal) | RFC 3962, RFC 8009 | `arcfour-hmac` (RC4, Historic, RFC 8429), `des3-cbc-sha1` (RFC 8429), DES (RFC 6649) |
+| Enctype (cipher + MAC) | **AES with SHA-1 (RFC 3962):** `aes256-cts-hmac-sha1-96` (MUST in RFC 4120), `aes128-cts-hmac-sha1-96`<br>**AES with SHA-2 (RFC 8009):** `aes256-cts-hmac-sha384-192`, `aes128-cts-hmac-sha256-128` (MIT, Heimdal) | RFC 3962, RFC 8009 | `arcfour-hmac` (RC4, Historic, RFC 8429), `des3-cbc-sha1` (RFC 8429), DES (RFC 6649) |
 | Cipher | AES-256 or AES-128 in CBC with ciphertext stealing | RFC 3962 §5, RFC 8009 | [RC4](../04-symmetric-ciphers/Retired.md#rc4), [3DES](../04-symmetric-ciphers/Retired.md#3des), [DES](../04-symmetric-ciphers/Retired.md#des) |
 | MAC | HMAC-SHA1-96 over the plaintext; HMAC-SHA-256-128 or HMAC-SHA-384-192 over the ciphertext (encrypt-then-MAC) | RFC 3961 §5.3, RFC 8009 §5 | HMAC-MD5 (RC4-HMAC); CRC32, MD4 and DES-MAC checksums (RFC 6649) |
 | Hash | SHA-1 or SHA-384 inside HMAC and PBKDF2 | RFC 3962, RFC 8009 | MD4 (RC4 keys), MD5 |

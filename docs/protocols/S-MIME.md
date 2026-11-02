@@ -103,7 +103,7 @@ check, and each protected MIME part treated as a separate origin.
 
 | Category | In use | Standard | Legacy or retired |
 |---|---|---|---|
-| Key exchange (to a recipient) | ECDH P-256 with X9.63 KDF (MUST), X25519 with HKDF (MUST); P-384, P-521, X448 | RFC 8551 §2.3, RFC 5753, RFC 8418 | finite-field DH (RFC 2631, a MUST in S/MIME v3) |
+| Key exchange (to a recipient) | **Required (MUST):** ECDH P-256 with X9.63 KDF, X25519 with HKDF<br>**Also allowed:** P-384, P-521, X448 | RFC 8551 §2.3, RFC 5753, RFC 8418 | finite-field DH (RFC 2631, a MUST in S/MIME v3) |
 | Public-key encryption | RSA PKCS#1 v1.5 (MUST-, expected to drop), RSA-OAEP (SHOULD+); 2048–4096-bit keys | RFC 3370, RFC 3560, RFC 8551 §4 | keys under 2048 bits: SHOULD NOT encrypt to them |
 | Post-quantum | ML-KEM-512/768/1024 in KEMRecipientInfo; ML-DSA-44/65/87 and SLH-DSA, pure mode | RFC 9629, RFC 9936, RFC 9882, RFC 9814 | — |
 | Signature | ECDSA P-256 and Ed25519 (MUST to verify, one of them to sign), RSA PKCS#1 v1.5 (MUST-), RSA-PSS (SHOULD) | RFC 8551 §2.2, RFC 8419, RFC 4056 | DSA (historic), RSA with SHA-1 or MD5 |

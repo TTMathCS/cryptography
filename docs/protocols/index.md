@@ -17,15 +17,15 @@ Every protocol name opens its own page.
 | [WireGuard](WireGuard.md) | whitepaper (2017), Noise framework | Linux kernel 5.6+, wireguard-go, WireGuardNT, BoringTun |
 | [IPsec / IKEv2](IPsec.md) | RFC 7296 (2014), RFC 4301 and RFC 4303 (2005) | strongSwan, Libreswan, Linux XFRM, Windows, macOS / iOS |
 | [Signal](Signal.md) | PQXDH (2023), Double Ratchet (2016, SPQR added 2025) specs | libsignal (Signal); WhatsApp and Google Messages also use the protocol |
-| [MLS](MLS.md) | RFC 9420 (2023), architecture RFC 9750 (2025) | OpenMLS, mls-rs, MLSpp; Discord calls, Webex |
+| [MLS](MLS.md) | RFC 9420 (2023), architecture RFC 9750 (2025) | **Libraries:** OpenMLS, mls-rs, MLSpp<br>**Used in:** Discord calls, Webex |
 | [JOSE / JWT](JWT.md) | RFC 7515–7519 (2015), RFC 8725 (2020); ML-DSA RFC 9964 (2026) | panva jose, PyJWT, Nimbus JOSE+JWT, go-jose |
 | [Kerberos](Kerberos.md) | RFC 4120 (2005); AES-SHA2 RFC 8009 (2016) | MIT Kerberos, Heimdal, Active Directory |
 | [Wi-Fi WPA2 / WPA3](Wi-Fi.md) | IEEE 802.11i (2004), now in IEEE 802.11-2024; WPA3 (2018) | hostapd, wpa_supplicant, iwd |
 | [DNSSEC](DNSSEC.md) | RFC 4033–4035 (2005); algorithm levels RFC 9904 (2025) | BIND, Knot, Unbound, PowerDNS |
 | [Disk encryption](Disk-Encryption.md) | IEEE 1619 (XTS, 2007; now 1619-2025), SP 800-38E (2010); LUKS1 (2005), LUKS2 spec (2018) | cryptsetup / dm-crypt, systemd-cryptenroll, BitLocker, FileVault |
 | [age](age.md) | age-encryption.org/v1 (2019); post-quantum in C2SP age v1.1.0 (2025) | age (Go), rage (Rust), typage (TypeScript) |
-| [FIDO2 / passkeys](FIDO2.md) | W3C WebAuthn Level 3 (2026; Level 1 2019), FIDO CTAP 2.2 (2025) / 2.3 (2026) | Chrome, Safari, Firefox, Edge; iCloud Keychain, Google Password Manager, Windows Hello; YubiKey; libfido2 |
-| [TOTP / HOTP](TOTP.md) | RFC 6238 (2011), RFC 4226 (2005) | Google Authenticator, Aegis, FreeOTP, oathtool, pam_google_authenticator |
+| [FIDO2 / passkeys](FIDO2.md) | W3C WebAuthn Level 3 (2026; Level 1 2019), FIDO CTAP 2.2 (2025) / 2.3 (2026) | **Browsers:** Chrome, Safari, Firefox, Edge<br>**Passkey stores:** iCloud Keychain, Google Password Manager, Windows Hello<br>**Security keys:** YubiKey<br>**Library:** libfido2 |
+| [TOTP / HOTP](TOTP.md) | RFC 6238 (2011), RFC 4226 (2005) | **Apps:** Google Authenticator, Aegis, FreeOTP<br>**Command line and servers:** oathtool, pam_google_authenticator |
 | [Bitcoin](Bitcoin.md) | whitepaper (2008); BIPs, e.g. Taproot BIP-340–342 (2021), v2 transport BIP-324 (2023) | Bitcoin Core, libsecp256k1, btcd |
 
 ## What each one uses by default

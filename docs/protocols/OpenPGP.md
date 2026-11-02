@@ -69,9 +69,9 @@ and the message lines are condensed from the RFC's notes on its packet dump:
 |---|---|---|---|
 | Key exchange (to a recipient) | X25519 (MUST), X448; ECDH on NIST or Brainpool curves | RFC 9580 | ECDH on Curve25519Legacy, the v4 form GnuPG makes |
 | Public-key encryption | RSA, no new keys under 3072 bits | RFC 9580 §12.4 | ElGamal: no new keys, no encrypting, decrypt old mail only |
-| Post-quantum | ML-KEM-768+X25519 (MUST), ML-KEM-1024+X448; ML-DSA-65+Ed25519 (MUST), ML-DSA-87+Ed448; SLH-DSA-SHAKE | RFC 9980 (2026) | — |
+| Post-quantum | **Encryption (hybrid KEM):** ML-KEM-768+X25519 (MUST), ML-KEM-1024+X448<br>**Signature (hybrid):** ML-DSA-65+Ed25519 (MUST), ML-DSA-87+Ed448<br>**Signature (hash-based):** SLH-DSA-SHAKE | RFC 9980 (2026) | — |
 | Signature | Ed25519 (MUST), Ed448, ECDSA, RSA | RFC 9580 | DSA: MUST NOT sign or verify; EdDSALegacy (v4 Ed25519) deprecated |
-| Cipher | AES-128 (MUST), AES-256 (SHOULD), AES-192, Camellia, Twofish | RFC 9580 §9.3 | [IDEA](../04-symmetric-ciphers/Retired.md#idea), [3DES](../04-symmetric-ciphers/Retired.md#3des), [CAST5](../04-symmetric-ciphers/Retired.md#cast5): MUST NOT encrypt, may decrypt old data |
+| Cipher | **AES:** AES-128 (MUST), AES-256 (SHOULD), AES-192<br>**Others:** Camellia, Twofish | RFC 9580 §9.3 | [IDEA](../04-symmetric-ciphers/Retired.md#idea), [3DES](../04-symmetric-ciphers/Retired.md#3des), [CAST5](../04-symmetric-ciphers/Retired.md#cast5): MUST NOT encrypt, may decrypt old data |
 | Mode | v2 SEIPD with OCB (MUST), EAX, GCM | RFC 9580 §5.13.2, RFC 7253 | v1 SEIPD: [CFB](../05-modes-aead/Classic-Modes.md#cfb) plus a SHA-1 "MDC", still used with v4 keys; SED with no integrity check: MUST NOT create |
 | MAC | built into the AEAD | — | the MDC, a plain SHA-1 hash rather than a MAC |
 | Hash | SHA2-256 (MUST), SHA2-384/512, SHA3-256/512; SHA-256 v6 fingerprints | RFC 9580 §9.5 | MD5, SHA-1, RIPEMD-160: no new signatures; SHA-1 v4 fingerprints |

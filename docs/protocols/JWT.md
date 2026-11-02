@@ -91,7 +91,7 @@ implement ES256 and SHOULD implement EdDSA with Ed25519 (§6.2).
 | Key management, new | `HPKE-0` to `HPKE-7` and their `-KE` forms, DH-based KEMs only | IETF draft (jose-hpke-encrypt-22, July 2026) | — |
 | Signature | **RSA:** `RS256`, `PS256`<br>**ECDSA:** `ES256`, `ES384`, `ES512`, `ES256K`<br>**EdDSA:** `Ed25519` | RFC 7518 §3, RFC 9864, RFC 8812 | `EdDSA` (deprecated by RFC 9864); `none` (being deprecated) |
 | Signature, post-quantum | `ML-DSA-44`, `ML-DSA-65`, `ML-DSA-87`, key type `AKP` | RFC 9964 (2026) | — |
-| Content encryption (`enc`) | `A256GCM`, `A128GCM`, `A128CBC-HS256`, `A256CBC-HS512` | RFC 7518 §5 | — |
+| Content encryption (`enc`) | **AES-GCM:** `A256GCM`, `A128GCM`<br>**AES-CBC + HMAC:** `A128CBC-HS256`, `A256CBC-HS512` | RFC 7518 §5 | — |
 | MAC | `HS256`, `HS384`, `HS512`; HMAC inside the CBC modes | RFC 7518 §3.2, §5.2 | keys shorter than the hash (MUST NOT, RFC 7518 §3.2); passwords as keys |
 | Hash | SHA-256/384/512 named in each `alg`; SHA-256 thumbprints | FIPS 180-4, RFC 7638 | SHA-1 inside `RSA-OAEP` padding; `RSA-OAEP-256` uses SHA-256 |
 | KDF | Concat KDF with SHA-256 for ECDH-ES; PBKDF2 for `PBES2-*` | SP 800-56A, RFC 8018 | small `p2c` (RFC 7518 recommends at least 1,000) |

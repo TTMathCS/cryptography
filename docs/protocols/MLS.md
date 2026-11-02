@@ -92,9 +92,9 @@ in May 2026, with supported carriers.
 
 | Category | In use | Standard | Legacy or retired |
 |---|---|---|---|
-| Key exchange (HPKE KEM) | DHKEM(X25519) in suites 1 and 3, DHKEM(P-256) in 2; X448, P-521, P-384 in the 256-bit suites 4–7 | RFC 9420 §17.1, RFC 9180, RFC 7748 | — |
+| Key exchange (HPKE KEM) | **128-bit suites (1–3):** DHKEM(X25519) in 1 and 3, DHKEM(P-256) in 2<br>**256-bit suites (4–7):** X448, P-521, P-384 | RFC 9420 §17.1, RFC 9180, RFC 7748 | — |
 | Key exchange, post-quantum | ML-KEM-768 + X25519 (X-Wing), ML-KEM-768 + P-256, ML-KEM-1024 + P-384, ML-KEM-768/1024 alone | draft-ietf-mls-pq-ciphersuites-06 (2026), FIPS 203 | — |
-| Signature | Ed25519 (1, 3), ECDSA P-256 (2), Ed448 (4, 6), ECDSA P-521 (5), ECDSA P-384 (7) | RFC 8032, FIPS 186-5 | — |
+| Signature | **EdDSA:** Ed25519 (1, 3), Ed448 (4, 6)<br>**ECDSA:** P-256 (2), P-521 (5), P-384 (7) | RFC 8032, FIPS 186-5 | — |
 | Signature, post-quantum | ML-DSA-44/65/87, in three of the draft suites | same draft, FIPS 204 | — |
 | Cipher (AEAD) | AES-128-GCM (1, 2), ChaCha20-Poly1305 (3, 6), AES-256-GCM (4, 5, 7) | SP 800-38D, RFC 8439 | — |
 | MAC | HMAC with the suite's hash for confirmation and membership tags; AEAD tags on all encrypted data | RFC 2104 | — |

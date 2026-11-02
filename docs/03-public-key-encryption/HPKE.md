@@ -19,9 +19,9 @@ A cipher suite is three 16-bit ids:
 
 | Part | Ids in RFC 9180 |
 |---|---|
-| KEM | `0x0010` DHKEM(P-256), `0x0011` DHKEM(P-384), `0x0012` DHKEM(P-521), `0x0020` DHKEM(X25519), `0x0021` DHKEM(X448) |
+| KEM | **NIST curves:** `0x0010` DHKEM(P-256), `0x0011` DHKEM(P-384), `0x0012` DHKEM(P-521)<br>**Montgomery curves:** `0x0020` DHKEM(X25519), `0x0021` DHKEM(X448) |
 | KDF | `0x0001` HKDF-SHA256, `0x0002` HKDF-SHA384, `0x0003` HKDF-SHA512 |
-| AEAD | `0x0001` AES-128-GCM, `0x0002` AES-256-GCM, `0x0003` ChaCha20-Poly1305, `0xFFFF` export only |
+| AEAD | **AES-GCM:** `0x0001` AES-128-GCM, `0x0002` AES-256-GCM<br>**ChaCha20-Poly1305:** `0x0003`<br>**No encryption:** `0xFFFF` export only |
 
 The usual suite, and the one ECH requires, is X25519 + HKDF-SHA256 +
 AES-128-GCM (`0x0020`, `0x0001`, `0x0001`).
@@ -74,7 +74,7 @@ October 2026:
 
 | Draft | What it adds | Status |
 |---|---|---|
-| draft-ietf-hpke-pq-05 (Jul 2026) | ML-KEM-512/768/1024 (`0x0040`–`0x0042`); MLKEM768-P256 (`0x0050`), MLKEM768-X25519 (`0x647A`), MLKEM1024-P384 (`0x0051`); SHAKE and TurboSHAKE KDFs | HPKE working group draft, not yet sent to the IESG |
+| draft-ietf-hpke-pq-05 (Jul 2026) | **ML-KEM alone:** ML-KEM-512/768/1024 (`0x0040`–`0x0042`)<br>**Hybrids:** MLKEM768-P256 (`0x0050`), MLKEM768-X25519 (`0x647A`), MLKEM1024-P384 (`0x0051`)<br>**KDFs:** SHAKE and TurboSHAKE | HPKE working group draft, not yet sent to the IESG |
 | draft-connolly-cfrg-xwing-kem-11 (Sep 2026) | X-Wing: X25519 + ML-KEM-768 with a SHA3-256 combiner; 1,216 B public key, 1,120 B `enc` | individual draft, with the Independent Submissions Editor since May 2025 |
 | draft-irtf-cfrg-hybrid-kems-12 and draft-irtf-cfrg-concrete-hybrid-kems-04 | the generic hybrid KEM design and its concrete KEMs; the concrete MLKEM768-X25519 is identical to X-Wing | CFRG drafts, waiting for a document shepherd |
 

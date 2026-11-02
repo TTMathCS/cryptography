@@ -79,8 +79,8 @@ protection "very weak at best": a spend shows the key before it is confirmed.
 | Key exchange (P2P) | ECDH secp256k1 with ElligatorSwift; default since Core 27.0 | BIP-324 | v1 plaintext transport (still the fallback); BIP-151 (never deployed) |
 | Cipher | ChaCha20-Poly1305 (P2P); AES-256-CBC for keys in an encrypted Core wallet | RFC 8439, BIP-324; Core `crypter.cpp` | — |
 | MAC | Poly1305 inside the AEAD | RFC 8439 | — |
-| Hash | SHA-256d (txid, wtxid, blocks, proof of work, Base58Check); HASH160; SHA-256 (P2WSH); tagged SHA-256 (Taproot) | FIPS 180-4, BIP-141, BIP-340 | — |
-| KDF | HMAC-SHA512 (BIP-32), PBKDF2-HMAC-SHA512 (BIP-39), HKDF-SHA256 (BIP-324); SHA-512 iterated ≥ 25,000 times, about 100 ms (Core wallet passphrase) | BIP-32, BIP-39, RFC 5869 | — |
+| Hash | SHA-256d (txid, wtxid, blocks, proof of work, Base58Check)<br>HASH160<br>SHA-256 (P2WSH)<br>tagged SHA-256 (Taproot) | FIPS 180-4, BIP-141, BIP-340 | — |
+| KDF | **Wallet keys:** HMAC-SHA512 (BIP-32), PBKDF2-HMAC-SHA512 (BIP-39)<br>**Peer connections:** HKDF-SHA256 (BIP-324)<br>**Core wallet passphrase:** SHA-512 iterated ≥ 25,000 times, about 100 ms | BIP-32, BIP-39, RFC 5869 | — |
 
 ECDSA accepts both s and n − s, so anyone could flip s and change a legacy
 txid. Low S, a relay rule, keeps one; BIP-66 banned other encodings, and

@@ -89,7 +89,7 @@ its protocol still a draft; iOS 26 added passkey import and export.
 | Signature (credential) | ES256 (-7) nearly everywhere; EdDSA (-8, Ed25519) on some security keys; RS256 (-257) from some Windows Hello TPM keys | WebAuthn §5.8.5, RFC 9053, RFC 8812 | — |
 | Signature, fully specified | ESP256 (-9), Ed25519 (-19): NOT RECOMMENDED by WebAuthn, which keeps -7 and -8 though COSE now marks them Deprecated | RFC 9864 | — |
 | Signature, post-quantum | ML-DSA-44, -65, -87 (-48, -49, -50): no browser or security key ships them | RFC 9964 | — |
-| Attestation | `none` (default), `packed`, `tpm`, `apple`, `android-key`; `compound` (Level 3) | WebAuthn §8 | `fido-u2f`; `android-safetynet` (deprecated in Level 3) |
+| Attestation | **None:** `none` (default)<br>**Device formats:** `packed`, `tpm`, `apple`, `android-key`<br>**Several at once:** `compound` (Level 3) | WebAuthn §8 | `fido-u2f`; `android-safetynet` (deprecated in Level 3) |
 | Key exchange | ECDH P-256 (PIN/UV protocols, `hmac-secret`) | CTAP | — |
 | Phone as authenticator (hybrid) | Noise NKpsk0 or KNpsk0 with P-256, AES-256-GCM, SHA-256 (Chromium) | CTAP 2.2 | — |
 | Cipher | AES-256-CBC, random IV (protocol 2) | CTAP | all-zero IV (protocol 1) |
