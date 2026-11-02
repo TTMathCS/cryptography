@@ -127,9 +127,9 @@ base64-encodes its 32 bytes into 43 characters.
 - Call `getrandom()` or your library rather than opening `/dev/urandom`
   yourself. A file read can fail when file descriptors run out or `/dev`
   is missing in a chroot, and it doesn't wait at early boot.
-- For a number below n, use `secrets.randbelow(n)` or
+- For a number below $n$, use `secrets.randbelow(n)` or
   `arc4random_uniform(n)`, not `random_value % n`, which favours small
-  numbers when n doesn't divide the range evenly.
+  numbers when $n$ doesn't divide the range evenly.
 - A virtual machine restored twice from one snapshot runs twice with the
   same generator state. Hyper-V and QEMU expose a VM generation ID, and
   since Linux 5.18 the kernel reseeds when it changes.
@@ -158,17 +158,19 @@ Each part below starts closed; open the ones you want.
 
 ??? abstract "The math, with formulas"
 
-    ```
-    Collect:     pool = BLAKE2s(pool ‖ event)                    interrupts, disk, jitter, RDSEED, …
-    Seed:        once 256 bits are credited,  key = BLAKE2s-derived 32 bytes from the pool
-    Each call:   block = ChaCha20(key, nonce, counter)
-                 key   = block[0 … 31]                             old key erased
-                 out   = block[32 … 63]  (more blocks for longer requests)
-    ```
+    $$
+    \begin{aligned}
+    \text{Collect:} \quad & \mathit{pool} = \mathrm{BLAKE2s}(\mathit{pool} \,\Vert\, \mathit{event}) && \text{interrupts, disk, jitter, RDSEED, …} \\
+    \text{Seed:} \quad & \text{once 256 bits are credited, } \mathit{key} = \text{BLAKE2s-derived 32 bytes from the pool} \\
+    \text{Each call:} \quad & \mathit{block} = \mathrm{ChaCha20}(\mathit{key}, \mathit{nonce}, \mathit{counter}) \\
+    & \mathit{key} = \mathit{block}[0 \ldots 31] && \text{old key erased} \\
+    & \mathit{out} = \mathit{block}[32 \ldots 63] \quad (\text{more blocks for longer requests})
+    \end{aligned}
+    $$
 
     **Why reading never "uses up" entropy:** if ChaCha20 is a secure PRF, outputs from a secret 256-bit key
     are indistinguishable from random no matter how many are read. The best known attack is still guessing
-    the key: 2²⁵⁶ tries.
+    the key: $2^{256}$ tries.
 
     **Credited entropy:** each event is credited conservatively (for example, one bit for every 64
     interrupts); the generator counts the credit and unblocks `getrandom()` only at 256 bits.

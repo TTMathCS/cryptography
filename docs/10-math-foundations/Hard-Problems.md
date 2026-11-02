@@ -18,10 +18,10 @@ and Grover's only speeds up search.
 | Problem | Used by | Best classical attack | Quantum effect |
 |---|---|---|---|
 | Factoring | [RSA](../02-signatures/RSA.md) | number field sieve, subexponential | Shor: broken |
-| Discrete log mod p | [Diffie-Hellman](../01-key-exchange/Diffie-Hellman.md), [DSA](../02-signatures/DSA.md) | number field sieve, subexponential | Shor: broken |
-| Elliptic-curve discrete log | [ECDH](../01-key-exchange/ECDH.md), [ECDSA](../02-signatures/ECDSA.md), [EdDSA](../02-signatures/EdDSA.md) | Pollard rho, about √n | Shor: broken, on a smaller machine than RSA-2048 needs |
+| Discrete log mod $p$ | [Diffie-Hellman](../01-key-exchange/Diffie-Hellman.md), [DSA](../02-signatures/DSA.md) | number field sieve, subexponential | Shor: broken |
+| Elliptic-curve discrete log | [ECDH](../01-key-exchange/ECDH.md), [ECDSA](../02-signatures/ECDSA.md), [EdDSA](../02-signatures/EdDSA.md) | Pollard rho, about $\sqrt{n}$ | Shor: broken, on a smaller machine than RSA-2048 needs |
 | Module-LWE (lattices) | [ML-KEM](../01-key-exchange/ML-KEM.md), [ML-DSA](../02-signatures/ML-DSA.md) | lattice reduction with sieving | small gain in the exponent |
-| Hash preimages | [SLH-DSA](../02-signatures/SLH-DSA.md), [LMS, XMSS](../02-signatures/Stateful-Hash-Signatures.md) | brute force, 2^n for an n-bit hash | Grover: 2^(n/2) |
+| Hash preimages | [SLH-DSA](../02-signatures/SLH-DSA.md), [LMS, XMSS](../02-signatures/Stateful-Hash-Signatures.md) | brute force, $2^n$ for an $n$-bit hash | Grover: $2^{n/2}$ |
 | Decoding a random code | [Classic McEliece, HQC](../01-key-exchange/Code-Based-KEMs.md) | information-set decoding | Grover halves the exponent |
 | SIDH isogenies | SIKE | Castryck–Decru (2022): minutes | broken classically |
 | Multivariate (Rainbow) | Rainbow | Beullens (2022): a weekend on a laptop | broken classically |
@@ -30,9 +30,9 @@ and Grover's only speeds up search.
 
 ### Factoring
 
-RSA (1977) publishes n = p·q and keeps p and q secret; whoever factors n
+RSA (1977) publishes $n = p \cdot q$ and keeps $p$ and $q$ secret; whoever factors $n$
 has the private key. The best attack is the general number field sieve
-(early 1990s), at about `exp(1.923 · (ln n)^(1/3) · (ln ln n)^(2/3))`
+(early 1990s), at about $\exp(1.923 \cdot (\ln n)^{1/3} \cdot (\ln \ln n)^{2/3})$
 steps. That is subexponential, which is why RSA needs 3072 bits to match a
 256-bit elliptic curve (SP 800-57).
 
@@ -44,10 +44,10 @@ RSA-2048 is still more than a billion times harder than RSA-896.
 
 ### Discrete log modulo a prime
 
-Diffie-Hellman (1976) and DSA (1991) publish y = g^x mod p and keep x
+Diffie-Hellman (1976) and DSA (1991) publish $y = g^x \bmod p$ and keep $x$
 secret. A number field sieve again does best, at about the cost of
 factoring a number of the same size, so these groups need RSA-sized primes.
-Most of the work depends only on p, so a prime shared by many servers is
+Most of the work depends only on $p$, so a prime shared by many servers is
 one big target; that is how Logjam (2015) broke 512-bit export groups. The
 record is a 795-bit prime (December 2019, about 3,100 core-years), computed
 next to RSA-240 by the team that later did RSA-250.
@@ -55,9 +55,9 @@ next to RSA-240 by the team that later did RSA-250.
 ### Elliptic-curve discrete log
 
 ECC (Miller 1985, Koblitz 1987) does the same on the points of an elliptic
-curve: the public key is Q = d·G. On a good curve over a prime field
+curve: the public key is $Q = d \cdot G$. On a good curve over a prime field
 nothing like the number field sieve is known. The best attack is Pollard's
-rho (1978), about √n group operations for a group of n elements, split
+rho (1978), about $\sqrt{n}$ group operations for a group of $n$ elements, split
 easily across machines. So a 256-bit curve gives about 128-bit security.
 Published records sit around 112 to 114 bits: a 112-bit curve in 2009 on
 over 200 PlayStation 3s, and a 114-bit BN curve in 2017 on 2,000 cores
@@ -66,30 +66,30 @@ over six months. Special curves can be far weaker; see
 
 ### Lattices
 
-Learning with errors (Regev, 2005): given a random matrix A and
-b = A·s + e mod q, where e holds small random errors, find s. Without e,
+Learning with errors (Regev, 2005): given a random matrix $A$ and
+$b = A \cdot s + e \bmod q$, where $e$ holds small random errors, find $s$. Without $e$,
 Gaussian elimination solves it at once; the noise makes it hard. Regev
 showed that solving random LWE instances would let a quantum computer
 solve hard lattice problems in the worst case. Module-LWE swaps the numbers
 for polynomials to shrink the keys: ML-KEM (FIPS 203) works in
-`Z_3329[X]/(X^256 + 1)`, and ML-DSA (FIPS 204) adds the related Module-SIS
+$\mathbb{Z}_{3329}[X]/(X^{256} + 1)$, and ML-DSA (FIPS 204) adds the related Module-SIS
 problem. FN-DSA and NTRU Prime use NTRU lattices instead. The best attacks
-run lattice reduction (BKZ) with a sieve inside. A sieve in dimension β
-costs about 2^(0.292β), or 2^(0.257β) on a quantum computer.
+run lattice reduction (BKZ) with a sieve inside. A sieve in dimension $\beta$
+costs about $2^{0.292\beta}$, or $2^{0.257\beta}$ on a quantum computer.
 
 ### Hash-based
 
 These need nothing but a hash function. Lamport's one-time signature (1979)
 reveals hash preimages, and Merkle's tree (1979) binds many one-time keys
 to one public key. A forger has to find preimages or second preimages,
-about 2^n work for an n-bit hash. They are the most conservative choice and
+about $2^n$ work for an $n$-bit hash. They are the most conservative choice and
 the largest: SLH-DSA (FIPS 205, 2024) is stateless, while LMS and XMSS
 (SP 800-208, 2020) are smaller but must never reuse a one-time key.
 
 ### Codes
 
 McEliece (1978) hides a binary Goppa code behind a random-looking matrix.
-Encryption adds t random bit errors that only the key holder can remove.
+Encryption adds $t$ random bit errors that only the key holder can remove.
 Everyone else has to decode a random linear code, which is NP-hard in
 general. The best attack, information-set decoding (Prange, 1962), has
 improved only slowly; the 1978 sizes are too small now, but the design has
@@ -127,9 +127,9 @@ at under a million noisy qubits for under a week (Gidney, 2025) and a
 256-bit elliptic-curve key at under half a million for minutes (Babbush et
 al., 2026). No machine that size exists yet.
 
-Grover's algorithm (1996) searches N possibilities in about √N steps, so
-an n-bit key or hash preimage takes about 2^(n/2). The steps run one after
-another, and k machines gain only √k. NIST's post-quantum categories 1, 3
+Grover's algorithm (1996) searches $N$ possibilities in about $\sqrt{N}$ steps, so
+an $n$-bit key or hash preimage takes about $2^{n/2}$. The steps run one after
+another, and $k$ machines gain only $\sqrt{k}$. NIST's post-quantum categories 1, 3
 and 5 are defined by key search on AES-128, -192 and -256, so they already
 count Grover. Against codes Grover roughly halves the exponent of
 information-set decoding (Bernstein, 2010), the same square root it takes
@@ -138,9 +138,9 @@ off AES. Against lattices the quantum sieve gains less.
 ## Example (Python)
 
 Pollard's rho, the best known attack on good elliptic curves, here on the
-subgroup of prime order q in the numbers mod p = 2q + 1. The walk mixes
+subgroup of prime order $q$ in the numbers mod $p = 2q + 1$. The walk mixes
 three moves, tracks the exponents, and stops when a slow and a fast walker
-land on the same number. Each 8 bits added to q makes the walk about 16
+land on the same number. Each 8 bits added to $q$ makes the walk about 16
 times longer on average.
 
 ```python
@@ -182,7 +182,7 @@ Output:
 ```
 
 On a curve the walk is the same with point additions. At 256 bits it would
-take about 2^128 steps.
+take about $2^{128}$ steps.
 
 ## Security notes
 
@@ -202,14 +202,14 @@ Each part below starts closed; open the ones you want.
 
 ??? example "Sample calculation: a tiny discrete log, solved by baby steps and giant steps"
 
-    Find x with `2ˣ ≡ 48 (mod 101)`. Brute force would try up to 100 values. Baby-step giant-step tries
-    about `2√100 = 20`, with `m = 10`:
+    Find $x$ with $2^x \equiv 48 \pmod{101}$. Brute force would try up to 100 values. Baby-step giant-step tries
+    about $2\sqrt{100} = 20$, with $m = 10$:
 
-    Baby steps, `2ʲ mod 101` for j = 0 … 9: 1, 2, 4, 8, 16, 32, 64, 27, 54, 7.
+    Baby steps, $2^j \bmod 101$ for $j = 0 \ldots 9$: 1, 2, 4, 8, 16, 32, 64, 27, 54, 7.
 
-    Giant steps multiply 48 by `2⁻¹⁰ ≡ 65 (mod 101)` until a baby step appears:
+    Giant steps multiply 48 by $2^{-10} \equiv 65 \pmod{101}$ until a baby step appears:
 
-    | i | `48 · 65ⁱ mod 101` | In the baby table? |
+    | $i$ | $48 \cdot 65^i \bmod 101$ | In the baby table? |
     |---|---|---|
     | 0 | 48 | no |
     | 1 | 90 | no |
@@ -218,39 +218,39 @@ Each part below starts closed; open the ones you want.
     | 4 | 35 | no |
     | 5 | 53 | no |
     | 6 | 11 | no |
-    | 7 | 8 | yes, `8 = 2³` |
+    | 7 | 8 | yes, $8 = 2^3$ |
 
-    So `48 · 2⁻⁷⁰ ≡ 2³`, and **x = 70 + 3 = 73**. Check: `2⁷³ mod 101 = 48`. For a 256-bit group the same
-    method needs about 2¹²⁸ steps and as much memory, which is why such groups are safe.
+    So $48 \cdot 2^{-70} \equiv 2^3$, and **$x = 70 + 3 = 73$**. Check: $2^{73} \bmod 101 = 48$. For a 256-bit group the same
+    method needs about $2^{128}$ steps and as much memory, which is why such groups are safe.
 
 ??? abstract "The math, with formulas"
 
     | Problem | Best classical attack | Cost |
     |---|---|---|
-    | Factoring n | general number field sieve | `L_n[1/3, 1.923] = exp(1.923 (ln n)^(1/3) (ln ln n)^(2/3))` |
-    | Discrete log mod p | number field sieve | `L_p[1/3, 1.923]` |
-    | Elliptic-curve DLP, order n | Pollard's rho | `≈ √(πn/4)` |
-    | LWE, dimension n | BKZ with block size β, sieving inside | `≈ 2^(0.292β)` classical, `2^(0.257β)` quantum |
-    | Preimage of an n-bit hash | brute force / Grover | `2ⁿ` / `2^(n/2)` |
+    | Factoring $n$ | general number field sieve | $L_n[1/3, 1.923] = \exp(1.923 (\ln n)^{1/3} (\ln \ln n)^{2/3})$ |
+    | Discrete log mod $p$ | number field sieve | $L_p[1/3, 1.923]$ |
+    | Elliptic-curve DLP, order $n$ | Pollard's rho | $\approx \sqrt{\pi n / 4}$ |
+    | LWE, dimension $n$ | BKZ with block size $\beta$, sieving inside | $\approx 2^{0.292\beta}$ classical, $2^{0.257\beta}$ quantum |
+    | Preimage of an $n$-bit hash | brute force / Grover | $2^n$ / $2^{n/2}$ |
     | Decoding a random linear code | information-set decoding | exponential in the error count |
 
-    `L[α, c]` interpolates between polynomial (α = 0) and exponential (α = 1) time; α = 1/3 is why RSA keys
+    $L[\alpha, c]$ interpolates between polynomial ($\alpha = 0$) and exponential ($\alpha = 1$) time; $\alpha = 1/3$ is why RSA keys
     grow much faster than curve keys for the same security.
 
-    **Baby-step giant-step:** write `x = i·m + j` with `m = ⌈√n⌉`; store `gʲ`, then test `y · g^(−im)`.
-    `O(√n)` time and memory. **Pollard's rho** gets the same time with almost no memory by walking a
+    **Baby-step giant-step:** write $x = i \cdot m + j$ with $m = \lceil \sqrt{n} \rceil$; store $g^j$, then test $y \cdot g^{-im}$.
+    $O(\sqrt{n})$ time and memory. **Pollard's rho** gets the same time with almost no memory by walking a
     pseudorandom path until it loops (the birthday paradox).
 
 ??? tip "Watch it step by step: easy one way, hard the other"
 
     <div class="mars-steps" markdown>
 
-    1. Forward: `2⁷³ mod 101` is a few squarings and multiplications. The answer is 48.
+    1. Forward: $2^{73} \bmod 101$ is a few squarings and multiplications. The answer is 48.
     2. Backward: "which power of 2 gives 48?" has no shortcut formula.
-    3. Baby steps: write down 2⁰ to 2⁹.
-    4. Giant steps: keep multiplying 48 by 2⁻¹⁰ and look each result up in the list.
-    5. Step 7 finds 8 = 2³, so x = 7 · 10 + 3 = 73.
-    6. At real sizes the list would need 2¹²⁸ entries: more than any computer can hold.
+    3. Baby steps: write down $2^0$ to $2^9$.
+    4. Giant steps: keep multiplying 48 by $2^{-10}$ and look each result up in the list.
+    5. Step 7 finds $8 = 2^3$, so $x = 7 \cdot 10 + 3 = 73$.
+    6. At real sizes the list would need $2^{128}$ entries: more than any computer can hold.
 
     </div>
 
@@ -261,9 +261,9 @@ Each part below starts closed; open the ones you want.
     - **Complexity:** none of these problems is proved hard. Factoring and discrete log are believed not to
       be NP-hard, and lattice problems have worst-case to average-case reductions (Ajtai 1996, Regev 2005).
     - **Generic group model:** Shoup (1997) proved any algorithm that treats the group as a black box needs
-      about √n steps, which is why curves without extra structure reach that bound.
+      about $\sqrt{n}$ steps, which is why curves without extra structure reach that bound.
     - **Quantum period finding:** Shor turns factoring and discrete logs into finding the period of
-      `x ↦ gˣ`, solved by the quantum Fourier transform.
+      $x \mapsto g^x$, solved by the quantum Fourier transform.
 
 ## See also
 

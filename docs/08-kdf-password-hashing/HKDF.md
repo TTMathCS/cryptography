@@ -24,12 +24,12 @@ guess is cheap. Use [Argon2](Argon2.md) or [scrypt](scrypt.md) for those.
 
 Two steps:
 
-1. **Extract:** `PRK = HMAC(salt, input)`. This concentrates whatever entropy
+1. **Extract:** $\mathit{PRK} = \mathrm{HMAC}(\mathit{salt}, \mathit{input})$. This concentrates whatever entropy
    the input has into one uniform key. The salt is optional (zeros by default)
    but helps when you have one.
 2. **Expand:** chain HMAC with that key until there are enough bytes:
-   `T1 = HMAC(PRK, info ‖ 1)`, `T2 = HMAC(PRK, T1 ‖ info ‖ 2)`, and so on. The
-   output is `T1 ‖ T2 ‖ …`, cut to length.
+   $T_1 = \mathrm{HMAC}(\mathit{PRK}, \mathit{info} \,\Vert\, 1)$, $T_2 = \mathrm{HMAC}(\mathit{PRK}, T_1 \,\Vert\, \mathit{info} \,\Vert\, 2)$, and so on. The
+   output is $T_1 \,\Vert\, T_2 \,\Vert\, \ldots$, cut to length.
 
 The `info` string names what the key is for (`"client write key"`,
 `"app v1 session"`). Same secret plus different `info` gives unrelated keys.
@@ -89,26 +89,28 @@ Each part below starts closed; open the ones you want.
     |---|---|---|
     | Input key material | `0b` × 22 | |
     | Salt, info | `00 01 … 0c`, `f0 f1 … f9` | |
-    | Extract | `PRK = HMAC(salt, IKM)` | `077709362c2e32df0ddc3f0dc47bba6390b6c73bb50f9c3122ec844ad7c2b3e5` |
-    | Expand block 1 | `T(1) = HMAC(PRK, info ‖ 01)` | first 32 bytes |
-    | Expand block 2 | `T(2) = HMAC(PRK, T(1) ‖ info ‖ 02)` | next 10 bytes used |
-    | Output (42 bytes) | `T(1) ‖ T(2)`, cut to 42 | `3cb25f25faacd57a90434f64d0362f2a2d2d0a90cf1a5a4c5db02d56ecc4c5bf34007208d5b887185865` |
+    | Extract | $\mathit{PRK} = \mathrm{HMAC}(\mathit{salt}, \mathit{IKM})$ | `077709362c2e32df0ddc3f0dc47bba6390b6c73bb50f9c3122ec844ad7c2b3e5` |
+    | Expand block 1 | $T(1) = \mathrm{HMAC}(\mathit{PRK}, \mathit{info} \,\Vert\, \mathtt{01})$ | first 32 bytes |
+    | Expand block 2 | $T(2) = \mathrm{HMAC}(\mathit{PRK}, T(1) \,\Vert\, \mathit{info} \,\Vert\, \mathtt{02})$ | next 10 bytes used |
+    | Output (42 bytes) | $T(1) \,\Vert\, T(2)$, cut to 42 | `3cb25f25faacd57a90434f64d0362f2a2d2d0a90cf1a5a4c5db02d56ecc4c5bf34007208d5b887185865` |
 
 ??? abstract "The math, with formulas"
 
-    **Extract:** `PRK = HMAC-Hash(salt, IKM)`. It concentrates whatever entropy the input has (a DH shared
+    **Extract:** $\mathit{PRK} = \text{HMAC-Hash}(\mathit{salt}, \mathit{IKM})$. It concentrates whatever entropy the input has (a DH shared
     secret, a password-stretching output) into one uniform key of the hash's length. With no salt, the salt
     is a string of zeros.
 
     **Expand:**
 
-    ```
-    T(0) = empty
-    T(i) = HMAC-Hash(PRK, T(i−1) ‖ info ‖ i)        i as one byte, 1 … 255
-    OKM  = first L bytes of T(1) ‖ T(2) ‖ …
-    ```
+    $$
+    \begin{aligned}
+    T(0) &= \text{empty} \\
+    T(i) &= \text{HMAC-Hash}(\mathit{PRK},\, T(i-1) \,\Vert\, \mathit{info} \,\Vert\, i) && i \text{ as one byte, } 1 \ldots 255 \\
+    \mathit{OKM} &= \text{first } L \text{ bytes of } T(1) \,\Vert\, T(2) \,\Vert\, \cdots
+    \end{aligned}
+    $$
 
-    At most `255 × HashLen` bytes (8,160 for SHA-256). Different `info` strings give independent keys from
+    At most $255 \times \mathit{HashLen}$ bytes (8,160 for SHA-256). Different `info` strings give independent keys from
     the same PRK: TLS 1.3 derives its handshake and traffic keys this way with labels like `"tls13 key"`.
 
     **Why two steps.** Extract is a randomness extractor (proved for HMAC by Krawczyk, 2010); Expand is a PRF in
@@ -120,7 +122,7 @@ Each part below starts closed; open the ones you want.
 
     1. Start with a shared secret that is not uniformly random, such as an ECDH output.
     2. Extract: HMAC it under a salt to get a 32-byte pseudorandom key, `PRK = 077709…b3e5`.
-    3. Expand: HMAC `PRK` with `info` and the byte `01` for the first 32 bytes.
+    3. Expand: HMAC $\mathit{PRK}$ with `info` and the byte `01` for the first 32 bytes.
     4. HMAC again with the previous block, `info` and `02` for the next 32.
     5. Cut to the length needed: 42 bytes, `3cb25f…5865`.
     6. Run Expand again with another `info` (say "server key") for a second, independent key.

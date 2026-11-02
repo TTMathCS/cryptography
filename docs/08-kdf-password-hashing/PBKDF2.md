@@ -24,14 +24,14 @@ well and add more guidance on using PBKDF2. No draft had been posted as of
 
 ## How it works
 
-For each output block `i`:
+For each output block $i$:
 
-- `U1 = HMAC(password, salt ‖ i)`
-- `U2 = HMAC(password, U1)`, `U3 = HMAC(password, U2)`, … up to `Uc`, where
-  `c` is the iteration count.
-- `Ti = U1 ⊕ U2 ⊕ … ⊕ Uc`
+- $U_1 = \mathrm{HMAC}(\mathit{password}, \mathit{salt} \,\Vert\, i)$
+- $U_2 = \mathrm{HMAC}(\mathit{password}, U_1)$, $U_3 = \mathrm{HMAC}(\mathit{password}, U_2)$, … up to $U_c$, where
+  $c$ is the iteration count.
+- $T_i = U_1 \oplus U_2 \oplus \cdots \oplus U_c$
 
-The output is `T1 ‖ T2 ‖ …`. All the cost is time; it needs almost no memory,
+The output is $T_1 \,\Vert\, T_2 \,\Vert\, \ldots$. All the cost is time; it needs almost no memory,
 which is exactly what lets GPUs try billions of guesses cheaply.
 
 | PRF | OWASP iteration floor (2023) |
@@ -95,14 +95,16 @@ Each part below starts closed; open the ones you want.
 
     **PBKDF2 (RFC 8018 §5.2):**
 
-    ```
-    DK = T₁ ‖ T₂ ‖ … (cut to dkLen)
-    Tᵢ = U₁ ⊕ U₂ ⊕ … ⊕ U_c
-    U₁ = PRF(P, S ‖ INT(i))
-    Uⱼ = PRF(P, Uⱼ₋₁)                 for j = 2 … c
-    ```
+    $$
+    \begin{aligned}
+    \mathit{DK} &= T_1 \,\Vert\, T_2 \,\Vert\, \cdots \quad (\text{cut to } \mathit{dkLen}) \\
+    T_i &= U_1 \oplus U_2 \oplus \cdots \oplus U_c \\
+    U_1 &= \mathrm{PRF}(P, S \,\Vert\, \mathrm{INT}(i)) \\
+    U_j &= \mathrm{PRF}(P, U_{j-1}) && \text{for } j = 2 \ldots c
+    \end{aligned}
+    $$
 
-    `PRF` is HMAC with the password as the key, `S` the salt, `c` the iteration count, and `INT(i)` the block
+    $\mathrm{PRF}$ is HMAC with the password as the key, $S$ the salt, $c$ the iteration count, and $\mathrm{INT}(i)$ the block
     number as 4 bytes.
 
     **The salt** makes each user's hash different, so one precomputed table (a rainbow table) cannot serve
@@ -119,8 +121,8 @@ Each part below starts closed; open the ones you want.
     <div class="mars-steps" markdown>
 
     1. Take the password and a random 16-byte salt stored next to the hash.
-    2. `U₁ = HMAC(password, salt ‖ 00000001)`.
-    3. `U₂ = HMAC(password, U₁)`, `U₃ = HMAC(password, U₂)`, … one after another; no shortcut.
+    2. $U_1 = \mathrm{HMAC}(\mathit{password}, \mathit{salt} \,\Vert\, \mathtt{00000001})$.
+    3. $U_2 = \mathrm{HMAC}(\mathit{password}, U_1)$, $U_3 = \mathrm{HMAC}(\mathit{password}, U_2)$, … one after another; no shortcut.
     4. XOR all of them together: that is the 32-byte key.
     5. Store salt, iteration count and key. To check a login, repeat with the typed password and compare.
     6. An attacker with the database must repeat the whole chain for every guess and every salt.
@@ -130,7 +132,7 @@ Each part below starts closed; open the ones you want.
 ??? info "The math underneath"
 
     - **HMAC as a PRF:** [HMAC](../06-mac/HMAC.md).
-    - **Key stretching:** adding `log₂(c)` bits of work to every guess (600,000 ≈ 2¹⁹·²).
+    - **Key stretching:** adding $\log_2(c)$ bits of work to every guess ($600{,}000 \approx 2^{19.2}$).
     - **Password entropy:** a random 8-character lowercase password has about 37.6 bits; stretching cannot
       add what the password lacks.
     - **Time–memory trade-offs** and rainbow tables, which salts defeat: [FAQ](../FAQ.md).

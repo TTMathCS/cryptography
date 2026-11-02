@@ -17,7 +17,7 @@ use the [OS generator](OS-RNG.md).
 
 **What it is.** MT19937, from Makoto Matsumoto and Takuji Nishimura
 (announced October 1997, published in ACM TOMACS in January 1998). Its
-state is 624 words of 32 bits and its period is 2¹⁹⁹³⁷ − 1. It is the
+state is 624 words of 32 bits and its period is $2^{19937} - 1$. It is the
 generator behind Python's `random`. Its authors say it is for Monte Carlo
 simulation and not cryptographically secure as it stands.
 
@@ -74,7 +74,7 @@ generator, `next = next * 1103515245 + 12345`, returning
 `(next / 65536) % 32768`. A footnote warns that the standard promises
 nothing about quality and that some versions have poor low-order bits.
 
-**Why it fails.** There are at most 2³² seeds, and code often calls
+**Why it fails.** There are at most $2^{32}$ seeds, and code often calls
 `srand(time(NULL))`, so an attacker only has to try each second in a
 likely window. With an LCG like the sample one, a few outputs are enough to
 pin down the state outright.
@@ -101,14 +101,14 @@ it.
 ## Dual_EC_DRBG
 
 **What it was.** One of the four generators in NIST SP 800-90 (2006),
-and the only one built on elliptic curves. Its constant point Q came with no
-explanation, and whoever knows the discrete log linking it to P can
+and the only one built on elliptic curves. Its constant point $Q$ came with no
+explanation, and whoever knows the discrete log linking it to $P$ can
 predict all output from about 32 bytes of it. NIST pulled it in 2014, after
 the 2013 reports. The full story is under
 [NIST DRBG](NIST-DRBG.md#dual_ec_drbg).
 
 **Where you still see it.** Nowhere new. In 2015 someone was found to have
-replaced Q in Juniper's ScreenOS firewalls, which let them decrypt VPN
+replaced $Q$ in Juniper's ScreenOS firewalls, which let them decrypt VPN
 traffic.
 
 ## Famous failures
@@ -169,7 +169,7 @@ Each part below starts closed; open the ones you want.
 
     **The C standard's sample generator** with `srand(1)`:
 
-    | Call | `next = next · 1103515245 + 12345 mod 2³²` | `rand() = (next / 65536) mod 32768` |
+    | Call | $\mathit{next} = \mathit{next} \cdot 1103515245 + 12345 \bmod 2^{32}$ | $\mathrm{rand}() = (\mathit{next} / 65536) \bmod 32768$ |
     |---|---|---|
     | 1 | 1,103,527,590 | 16,838 |
     | 2 | 2,524,885,223 | 5,758 |
@@ -177,25 +177,25 @@ Each part below starts closed; open the ones you want.
     | 4 | | 17,515 |
     | 5 | | 31,051 |
 
-    Each output shows 15 of the state's 32 bits, so trying the other 2¹⁷ possibilities against the next
-    output finds `next` at once, and then every later number.
+    Each output shows 15 of the state's 32 bits, so trying the other $2^{17}$ possibilities against the next
+    output finds $\mathit{next}$ at once, and then every later number.
 
-    **Two keys that share a prime**, in toy sizes: `n₁ = 3233 = 61 × 53` and `n₂ = 3599 = 61 × 59`. At real sizes neither
-    could be factored alone, but `gcd(3233, 3599) = 61` takes a few divisions, and then
-    `3233 / 61 = 53` and `3599 / 61 = 59`. This is the 2012 attack on real 1024-bit keys.
+    **Two keys that share a prime**, in toy sizes: $n_1 = 3233 = 61 \times 53$ and $n_2 = 3599 = 61 \times 59$. At real sizes neither
+    could be factored alone, but $\gcd(3233, 3599) = 61$ takes a few divisions, and then
+    $3233 / 61 = 53$ and $3599 / 61 = 59$. This is the 2012 attack on real 1024-bit keys.
 
 ??? abstract "The math, with formulas"
 
-    - **Linear congruential generator:** `x(n+1) = (a · x(n) + c) mod m`. Full period when c and m are coprime,
-      a − 1 is divisible by every prime factor of m, and by 4 if m is. Low bits are weak: modulo 2ᵏ the
-      lowest k bits repeat with period 2ᵏ.
-    - **Mersenne Twister:** a linear recurrence over GF(2), `x(k+n) = x(k+m) ⊕ (upper(x(k)) ‖ lower(x(k+1))) · A`
-      with n = 624, m = 397, then tempering `y ⊕= y≫11; y ⊕= (y≪7) & 9d2c5680; y ⊕= (y≪15) & efc60000;
-      y ⊕= y≫18`. Every step is linear, so 624 outputs give 19,968 linear equations for the 19,937 state bits.
-    - **Euclid's algorithm:** `gcd(a, b) = gcd(b, a mod b)`, about `log` steps, which is why one shared prime
+    - **Linear congruential generator:** $x(n+1) = (a \cdot x(n) + c) \bmod m$. Full period when $c$ and $m$ are coprime,
+      $a - 1$ is divisible by every prime factor of $m$, and by 4 if $m$ is. Low bits are weak: modulo $2^k$ the
+      lowest $k$ bits repeat with period $2^k$.
+    - **Mersenne Twister:** a linear recurrence over $\mathrm{GF}(2)$, $x(k+n) = x(k+m) \oplus (\mathrm{upper}(x(k)) \,\Vert\, \mathrm{lower}(x(k+1))) \cdot A$
+      with $n = 624$, $m = 397$, then tempering $y \mathrel{\oplus=} y \gg 11$; $y \mathrel{\oplus=} (y \ll 7) \mathbin{\&} \mathtt{9d2c5680}$;
+      $y \mathrel{\oplus=} (y \ll 15) \mathbin{\&} \mathtt{efc60000}$; $y \mathrel{\oplus=} y \gg 18$. Every step is linear, so 624 outputs give 19,968 linear equations for the 19,937 state bits.
+    - **Euclid's algorithm:** $\gcd(a, b) = \gcd(b, a \bmod b)$, about $\log$ steps, which is why one shared prime
       exposes both keys.
-    - **ECDSA nonce reuse:** two signatures `s₁, s₂` with the same `r` give
-      `k = (z₁ − z₂) / (s₁ − s₂)` and then `d = (s₁k − z₁) / r`, all mod n.
+    - **ECDSA nonce reuse:** two signatures $s_1, s_2$ with the same $r$ give
+      $k = (z_1 - z_2) / (s_1 - s_2)$ and then $d = (s_1 k - z_1) / r$, all mod $n$.
 
 ??? tip "Watch it step by step: cloning Mersenne Twister"
 
@@ -214,9 +214,9 @@ Each part below starts closed; open the ones you want.
 
     - **Statistical versus cryptographic randomness:** passing statistical tests (equidistribution, long
       period) says nothing about predictability.
-    - **Linear algebra over GF(2):** any generator whose state update and output are linear can be solved
+    - **Linear algebra over $\mathrm{GF}(2)$:** any generator whose state update and output are linear can be solved
       from enough outputs (Berlekamp–Massey for LFSRs).
-    - **Seed space:** a 32-bit seed or a time-based seed limits the attacker's search to at most 2³²
+    - **Seed space:** a 32-bit seed or a time-based seed limits the attacker's search to at most $2^{32}$
       possibilities, whatever the period.
     - **Shared factors and batch gcd:** product and remainder trees find shared primes among millions of
       keys at once; see [RSA](../02-signatures/RSA.md).

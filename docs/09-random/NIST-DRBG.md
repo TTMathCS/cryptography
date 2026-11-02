@@ -34,20 +34,20 @@ All three have the same calls: **instantiate** (entropy input, a nonce and
 an optional personalization string), **generate** (with optional additional
 input), **reseed** and **uninstantiate**.
 
-- **HMAC_DRBG** keeps a key K and a value V. Its update step is
-  `K = HMAC(K, V ‖ 0x00 ‖ data)`, `V = HMAC(K, V)`, then the same again with
-  `0x01` if there is data. Generate repeats `V = HMAC(K, V)` and outputs the
-  V's, then runs the update.
-- **Hash_DRBG** keeps a value V and a constant C, each 440 bits for
-  SHA-256 (888 for SHA-384 and SHA-512). It outputs `Hash(V)`,
-  `Hash(V+1)`, …, then sets `V = V + Hash(0x03 ‖ V) + C + counter`.
+- **HMAC_DRBG** keeps a key $K$ and a value $V$. Its update step is
+  $K = \mathrm{HMAC}(K, V \,\Vert\, \mathtt{0x00} \,\Vert\, \mathit{data})$, $V = \mathrm{HMAC}(K, V)$, then the same again with
+  `0x01` if there is data. Generate repeats $V = \mathrm{HMAC}(K, V)$ and outputs the
+  $V$'s, then runs the update.
+- **Hash_DRBG** keeps a value $V$ and a constant $C$, each 440 bits for
+  SHA-256 (888 for SHA-384 and SHA-512). It outputs $\mathrm{Hash}(V)$,
+  $\mathrm{Hash}(V+1)$, …, then sets $V = V + \mathrm{Hash}(\mathtt{0x03} \,\Vert\, V) + C + \mathit{counter}$.
 - **CTR_DRBG** is [AES in counter mode](../05-modes-aead/Classic-Modes.md#ctr)
   under a key that is replaced after every request. With its derivation
   function it can take any entropy input; without it the seed must be full
   entropy, exactly key length + 128 bits.
 
-The limits are the same for all of them with AES or SHA-2: at most 2¹⁹
-bits (64 KiB) per request, and a reseed at least every 2⁴⁸ requests.
+The limits are the same for all of them with AES or SHA-2: at most $2^{19}$
+bits (64 KiB) per request, and a reseed at least every $2^{48}$ requests.
 Security strength goes up to 256 bits, and the entropy input must carry at
 least as many bits of min-entropy as the strength asked for.
 
@@ -94,19 +94,19 @@ applications seed their own DRBGs from it.
 
 ## Dual_EC_DRBG
 
-**How it worked.** The state is a number s, and the standard fixes two
-points on a NIST curve: P, the curve's generator, and Q, a constant given
-with no word on where it came from. Each step outputs the x-coordinate of
-s·Q with the top 16 bits cut off (on P-256), and the next state is the
-x-coordinate of s·P.
+**How it worked.** The state is a number $s$, and the standard fixes two
+points on a NIST curve: $P$, the curve's generator, and $Q$, a constant given
+with no word on where it came from. Each step outputs the $x$-coordinate of
+$s \cdot Q$ with the top 16 bits cut off (on P-256), and the next state is the
+$x$-coordinate of $s \cdot P$.
 
 **The backdoor.** At the CRYPTO 2007 rump session (21 August 2007), Dan
-Shumow and Niels Ferguson of Microsoft showed that anyone who knows d with
-P = d·Q can predict everything. From one output, try the 2¹⁶ missing bits
-to get back s·Q, multiply by d to get s·P, and read off the next state. In
+Shumow and Niels Ferguson of Microsoft showed that anyone who knows $d$ with
+$P = d \cdot Q$ can predict everything. From one output, try the $2^{16}$ missing bits
+to get back $s \cdot Q$, multiply by $d$ to get $s \cdot P$, and read off the next state. In
 their tests 32 bytes of output always pinned down the state. They said
 plainly that they were not accusing NIST, only that nobody knew whether
-the designer of Q held d.
+the designer of $Q$ held $d$.
 
 **The fall.** On September 5, 2013, news reports based on the Snowden
 documents said the NSA had worked to weaken encryption standards, and
@@ -116,7 +116,7 @@ April 21, 2014, and published Rev. 1 without it in June 2015.
 
 **Juniper.** In December 2015 Juniper found unauthorized code in its
 ScreenOS firewalls. Checkoway et al. (2016) showed that someone had swapped
-in their own Q, which let whoever held the matching d decrypt the VPN
+in their own $Q$, which let whoever held the matching $d$ decrypt the VPN
 traffic passively.
 
 ## When to use it
@@ -184,8 +184,8 @@ the OS. Use this to learn how it works, not in place of the OS generator.
   gives the same output twice. Reseed after either.
 - CTR_DRBG without the derivation function needs full-entropy input; raw
   noise samples don't qualify.
-- CTR_DRBG with TDEA is still in Rev. 1, with tighter limits (2¹³ bits per
-  request, 2³² requests), but [3DES](../04-symmetric-ciphers/Retired.md#3des)
+- CTR_DRBG with TDEA is still in Rev. 1, with tighter limits ($2^{13}$ bits per
+  request, $2^{32}$ requests), but [3DES](../04-symmetric-ciphers/Retired.md#3des)
   itself is retired. Use AES.
 
 ## Going deeper
@@ -197,12 +197,12 @@ Each part below starts closed; open the ones you want.
     The NIST CAVP vector from the example below (SHA-256, no reseed), with the state printed after each
     step. Recomputed with Python's `hmac`; the last row matches NIST's expected output.
 
-    | Step | K (key) | V (value) |
+    | Step | $K$ (key) | $V$ (value) |
     |---|---|---|
     | Start | `00` × 32 | `01` × 32 |
-    | Instantiate: `update(entropy ‖ nonce)` | `302a4aba78412ab3…97f9dd6e` | `e75855f93b971ac4…0bfb53f9` |
-    | Generate 128 bytes: `V = HMAC(K, V)` four times | same K | first block `591adfe6e6ee9ba3…0bc56344` |
-    | Update after the request | `911bf7cbda4387a1…f88d2811` | new V |
+    | Instantiate: $\mathrm{update}(\mathit{entropy} \,\Vert\, \mathit{nonce})$ | `302a4aba78412ab3…97f9dd6e` | `e75855f93b971ac4…0bfb53f9` |
+    | Generate 128 bytes: $V = \mathrm{HMAC}(K, V)$ four times | same $K$ | first block `591adfe6e6ee9ba3…0bc56344` |
+    | Update after the request | `911bf7cbda4387a1…f88d2811` | new $V$ |
     | Second generate, 128 bytes | | starts `e528e9abf2dece54d47c7e75e5fe3021`, ends `1f50d476aa0458bdaba806f48be9dcb8` |
 
     The update after every request is what makes old output impossible to rebuild from a stolen state.
@@ -211,33 +211,37 @@ Each part below starts closed; open the ones you want.
 
     **HMAC_DRBG** (SP 800-90A §10.1.2):
 
-    ```
-    Update(data):   K = HMAC(K, V ‖ 00 ‖ data);   V = HMAC(K, V)
-                    if data ≠ empty:  K = HMAC(K, V ‖ 01 ‖ data);   V = HMAC(K, V)
-    Instantiate:    K = 00…00,  V = 01…01,  Update(entropy ‖ nonce ‖ personalization)
-    Generate(n):    repeat V = HMAC(K, V), output V,  until n bits;   Update(additional input)
-    ```
+    $$
+    \begin{aligned}
+    \mathrm{Update}(\mathit{data}): \quad & K = \mathrm{HMAC}(K, V \,\Vert\, \mathtt{00} \,\Vert\, \mathit{data}); \;\; V = \mathrm{HMAC}(K, V) \\
+    & \text{if } \mathit{data} \ne \text{empty}: \;\; K = \mathrm{HMAC}(K, V \,\Vert\, \mathtt{01} \,\Vert\, \mathit{data}); \;\; V = \mathrm{HMAC}(K, V) \\
+    \mathrm{Instantiate}: \quad & K = \mathtt{00} \ldots \mathtt{00}, \;\; V = \mathtt{01} \ldots \mathtt{01}, \;\; \mathrm{Update}(\mathit{entropy} \,\Vert\, \mathit{nonce} \,\Vert\, \mathit{personalization}) \\
+    \mathrm{Generate}(n): \quad & \text{repeat } V = \mathrm{HMAC}(K, V), \text{ output } V, \text{ until } n \text{ bits}; \;\; \mathrm{Update}(\text{additional input})
+    \end{aligned}
+    $$
 
-    **Hash_DRBG** (§10.1.1), seedlen = 440 bits for SHA-256:
+    **Hash_DRBG** (§10.1.1), $\mathit{seedlen} = 440$ bits for SHA-256:
 
-    ```
-    V = Hash_df(entropy ‖ nonce ‖ personalization, seedlen),   C = Hash_df(00 ‖ V, seedlen)
-    output = Hash(V) ‖ Hash(V + 1) ‖ …;   then  V = (V + Hash(03 ‖ V) + C + counter) mod 2^seedlen
-    ```
+    $$
+    \begin{aligned}
+    V &= \mathrm{Hash\_df}(\mathit{entropy} \,\Vert\, \mathit{nonce} \,\Vert\, \mathit{personalization}, \mathit{seedlen}), \quad C = \mathrm{Hash\_df}(\mathtt{00} \,\Vert\, V, \mathit{seedlen}) \\
+    \mathit{output} &= \mathrm{Hash}(V) \,\Vert\, \mathrm{Hash}(V + 1) \,\Vert\, \cdots; \quad \text{then } V = (V + \mathrm{Hash}(\mathtt{03} \,\Vert\, V) + C + \mathit{counter}) \bmod 2^{\mathit{seedlen}}
+    \end{aligned}
+    $$
 
-    **CTR_DRBG** (§10.2.1), with AES-256: state is Key and V; output is `AES_Key(V+1) ‖ AES_Key(V+2) ‖ …`,
-    then Key and V are replaced by the next 48 bytes of the same stream (XORed with any additional input).
+    **CTR_DRBG** (§10.2.1), with AES-256: state is $\mathit{Key}$ and $V$; output is $\mathrm{AES}_{\mathit{Key}}(V+1) \,\Vert\, \mathrm{AES}_{\mathit{Key}}(V+2) \,\Vert\, \ldots$,
+    then $\mathit{Key}$ and $V$ are replaced by the next 48 bytes of the same stream (XORed with any additional input).
 
-    **Limits:** at most 2¹⁹ bits per request and 2⁴⁸ requests between reseeds.
+    **Limits:** at most $2^{19}$ bits per request and $2^{48}$ requests between reseeds.
 
 ??? tip "Watch it step by step: forward and backward safety"
 
     <div class="mars-steps" markdown>
 
-    1. Seed: mix 32 bytes from an entropy source and a nonce into K and V.
-    2. Ask for bytes: HMAC V under K, again and again, and hand out each V.
-    3. Update straight away: new K and V from the old ones. The old ones are erased.
-    4. An attacker who steals today's K and V can't run HMAC backwards, so yesterday's bytes stay safe.
+    1. Seed: mix 32 bytes from an entropy source and a nonce into $K$ and $V$.
+    2. Ask for bytes: HMAC $V$ under $K$, again and again, and hand out each $V$.
+    3. Update straight away: new $K$ and $V$ from the old ones. The old ones are erased.
+    4. An attacker who steals today's $K$ and $V$ can't run HMAC backwards, so yesterday's bytes stay safe.
     5. Tomorrow's bytes are exposed, though, until fresh entropy arrives.
     6. Reseed with new entropy: the stolen state is useless from here on (prediction resistance).
 
@@ -248,12 +252,12 @@ Each part below starts closed; open the ones you want.
     - **Pseudorandom generators:** output that no efficient test can tell from random, as long as the seed
       is secret and the PRF ([HMAC](../06-mac/HMAC.md), [AES](../04-symmetric-ciphers/AES.md) or the hash)
       is secure.
-    - **Min-entropy:** `H∞ = −log₂(max p(x))`, the measure SP 800-90B uses for entropy sources, because an
+    - **Min-entropy:** $H_\infty = -\log_2(\max p(x))$, the measure SP 800-90B uses for entropy sources, because an
       attacker guesses the most likely value first.
     - **Forward and backward security** (backtracking and prediction resistance): Hirose proved HMAC_DRBG
       secure in 2008; Woodage and Shumow's 2019 analysis of all three DRBGs found caveats in how
       additional input and reseeding are handled.
-    - **Why Dual_EC failed:** a public-key trapdoor (the discrete log of Q to base P) in a generator, see
+    - **Why Dual_EC failed:** a public-key trapdoor (the discrete log of $Q$ to base $P$) in a generator, see
       [Dual_EC_DRBG](#dual_ec_drbg) above.
 
 ## See also

@@ -20,7 +20,7 @@ $2b$12$R9h/cIPz0gi.URNNX3kh2OPST9/PgBkqquzi.Ss7KIUgO2t0jWMUW
 ```
 
 - `2b`: the version
-- `12`: the cost, meaning 2¹² rounds
+- `12`: the cost, meaning $2^{12}$ rounds
 - then 22 characters of salt (128 bits) and 31 characters of hash (184 bits)
 
 ## How it works
@@ -28,7 +28,7 @@ $2b$12$R9h/cIPz0gi.URNNX3kh2OPST9/PgBkqquzi.Ss7KIUgO2t0jWMUW
 bcrypt is built on the Blowfish cipher's slow key setup ("Eksblowfish"):
 
 1. Set up Blowfish's tables from the password and salt.
-2. Repeat `2^cost` times: re-key the tables with the password, then with the
+2. Repeat $2^{\mathit{cost}}$ times: re-key the tables with the password, then with the
    salt. This loop is where the time goes.
 3. Encrypt the fixed text `OrpheanBeholderScryDoubt` 64 times with the final
    tables; the result is the hash.
@@ -87,12 +87,12 @@ Each part below starts closed; open the ones you want.
     | Part | Characters | Meaning |
     |---|---|---|
     | `$2b$` | 4 | version (the 2014 fix of `$2a$`) |
-    | `12$` | 3 | cost: the slow loop runs 2¹² = 4,096 times |
+    | `12$` | 3 | cost: the slow loop runs $2^{12} = 4{,}096$ times |
     | `abcdefghijklmnopqrstuu` | 22 | 16-byte salt, in bcrypt's own base-64 alphabet |
     | `twZ1IOTtu3SsEBT5lI/LFncP31tIybm` | 31 | 23 bytes of the 24-byte result |
 
     The same password and salt at cost 4 give `…uughE8Ev8uGFaUgY2cNEySvxngrb/Jzdm`: a different hash, and
-    256 times less work (2¹² ÷ 2⁴). Each step of 1 in the cost doubles the time.
+    256 times less work ($2^{12} \div 2^4$). Each step of 1 in the cost doubles the time.
 
 ??? abstract "The math, with formulas"
 
@@ -113,7 +113,7 @@ Each part below starts closed; open the ones you want.
     - **Key:** the password bytes plus a closing zero byte, at most 72 bytes; anything longer is cut off
       (newer libraries, like Python's `bcrypt` 5, refuse it instead).
     - **Blowfish:** a 16-round Feistel cipher with 18 round keys and four 256-entry S-boxes (4 KiB),
-      `F(x) = ((S1[a] + S2[b]) ⊕ S3[c]) + S4[d]` on the four bytes a, b, c, d of x, sums mod 2³².
+      $F(x) = ((S_1[a] + S_2[b]) \oplus S_3[c]) + S_4[d]$ on the four bytes $a, b, c, d$ of $x$, sums mod $2^{32}$.
     - **ExpandKey** XORs the key into the 18 round keys, then encrypts a running block over and over
       (mixing in the salt) to overwrite all 1,042 table entries: 521 Blowfish encryptions per call.
 
@@ -121,7 +121,7 @@ Each part below starts closed; open the ones you want.
 
     <div class="mars-steps" markdown>
 
-    1. Load Blowfish's starting tables: 4 KiB of the digits of π.
+    1. Load Blowfish's starting tables: 4 KiB of the digits of $\pi$.
     2. Mix the password and the salt into the tables (one ExpandKey: 521 encryptions).
     3. Re-key the tables from the password, then from the salt. That is one round of the slow loop.
     4. Repeat 4,096 times at cost 12: over 4 million Blowfish encryptions for one guess.

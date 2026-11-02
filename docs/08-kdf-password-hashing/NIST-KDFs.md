@@ -15,8 +15,8 @@ them is for passwords.
 | KDF | Starts from | Spec | Built on |
 |---|---|---|---|
 | KBKDF | a key you already have | SP 800-108 (2009), Rev. 1 (2022) | HMAC, CMAC or KMAC |
-| one-step KDF ("ConcatKDF") | a key-exchange secret Z | SP 800-56A (2006), now SP 800-56C Rev. 2 (2020) | a hash, HMAC or KMAC |
-| X9.63 KDF | a key-exchange secret Z | ANSI X9.63 (2001), SEC 1 | a hash |
+| one-step KDF ("ConcatKDF") | a key-exchange secret $Z$ | SP 800-56A (2006), now SP 800-56C Rev. 2 (2020) | a hash, HMAC or KMAC |
+| X9.63 KDF | a key-exchange secret $Z$ | ANSI X9.63 (2001), SEC 1 | a hash |
 
 KBKDF (key-based KDF) splits one key into several, for example one per
 direction or per purpose. The other two sit right after a Diffie-Hellman or
@@ -26,35 +26,35 @@ ECDH step and turn its shared secret into keys.
 
 ### KBKDF (SP 800-108)
 
-Each block of output is one PRF call keyed with the input key K_IN. Every
-call also gets the same fixed input `Label ‖ 0x00 ‖ Context ‖ [L]`: what the
+Each block of output is one PRF call keyed with the input key $K_{\mathrm{IN}}$. Every
+call also gets the same fixed input $\mathit{Label} \,\Vert\, \mathtt{0x00} \,\Vert\, \mathit{Context} \,\Vert\, [L]$: what the
 key is for, a zero byte, who and which session it belongs to, and the output
 length in bits. The three modes differ in what changes from call to call:
 
-- **Counter:** `K(i) = PRF(K_IN, [i] ‖ fixed input)`, with an r-bit counter
-  (r ≤ 32) starting at 1.
-- **Feedback:** `K(i) = PRF(K_IN, K(i-1) {‖ [i]} ‖ fixed input)`, with K(0) =
-  IV. Each block feeds the next, and the counter is optional.
-- **Double pipeline:** a first chain `A(i) = PRF(K_IN, A(i-1))` starts from
-  the fixed input, and `K(i) = PRF(K_IN, A(i) {‖ [i]} ‖ fixed input)`.
+- **Counter:** $K(i) = \mathrm{PRF}(K_{\mathrm{IN}}, [i] \,\Vert\, \text{fixed input})$, with an $r$-bit counter
+  ($r \le 32$) starting at 1.
+- **Feedback:** $K(i) = \mathrm{PRF}(K_{\mathrm{IN}}, K(i-1) \{\Vert\, [i]\} \,\Vert\, \text{fixed input})$, with
+  $K(0) = \mathit{IV}$. Each block feeds the next, and the counter is optional.
+- **Double pipeline:** a first chain $A(i) = \mathrm{PRF}(K_{\mathrm{IN}}, A(i-1))$ starts from
+  the fixed input, and $K(i) = \mathrm{PRF}(K_{\mathrm{IN}}, A(i) \{\Vert\, [i]\} \,\Vert\, \text{fixed input})$.
 
-The output is `K(1) ‖ K(2) ‖ …` cut to L bits. Field order and widths are left
+The output is $K(1) \,\Vert\, K(2) \,\Vert\, \ldots$ cut to $L$ bits. Field order and widths are left
 to the protocol, so two "SP 800-108 counter mode" implementations agree only
 if they also agree on those. Rev. 1 added a KMAC KDF that needs no loop: one
-call to `KMAC(K_IN, Context, L, Label)`.
+call to $\mathrm{KMAC}(K_{\mathrm{IN}}, \mathit{Context}, L, \mathit{Label})$.
 
 ### One-step KDF (SP 800-56C)
 
-`K(i) = H(counter ‖ Z ‖ FixedInfo)`, with a 4-byte big-endian counter from 1.
-H is a hash, HMAC keyed with a salt, or KMAC. FixedInfo usually names the
+$K(i) = H(\mathit{counter} \,\Vert\, Z \,\Vert\, \mathit{FixedInfo})$, with a 4-byte big-endian counter from 1.
+$H$ is a hash, HMAC keyed with a salt, or KMAC. FixedInfo usually names the
 algorithm and both parties. SP 800-56A (2006) called this the concatenation
 KDF, which is where "ConcatKDF" comes from. In 2018 the full spec moved to
 SP 800-56C Rev. 1.
 
 ### X9.63 KDF
 
-`K(i) = Hash(Z ‖ counter ‖ SharedInfo)`: the same idea, with the counter
-after Z (SEC 1, Section 3.6.1). NIST approves it inside ANSI X9.63 key
+$K(i) = \mathrm{Hash}(Z \,\Vert\, \mathit{counter} \,\Vert\, \mathit{SharedInfo})$: the same idea, with the counter
+after $Z$ (SEC 1, Section 3.6.1). NIST approves it inside ANSI X9.63 key
 agreement through SP 800-135.
 
 SP 800-135 Rev. 1 dates from 2011. In August 2024 NIST decided to revise
@@ -65,13 +65,13 @@ the protocols it covers. No draft had appeared as of November 2026.
 ### Where HKDF fits
 
 The first SP 800-56C (2011) added a two-step method: extract, then expand. A
-MAC of Z keyed with a salt (HMAC or AES-CMAC) makes one key, and an
+MAC of $Z$ keyed with a salt (HMAC or AES-CMAC) makes one key, and an
 SP 800-108 KDF expands it. [HKDF](HKDF.md) is that with HMAC for
 both steps and a feedback-mode expand (its one-byte counter goes last). NIST's
 algorithm test spec calls HKDF a subset of the two-step KDF, so a FIPS module
 can offer HKDF as an approved KDF.
 
-In January 2026 NIST said it will revise SP 800-56C to let Z include a KEM
+In January 2026 NIST said it will revise SP 800-56C to let $Z$ include a KEM
 shared secret and to allow KMAC in the extract step.
 
 ## When to use it
@@ -135,11 +135,11 @@ ANS X9.63 (as copied into PyCA `cryptography`'s test vectors).
 - **Label everything.** Put the purpose and the length into Label, Context or
   FixedInfo, so one secret gives unrelated keys for different jobs and sizes.
 - **CMAC can be steered.** SP 800-108 Rev. 1 warns that with CMAC as the PRF,
-  a party who knows K_IN and picks enough of the input can force some output
+  a party who knows $K_{\mathrm{IN}}$ and picks enough of the input can force some output
   blocks to chosen values. Use HMAC or KMAC, or the fixes it gives for each
   mode, when that matters.
-- **Length limits:** counter mode stops at 2^r − 1 blocks, and feedback,
-  double pipeline, one-step and X9.63 at 2^32 − 1. Nobody gets near that.
+- **Length limits:** counter mode stops at $2^r - 1$ blocks, and feedback,
+  double pipeline, one-step and X9.63 at $2^{32} - 1$. Nobody gets near that.
 
 ## Going deeper
 
@@ -149,45 +149,47 @@ Each part below starts closed; open the ones you want.
 
     SP 800-108 counter mode with HMAC-SHA-256, recomputed with Python's `hmac`. The input key is 32 bytes
     of `01`, the context is "session 42", and the fixed input is
-    `[i]₄ ‖ Label ‖ 00 ‖ Context ‖ [L]₄` (4-byte big-endian counter and length):
+    $[i]_4 \,\Vert\, \mathit{Label} \,\Vert\, \mathtt{00} \,\Vert\, \mathit{Context} \,\Vert\, [L]_4$ (4-byte big-endian counter and length):
 
-    | Label | L (bits) | Output |
+    | Label | $L$ (bits) | Output |
     |---|---|---|
     | "encryption" | 256 | `d21b20ec21bc798f461038325da5f426d9e06c05a014e384928a5d2b64e872b6` |
     | "authentication" | 256 | `cdb0d3bdae99f54b8ed6068395b2231d54942d38cd1f5886823176569dc9cfc9` |
     | "encryption" | 512 | `0fdb19efbd7acfed5102f7ca1425906d…` (first 32 of 64 bytes) |
 
-    The last row is not the first row with more bytes added: L is part of every PRF input, so asking for a
+    The last row is not the first row with more bytes added: $L$ is part of every PRF input, so asking for a
     longer key changes the whole output.
 
-    The one-step KDF and the X9.63 KDF, with Z = bytes `00 01 … 1f` and FixedInfo "AES-256 alice bob", one
+    The one-step KDF and the X9.63 KDF, with $Z$ = bytes `00 01 … 1f` and FixedInfo "AES-256 alice bob", one
     SHA-256 call each:
 
     | KDF | Hash input | Output |
     |---|---|---|
-    | One-step (SP 800-56C) | `00000001 ‖ Z ‖ FixedInfo` | `4dd979e57b584004b50e341434b1a3213348b5f04e40ddbc13484aa02405944f` |
-    | X9.63 | `Z ‖ 00000001 ‖ FixedInfo` | `48c11d1d90d9820d72d1c03d65c651ab9894cfeb4d0a9518ee79321e4deaeea3` |
+    | One-step (SP 800-56C) | $\mathtt{00000001} \,\Vert\, Z \,\Vert\, \mathit{FixedInfo}$ | `4dd979e57b584004b50e341434b1a3213348b5f04e40ddbc13484aa02405944f` |
+    | X9.63 | $Z \,\Vert\, \mathtt{00000001} \,\Vert\, \mathit{FixedInfo}$ | `48c11d1d90d9820d72d1c03d65c651ab9894cfeb4d0a9518ee79321e4deaeea3` |
 
     Moving the counter from front to back is the only difference, and it gives a different key: the two are
     not interchangeable.
 
 ??? abstract "The math, with formulas"
 
-    With `n = ⌈L / h⌉` PRF calls (h = output bits of the PRF):
+    With $n = \lceil L / h \rceil$ PRF calls ($h$ = output bits of the PRF):
 
-    ```
-    Counter:          K(i) = PRF(K_IN, [i] ‖ Label ‖ 00 ‖ Context ‖ [L])
-    Feedback:         K(i) = PRF(K_IN, K(i−1) {‖ [i]} ‖ Label ‖ 00 ‖ Context ‖ [L]),   K(0) = IV
-    Double pipeline:  A(0) = Label ‖ 00 ‖ Context ‖ [L],   A(i) = PRF(K_IN, A(i−1))
-                      K(i) = PRF(K_IN, A(i) {‖ [i]} ‖ Label ‖ 00 ‖ Context ‖ [L])
-    KMAC (Rev. 1):    K_OUT = KMAC(K_IN, Context, L, Label)
-    One-step:         K(i) = H(i₄ ‖ Z ‖ FixedInfo)
-    X9.63:            K(i) = Hash(Z ‖ i₄ ‖ SharedInfo)
-    Output:           K_OUT = first L bits of K(1) ‖ K(2) ‖ … ‖ K(n)
-    ```
+    $$
+    \begin{aligned}
+    \text{Counter:} \quad & K(i) = \mathrm{PRF}(K_{\mathrm{IN}}, [i] \,\Vert\, \mathit{Label} \,\Vert\, \mathtt{00} \,\Vert\, \mathit{Context} \,\Vert\, [L]) \\
+    \text{Feedback:} \quad & K(i) = \mathrm{PRF}(K_{\mathrm{IN}}, K(i-1) \{\Vert\, [i]\} \,\Vert\, \mathit{Label} \,\Vert\, \mathtt{00} \,\Vert\, \mathit{Context} \,\Vert\, [L]), \quad K(0) = \mathit{IV} \\
+    \text{Double pipeline:} \quad & A(0) = \mathit{Label} \,\Vert\, \mathtt{00} \,\Vert\, \mathit{Context} \,\Vert\, [L], \quad A(i) = \mathrm{PRF}(K_{\mathrm{IN}}, A(i-1)) \\
+    & K(i) = \mathrm{PRF}(K_{\mathrm{IN}}, A(i) \{\Vert\, [i]\} \,\Vert\, \mathit{Label} \,\Vert\, \mathtt{00} \,\Vert\, \mathit{Context} \,\Vert\, [L]) \\
+    \text{KMAC (Rev. 1):} \quad & K_{\mathrm{OUT}} = \mathrm{KMAC}(K_{\mathrm{IN}}, \mathit{Context}, L, \mathit{Label}) \\
+    \text{One-step:} \quad & K(i) = H(i_4 \,\Vert\, Z \,\Vert\, \mathit{FixedInfo}) \\
+    \text{X9.63:} \quad & K(i) = \mathrm{Hash}(Z \,\Vert\, i_4 \,\Vert\, \mathit{SharedInfo}) \\
+    \text{Output:} \quad & K_{\mathrm{OUT}} = \text{first } L \text{ bits of } K(1) \,\Vert\, K(2) \,\Vert\, \cdots \,\Vert\, K(n)
+    \end{aligned}
+    $$
 
-    `[i]` and `[L]` are big-endian integers of an agreed width. In SP 800-108 the counter is at most
-    32 bits, so a KDF can make at most `(2³² − 1) · h` bits; the one-step KDF also caps `n` at `2³² − 1`.
+    $[i]$ and $[L]$ are big-endian integers of an agreed width. In SP 800-108 the counter is at most
+    32 bits, so a KDF can make at most $(2^{32} - 1) \cdot h$ bits; the one-step KDF also caps $n$ at $2^{32} - 1$.
 
 ??? tip "Watch it step by step: counter mode"
 
@@ -208,7 +210,7 @@ Each part below starts closed; open the ones you want.
       [KMAC](../06-mac/KMAC.md)) can't be told apart from random, neither can the derived keys.
     - **Domain separation:** distinct labels and contexts make distinct PRF inputs, so keys for different
       jobs are independent.
-    - **Why the zero byte and `[L]`:** they stop "label + context" from being split two ways and stop a short
+    - **Why the zero byte and $[L]$:** they stop "label + context" from being split two ways and stop a short
       key from being a prefix of a long one.
     - **Extract, then expand:** a Diffie-Hellman secret is not uniform, so SP 800-56C's two-step method
       first condenses it; [HKDF](HKDF.md) is the best-known example.

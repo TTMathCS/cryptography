@@ -7,31 +7,31 @@ write a curve, and the named curves people actually use.*
 
 ## What it is
 
-An elliptic curve over a prime field is the set of points (x, y), with x
-and y taken mod p, that satisfy an equation such as y² = x³ + ax + b. One
-extra point, the point at infinity O, acts as zero. Points can be added,
-and with O they form a group. Adding a point G to itself d times gives d·G,
-which is fast to compute. Getting d back from d·G is the elliptic-curve
+An elliptic curve over a prime field is the set of points $(x, y)$, with $x$
+and $y$ taken mod $p$, that satisfy an equation such as $y^2 = x^3 + ax + b$. One
+extra point, the point at infinity $O$, acts as zero. Points can be added,
+and with $O$ they form a group. Adding a point $G$ to itself $d$ times gives $d \cdot G$,
+which is fast to compute. Getting $d$ back from $d \cdot G$ is the elliptic-curve
 discrete log problem (see [Hard problems](Hard-Problems.md)). A private
-key is a number d, and the public key is d·G for a fixed base point G.
+key is a number $d$, and the public key is $d \cdot G$ for a fixed base point $G$.
 
-The number of points is within 2√p of p + 1. The base point generates a
-subgroup of prime order n, and the point count divided by n is the
-cofactor. Pollard's rho needs about √n steps, so a 256-bit curve gives
+The number of points is within $2\sqrt{p}$ of $p + 1$. The base point generates a
+subgroup of prime order $n$, and the point count divided by $n$ is the
+cofactor. Pollard's rho needs about $\sqrt{n}$ steps, so a 256-bit curve gives
 about 128-bit security.
 
 ## How it works
 
-Draw the line through P and Q. It meets the curve in one more point; flip
-that point over the x-axis and you have P + Q. For P + P use the tangent.
-On y² = x³ + ax + b, with every division done mod p:
+Draw the line through $P$ and $Q$. It meets the curve in one more point; flip
+that point over the $x$-axis and you have $P + Q$. For $P + P$ use the tangent.
+On $y^2 = x^3 + ax + b$, with every division done mod $p$:
 
-- slope m = (y₂ − y₁)/(x₂ − x₁), or m = (3x₁² + a)/(2y₁) when P = Q
-- x₃ = m² − x₁ − x₂ and y₃ = m(x₁ − x₃) − y₁
-- −(x, y) = (x, −y), and P + (−P) = O
+- slope $m = (y_2 - y_1)/(x_2 - x_1)$, or $m = (3x_1^2 + a)/(2y_1)$ when $P = Q$
+- $x_3 = m^2 - x_1 - x_2$ and $y_3 = m(x_1 - x_3) - y_1$
+- $-(x, y) = (x, -y)$, and $P + (-P) = O$
 
-Scalar multiplication walks through the bits of d: double for every bit,
-add when the bit is 1. A 256-bit d takes 256 doublings and about 128
+Scalar multiplication walks through the bits of $d$: double for every bit,
+add when the bit is 1. A 256-bit $d$ takes 256 doublings and about 128
 additions. Real code uses a ladder or fixed windows so the running time
 doesn't depend on the bits.
 
@@ -39,9 +39,9 @@ Curves are written in one of three forms:
 
 | Form | Equation | Used by | What it buys |
 |---|---|---|---|
-| Short Weierstrass | y² = x³ + ax + b | P-256, secp256k1, Brainpool | every curve (for p > 3) has this form; the formulas have special cases |
-| Montgomery (1987) | By² = x³ + Ax² + x | Curve25519, Curve448 (X25519, X448) | the Montgomery ladder works on x alone, with the same steps for every bit |
-| Twisted Edwards (2007, 2008) | ax² + y² = 1 + dx²y² | Ed25519, Ed448 | one addition formula with no exceptions when a is a square and d is not |
+| Short Weierstrass | $y^2 = x^3 + ax + b$ | P-256, secp256k1, Brainpool | every curve (for $p > 3$) has this form; the formulas have special cases |
+| Montgomery (1987) | $By^2 = x^3 + Ax^2 + x$ | Curve25519, Curve448 (X25519, X448) | the Montgomery ladder works on $x$ alone, with the same steps for every bit |
+| Twisted Edwards (2007, 2008) | $ax^2 + y^2 = 1 + dx^2y^2$ | Ed25519, Ed448 | one addition formula with no exceptions when $a$ is a square and $d$ is not |
 
 Montgomery and Edwards curves always have a point count divisible by 4, so
 they come with a cofactor. Curve25519 and the Edwards curve under Ed25519
@@ -51,14 +51,14 @@ are the same group written two ways.
 
 | Curve | Field prime | Equation | Cofactor | Where from |
 |---|---|---|---|---|
-| Curve25519 | 2^255 − 19 | Montgomery, A = 486662 | 8 | Bernstein (2006), RFC 7748 |
-| Curve448 | 2^448 − 2^224 − 1 | Montgomery, A = 156326 | 4 | Hamburg (2015), RFC 7748 |
-| P-256 / P-384 / P-521 | special shape; P-521 uses 2^521 − 1 | Weierstrass, a = −3 | 1 | NIST (1999), now SP 800-186 |
-| P-192 / P-224 | special shape | Weierstrass, a = −3 | 1 | NIST (1999), now SP 800-186 |
-| secp256k1 | 2^256 − 2^32 − 977 | y² = x³ + 7 | 1 | Certicom, SEC 2 (2000) |
+| Curve25519 | $2^{255} - 19$ | Montgomery, $A = 486662$ | 8 | Bernstein (2006), RFC 7748 |
+| Curve448 | $2^{448} - 2^{224} - 1$ | Montgomery, $A = 156326$ | 4 | Hamburg (2015), RFC 7748 |
+| P-256 / P-384 / P-521 | special shape; P-521 uses $2^{521} - 1$ | Weierstrass, $a = -3$ | 1 | NIST (1999), now SP 800-186 |
+| P-192 / P-224 | special shape | Weierstrass, $a = -3$ | 1 | NIST (1999), now SP 800-186 |
+| secp256k1 | $2^{256} - 2^{32} - 977$ | $y^2 = x^3 + 7$ | 1 | Certicom, SEC 2 (2000) |
 | Brainpool | no special shape, 160 to 512 bits | Weierstrass | 1 | ECC Brainpool (2005), RFC 5639 |
 
-**Curve25519 and Curve448.** A = 486662 is the smallest A, with A − 2
+**Curve25519 and Curve448.** $A = 486662$ is the smallest $A$, with $A - 2$
 divisible by 4, that gives the curve cofactor 8 and its twist cofactor 4
 (RFC 7748, appendix A), which leaves the designer little room to steer the
 result. RFC 7748 (2016) defines X25519 and X448, and RFC 8032 (2017)
@@ -68,13 +68,13 @@ lists both curves, and FIPS 186-5 approves Ed25519 and Ed448.
 **NIST P-curves.** FIPS 186-2 (2000) made them the federal curves, and
 P-256 is still the usual curve for ECDSA in TLS certificates, smart cards
 and FIPS modules. The special primes, such as the
-[Mersenne prime](Mersenne-Primes.md) 2^521 − 1, make reduction fast.
+[Mersenne prime](Mersenne-Primes.md) $2^{521} - 1$, make reduction fast.
 NIST IR 8547 (final, October 2026) deprecates them after 2030 and
 disallows them after 2035, with all other quantum-vulnerable public-key
 algorithms. SP 800-186 keeps P-192 for legacy use only, such as checking
 old signatures. P-224 is still allowed there, at NIST's 112-bit floor.
 
-**The seeds.** Each P-curve's b was made by hashing a 160-bit seed with
+**The seeds.** Each P-curve's $b$ was made by hashing a 160-bit seed with
 SHA-1, and anyone can check that (the example does). The seeds came with no
 explanation, so whoever chose them could have tried seed after seed until
 a curve had a property they wanted. SafeCurves calls such curves
@@ -85,7 +85,7 @@ library's `lrand48` generator, started from Unix timestamps in 1997 and
 August 1997, 01:52:34 UTC. Still open: why that block was taken (block 876
 also gives a prime-order curve) and how the base points were chosen.
 
-**secp256k1.** With a = 0 it has an extra fast map (the GLV endomorphism)
+**secp256k1.** With $a = 0$ it has an extra fast map (the GLV endomorphism)
 that speeds up scalar multiplication. Bitcoin uses it for ECDSA and, since
 Taproot (2021), for Schnorr signatures (BIP 340); Ethereum uses it too.
 SP 800-186 allows it only for blockchain uses. Its constants are small and
@@ -93,29 +93,29 @@ simple but were never fully explained; SafeCurves rates it "somewhat
 rigid".
 
 **Brainpool.** RFC 5639 (2010) came from Germany's BSI and secunet. Each
-size has a random "r1" curve and an isomorphic "t1" version with a = −3.
-The primes come from the digits of π and the coefficients from e. With no
+size has a random "r1" curve and an isomorphic "t1" version with $a = -3$.
+The primes come from the digits of $\pi$ and the coefficients from $e$. With no
 special shape, the primes are slower to reduce. TLS can use the curves
 (RFC 7027, RFC 8734), and SP 800-186 allows the 224-bit and larger ones for
 interoperability.
 
 ## Why curve choice matters
 
-- **Twist security.** A ladder that works on x alone will compute on the
-  curve's twist when handed an x that isn't on the curve. If the twist's
+- **Twist security.** A ladder that works on $x$ alone will compute on the
+  curve's twist when handed an $x$ that isn't on the curve. If the twist's
   order has small factors, an attacker learns the key a piece at a time.
-  SafeCurves puts the best attack on the twist at 2^124.3 for Curve25519,
-  2^120.3 for P-256, 2^109.5 for secp256k1, 2^58.4 for P-224 and 2^44.5
+  SafeCurves puts the best attack on the twist at $2^{124.3}$ for Curve25519,
+  $2^{120.3}$ for P-256, $2^{109.5}$ for secp256k1, $2^{58.4}$ for P-224 and $2^{44.5}$
   for brainpoolP256t1. SP 800-186 itself warns about P-224's twist. Code
   that checks every incoming point is safe from this.
-- **Complete formulas.** Weierstrass addition has special cases (P = Q,
-  P = −P, O). Code that branches on them leaks timing or gives wrong
+- **Complete formulas.** Weierstrass addition has special cases ($P = Q$,
+  $P = -P$, $O$). Code that branches on them leaks timing or gives wrong
   answers on rare inputs. Edwards curves have one formula for everything.
   Prime-order Weierstrass curves have complete formulas too (Renes, Costello
   and Batina, 2016), at some cost in speed.
 - **No special structure.** A small embedding degree lets the MOV attack
   (1993) move the discrete log into a finite field, and a curve with
-  exactly p points falls in polynomial time (Smart, 1999).
+  exactly $p$ points falls in polynomial time (Smart, 1999).
 - **SafeCurves** (Bernstein and Lange) checks all of this plus rigidity.
   Curve25519 and Ed448-Goldilocks pass. The NIST curves, secp256k1 and
   Brainpool each fail at least one test. That doesn't make them broken; it
@@ -124,7 +124,7 @@ interoperability.
 ## Example (Python)
 
 Point addition and double-and-add on a toy curve, then checks on P-256:
-the generator is on the curve, n·G = O, b comes from the seed, and the
+the generator is on the curve, $n \cdot G = O$, $b$ comes from the seed, and the
 seed comes from `lrand48`.
 
 ```python
@@ -204,55 +204,57 @@ Each part below starts closed; open the ones you want.
 
 ??? example "Sample calculation: adding points on a toy curve"
 
-    The curve from the example below: `y² = x³ + 2x + 2` over the integers mod 17, base point G = (5, 1).
+    The curve from the example below: $y^2 = x^3 + 2x + 2$ over the integers mod 17, base point $G = (5, 1)$.
 
     | Step | Formula | Value |
     |---|---|---|
-    | Is G on the curve? | `1² = 1` and `5³ + 2·5 + 2 = 137 = 8·17 + 1` | yes |
-    | 2G: tangent slope | `m = (3·5² + 2) / (2·1) = 77 · 2⁻¹ = 9 · 9` | 81 mod 17 = 13 |
-    | 2G: x | `13² − 5 − 5 = 159` | 6 |
-    | 2G: y | `13·(5 − 6) − 1 = −14` | 3 |
-    | 3G = 2G + G: slope | `(3 − 1)/(6 − 5)` | 2 |
-    | 3G | `x = 4 − 6 − 5 = −7`, `y = 2·(5 − 10) − 1 = −11` | (10, 6) |
+    | Is $G$ on the curve? | $1^2 = 1$ and $5^3 + 2 \cdot 5 + 2 = 137 = 8 \cdot 17 + 1$ | yes |
+    | $2G$: tangent slope | $m = (3 \cdot 5^2 + 2) / (2 \cdot 1) = 77 \cdot 2^{-1} = 9 \cdot 9$ | $81 \bmod 17 = 13$ |
+    | $2G$: $x$ | $13^2 - 5 - 5 = 159$ | 6 |
+    | $2G$: $y$ | $13 \cdot (5 - 6) - 1 = -14$ | 3 |
+    | $3G = 2G + G$: slope | $(3 - 1)/(6 - 5)$ | 2 |
+    | $3G$ | $x = 4 - 6 - 5 = -7$, $y = 2 \cdot (5 - 10) - 1 = -11$ | $(10, 6)$ |
 
-    `2⁻¹ mod 17 = 9` because `2 · 9 = 18 ≡ 1`. Carrying on, the multiples of G visit all 18 other points and
-    `19G = O`: the group has 19 elements, within Hasse's bound `|19 − 18| ≤ 2√17 ≈ 8.2`.
+    $2^{-1} \bmod 17 = 9$ because $2 \cdot 9 = 18 \equiv 1$. Carrying on, the multiples of $G$ visit all 18 other points and
+    $19G = O$: the group has 19 elements, within Hasse's bound $\lvert 19 - 18 \rvert \le 2\sqrt{17} \approx 8.2$.
 
 ??? abstract "The math, with formulas"
 
-    On `E: y² = x³ + ax + b` over `F_p` (p > 3, `4a³ + 27b² ≠ 0` so the curve has no cusps or crossings):
+    On $E: y^2 = x^3 + ax + b$ over $\mathbb{F}_p$ ($p > 3$, $4a^3 + 27b^2 \ne 0$ so the curve has no cusps or crossings):
 
-    ```
-    P + Q:   m = (y₂ − y₁) / (x₂ − x₁)          2P:   m = (3x₁² + a) / (2y₁)
-             x₃ = m² − x₁ − x₂                         y₃ = m(x₁ − x₃) − y₁
-    −P = (x, −y),    P + O = P,    P + (−P) = O
-    ```
+    $$
+    \begin{aligned}
+    P + Q: \quad & m = \frac{y_2 - y_1}{x_2 - x_1} & 2P: \quad & m = \frac{3x_1^2 + a}{2y_1} \\
+    & x_3 = m^2 - x_1 - x_2 & & y_3 = m(x_1 - x_3) - y_1 \\
+    & -P = (x, -y), \quad P + O = P, \quad P + (-P) = O
+    \end{aligned}
+    $$
 
-    - **Hasse's theorem:** `|#E(F_p) − (p + 1)| ≤ 2√p`. Counting the points exactly takes Schoof's algorithm
+    - **Hasse's theorem:** $\lvert \#E(\mathbb{F}_p) - (p + 1) \rvert \le 2\sqrt{p}$. Counting the points exactly takes Schoof's algorithm
       (polynomial time), which is how curve designers find a prime order.
-    - **Projective coordinates** `(X : Y : Z)` with `x = X/Z`, `y = Y/Z` avoid a slow inversion on every step.
-    - **Montgomery ladder** on `By² = x³ + Ax² + x` uses x only: `x(2P)` and `x(P + Q)` from `x(P), x(Q), x(P − Q)`.
-    - **Security:** `d·G` takes about `log₂ n` doublings; getting `d` back takes about `√(πn/4)` steps with
-      Pollard's rho, so a 256-bit n gives about 2¹²⁸.
+    - **Projective coordinates** $(X : Y : Z)$ with $x = X/Z$, $y = Y/Z$ avoid a slow inversion on every step.
+    - **Montgomery ladder** on $By^2 = x^3 + Ax^2 + x$ uses $x$ only: $x(2P)$ and $x(P + Q)$ from $x(P), x(Q), x(P - Q)$.
+    - **Security:** $d \cdot G$ takes about $\log_2 n$ doublings; getting $d$ back takes about $\sqrt{\pi n / 4}$ steps with
+      Pollard's rho, so a 256-bit $n$ gives about $2^{128}$.
 
 ??? tip "Watch it step by step: the multiples of G"
 
     <div class="mars-steps" markdown>
 
-    1. 1G = (5, 1). The private key d is "how many times"; the public key is the point you land on.
-    2. 2G = (6, 3), by the tangent at G. 3G = (10, 6), by the line through G and 2G.
-    3. 4G = (3, 1), 5G = (9, 16), 6G = (16, 13), 7G = (0, 6). The points jump around with no visible pattern.
-    4. 13G = (16, 4). Double-and-add gets there from 13 = `1101` in binary: G, 3G, 6G, 12G, 13G.
-    5. 18G = (5, 16) = −G, the mirror image of G.
-    6. 19G = O, the point at infinity. Going back from a point to its d is the hard part.
+    1. $1G = (5, 1)$. The private key $d$ is "how many times"; the public key is the point you land on.
+    2. $2G = (6, 3)$, by the tangent at $G$. $3G = (10, 6)$, by the line through $G$ and $2G$.
+    3. $4G = (3, 1)$, $5G = (9, 16)$, $6G = (16, 13)$, $7G = (0, 6)$. The points jump around with no visible pattern.
+    4. $13G = (16, 4)$. Double-and-add gets there from 13 = `1101` in binary: $G, 3G, 6G, 12G, 13G$.
+    5. $18G = (5, 16) = -G$, the mirror image of $G$.
+    6. $19G = O$, the point at infinity. Going back from a point to its $d$ is the hard part.
 
     </div>
 
 ??? info "The math underneath"
 
-    - **Groups:** closure, an identity (O), inverses, and associativity, which is the non-obvious one for
+    - **Groups:** closure, an identity ($O$), inverses, and associativity, which is the non-obvious one for
       the chord-and-tangent rule.
-    - **Finite fields** `F_p` and modular inverses (extended Euclid or `a^(p−2)`).
+    - **Finite fields** $\mathbb{F}_p$ and modular inverses (extended Euclid or $a^{p-2}$).
     - **The ECDLP** and why the number field sieve has no analogue here: [hard problems](Hard-Problems.md).
     - **Pairings** (Weil, Tate) map curve points to a finite field; they power BLS signatures and break
       curves with a small embedding degree (MOV attack).

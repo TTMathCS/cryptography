@@ -16,11 +16,11 @@ yescrypt and [bcrypt](bcrypt.md) are acceptable too.
 
 **What it was.** The key derivation function of RSA Labs' PKCS #5 v1.5
 (November 1993), carried into RFC 2898 (2000) and RFC 8018 (2017). Hash the
-password and salt, then hash the result c − 1 more times:
+password and salt, then hash the result $c - 1$ more times:
 
-```
-T1 = Hash(P ‖ S),  T2 = Hash(T1),  …,  DK = first dkLen bytes of Tc
-```
+$$
+T_1 = \mathrm{Hash}(P \,\Vert\, S), \quad T_2 = \mathrm{Hash}(T_1), \quad \ldots, \quad \mathit{DK} = \text{first } \mathit{dkLen} \text{ bytes of } T_c
+$$
 
 The hash is MD2, MD5 or SHA-1. Its encryption scheme, PBES1, takes an 8-byte
 salt and splits 16 bytes of output into a DES or RC2 key and a CBC IV.
@@ -152,10 +152,10 @@ Each part below starts closed; open the ones you want.
 
     PBKDF1 with SHA-1, password "password", salt "saltsalt", recomputed with Python's `hashlib`:
 
-    | Iterations c | Calculation | Value (20 bytes, the most PBKDF1 can give) |
+    | Iterations $c$ | Calculation | Value (20 bytes, the most PBKDF1 can give) |
     |---|---|---|
-    | 1 | `T1 = SHA-1("password" ‖ "saltsalt")` | `cab86dd6261710891e8cb56ee3625691a75df344` |
-    | 2 | `T2 = SHA-1(T1)` | `e3a8dfcf2eea6dc81d2ad154274faae96ff0b98a` |
+    | 1 | $T_1 = \text{SHA-1}(\text{"password"} \,\Vert\, \text{"saltsalt"})$ | `cab86dd6261710891e8cb56ee3625691a75df344` |
+    | 2 | $T_2 = \text{SHA-1}(T_1)$ | `e3a8dfcf2eea6dc81d2ad154274faae96ff0b98a` |
 
     Asking for a 32-byte AES-256 key is an error: there is nothing past byte 20.
 
@@ -166,22 +166,22 @@ Each part below starts closed; open the ones you want.
 
     **PBKDF1** (RFC 8018 §5.1):
 
-    ```
-    T1 = Hash(P ‖ S),   Ti = Hash(T(i−1)),   DK = first dkLen bytes of Tc,   dkLen ≤ HashLen
-    ```
+    $$
+    T_1 = \mathrm{Hash}(P \,\Vert\, S), \quad T_i = \mathrm{Hash}(T_{i-1}), \quad \mathit{DK} = \text{first } \mathit{dkLen} \text{ bytes of } T_c, \quad \mathit{dkLen} \le \mathit{HashLen}
+    $$
 
-    **DES-crypt:** `K` = the low 7 bits of each of the first 8 characters (56 bits). The salt's 12 bits each
+    **DES-crypt:** $K$ = the low 7 bits of each of the first 8 characters (56 bits). The salt's 12 bits each
     swap a pair of entries in DES's E-table. Then
 
-    ```
-    X0 = 0⁶⁴,   Xi = DES′_K(X(i−1)) for i = 1 … 25,   output = salt ‖ base64(X25)
-    ```
+    $$
+    X_0 = 0^{64}, \quad X_i = \mathrm{DES}'_K(X_{i-1}) \text{ for } i = 1 \ldots 25, \quad \mathit{output} = \mathit{salt} \,\Vert\, \mathrm{base64}(X_{25})
+    $$
 
     **MD5-crypt** and **sha256/sha512crypt** follow the same shape: a starting digest of password, salt
     and password, then a fixed or chosen number of rounds, each hashing a mix of the previous digest, the
     password and the salt chosen by whether the round number is odd, divisible by 3 or by 7.
 
-    **Cost of one guess:** PBKDF1 c hashes, DES-crypt 25 DES runs, MD5-crypt 1,000 MD5 runs,
+    **Cost of one guess:** PBKDF1 $c$ hashes, DES-crypt 25 DES runs, MD5-crypt 1,000 MD5 runs,
     sha512crypt 5,000 SHA-512 runs by default. None of them needs more than a few hundred bytes of memory.
 
 ??? tip "Watch it step by step: why DES-crypt fell"
@@ -203,7 +203,7 @@ Each part below starts closed; open the ones you want.
       output, which is PBKDF1's ceiling.
     - **Salts** defeat precomputed tables: an attacker must attack each salt separately, and 4,096 salts is
       too few to matter today.
-    - **Key space:** 8 characters of 7 bits is 2⁵⁶; typed passwords use far fewer keys, so a dictionary and
+    - **Key space:** 8 characters of 7 bits is $2^{56}$; typed passwords use far fewer keys, so a dictionary and
       brute force cover them quickly.
     - What replaced them: [PBKDF2](PBKDF2.md) (any length, adjustable count), then the memory-hard
       [scrypt](scrypt.md) and [Argon2](Argon2.md).
