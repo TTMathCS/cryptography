@@ -140,7 +140,7 @@ base64-encodes its 32 bytes into 43 characters.
 
 Each part below starts closed; open the ones you want.
 
-??? example "Sample calculation: Linux's \"fast key erasure\""
+??? example "Sample calculation: Linux's fast key erasure"
 
     Linux's generator makes each ChaCha20 block, keeps the first 32 bytes as its next key, and hands out
     the rest. With the all-zero key and nonce (the RFC 8439 test key, so anyone can check it with
