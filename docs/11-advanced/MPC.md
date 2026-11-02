@@ -162,6 +162,76 @@ print([both_yes(x, y) for x in (0, 1) for y in (0, 1)])  # [0, 0, 0, 1]
 - The DH-based OT and Paillier fall to Shor's algorithm. Secret sharing
   with information-theoretic MACs doesn't.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: multiplying shared numbers with a Beaver triple"
+
+    Two parties work mod 97. Party 1 and party 2 hold additive shares of x = 12 and y = 7, and of a
+    triple a = 5, b = 9, c = a·b = 45 made ahead of time. Neither party sees x, y, a, b or c.
+
+    | Value | Party 1 share | Party 2 share | Sum mod 97 |
+    |---|---|---|---|
+    | x | 40 | 69 | 12 |
+    | y | 50 | 54 | 7 |
+    | a | 60 | 42 | 5 |
+    | b | 20 | 86 | 9 |
+    | c | 30 | 15 | 45 |
+    | d = x − a, opened | 77 | 27 | 7 |
+    | e = y − b, opened | 30 | 65 | 95 (that is, −2) |
+    | z = x·y | 30 + 43 + 74 + 83 = 36 | 15 + 20 + 13 = 48 | **84 = 12 · 7** |
+
+    Party 1 computes `c₁ + d·b₁ + e·a₁ + d·e`; party 2 computes `c₂ + d·b₂ + e·a₂`. Only one party
+    adds the public `d·e = 83`. Opening d = 7 and e = 95 gives nothing away, because a and b are random
+    and used once. Adding needs no help at all: shares of x + y are 40 + 50 = 90 and 69 + 54 = 26,
+    which sum to 116 ≡ 19.
+
+??? abstract "The math, with formulas"
+
+    ```
+    Additive sharing:  x = x₁ + x₂ + … + xₙ  (mod p),  all but one share random
+    Add:               [x + y]ᵢ = xᵢ + yᵢ                 (no messages)
+    Beaver triple:     [a], [b], [c] with c = a·b
+    Open:              d = x − a,   e = y − b
+    Multiply:          x·y = c + d·b + e·a + d·e
+    ```
+
+    - **Why it works:** expand `(d + a)(e + b) = d·e + d·b + e·a + a·b`, and `a·b = c`. Every term is
+      either public or a share times a public number, so each party works on its own.
+    - **Why d and e leak nothing:** a is uniform and used once, so `x − a` is uniform whatever x is.
+      It is a one-time pad mod p.
+    - **Cost:** one triple and one round of opening per multiplication. Additions are free, so the
+      number of rounds follows the circuit's multiplicative depth.
+    - **SPDZ MACs:** each value also carries shares of `α·x`; a party who changes a share is caught by the
+      MAC check at the end, except with probability about 1/p.
+
+??? tip "Watch it step by step: 12 times 7 on shares"
+
+    <div class="mars-steps" markdown>
+
+    1. Share the inputs mod 97: x = 12 as 40 and 69, y = 7 as 50 and 54.
+    2. Take a prepared triple: a = 5 (60, 42), b = 9 (20, 86), c = 45 (30, 15).
+    3. Each party subtracts locally, then both open d = 77 + 27 = 7 and e = 30 + 65 = 95.
+    4. Party 1: 30 + 7·20 + 95·60 + 7·95 mod 97 = 30 + 43 + 74 + 83 = 36.
+    5. Party 2: 15 + 7·86 + 95·42 mod 97 = 15 + 20 + 13 = 48.
+    6. Only the output is opened: 36 + 48 = 84 = 12 · 7. The triple is thrown away.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Finite fields:** working mod a prime makes every nonzero number invertible, which Shamir
+      sharing and its interpolation need; see [secret sharing](Secret-Sharing.md).
+    - **Linearity:** any linear function of shared values is computed on the shares alone. Only
+      multiplication needs interaction.
+    - **Security by simulation:** a protocol is secure if whatever a party sees could be made up from
+      its own input and the output, as if a trusted party had computed f.
+    - **Thresholds:** BGW needs no hardness assumption if fewer than a third of the parties cheat.
+      With no honest majority, protocols need public-key tools such as oblivious transfer.
+    - **Oblivious transfer** in the Chou-Orlandi version on this page rests on a Diffie-Hellman
+      problem; see [hard problems](../10-math-foundations/Hard-Problems.md).
+
 ## See also
 
 - [Secret sharing](Secret-Sharing.md): the shares under GMW, BGW and SPDZ

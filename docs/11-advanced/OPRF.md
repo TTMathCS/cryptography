@@ -146,6 +146,71 @@ print(oprf(b"hunter3")[1] == y1)        # False
 - A quantum computer could recover k from the public key or past answers.
   Blinding hides x perfectly, so the requests themselves stay private.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: 2HashDH blind, evaluate, unblind in a group of 53 elements"
+
+    Work mod p = 107, in the group of squares, which has prime order q = 53. Say the client's input
+    hashes onto the group as `H'(x) = 30`. The server's key is k = 11; the client picks r = 7.
+
+    | Step | Who | Calculation | Value |
+    |---|---|---|---|
+    | Blind | client | `B = 30⁷ mod 107` | 39 |
+    | Evaluate | server | `Z = 39¹¹ mod 107` | 85 |
+    | Inverse of r | client | `7⁻¹ mod 53` (7 · 38 = 266 = 5 · 53 + 1) | 38 |
+    | Unblind | client | `N = 85³⁸ mod 107` | 69 |
+    | Check | anyone with k | `30¹¹ mod 107` | 69, the same |
+
+    The client then outputs `H(x, 69)`. A second run with r = 20 sends B = 62, gets Z = 100 back, and
+    unblinds with `20⁻¹ mod 53 = 8` to the same N = 69. The server saw 39 and 62: two unrelated
+    elements, so it can't tell both requests carried the same x.
+
+??? abstract "The math, with formulas"
+
+    ```
+    Blind:     B = H'(x)^r            (r random, 1 ≤ r < q)
+    Evaluate:  Z = B^k
+    Unblind:   N = Z^(r⁻¹ mod q) = H'(x)^(r·k·r⁻¹) = H'(x)^k
+    Output:    F(k, x) = H(x, N)
+    VOPRF:     proof that log_G(pkS) = log_B(Z),   pkS = G^k
+    POPRF:     t = k + m(info),   Z = B^(1/t)
+    ```
+
+    - **Why unblinding works:** exponents count mod q, the group order, so `r · r⁻¹ ≡ 1 mod q` cancels.
+    - **Why the server learns nothing:** in a prime-order group any element other than 1 generates
+      everything, so `H'(x)^r` for a uniform r is a uniform element, whatever x is.
+    - **Why the client can't do more:** making Q + 1 outputs from Q answers is the one-more gap
+      computational Diffie-Hellman problem, assumed hard.
+    - **Cost:** two exponentiations for the client, one for the server, plus the proof in VOPRF.
+
+??? tip "Watch it step by step: one OPRF query"
+
+    <div class="mars-steps" markdown>
+
+    1. The client hashes its input onto the group: `H'(x) = 30`, an element of order 53 mod 107.
+    2. It picks r = 7 and sends `B = 30⁷ mod 107 = 39`. The 30 stays home.
+    3. The server applies its key k = 11: `Z = 39¹¹ mod 107 = 85`, and sends 85 back.
+    4. The client finds `7⁻¹ mod 53 = 38`, since 7 · 38 leaves 1 after dividing by 53.
+    5. It unblinds: `85³⁸ mod 107 = 69`, which equals `30¹¹`: the server's key applied to its input.
+    6. It hashes x with 69 to get the output. With r = 20 the server would see 62, yet N is still 69.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Prime-order groups:** Lagrange's theorem makes every element other than 1 a generator, so the
+      inverse of r mod q always exists and blinding is perfect.
+    - **Diffie-Hellman assumptions:** the one-more gap CDH problem, and the discrete log behind the
+      server's key; see [hard problems](../10-math-foundations/Hard-Problems.md).
+    - **Hashing onto the group:** RFC 9380 maps inputs to curve points with no known discrete log. A
+      known log would let one answer reveal every output.
+    - **Proofs of equal logs:** VOPRF uses a Chaum-Pedersen proof made non-interactive with Fiat-Shamir;
+      see [zero-knowledge proofs](Zero-Knowledge.md).
+    - **Curves:** the RFC 9497 suites run on [elliptic curves](../10-math-foundations/Elliptic-Curves.md)
+      such as ristretto255 and P-256.
+
 ## See also
 
 - [PAKE](../01-key-exchange/PAKE.md): OPAQUE, the best-known user of an OPRF

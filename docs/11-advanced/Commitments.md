@@ -147,6 +147,73 @@ print(commit(b, r2, bad) == C)          # True: the same C opens to 90 as well
   commitments to any value, so binding fails, but perfect hiding means
   they still reveal nothing. Hash commitments don't rest on discrete log.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: a Pedersen commitment in a group of 53 elements"
+
+    Work mod p = 107. The squares mod 107 form a group of prime order q = 53. Take g = 4 and h = 9, both
+    squares, so both have order 53. Commit to m = 7 with the random r = 10.
+
+    | Step | Calculation | Value mod 107 |
+    |---|---|---|
+    | Value part | `g^m = 4⁷` | 13 |
+    | Random part | `h^r = 9¹⁰` | 11 |
+    | Commitment | `C = 13 · 11` | 36 |
+    | Open | reveal m = 7, r = 10; recompute `4⁷ · 9¹⁰` | 36, it matches |
+    | Second commitment | `C₂ = 4⁵ · 9²⁰` (m = 5, r = 20) | 105 |
+    | Add | `C · C₂ = 36 · 105` | 35 |
+    | Check the sum | `4¹² · 9³⁰` (m = 12, r = 30) | 35, the same |
+
+    **Hiding:** for every value m from 0 to 52 there is some r with `4^m · 9^r = 36`, so C alone says
+    nothing about m. **Binding:** in a group this small anyone can try all 53 powers and find
+    `log₄ 9 = 17`. With it, `r′ = 10 + (7 − 3) · 17⁻¹ mod 53 = 4` opens the same C to m = 3:
+    `4³ · 9⁴ mod 107 = 36`. In a real group finding that log is out of reach.
+
+??? abstract "The math, with formulas"
+
+    ```
+    Commit:   C = g^m · h^r                  (r random mod q)
+    Open:     check C = g^m · h^r
+    Add:      C(m₁, r₁) · C(m₂, r₂) = C(m₁ + m₂, r₁ + r₂)
+    Break:    g^m h^r = g^m′ h^r′  ⇒  log_g h = (m − m′) / (r′ − r)  mod q
+    Hash:     C = H(r ‖ m)
+    ```
+
+    - **Perfect hiding:** r is uniform mod q and h generates the group, so `h^r` is a uniform element.
+      Multiplying by `g^m` keeps it uniform, whatever m is.
+    - **Computational binding:** two openings of one C give `log_g h` by the formula above. So binding
+      is exactly as hard as the discrete log of h.
+    - **Toy check of the formula:** `(7 − 3) / (4 − 10) mod 53 = 17`, the log used above.
+    - **Hash commitments** flip the sides: binding rests on collision resistance, hiding on the hash
+      behaving like a random function.
+
+??? tip "Watch it step by step: commit, open, add"
+
+    <div class="mars-steps" markdown>
+
+    1. Setup: p = 107, a group of q = 53 squares, g = 4, h = 9. Nobody should know `log₄ 9`.
+    2. Commit to 7 with r = 10: `4⁷ = 13`, `9¹⁰ = 11`, so C = 13 · 11 mod 107 = 36. Publish 36.
+    3. Later, open: reveal 7 and 10. Anyone recomputes 36 and accepts.
+    4. Commit to 5 with r = 20: C₂ = 105. Multiply: 36 · 105 mod 107 = 35.
+    5. Open the product as 12 with r = 30: `4¹² · 9³⁰ mod 107 = 35`. The sum checks without opening 7 or 5.
+    6. Cheat with the secret log 17: r′ = 4 opens 36 as 3. This is why h must come from a hash.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Prime-order groups:** every element other than 1 generates the whole group (Lagrange's theorem),
+      so g and h each reach all 53 elements here.
+    - **Discrete logarithm:** Pedersen binding is only as strong as the discrete log of h base g; see
+      [hard problems](../10-math-foundations/Hard-Problems.md).
+    - **Hiding or binding, not both perfectly:** a C that fits every value can be reopened by unlimited
+      power, and a C that fits one value can be found by trying them all.
+    - **Proofs about commitments:** Schnorr-style proofs and Bulletproofs show facts about m without
+      opening C; see [zero-knowledge proofs](Zero-Knowledge.md).
+    - **Origin:** Pedersen made the commitment for verifiable [secret sharing](Secret-Sharing.md).
+
 ## See also
 
 - [Zero-knowledge proofs](Zero-Knowledge.md): Bulletproofs and other proofs about committed values

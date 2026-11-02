@@ -162,6 +162,72 @@ print(dec(total))                       # 4
 - Paillier and exponential ElGamal fall to Shor's algorithm. The lattice
   schemes are believed to resist quantum computers.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: Paillier with p = 5 and q = 7"
+
+    n = 35, n² = 1225, `λ = lcm(4, 6) = 12`, and `μ = 12⁻¹ mod 35 = 3` (since 12 · 3 = 36 ≡ 1).
+    Encrypt a = 5 with r = 2 and b = 8 with r = 3. Each r must share no factor with n.
+
+    | Step | Calculation | Value mod 1225 |
+    |---|---|---|
+    | Encrypt 5 | `36⁵ = 176`, `2³⁵ = 18`, `c_a = 176 · 18` | 718 |
+    | Encrypt 8 | `36⁸ = 281`, `3³⁵ = 607`, `c_b = 281 · 607` | 292 |
+    | Multiply ciphertexts | `c = 718 · 292` | 181 |
+    | Decrypt: power | `181¹²` | 561 |
+    | Decrypt: L | `(561 − 1) / 35` | 16 |
+    | Decrypt: times μ | `16 · 3 mod 35` | **13 = 5 + 8** |
+
+    The product 181 is exactly the encryption of 13 with r = 2 · 3 = 6. The server that multiplied 718
+    by 292 never saw 5, 8 or 13. Raising `c_a` to the power 3 gives 232, which decrypts to 15 = 3 · 5.
+    Note `36ᵐ = 1 + 35m` mod 1225: `36⁵ = 176 = 1 + 5 · 35` and `36⁸ = 281 = 1 + 8 · 35`.
+
+??? abstract "The math, with formulas"
+
+    ```
+    Keys:     n = pq,  λ = lcm(p − 1, q − 1),  μ = λ⁻¹ mod n
+    Encrypt:  c = (n + 1)^m · r^n  mod n²
+    Decrypt:  m = L(c^λ mod n²) · μ  mod n,    L(u) = (u − 1) / n
+    Add:      E(m₁) · E(m₂) = E(m₁ + m₂)        Scale:  E(m)^k = E(k·m)
+    ```
+
+    - **Binomial theorem:** `(1 + n)^m = 1 + m·n mod n²`, because every later term has n² in it. So
+      the message sits in the exponent, and exponents add when ciphertexts multiply.
+    - **Removing r:** for r coprime to n, `r^(n·λ) ≡ 1 mod n²`. Raising c to λ wipes out the random
+      part and leaves `1 + m·λ·n`, which L and μ turn back into m.
+    - **Lattice schemes** add instead of multiply: a ciphertext is about `(a, a·s + e + Δ·m)`, and
+      adding two adds both the messages and the noises e.
+    - **Noise budget:** decryption works while the total noise stays under about Δ/2. Multiplying
+      grows it fast, which is why schemes rescale or bootstrap.
+
+??? tip "Watch it step by step: adding two hidden numbers"
+
+    <div class="mars-steps" markdown>
+
+    1. Key: n = 5 · 7 = 35. The private key is λ = 12, with μ = 3.
+    2. Alice encrypts 5 with r = 2: c_a = 718. Bob encrypts 8 with r = 3: c_b = 292.
+    3. The server multiplies: 718 · 292 mod 1225 = 181. It learns nothing about 5 or 8.
+    4. The key holder raises 181 to the 12th power mod 1225: 561.
+    5. L(561) = (561 − 1) / 35 = 16. Then 16 · 3 mod 35 = 13.
+    6. 13 = 5 + 8. Real keys use a 2048-bit n, so totals can be huge and r can't be guessed.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Groups mod n²:** the numbers coprime to n² form a group of size n·φ(n). Paillier's ciphertexts
+      live there, and its correctness comes from Carmichael's function and the binomial theorem.
+    - **Decisional composite residuosity:** telling an n-th power mod n² from a random number is
+      believed hard. Paillier's semantic security rests on it, and it falls if n can be factored; see
+      [hard problems](../10-math-foundations/Hard-Problems.md).
+    - **Learning with errors:** BGV, BFV, CKKS and TFHE rest on it, mostly in its ring form; see
+      [lattices](../10-math-foundations/Hard-Problems.md#lattices).
+    - **Circular security:** bootstrapping publishes an encryption of the secret key under itself. No
+      proof says that is safe; it is an extra assumption.
+    - **Malleability:** being able to add to a ciphertext means no homomorphic scheme can be CCA2-secure.
+
 ## See also
 
 - [ElGamal](../03-public-key-encryption/ElGamal.md): exponential ElGamal and e-voting
