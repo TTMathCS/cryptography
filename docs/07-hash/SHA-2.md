@@ -86,6 +86,74 @@ print(h.hexdigest() == digest)   # True
   you need a key ([HMAC](../06-mac/HMAC.md)) or a signature
   ([Ed25519](../02-signatures/EdDSA.md)).
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: SHA-256 of \"abc\""
+
+    The standard example from NIST's SHA-256 test. Recomputed with Python (`hashlib` and a hand-written first
+    round):
+
+    | Step | Value |
+    |---|---|
+    | Message "abc" | `61 62 63` (24 bits) |
+    | Padding: a `1` bit, zeros, then the length as 64 bits | `61626380 00000000 … 00000000 00000018` (one 64-byte block) |
+    | Start state `H₀ … H₇` (fractional parts of √2, √3, √5, … √19) | `6a09e667 bb67ae85 3c6ef372 a54ff53a 510e527f 9b05688c 1f83d9ab 5be0cd19` |
+    | Round 0: `W₀ = 61626380`, `K₀ = 428a2f98` | `T₁ = 54da50e8`, `T₂ = 08909ae5` |
+    | After round 0 | `a = T₁ + T₂ = 5d6aebcd`, `e = d + T₁ = fa2a4622` |
+    | After 64 rounds, added to the start state | `ba7816bf 8f01cfea 414140de 5dae2223 b00361a3 96177a9c b410ff61 f20015ad` |
+
+    Changing "abc" to "abd" gives `a52d159f 262b2c6d …`: about half the 256 bits flip.
+
+??? abstract "The math, with formulas"
+
+    **Merkle–Damgård.** Pad the message to a multiple of 512 bits; `H = IV`; for each block,
+    `H = compress(H, block)`; output `H`. If the compression function resists collisions, so does the hash.
+
+    **One SHA-256 round** (all 32-bit, `>>>` is rotate right):
+
+    ```
+    Σ₁(e) = (e >>> 6) ⊕ (e >>> 11) ⊕ (e >>> 25)      Ch(e,f,g)  = (e ∧ f) ⊕ (¬e ∧ g)
+    Σ₀(a) = (a >>> 2) ⊕ (a >>> 13) ⊕ (a >>> 22)      Maj(a,b,c) = (a ∧ b) ⊕ (a ∧ c) ⊕ (b ∧ c)
+    T₁ = h + Σ₁(e) + Ch(e,f,g) + Kₜ + Wₜ
+    T₂ = Σ₀(a) + Maj(a,b,c)
+    h = g, g = f, f = e, e = d + T₁, d = c, c = b, b = a, a = T₁ + T₂
+    ```
+
+    **Message schedule:** `W₀ … W₁₅` are the block's words; for `t ≥ 16`,
+    `Wₜ = σ₁(Wₜ₋₂) + Wₜ₋₇ + σ₀(Wₜ₋₁₅) + Wₜ₋₁₆`, with `σ₀(x) = (x >>> 7) ⊕ (x >>> 18) ⊕ (x >> 3)` and
+    `σ₁(x) = (x >>> 17) ⊕ (x >>> 19) ⊕ (x >> 10)`. The constants `Kₜ` are the fractional parts of the cube roots
+    of the first 64 primes ("nothing up my sleeve").
+
+    **Davies–Meyer feed-forward:** after 64 rounds the result is added to the incoming state, so the
+    compression function cannot simply be run backwards.
+
+    **Strength:** collisions need about 2¹²⁸ work (birthday bound), preimages 2²⁵⁶. SHA-512 uses 64-bit words,
+    80 rounds and 1,024-bit blocks; SHA-512/256 truncates it, which also stops length extension.
+
+??? tip "Watch it step by step: the first round of SHA-256(\"abc\")"
+
+    <div class="mars-steps" markdown>
+
+    1. Pad "abc" into one 64-byte block: `61626380`, zeros, and the length `00000018`.
+    2. Load the eight start words: `a = 6a09e667`, …, `e = 510e527f`, …, `h = 5be0cd19`.
+    3. Mix the right half: `T₁ = h + Σ₁(e) + Ch(e, f, g) + K₀ + W₀ = 54da50e8`.
+    4. Mix the left half: `T₂ = Σ₀(a) + Maj(a, b, c) = 08909ae5`.
+    5. Shift the words along; the new `a = T₁ + T₂ = 5d6aebcd`, the new `e = d + T₁ = fa2a4622`.
+    6. 63 more rounds, then add the start words back: `ba7816bf…f20015ad`.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Modular addition, rotation and Boolean functions** on 32 and 64-bit words.
+    - **The Merkle–Damgård construction** and its proof; **length extension**, its weakness (see [HMAC](../06-mac/HMAC.md)).
+    - **Davies–Meyer:** building a compression function from a block cipher.
+    - **The birthday paradox:** collisions in `2^(n/2)`, not `2ⁿ`.
+    - **Differential cryptanalysis of hashes:** what broke [MD5 and SHA-1](Retired.md), and why SHA-2's
+      extra message expansion and rounds have held.
+
 ## See also
 
 - [SHA-3](SHA-3.md): the backup design, built differently

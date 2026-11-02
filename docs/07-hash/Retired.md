@@ -148,6 +148,67 @@ the 20-byte hashes in P2PKH and P2SH addresses and P2WPKH outputs. Taproot
 outputs (BIP 341) hold a 32-byte key instead. In OpenPGP, RFC 9580 forbids
 new signatures with it, as with MD5 and SHA-1.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: the old hashes of \"abc\", and the cost of breaking them"
+
+    Outputs recomputed with Python's `hashlib`:
+
+    | Hash | Output for "abc" | Output size | Generic collision cost | Actual collision cost |
+    |---|---|---|---|---|
+    | MD5 | `900150983cd24fb0d6963f7d28e17f72` | 128 bits | 2⁶⁴ | seconds on a laptop (since 2005–2006) |
+    | SHA-1 | `a9993e364706816aba3e25717850c26c9cd0d89d` | 160 bits | 2⁸⁰ | about 2⁶³·¹ (SHAttered, 2017) |
+    | SHA-256 | `ba7816bf…f20015ad` | 256 bits | 2¹²⁸ | none known |
+
+    2⁸⁰ / 2⁶³·¹ ≈ 120,000: the SHAttered team found a SHA-1 collision about 120,000 times faster than the
+    birthday bound. In 2020 a chosen-prefix collision (two different chosen beginnings) cost about 2⁶³·⁴,
+    some US$45,000 of GPU time.
+
+??? abstract "The math, with formulas"
+
+    **The birthday bound.** Among `q` random `n`-bit outputs, the chance of some collision is about
+    `1 − e^(−q²/2ⁿ⁺¹)`, so a 50% chance needs `q ≈ 1.18 · 2^(n/2)`. That is why a 128-bit hash gives at most
+    64-bit collision security.
+
+    **Differential attacks (Wang and Yu, 2005).** Choose a difference `Δ` between two message blocks and a
+    path of differences through the rounds that cancels by the end, so `compress(H, M) = compress(H, M ⊕ Δ)`.
+    Each step of the path holds with some probability; message modification forces the early steps,
+    leaving the attacker to pay only for the late ones. MD5's path costs about 2³⁹ work in the original paper;
+    later work brought it to seconds.
+
+    **Why a collision is enough to hurt.** Merkle–Damgård passes the state along, so if `H(M) = H(M′)` then
+    `H(M ‖ S) = H(M′ ‖ S)` for any suffix `S`. Two documents with a shared ending and colliding beginnings can
+    carry the same signature (the Flame malware's forged Microsoft certificate, 2012, used an MD5
+    chosen-prefix collision).
+
+    **Preimages are still hard.** No practical preimage attack exists on MD5 (best known about 2¹²³·⁴) or
+    SHA-1, which is why old HMAC-MD5 and HMAC-SHA-1 tags are not forgeable, even though the hashes are broken
+    for signatures.
+
+??? tip "Watch it step by step: the birthday paradox"
+
+    <div class="mars-steps" markdown>
+
+    1. With 23 people in a room, there is a 50% chance two share a birthday, though there are 365 days.
+    2. 23 people make 253 pairs; each pair matches with chance 1/365. Pairs, not people, are what count.
+    3. For a hash with `2ⁿ` outputs, about `2^(n/2)` random inputs give a 50% chance of a collision.
+    4. MD5 (`n = 128`) would need 2⁶⁴ tries; SHA-1 (`n = 160`) 2⁸⁰. That was the design target.
+    5. Differential attacks found shortcuts: seconds for MD5, about 2⁶³ for SHA-1.
+    6. SHA-256 (`n = 256`) needs 2¹²⁸ tries and no shortcut is known.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **The birthday paradox** and collision probability.
+    - **Differential cryptanalysis of hash functions** and message modification.
+    - **The Merkle–Damgård structure** and why collisions extend: [SHA-2](SHA-2.md).
+    - **Chosen-prefix collisions** and how they forged certificates.
+    - **Collision vs. preimage resistance:** why HMAC and old password checks with these hashes are a
+      different question from signatures.
+
 ## See also
 
 - [SHA-2](SHA-2.md): the usual replacement

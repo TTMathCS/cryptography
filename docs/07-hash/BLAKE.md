@@ -136,6 +136,68 @@ it isn't shown or run here.
   Salt and personalization aren't secrets; they only make hashes for
   different uses come out different.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: BLAKE2b of \"abc\", three ways"
+
+    Recomputed with Python's `hashlib`; the first matches RFC 7693 Appendix A:
+
+    | Call | First 16 bytes of the output |
+    |---|---|
+    | BLAKE2b-512("abc") | `ba80a53f 981c4d0d 6a2797b6 9f12f6e9` (64 bytes in all) |
+    | BLAKE2b-256("abc") | `bddd813c 63423972 3171ef3f ee98579b` (32 bytes) |
+    | BLAKE2b-512("abc", key "secret") | `204c828c 56fbe6df e80f110e fd16649b` |
+
+    BLAKE2b-256 is not the first half of BLAKE2b-512: the digest length goes into the first state word
+    (`6a09e667f3bcc908 ⊕ 0x01010040 = 6a09e667f2bdc948` for 64 bytes, unkeyed), so each length is its own
+    function. A key changes everything too, and that alone makes it a MAC.
+
+??? abstract "The math, with formulas"
+
+    **The G function (BLAKE2b)** mixes four state words `a, b, c, d` with two message words `x, y`:
+
+    ```
+    a = a + b + x;   d = (d ⊕ a) >>> 32
+    c = c + d;       b = (b ⊕ c) >>> 24
+    a = a + b + y;   d = (d ⊕ a) >>> 16
+    c = c + d;       b = (b ⊕ c) >>> 63
+    ```
+
+    It is [ChaCha](../04-symmetric-ciphers/ChaCha.md)'s quarter round with the message added in. BLAKE2s uses
+    32-bit words and rotations 16, 12, 8, 7.
+
+    **Compression.** Build a 16-word working vector from the 8-word state, the IV, the byte counter `t` and the
+    last-block flag `f`: `v = h ‖ IV`, `v₁₂ ⊕= t_low`, `v₁₃ ⊕= t_high`, `v₁₄ ⊕= f`. Run 12 rounds (BLAKE2b) or
+    10 (BLAKE2s) of G on columns then diagonals, with the message words permuted by a fixed schedule `σ`. Then
+    `h = h ⊕ v[0..7] ⊕ v[8..15]`.
+
+    **BLAKE3** uses BLAKE2s's G with 7 rounds, 1 KiB chunks and a binary Merkle tree: each parent node is
+    `compress(left ‖ right)` with a PARENT flag. The tree makes hashing parallel and lets you verify any 1 KiB
+    piece of a large file with a short proof.
+
+??? tip "Watch it step by step: one G mix"
+
+    <div class="mars-steps" markdown>
+
+    1. Take four state words `a, b, c, d` and two message words `x, y`.
+    2. Add `b` and `x` into `a`; XOR `a` into `d` and rotate it by 32.
+    3. Add `d` into `c`; XOR `c` into `b` and rotate it by 24.
+    4. Add `b` and `y` into `a`; XOR into `d`, rotate by 16.
+    5. Add `d` into `c`; XOR into `b`, rotate by 63.
+    6. Each round runs G on the 4 columns, then the 4 diagonals of the 4×4 state; 12 rounds per block.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **ARX** (add, rotate, XOR) on 64 and 32-bit words: [ChaCha](../04-symmetric-ciphers/ChaCha.md).
+    - **HAIFA**, a Merkle–Damgård variant with a counter and a final flag, which blocks length extension.
+    - **Merkle trees** for BLAKE3's parallel hashing and verified streaming.
+    - **Indifferentiability**, the proof that lets the key simply be prefixed.
+    - Compare [SHA-2](SHA-2.md) and [SHA-3](SHA-3.md).
+
 ## See also
 
 - [SHA-3](SHA-3.md): the finalist that won
