@@ -47,6 +47,9 @@ extra_javascript:
   - path: holidays/badge.js
     type: module
 
+hooks:
+  - hooks/standard_links.py
+
 markdown_extensions:
   - toc:
       permalink: true
