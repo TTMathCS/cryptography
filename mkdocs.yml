@@ -178,6 +178,7 @@ nav:
       - formats/X.509.md
       - formats/ASN.1-DER.md
       - formats/File-Formats.md
+      - formats/Encoding.md
   - Tools:
       - tools/openssl.md
       - tools/keytool.md

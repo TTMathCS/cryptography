@@ -237,3 +237,4 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 ## Also here
 
 - [FAQ](FAQ.md): brute force, precomputation, rainbow tables, and why they fail.
+- [Encoding and decoding](formats/Encoding.md): hex, Base64, Base32, Base58, Bech32 and URL encoding, and why encoding is not encryption.
