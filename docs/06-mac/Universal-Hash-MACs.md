@@ -18,9 +18,9 @@ to its output. Even an attacker with unlimited computing power then
 forges with no better odds than the collision bound. In practice the pad
 comes from a cipher run on a nonce:
 
-```
-tag = h_r(m) + F_k(nonce)
-```
+$$
+\mathit{tag} = h_r(m) + F_k(\mathit{nonce})
+$$
 
 The pad must be one-time. Use one pad on two messages and the two tags
 are enough to solve for the hash key.
@@ -30,18 +30,18 @@ are enough to solve for the hash key.
 ### Poly1305
 
 Bernstein published Poly1305-AES at FSE 2005, with the pad
-s = AES(k, nonce). RFC 7539 (2015), now RFC 8439 (2018), pairs it with
+$s = \mathrm{AES}(k, \mathit{nonce})$. RFC 7539 (2015), now RFC 8439 (2018), pairs it with
 ChaCha20: the first 32 bytes of ChaCha20's output for a message's nonce,
 with block counter 0, are that message's one-time key.
 
-- The key is r ‖ s, both little-endian. r is "clamped": 22 of its bits
+- The key is $r \,\Vert\, s$, both little-endian. $r$ is "clamped": 22 of its bits
   are forced to zero so the arithmetic stays fast.
-- Each 16-byte block, with a 0x01 byte appended, is a number c, and
-  acc = (acc + c) · r mod 2¹³⁰ − 5.
-- tag = (acc + s) mod 2¹²⁸, as 16 little-endian bytes.
+- Each 16-byte block, with a `0x01` byte appended, is a number $c$, and
+  $\mathit{acc} = (\mathit{acc} + c) \cdot r \bmod (2^{130} - 5)$.
+- $\mathit{tag} = (\mathit{acc} + s) \bmod 2^{128}$, as 16 little-endian bytes.
 
-A forgery attempt on a 16n-byte message succeeds with probability at
-most n/2¹⁰², even after 2⁶⁴ genuine messages. A short message gets about
+A forgery attempt on a $16n$-byte message succeeds with probability at
+most $n/2^{102}$, even after $2^{64}$ genuine messages. A short message gets about
 100-bit security, the ~100 in the main table; a 64 KB message, about 90.
 
 ### UMAC
@@ -49,16 +49,16 @@ most n/2¹⁰², even after 2⁶⁴ genuine messages. A short message gets about
 Black, Halevi, Krawczyk, Krovetz and Rogaway presented UMAC at CRYPTO
 1999. RFC 4418 (2006) is the spec.
 
-- tag = UHASH(K1, M) XOR a pad that AES makes from the nonce.
+- $\mathit{tag} = \mathrm{UHASH}(K_1, M)$ XOR a pad that AES makes from the nonce.
 - UHASH has three layers. NH hashes each 1024-byte chunk to 8 bytes: add
-  key words to the 32-bit message words, multiply in pairs, sum mod 2⁶⁴.
-  A polynomial hash mod 2⁶⁴ − 59 follows (2¹²⁸ − 159 past 16 MB), then an
-  inner-product hash mod 2³⁶ − 5 down to 32 bits.
+  key words to the 32-bit message words, multiply in pairs, sum $\bmod 2^{64}$.
+  A polynomial hash $\bmod 2^{64} - 59$ follows ($2^{128} - 159$ past 16 MB), then an
+  inner-product hash $\bmod 2^{36} - 5$ down to 32 bits.
 - Each 32 bits of tag is another pass with its own keys, so UMAC-32 to
   UMAC-128 run one to four passes.
-- A forgery attempt succeeds with probability at most 1/2³⁰, 1/2⁶⁰,
-  1/2⁹⁰ or 1/2¹²⁰ for 32, 64, 96 or 128-bit tags, as long as AES holds
-  and the key tags at most 2⁶⁴ messages.
+- A forgery attempt succeeds with probability at most $1/2^{30}$, $1/2^{60}$,
+  $1/2^{90}$ or $1/2^{120}$ for 32, 64, 96 or 128-bit tags, as long as AES holds
+  and the key tags at most $2^{64}$ messages.
 
 NH is why it's fast: the RFC quotes about one cycle per byte on a
 Pentium 4 for 64-bit tags.
@@ -84,7 +84,7 @@ Pentium 4 for 64-bit tags.
 
 Poly1305 is plain big-number arithmetic, so it runs as is. The first part
 checks the RFC 8439 test vector. The second tags two messages with one key
-and gets r and s back from the tags.
+and gets $r$ and $s$ back from the tags.
 
 ```python
 import os
@@ -122,9 +122,9 @@ for j in range(-5, 6):                        # the tag dropped the top bits of 
         break
 ```
 
-For one-block messages the tags differ by (c1 − c2)·r mod p, give or take
-a multiple of 2¹²⁸ that the last step dropped. Trying the few multiples
-finds r, then s, and with both the attacker can tag anything. In
+For one-block messages the tags differ by $(c_1 - c_2) \cdot r \bmod p$, give or take
+a multiple of $2^{128}$ that the last step dropped. Trying the few multiples
+finds $r$, then $s$, and with both the attacker can tag anything. In
 ChaCha20-Poly1305 a repeated nonce gives away exactly this.
 
 In real code, PyCA `cryptography` (`pip install cryptography`) has
@@ -155,41 +155,41 @@ Each part below starts closed; open the ones you want.
     | Step | Value |
     |---|---|
     | One-time key (32 bytes) | `85d6be78…a806 · 0103808a…f51b` |
-    | `r` (first 16 bytes, clamped) | `806d5400e52447c036d555408bed685` |
-    | `s` (last 16 bytes) | `1bf54941aff6bf4afdb20dfb8a800301` |
+    | $r$ (first 16 bytes, clamped) | `806d5400e52447c036d555408bed685` |
+    | $s$ (last 16 bytes) | `1bf54941aff6bf4afdb20dfb8a800301` |
     | Message in 16-byte blocks, each with a `01` byte added | 3 blocks (16 + 16 + 2 bytes) |
-    | `acc = Σ blockᵢ · r^(4−i) mod 2¹³⁰ − 5`, then `+ s mod 2¹²⁸` | |
+    | $\mathit{acc} = \sum_i \mathit{block}_i \cdot r^{4-i} \bmod (2^{130} - 5)$, then $+\, s \bmod 2^{128}$ | |
     | Tag | `a8061dc1305136c6c22b8baf0c0127a9` |
 
 ??? abstract "The math, with formulas"
 
-    **Poly1305.** With `p = 2¹³⁰ − 5` (prime) and message blocks `c₁ … c_q`:
+    **Poly1305.** With $p = 2^{130} - 5$ (prime) and message blocks $c_1, \ldots, c_q$:
 
-    ```
-    tag = ((c₁·r^q + c₂·r^(q−1) + … + c_q·r) mod p + s) mod 2¹²⁸
-    ```
+    $$
+    \mathit{tag} = \big( (c_1 \cdot r^q + c_2 \cdot r^{q-1} + \cdots + c_q \cdot r) \bmod p + s \big) \bmod 2^{128}
+    $$
 
-    Clamping clears 22 bits of `r` so the multiplications fit in fast 64-bit arithmetic.
+    Clamping clears 22 bits of $r$ so the multiplications fit in fast 64-bit arithmetic.
 
     **Why it is secure (Carter–Wegman).** For two different messages, the difference of their polynomials has
-    at most `q` roots, so a random `r` makes them collide with probability at most about `8q / 2¹⁰⁶` (the clamped
-    `r` has 106 free bits). Adding the secret one-time `s` hides the polynomial's value completely, like a one-time
-    pad. The catch: `(r, s)` must be fresh for every message. ChaCha20-Poly1305 derives them from block 0 of
+    at most $q$ roots, so a random $r$ makes them collide with probability at most about $8q / 2^{106}$ (the clamped
+    $r$ has 106 free bits). Adding the secret one-time $s$ hides the polynomial's value completely, like a one-time
+    pad. The catch: $(r, s)$ must be fresh for every message. ChaCha20-Poly1305 derives them from block 0 of
     the keystream for each nonce.
 
-    **GHASH** (in GCM) is the same idea in GF(2¹²⁸), with addition as XOR and `H = AES_K(0)` as the point.
+    **GHASH** (in GCM) is the same idea in $\mathrm{GF}(2^{128})$, with addition as XOR and $H = \mathrm{AES}_K(0)$ as the point.
 
-    **UMAC and VMAC** use NH: `Σ ((m₂ᵢ + k₂ᵢ) mod 2³²)·((m₂ᵢ₊₁ + k₂ᵢ₊₁) mod 2³²) mod 2⁶⁴`, faster still on 64-bit CPUs.
+    **UMAC and VMAC** use NH: $\sum_i \big((m_{2i} + k_{2i}) \bmod 2^{32}\big) \cdot \big((m_{2i+1} + k_{2i+1}) \bmod 2^{32}\big) \bmod 2^{64}$, faster still on 64-bit CPUs.
 
 ??? tip "Watch it step by step: Poly1305 on a short message"
 
     <div class="mars-steps" markdown>
 
-    1. Take a fresh 32-byte key: the first half (clamped) is `r`, the second half is `s`.
+    1. Take a fresh 32-byte key: the first half (clamped) is $r$, the second half is $s$.
     2. Split the message into 16-byte blocks and add a `01` byte after each, so trailing zeros still count.
-    3. Start with `acc = 0`. For each block: `acc = (acc + block) · r mod 2¹³⁰ − 5`.
-    4. After the last block, add `s` and keep the low 128 bits.
-    5. That is the tag, `a8061dc1…0127a9`. A different message gives a different polynomial, and with `r`
+    3. Start with $\mathit{acc} = 0$. For each block: $\mathit{acc} = (\mathit{acc} + \mathit{block}) \cdot r \bmod (2^{130} - 5)$.
+    4. After the last block, add $s$ and keep the low 128 bits.
+    5. That is the tag, `a8061dc1…0127a9`. A different message gives a different polynomial, and with $r$
        secret its value is unpredictable.
 
     </div>
@@ -197,8 +197,8 @@ Each part below starts closed; open the ones you want.
 ??? info "The math underneath"
 
     - **Polynomials over finite fields** and how many roots they can have.
-    - **ε-almost-universal hash families** (Carter and Wegman, 1979; Wegman and Carter, 1981).
-    - **Prime fields** like `2¹³⁰ − 5`, chosen so reduction is a shift and a multiply by 5.
+    - **$\varepsilon$-almost-universal hash families** (Carter and Wegman, 1979; Wegman and Carter, 1981).
+    - **Prime fields** like $2^{130} - 5$, chosen so reduction is a shift and a multiply by 5.
     - **One-time pads** for the final masking.
     - Used in [AEAD](../05-modes-aead/AEAD.md) (GCM, ChaCha20-Poly1305) and [Adiantum](../05-modes-aead/Disk-Encryption.md).
 
@@ -206,7 +206,7 @@ Each part below starts closed; open the ones you want.
 
 - [ChaCha20-Poly1305](../05-modes-aead/AEAD.md): where Poly1305 nearly always runs
 - [ChaCha and Salsa20](../04-symmetric-ciphers/ChaCha.md): the cipher that makes the one-time key
-- [Block-cipher MACs](Block-Cipher-MACs.md): GMAC, the same idea over GF(2¹²⁸)
+- [Block-cipher MACs](Block-Cipher-MACs.md): GMAC, the same idea over $\mathrm{GF}(2^{128})$
 - [HMAC](HMAC.md): the MAC for a long-term key with no nonce
 - [Disk encryption](../05-modes-aead/Disk-Encryption.md): Adiantum, which hashes with NH and Poly1305
 - [SSH](../protocols/SSH.md): the MACs OpenSSH offers

@@ -18,11 +18,11 @@ Standards as FIPS 46 in January 1977: 16 Feistel rounds, a 64-bit block and
 a 56-bit key.
 
 **What broke it.** The key. In July 1998 the EFF's DES Cracker ("Deep
-Crack"), built for under $250,000, found a challenge key in less than three
+Crack"), built for under \$250,000, found a challenge key in less than three
 days. In January 1999, with about 100,000 PCs on distributed.net, it took
-22 hours 15 minutes, and by 2008 hardware under $15,000 averaged less than
+22 hours 15 minutes, and by 2008 hardware under \$15,000 averaged less than
 a day (RFC 6649). Differential (Biham and Shamir) and linear (Matsui)
-cryptanalysis need 2⁴⁷ chosen or 2⁴³ known plaintexts, so brute force was
+cryptanalysis need $2^{47}$ chosen or $2^{43}$ known plaintexts, so brute force was
 the real threat. NIST withdrew FIPS 46-3 on May 19, 2005.
 
 **Where you still see it.** Inside 3DES, and in old 13-character Unix
@@ -39,7 +39,7 @@ hardware. It is in ANSI X9.52 (1998), FIPS 46-3 (1999) and NIST SP 800-67
 **What broke it.** Not the key but the 64-bit block. Sweet32 (Bhargavan and
 Leurent, CCS 2016) recovered a secure HTTPS cookie from a long-lived 3DES
 connection after capturing about 785 GB of traffic, in under two days.
-NIST cut use to 2²⁰ blocks (8 MB) per key in 2017, and SP 800-131A Rev. 2
+NIST cut use to $2^{20}$ blocks (8 MB) per key in 2017, and SP 800-131A Rev. 2
 (2019) disallowed 3DES encryption after December 31, 2023. SP 800-67 was
 withdrawn on January 1, 2024. Decrypting old data is still allowed.
 
@@ -51,7 +51,7 @@ encrypt the private key with 3DES.
 ## 64-bit block ciphers
 
 Blowfish, IDEA, CAST5 and RC2 have no practical attack on the full cipher
-at normal key sizes. What retires them is the block. After about 2³² blocks
+at normal key sizes. What retires them is the block. After about $2^{32}$ blocks
 (32 GB) under one key, two ciphertext blocks are likely to collide, and in
 CBC mode a collision reveals the XOR of two plaintext blocks. Sweet32 did
 it in practice against Blowfish in OpenVPN as well as 3DES in TLS. OpenSSL
@@ -71,9 +71,9 @@ doesn't matter.
 ### IDEA
 
 **What it was.** Xuejia Lai and James Massey's cipher (1991): a 128-bit
-key, 8.5 rounds that mix XOR, addition mod 2¹⁶ and multiplication mod
-2¹⁶ + 1. It was the cipher of PGP 2. The best attack on all 8.5 rounds, a
-biclique attack from 2012, is barely faster than brute force at about 2¹²⁶.
+key, 8.5 rounds that mix XOR, addition $\bmod 2^{16}$ and multiplication
+$\bmod 2^{16} + 1$. It was the cipher of PGP 2. The best attack on all 8.5 rounds, a
+biclique attack from 2012, is barely faster than brute force at about $2^{126}$.
 
 **Where you still see it.** Old PGP messages. RFC 9580 lets implementations
 decrypt IDEA, with a warning, but never encrypt with it.
@@ -164,51 +164,53 @@ Each part below starts closed; open the ones you want.
 ??? example "Sample calculation: RC4, and why 64-bit blocks wear out"
 
     **RC4 with key "Key" and plaintext "Plaintext"** (the well-known test). After the key schedule shuffles
-    `S = [0 … 255]`, each output byte swaps two entries and reads a third. Recomputed with Python:
+    $S = [0, \ldots, 255]$, each output byte swaps two entries and reads a third. Recomputed with Python:
 
-    | Byte | `i` | `j = j + S[i]` | After swap `S[i] + S[j]` | Keystream `S[t]` | Plaintext | Ciphertext |
+    | Byte | $i$ | $j = j + S[i]$ | After swap $S[i] + S[j]$ | Keystream $S[t]$ | Plaintext | Ciphertext |
     |---|---|---|---|---|---|---|
-    | 1 | 1 | 51 | 78 + 51 = 129 | `eb` | `50` (P) | `bb` |
-    | 2 | 2 | 183 | 198 + 132 = 330 → 74 | `9f` | `6c` (l) | `f3` |
-    | 3 | 3 | 84 | 20 + 157 = 177 | `77` | `61` (a) | `16` |
+    | 1 | 1 | 51 | $78 + 51 = 129$ | `eb` | `50` (P) | `bb` |
+    | 2 | 2 | 183 | $198 + 132 = 330 \to 74$ | `9f` | `6c` (l) | `f3` |
+    | 3 | 3 | 84 | $20 + 157 = 177$ | `77` | `61` (a) | `16` |
 
     The full ciphertext is `bbf316e8d940af0ad3`.
 
     **Sweet32 in numbers.** A 64-bit block cipher in CBC mode starts repeating ciphertext blocks after about
-    `√(2·ln 2) · 2³²` blocks for a 50% chance, which is about 37.7 GiB of data. Each repeat leaks the XOR of
+    $\sqrt{2 \ln 2} \cdot 2^{32}$ blocks for a 50% chance, which is about 37.7 GiB of data. Each repeat leaks the XOR of
     two plaintext blocks, which is how the attack read a cookie.
 
 ??? abstract "The math, with formulas"
 
     **RC4:**
 
-    ```
-    key schedule:  for i in 0..255:  j = (j + S[i] + key[i mod len]) mod 256;  swap S[i], S[j]
-    output:        i = i + 1;  j = j + S[i];  swap S[i], S[j];  output S[(S[i] + S[j]) mod 256]
-    ```
+    $$
+    \begin{aligned}
+    &\text{key schedule:} && \text{for } i = 0, \ldots, 255:\; j \leftarrow (j + S[i] + key[i \bmod len]) \bmod 256;\; \text{swap } S[i], S[j] \\
+    &\text{output:} && i \leftarrow i + 1;\; j \leftarrow j + S[i];\; \text{swap } S[i], S[j];\; \text{output } S[(S[i] + S[j]) \bmod 256]
+    \end{aligned}
+    $$
 
-    **Its biases.** The second output byte is 0 with probability 2/256 instead of 1/256 (Mantin and Shamir,
+    **Its biases.** The second output byte is 0 with probability $2/256$ instead of $1/256$ (Mantin and Shamir,
     2001), and the first bytes leak key bytes when keys share a prefix, which broke WEP (Fluhrer, Mantin and
     Shamir, 2001). Many such biases together recovered TLS plaintexts (AlFardan and others, 2013).
 
-    **DES (Feistel, 16 rounds):** `Lᵢ₊₁ = Rᵢ`, `Rᵢ₊₁ = Lᵢ ⊕ f(Rᵢ, Kᵢ)`, where `f` expands 32 bits to 48, XORs the
-    round key, applies eight 6-to-4-bit S-boxes and permutes. Brute force: 2⁵⁶ ≈ 7.2 × 10¹⁶ keys.
+    **DES (Feistel, 16 rounds):** $L_{i+1} = R_i$, $R_{i+1} = L_i \oplus f(R_i, K_i)$, where $f$ expands 32 bits to 48, XORs the
+    round key, applies eight 6-to-4-bit S-boxes and permutes. Brute force: $2^{56} \approx 7.2 \times 10^{16}$ keys.
 
-    **3DES and meet-in-the-middle.** `C = E_K3(D_K2(E_K1(P)))`. Two-key double encryption would give only 2⁵⁷
-    work: encrypt `P` under all `K1`, decrypt `C` under all `K2`, and match in the middle. That is why triple,
+    **3DES and meet-in-the-middle.** $C = E_{K_3}(D_{K_2}(E_{K_1}(P)))$. Two-key double encryption would give only $2^{57}$
+    work: encrypt $P$ under all $K_1$, decrypt $C$ under all $K_2$, and match in the middle. That is why triple,
     not double, and why 3 keys give 112-bit, not 168-bit, strength.
 
-    **The birthday bound.** With `b`-bit blocks, `q` random blocks collide with probability about
-    `q² / 2^(b+1)`. For `b = 64` that is a coin flip at 2³² blocks; for AES's `b = 128`, at 2⁶⁴.
+    **The birthday bound.** With $b$-bit blocks, $q$ random blocks collide with probability about
+    $q^2 / 2^{b+1}$. For $b = 64$ that is a coin flip at $2^{32}$ blocks; for AES's $b = 128$, at $2^{64}$.
 
 ??? tip "Watch it step by step: RC4's first output byte"
 
     <div class="mars-steps" markdown>
 
-    1. The key schedule has shuffled the 256 numbers in `S` using the key "Key". `S[1] = 51`.
-    2. `i` moves to 1; `j` becomes `0 + S[1] = 51`.
-    3. Swap `S[1]` and `S[51]`: now `S[1] = 78` and `S[51] = 51`.
-    4. Add them: `78 + 51 = 129`. The keystream byte is `S[129] = eb`.
+    1. The key schedule has shuffled the 256 numbers in $S$ using the key "Key". $S[1] = 51$.
+    2. $i$ moves to 1; $j$ becomes $0 + S[1] = 51$.
+    3. Swap $S[1]$ and $S[51]$: now $S[1] = 78$ and $S[51] = 51$.
+    4. Add them: $78 + 51 = 129$. The keystream byte is $S[129] = \mathtt{eb}$.
     5. The first plaintext byte "P" (`50`) XOR `eb` is `bb`, the first ciphertext byte.
     6. Repeat for every byte. The state never resets, so a reused key gives the same keystream: never reuse one.
 

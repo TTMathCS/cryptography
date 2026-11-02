@@ -24,15 +24,15 @@ from the draft after the NSA said it fell short of 128-bit security.
 
 ## How it works
 
-FF1, for a string of n digits in base `radix`:
+FF1, for a string of $n$ digits in base $\mathit{radix}$:
 
-- Split it into halves A (⌊n/2⌋ digits) and B.
-- Ten rounds: run AES as a CBC-MAC over a header block (radix, n, tweak
-  length) and then the tweak, the round number and B. Read the result as
-  a number y, set A = (A + y) mod radixᵐ for A's length m, and swap.
+- Split it into halves $A$ ($\lfloor n/2 \rfloor$ digits) and $B$.
+- Ten rounds: run AES as a CBC-MAC over a header block ($\mathit{radix}$, $n$, tweak
+  length) and then the tweak, the round number and $B$. Read the result as
+  a number $y$, set $A = (A + y) \bmod \mathit{radix}^m$ for $A$'s length $m$, and swap.
 - Decryption runs the rounds backwards, subtracting. AES only runs
   forwards.
-- Radix is 2 to 2¹⁶. The 2016 text requires at least 100 possible inputs
+- Radix is 2 to $2^{16}$. The 2016 text requires at least 100 possible inputs
   and recommends 1,000,000; the Rev. 1 drafts require 1,000,000.
 
 FF3 has 8 rounds and a fixed 64-bit tweak whose two halves take turns.
@@ -45,14 +45,14 @@ domains.
 - **FF3, 2017.** Durak and Vaudenay broke FF3 over small domains with a
   slide attack on two tweaks (CRYPTO 2017). In April 2017 NIST said FF3
   was "no longer suitable as a general-purpose FPE method". Hoang, Miller
-  and Trieu (EUROCRYPT 2019) cut recovering a 6-digit PIN from about 2⁵⁰
-  operations to 2³⁰.
+  and Trieu (EUROCRYPT 2019) cut recovering a 6-digit PIN from about $2^{50}$
+  operations to $2^{30}$.
 - **FF3-1.** The 2019 draft of SP 800-38G Rev. 1 cut FF3's tweak to 56
-  bits. Beyne (CRYPTO 2021) broke that too: on 10⁶ values, about 2²⁴
+  bits. Beyne (CRYPTO 2021) broke that too: on $10^6$ values, about $2^{24}$
   encryptions give a fair chance of recovering the left half of a
   message. The second draft (February 2025) drops FF3 and keeps only FF1.
 - **FF1 on small domains.** Bellare, Hoang and Tessaro (CCS 2016)
-  recovered 4-bit messages from 2²⁵ FF1 encryptions, three per tweak.
+  recovered 4-bit messages from $2^{25}$ FF1 encryptions, three per tweak.
   Hoang, Tessaro and Trieu (CRYPTO 2018) did better. Hence the
   1,000,000 rule.
 
@@ -143,9 +143,9 @@ Each part below starts closed; open the ones you want.
     | Step | Value |
     |---|---|
     | Plaintext | `0123456789` (10 digits) |
-    | Split into halves | `A = 01234`, `B = 56789` |
-    | Round 1: `y` = AES-CBC-MAC of the parameters and `B`, mod 10⁵ | `60536` |
-    | New half: `(A + y) mod 10⁵ = (1234 + 60536) mod 100000` | `61770`; then `A = 56789`, `B = 61770` |
+    | Split into halves | $A = 01234$, $B = 56789$ |
+    | Round 1: $y$ = AES-CBC-MAC of the parameters and $B$, $\bmod 10^5$ | `60536` |
+    | New half: $(A + y) \bmod 10^5 = (1234 + 60536) \bmod 100000$ | `61770`; then $A = 56789$, $B = 61770$ |
     | … 9 more rounds, the halves swapping each time | |
     | Ciphertext | `2433477484` (still 10 digits) |
 
@@ -153,34 +153,36 @@ Each part below starts closed; open the ones you want.
 
 ??? abstract "The math, with formulas"
 
-    **FF1 (SP 800-38G)** is a 10-round Feistel network over strings of digits in base `radix`:
+    **FF1 (SP 800-38G)** is a 10-round Feistel network over strings of digits in base $\mathit{radix}$:
 
-    ```
-    split X into A (u digits) and B (v digits)
-    for i = 0 … 9:
-        y = NUM(PRF_K(P ‖ Q(T, i, B)))           AES-CBC-MAC, extended if needed
-        m = u if i is even, else v
-        C = (NUM_radix(A) + y) mod radixᵐ
-        A, B = B, STR_radix(C, m)
-    return A ‖ B
-    ```
+    $$
+    \begin{aligned}
+    &\text{split } X \text{ into } A \ (u \text{ digits}) \text{ and } B \ (v \text{ digits}) \\
+    &\text{for } i = 0, \ldots, 9: \\
+    &\qquad y = \mathrm{NUM}(\mathrm{PRF}_K(P \,\Vert\, Q(T, i, B))) && \text{AES-CBC-MAC, extended if needed} \\
+    &\qquad m = u \text{ if } i \text{ is even, else } v \\
+    &\qquad C = (\mathrm{NUM}_{\mathit{radix}}(A) + y) \bmod \mathit{radix}^m \\
+    &\qquad A, B = B, \mathrm{STR}_{\mathit{radix}}(C, m) \\
+    &\text{return } A \,\Vert\, B
+    \end{aligned}
+    $$
 
-    Decryption runs the rounds backwards with subtraction. Addition mod `radixᵐ` replaces the XOR of a
+    Decryption runs the rounds backwards with subtraction. Addition $\bmod \mathit{radix}^m$ replaces the XOR of a
     binary Feistel, so the halves stay valid digit strings.
 
     **Why the domain must be large.** With few possible values, an attacker can tabulate them. Known attacks
     (Durak and Vaudenay 2017, Hoang, Tessaro and Trieu 2018) recover or distinguish messages faster than
-    brute force when the domain is small, so SP 800-38G Rev. 1 requires `radix^minlen ≥ 1,000,000`, e.g. at
+    brute force when the domain is small, so SP 800-38G Rev. 1 requires $\mathit{radix}^{\mathit{minlen}} \ge 1{,}000{,}000$, e.g. at
     least 6 decimal digits, and dropped FF3 for FF3-1.
 
 ??? tip "Watch it step by step: a Feistel round on digits"
 
     <div class="mars-steps" markdown>
 
-    1. The input `0123456789` is split into `A = 01234` and `B = 56789`.
-    2. AES (as a CBC-MAC) hashes the key, tweak, round number and `B` into a big number; mod 10⁵ it is 60536.
-    3. Add it to `A`: `1234 + 60536 = 61770` (mod 100000).
-    4. Swap: the new pair is `A = 56789`, `B = 61770`.
+    1. The input `0123456789` is split into $A = 01234$ and $B = 56789$.
+    2. AES (as a CBC-MAC) hashes the key, tweak, round number and $B$ into a big number; $\bmod 10^5$ it is 60536.
+    3. Add it to $A$: $1234 + 60536 = 61770 \pmod{100000}$.
+    4. Swap: the new pair is $A = 56789$, $B = 61770$.
     5. Nine more rounds mix both halves completely.
     6. The output `2433477484` has 10 digits; running the rounds backwards with subtraction gives
        `0123456789` again.
@@ -190,9 +192,9 @@ Each part below starts closed; open the ones you want.
 ??? info "The math underneath"
 
     - **Feistel networks** with modular addition (Luby–Rackoff security for enough rounds).
-    - **Numeral systems:** `NUM` and `STR` convert between digit strings and integers in any base.
+    - **Numeral systems:** $\mathrm{NUM}$ and $\mathrm{STR}$ convert between digit strings and integers in any base.
     - **Pseudorandom functions from AES** (CBC-MAC).
-    - **Small-domain attacks:** why 10⁶ is the minimum and why FF3 was weakened.
+    - **Small-domain attacks:** why $10^6$ is the minimum and why FF3 was weakened.
     - [AES](../04-symmetric-ciphers/AES.md), [Block-cipher MACs](../06-mac/Block-Cipher-MACs.md).
 
 ## See also

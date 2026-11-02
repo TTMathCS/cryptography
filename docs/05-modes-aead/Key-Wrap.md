@@ -24,21 +24,21 @@ comments on revising SP 800-38F and proposed removing TKW.
 
 ## How it works
 
-- Split the key into 64-bit halves of a block ("semiblocks") R[1..n], with
-  n ≥ 2, and set A = A6A6A6A6A6A6A6A6.
-- Six passes over the key: for each R[i], B = AES(KEK, A ‖ R[i]), A = the
-  top 64 bits of B XOR a step counter t, R[i] = the bottom 64 bits. t runs
-  from 1 to 6n.
-- The output is A ‖ R[1..n], 8 bytes longer than the key, after 6n AES
+- Split the key into 64-bit halves of a block ("semiblocks") $R[1..n]$, with
+  $n \ge 2$, and set $A$ = `A6A6A6A6A6A6A6A6`.
+- Six passes over the key: for each $R[i]$, $B = \mathrm{AES}(\mathit{KEK}, A \,\Vert\, R[i])$, $A$ = the
+  top 64 bits of $B$ XOR a step counter $t$, $R[i]$ = the bottom 64 bits. $t$ runs
+  from 1 to $6n$.
+- The output is $A \,\Vert\, R[1..n]$, 8 bytes longer than the key, after $6n$ AES
   calls (12 for a 128-bit key).
-- Unwrap runs the steps backwards and checks that A came out as A6A6...
+- Unwrap runs the steps backwards and checks that $A$ came out as `A6A6...`
   That is the 64-bit integrity check: a random blob of the right length
-  passes with probability exactly 1 in 2⁶⁴ (SP 800-38F).
-- **KWP** starts A as A65959A6 followed by the key length in bytes (32
+  passes with probability exactly 1 in $2^{64}$ (SP 800-38F).
+- **KWP** starts $A$ as `A65959A6` followed by the key length in bytes (32
   bits), and pads the key with zero bytes to a multiple of 8. Unwrap checks
   the constant, that the length fits, and that the padding is zero. A key
-  of 8 bytes or less takes a single AES call on A ‖ P.
-- Limits: KW keys are 2 to 2⁵⁴ − 1 semiblocks, KWP keys up to 2³² − 1
+  of 8 bytes or less takes a single AES call on $A \,\Vert\, P$.
+- Limits: KW keys are 2 to $2^{54} - 1$ semiblocks, KWP keys up to $2^{32} - 1$
   bytes.
 
 Rogaway and Shrimpton (EUROCRYPT 2006) named the goal deterministic
@@ -156,7 +156,7 @@ Each part below starts closed; open the ones you want.
     |---|---|
     | KEK | `000102030405060708090A0B0C0D0E0F` |
     | Key to wrap | `00112233445566778899AABBCCDDEEFF` |
-    | Initial value `A` | `A6A6A6A6A6A6A6A6` |
+    | Initial value $A$ | `A6A6A6A6A6A6A6A6` |
     | Wrapped (24 bytes) | `1FA68B0A8112B447 AEF34BD8FB5A7B82 9D3E862371D2CFE5` |
 
     The output is 8 bytes longer than the input. Unwrapping must give back `A6A6A6A6A6A6A6A6` in the first 8
@@ -164,24 +164,26 @@ Each part below starts closed; open the ones you want.
 
 ??? abstract "The math, with formulas"
 
-    **AES Key Wrap (RFC 3394, SP 800-38F "KW").** Split the key into `n` 64-bit blocks `R[1..n]`; set
-    `A = A6A6A6A6A6A6A6A6`. Then 6 passes:
+    **AES Key Wrap (RFC 3394, SP 800-38F "KW").** Split the key into $n$ 64-bit blocks $R[1..n]$; set
+    $A$ = `A6A6A6A6A6A6A6A6`. Then 6 passes:
 
-    ```
-    for j = 0 … 5:
-        for i = 1 … n:
-            B    = AES_KEK(A ‖ R[i])
-            t    = n·j + i
-            A    = MSB₆₄(B) ⊕ t
-            R[i] = LSB₆₄(B)
-    output A ‖ R[1] ‖ … ‖ R[n]
-    ```
+    $$
+    \begin{aligned}
+    &\text{for } j = 0, \ldots, 5: \\
+    &\qquad \text{for } i = 1, \ldots, n: \\
+    &\qquad\qquad B = \mathrm{AES}_{\mathit{KEK}}(A \,\Vert\, R[i]) \\
+    &\qquad\qquad t = n \cdot j + i \\
+    &\qquad\qquad A = \mathrm{MSB}_{64}(B) \oplus t \\
+    &\qquad\qquad R[i] = \mathrm{LSB}_{64}(B) \\
+    &\text{output } A \,\Vert\, R[1] \,\Vert\, \cdots \,\Vert\, R[n]
+    \end{aligned}
+    $$
 
-    Unwrapping runs it backwards with AES decryption and checks `A`. The 6n AES calls mix every bit of the key
-    into every output block, so the wrap acts like a wide block cipher, and the fixed `A` is a 64-bit
-    integrity check: a random change passes with chance 2⁻⁶⁴.
+    Unwrapping runs it backwards with AES decryption and checks $A$. The $6n$ AES calls mix every bit of the key
+    into every output block, so the wrap acts like a wide block cipher, and the fixed $A$ is a 64-bit
+    integrity check: a random change passes with chance $2^{-64}$.
 
-    **KWP (RFC 5649)** pads to a multiple of 8 bytes and puts `A65959A6` and the length in `A`. **Why not GCM?**
+    **KWP (RFC 5649)** pads to a multiple of 8 bytes and puts `A65959A6` and the length in $A$. **Why not GCM?**
     Key wrap needs no nonce, so it is safe to use deterministically for keys, where a forgotten or repeated
     nonce would be catastrophic.
 
@@ -189,12 +191,12 @@ Each part below starts closed; open the ones you want.
 
     <div class="mars-steps" markdown>
 
-    1. The 16-byte key becomes two 8-byte halves, `R[1]` and `R[2]`; the check value `A` starts as `A6A6…A6`.
-    2. Encrypt `A ‖ R[1]` with AES under the KEK.
-    3. The first 8 bytes, XORed with the step counter `t = 1`, become the new `A`; the last 8 replace `R[1]`.
-    4. Do the same with `R[2]` (`t = 2`).
-    5. Repeat the pass 6 times in all, 12 AES calls, with `t` running to 12.
-    6. Output `A ‖ R[1] ‖ R[2]`: `1FA68B0A…D2CFE5`. Unwrapping undoes the 12 steps and must end at `A6A6…A6`.
+    1. The 16-byte key becomes two 8-byte halves, $R[1]$ and $R[2]$; the check value $A$ starts as `A6A6…A6`.
+    2. Encrypt $A \,\Vert\, R[1]$ with AES under the KEK.
+    3. The first 8 bytes, XORed with the step counter $t = 1$, become the new $A$; the last 8 replace $R[1]$.
+    4. Do the same with $R[2]$ ($t = 2$).
+    5. Repeat the pass 6 times in all, 12 AES calls, with $t$ running to 12.
+    6. Output $A \,\Vert\, R[1] \,\Vert\, R[2]$: `1FA68B0A…D2CFE5`. Unwrapping undoes the 12 steps and must end at `A6A6…A6`.
 
     </div>
 

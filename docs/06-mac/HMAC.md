@@ -16,17 +16,17 @@ message, it vouches for it.
 
 ## How it works
 
-HMAC wraps an ordinary hash `H` with the key on both ends:
+HMAC wraps an ordinary hash $H$ with the key on both ends:
 
-```
-HMAC(K, m) = H( (K ⊕ opad) || H( (K ⊕ ipad) || m ) )
-```
+$$
+\mathrm{HMAC}(K, m) = H\big( (K \oplus \mathit{opad}) \,\Vert\, H( (K \oplus \mathit{ipad}) \,\Vert\, m ) \big)
+$$
 
-- `ipad` is the byte `0x36` repeated to the hash's block size, `opad` is `0x5c`.
+- $\mathit{ipad}$ is the byte `0x36` repeated to the hash's block size, $\mathit{opad}$ is `0x5c`.
 - The key is hashed first if it's longer than a block, or zero-padded if shorter.
 
 The nested structure is what makes HMAC safe against length-extension attacks,
-which is why you use HMAC instead of just hashing `K || m` yourself.
+which is why you use HMAC instead of just hashing $K \,\Vert\, m$ yourself.
 
 ## When to use it
 
@@ -63,7 +63,7 @@ early on the first wrong byte, and that timing difference can leak the right tag
   long as the hash output: 32 bytes for HMAC-SHA256. RFC 2104 strongly
   discourages shorter keys, and a password or phrase used as the key can be
   guessed. With such a key HMAC-SHA256 is the safe default: the best generic
-  forgery needs about 2^128 tagged messages under one key (the birthday bound,
+  forgery needs about $2^{128}$ tagged messages under one key (the birthday bound,
   RFC 2104 section 6), far out of reach. HMAC-SHA1 is still unbroken (the
   SHA-1 collision attacks don't apply to HMAC), but new systems should use
   SHA-256.
@@ -82,10 +82,10 @@ Each part below starts closed; open the ones you want.
     | Step | Value |
     |---|---|
     | Key "Jefe", zero-padded to 64 bytes | `4a656665 00000000 … 00` |
-    | Inner key `K ⊕ ipad` (`ipad = 36…36`) | `7c535053 36363636 … 36` |
-    | Outer key `K ⊕ opad` (`opad = 5c…5c`) | `16393a39 5c5c5c5c … 5c` |
-    | Inner hash | `SHA-256(inner key ‖ message)` |
-    | Tag | `SHA-256(outer key ‖ inner hash)` = `5bdcc146 bf60754e 6a042426 089575c7 5a003f08 9d273983 9dec58b9 64ec3843` |
+    | Inner key $K \oplus \mathit{ipad}$ ($\mathit{ipad}$ = `36…36`) | `7c535053 36363636 … 36` |
+    | Outer key $K \oplus \mathit{opad}$ ($\mathit{opad}$ = `5c…5c`) | `16393a39 5c5c5c5c … 5c` |
+    | Inner hash | $\text{SHA-256}(\text{inner key} \,\Vert\, \text{message})$ |
+    | Tag | $\text{SHA-256}(\text{outer key} \,\Vert\, \text{inner hash})$ = `5bdcc146 bf60754e 6a042426 089575c7 5a003f08 9d273983 9dec58b9 64ec3843` |
 
     Changing one letter of the message, or the key, gives an unrelated tag.
 
@@ -93,14 +93,16 @@ Each part below starts closed; open the ones you want.
 
     **HMAC (RFC 2104, FIPS 198-1):**
 
-    ```
-    K′ = H(K) if K is longer than the block size, else K;  then pad K′ with zeros to the block size B
-    HMAC(K, m) = H( (K′ ⊕ opad) ‖ H( (K′ ⊕ ipad) ‖ m ) )
-    ipad = 0x36 repeated B times,  opad = 0x5c repeated B times     (B = 64 bytes for SHA-256)
-    ```
+    $$
+    \begin{aligned}
+    K' &= H(K) \text{ if } K \text{ is longer than the block size, else } K\text{; then pad } K' \text{ with zeros to the block size } B \\
+    \mathrm{HMAC}(K, m) &= H\big( (K' \oplus \mathit{opad}) \,\Vert\, H( (K' \oplus \mathit{ipad}) \,\Vert\, m ) \big) \\
+    \mathit{ipad} &= \mathtt{0x36} \text{ repeated } B \text{ times}, \quad \mathit{opad} = \mathtt{0x5c} \text{ repeated } B \text{ times} && (B = 64 \text{ bytes for SHA-256})
+    \end{aligned}
+    $$
 
-    **Why not just `H(K ‖ m)`?** SHA-256 is a Merkle–Damgård hash: from `H(K ‖ m)` and the length of `K ‖ m`
-    anyone can compute `H(K ‖ m ‖ pad ‖ m′)` without knowing `K` (the length-extension attack). The outer hash
+    **Why not just $H(K \,\Vert\, m)$?** SHA-256 is a Merkle–Damgård hash: from $H(K \,\Vert\, m)$ and the length of $K \,\Vert\, m$
+    anyone can compute $H(K \,\Vert\, m \,\Vert\, \mathit{pad} \,\Vert\, m')$ without knowing $K$ (the length-extension attack). The outer hash
     in HMAC hides the inner state, so extension fails.
 
     **Security.** HMAC is a pseudorandom function if the hash's compression function is one (Bellare, 2006),

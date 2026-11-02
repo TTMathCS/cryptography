@@ -19,16 +19,18 @@ encrypts.
 
 ## How it works
 
-The state is a 4×4 grid of 32-bit words: four constants ("expand 32-byte k"
+The state is a $4 \times 4$ grid of 32-bit words: four constants ("expand 32-byte k"
 in ASCII), eight key words, and four words of counter and nonce. The
 quarter-round mixes four of them:
 
-```
-a += b; d ^= a; d <<<= 16;
-c += d; b ^= c; b <<<= 12;
-a += b; d ^= a; d <<<= 8;
-c += d; b ^= c; b <<<= 7;
-```
+$$
+\begin{aligned}
+a &\leftarrow a + b, & d &\leftarrow (d \oplus a) \lll 16 \\
+c &\leftarrow c + d, & b &\leftarrow (b \oplus c) \lll 12 \\
+a &\leftarrow a + b, & d &\leftarrow (d \oplus a) \lll 8 \\
+c &\leftarrow c + d, & b &\leftarrow (b \oplus c) \lll 7
+\end{aligned}
+$$
 
 Rounds alternate between the four columns and the four diagonals, 20 rounds
 in all. Then the input is added back, so the rounds can't be run backwards
@@ -41,12 +43,12 @@ of operations, so changes spread faster.
 
 | Version | Key | Nonce | Counter | Data per nonce |
 |---|---|---|---|---|
-| Salsa20, original ChaCha | 256-bit | 64-bit | 64-bit | 2⁷⁰ bytes |
+| Salsa20, original ChaCha | 256-bit | 64-bit | 64-bit | $2^{70}$ bytes |
 | ChaCha20, RFC 8439 | 256-bit | 96-bit | 32-bit | 256 GB |
 | XChaCha20 | 256-bit | 192-bit | 32-bit | 256 GB |
 
-**XChaCha20** stretches the nonce so random nonces are safe: 2⁸⁰ messages
-before a 2⁻³² chance of a repeat. HChaCha20 hashes the key and the first 16
+**XChaCha20** stretches the nonce so random nonces are safe: $2^{80}$ messages
+before a $2^{-32}$ chance of a repeat. HChaCha20 hashes the key and the first 16
 nonce bytes into a new key, and ChaCha20 runs under it with the last 8
 bytes. Its CFRG draft expired in 2020 and is marked dead, so there is no
 RFC, but libsodium, WireGuard, Tink and Go's x/crypto ship it. NaCl's
@@ -133,7 +135,7 @@ print(chacha20(key, 1, nonce, ct))                 # b'see you at noon'
 
 - **Never reuse a nonce with the same key.** The keystream repeats, and
   XORing two ciphertexts gives the XOR of the plaintexts.
-- Random 96-bit nonces are good for about 2³² messages per key; beyond that
+- Random 96-bit nonces are good for about $2^{32}$ messages per key; beyond that
   use a counter or XChaCha20. One nonce covers at most 256 GB in the RFC
   version.
 - Alone it is malleable: flip a ciphertext bit and the same plaintext bit
@@ -141,7 +143,7 @@ print(chacha20(key, 1, nonce, ct))                 # b'see you at noon'
 - The original (64-bit nonce) and IETF (96-bit nonce) versions give
   different keystreams. Check which one a library means.
 - No attack comes near 20 rounds. Bernstein's list of published attacks
-  reaches 7 rounds of ChaCha, at about 2¹⁴² operations for the best one
+  reaches 7 rounds of ChaCha, at about $2^{142}$ operations for the best one
   (2026), and 8 rounds of Salsa20.
 
 ## Going deeper
@@ -156,30 +158,32 @@ Each part below starts closed; open the ones you want.
     | Step | Operation | Result |
     |---|---|---|
     | Start | | `a = 11111111`, `b = 01020304`, `c = 9b8d6f43`, `d = 01234567` |
-    | 1 | `a += b; d ^= a; d <<<= 16` | `a = 12131415`, `d = 51721330` |
-    | 2 | `c += d; b ^= c; b <<<= 12` | `c = ecff8273`, `b = d8177edf` |
-    | 3 | `a += b; d ^= a; d <<<= 8` | `a = ea2a92f4`, `d = 5881c4bb` |
-    | 4 | `c += d; b ^= c; b <<<= 7` | `c = 4581472e`, `b = cb1cf8ce` |
+    | 1 | $a \leftarrow a + b,\ d \leftarrow (d \oplus a) \lll 16$ | `a = 12131415`, `d = 51721330` |
+    | 2 | $c \leftarrow c + d,\ b \leftarrow (b \oplus c) \lll 12$ | `c = ecff8273`, `b = d8177edf` |
+    | 3 | $a \leftarrow a + b,\ d \leftarrow (d \oplus a) \lll 8$ | `a = ea2a92f4`, `d = 5881c4bb` |
+    | 4 | $c \leftarrow c + d,\ b \leftarrow (b \oplus c) \lll 7$ | `c = 4581472e`, `b = cb1cf8ce` |
 
-    All numbers are hex; `+=` is addition mod 2³², `<<<=` is rotate left. ChaCha20 runs 80 of these
+    All numbers are hex; $+$ is addition $\bmod 2^{32}$, $\lll$ is rotate left. ChaCha20 runs 80 of these
     (20 rounds of 4) on its 16-word state.
 
 ??? abstract "The math, with formulas"
 
-    **The state** is a 4×4 grid of 32-bit words:
+    **The state** is a $4 \times 4$ grid of 32-bit words (the first row holds the constants):
 
-    ```
-    "expa"  "nd 3"  "2-by"  "te k"       constants
-    key0    key1    key2    key3
-    key4    key5    key6    key7
-    counter nonce0  nonce1  nonce2
-    ```
+    $$
+    \begin{bmatrix}
+    \text{"expa"} & \text{"nd 3"} & \text{"2-by"} & \text{"te k"} \\
+    \mathit{key}_0 & \mathit{key}_1 & \mathit{key}_2 & \mathit{key}_3 \\
+    \mathit{key}_4 & \mathit{key}_5 & \mathit{key}_6 & \mathit{key}_7 \\
+    \mathit{counter} & \mathit{nonce}_0 & \mathit{nonce}_1 & \mathit{nonce}_2
+    \end{bmatrix}
+    $$
 
     **A double round** is four quarter rounds down the columns, then four along the diagonals. ChaCha20 does
     10 double rounds, then adds the original state word by word. The 64-byte result is the keystream block
-    for that counter value; encryption is `ciphertext = plaintext ⊕ keystream`.
+    for that counter value; encryption is $\mathit{ciphertext} = \mathit{plaintext} \oplus \mathit{keystream}$.
 
-    **ARX.** Only Addition mod 2³², Rotation and XOR: addition mixes bits non-linearly through the carries,
+    **ARX.** Only Addition $\bmod 2^{32}$, Rotation and XOR: addition mixes bits non-linearly through the carries,
     XOR and rotation spread them. No table lookups, so no cache-timing leaks, and every step runs in a fixed
     time on any CPU.
 
@@ -194,10 +198,10 @@ Each part below starts closed; open the ones you want.
     <div class="mars-steps" markdown>
 
     1. Start with `a = 11111111`, `b = 01020304`, `c = 9b8d6f43`, `d = 01234567`.
-    2. Add `b` into `a`, XOR `a` into `d`, rotate `d` by 16: `a = 12131415`, `d = 51721330`.
-    3. Add `d` into `c`, XOR `c` into `b`, rotate `b` by 12: `c = ecff8273`, `b = d8177edf`.
-    4. Add `b` into `a`, XOR `a` into `d`, rotate `d` by 8: `a = ea2a92f4`, `d = 5881c4bb`.
-    5. Add `d` into `c`, XOR `c` into `b`, rotate `b` by 7: `c = 4581472e`, `b = cb1cf8ce`.
+    2. Add $b$ into $a$, XOR $a$ into $d$, rotate $d$ by 16: `a = 12131415`, `d = 51721330`.
+    3. Add $d$ into $c$, XOR $c$ into $b$, rotate $b$ by 12: `c = ecff8273`, `b = d8177edf`.
+    4. Add $b$ into $a$, XOR $a$ into $d$, rotate $d$ by 8: `a = ea2a92f4`, `d = 5881c4bb`.
+    5. Add $d$ into $c$, XOR $c$ into $b$, rotate $b$ by 7: `c = 4581472e`, `b = cb1cf8ce`.
     6. One bit changed in the input would now have spread to about half the bits of all four words.
 
     </div>
@@ -207,7 +211,7 @@ Each part below starts closed; open the ones you want.
     - **Modular addition, XOR and rotation** on 32-bit words, and why mixing them is non-linear.
     - **Stream ciphers:** a keystream XORed with the data; never reuse a key and nonce (see [AEAD](../05-modes-aead/AEAD.md)).
     - **Differential cryptanalysis of ARX:** the best attacks reach 7 of ChaCha's 20 rounds.
-    - **Poly1305**, the MAC it is paired with: polynomial evaluation mod `2¹³⁰ − 5`; see
+    - **Poly1305**, the MAC it is paired with: polynomial evaluation $\bmod 2^{130} - 5$; see
       [Universal-hash MACs](../06-mac/Universal-Hash-MACs.md).
     - **Salsa20** (2005), its predecessor, which mixes columns and rows instead of columns and diagonals.
 

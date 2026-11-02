@@ -25,7 +25,7 @@ standards name, and push authentication. For new work use an
 
 ## ECB
 
-**How it works.** Each block is encrypted alone: Cᵢ = E(K, Pᵢ).
+**How it works.** Each block is encrypted alone: $C_i = E(K, P_i)$.
 
 **What goes wrong.** Equal plaintext blocks give equal ciphertext blocks.
 The famous picture is the "ECB penguin": a bitmap of Tux, the Linux
@@ -37,9 +37,9 @@ for one-block jobs such as the PIV card challenge in SP 800-73-4.
 ## CBC
 
 **How it works.** XOR each plaintext block with the previous ciphertext
-block, then encrypt: Cᵢ = E(K, Pᵢ ⊕ Cᵢ₋₁), with C₀ the IV. The IV must be
-unpredictable. The message is padded to whole blocks; PKCS#7 adds n bytes
-of value n.
+block, then encrypt: $C_i = E(K, P_i \oplus C_{i-1})$, with $C_0$ the IV. The IV must be
+unpredictable. The message is padded to whole blocks; PKCS#7 adds $n$ bytes
+of value $n$.
 
 **What goes wrong.**
 
@@ -63,15 +63,15 @@ of value n.
 ## CFB
 
 **How it works.** The previous ciphertext goes through the cipher to make
-keystream: Cᵢ = Pᵢ ⊕ E(K, Cᵢ₋₁). SP 800-38A also allows s-bit segments
+keystream: $C_i = P_i \oplus E(K, C_{i-1})$. SP 800-38A also allows $s$-bit segments
 (CFB1, CFB8, CFB128). Only the forward cipher is used, and decryption gets
 back in step by itself after a damaged segment. OpenPGP uses a variant
 (RFC 4880, Section 13.9).
 
-**What goes wrong.** The first block is P₁ ⊕ E(K, IV), so a repeated IV
-leaks P₁ ⊕ P₁′. Zerologon (CVE-2020-1472) shows how bad a fixed IV gets:
+**What goes wrong.** The first block is $P_1 \oplus E(K, \mathit{IV})$, so a repeated IV
+leaks $P_1 \oplus P_1'$. Zerologon (CVE-2020-1472) shows how bad a fixed IV gets:
 Netlogon ran AES-CFB8 with an all-zero IV. For one key in 256 the first
-byte of E(K, 0) is zero, and then all-zero plaintext encrypts to all
+byte of $E(K, 0)$ is zero, and then all-zero plaintext encrypts to all
 zeros. An attacker sending zeros got in after about 256 tries.
 
 ## OFB
@@ -84,21 +84,21 @@ in transit damages only that bit.
 repeats the keystream, and flipped ciphertext bits flip the same plaintext
 bits. The IV must also not equal an earlier output block, or the keystream
 restarts partway. FIPS 81 allowed feeding back fewer than 64 bits, which
-Davies and Parkin (1982) showed cuts the average cycle from 2⁶³ steps to
-about 2³². SP 800-38A keeps only full-block feedback.
+Davies and Parkin (1982) showed cuts the average cycle from $2^{63}$ steps to
+about $2^{32}$. SP 800-38A keeps only full-block feedback.
 
 ## CTR
 
-**How it works.** Encrypt a counter block and XOR it in: Cᵢ = Pᵢ ⊕ E(K, Tᵢ),
-with Tᵢ going up by one each block. Diffie and Hellman suggested it in
+**How it works.** Encrypt a counter block and XOR it in: $C_i = P_i \oplus E(K, T_i)$,
+with $T_i$ going up by one each block. Diffie and Hellman suggested it in
 1979, but it waited until SP 800-38A for a NIST standard. It runs in
 parallel, any block decrypts alone, and there is no padding. GCM and CCM
 are CTR plus a MAC.
 
 **What goes wrong.** A counter block must never repeat under one key,
-across all messages. If one does, C ⊕ C′ = P ⊕ P′, and one known plaintext
+across all messages. If one does, $C \oplus C' = P \oplus P'$, and one known plaintext
 gives the other. With random 64-bit nonces a repeat is expected after about
-2³² messages. KRACK (Vanhoef and Piessens, CCS 2017) made WPA2 devices
+$2^{32}$ messages. KRACK (Vanhoef and Piessens, CCS 2017) made WPA2 devices
 reinstall a key and reset the packet number, so CCMP reused keystream and
 packets could be decrypted.
 
@@ -204,7 +204,7 @@ print(attack(iv, c[:16]))          # b'PIN=4417;user=jo'
 ```
 
 The attacker sends the block with a fake IV. When the padding is good, the
-last byte came out as 01, which gives the last byte of D(key, c). Then it
+last byte came out as 01, which gives the last byte of $D(\mathit{key}, c)$. Then it
 aims for 02 02, and so on back to the first byte. XOR with the real IV
 gives the plaintext.
 
@@ -212,7 +212,7 @@ gives the plaintext.
 
 - CBC and CFB need an unpredictable IV; OFB and CTR need values that never
   repeat under the key.
-- Change keys long before 2⁶⁴ blocks with AES. With 64-bit blocks the limit
+- Change keys long before $2^{64}$ blocks with AES. With 64-bit blocks the limit
   is close enough to hit: see [Sweet32](../04-symmetric-ciphers/Retired.md#64-bit-block-ciphers).
 - To decrypt CBC at all, check a MAC over the ciphertext first, and never
   let errors or timing depend on the padding.
@@ -238,19 +238,19 @@ Each part below starts closed; open the ones you want.
 
     | Mode | Encrypt | Decrypt | Notes |
     |---|---|---|---|
-    | ECB | `Cᵢ = E(Pᵢ)` | `Pᵢ = D(Cᵢ)` | equal blocks leak |
-    | CBC | `Cᵢ = E(Pᵢ ⊕ Cᵢ₋₁)`, `C₀ = IV` | `Pᵢ = D(Cᵢ) ⊕ Cᵢ₋₁` | IV must be unpredictable; needs padding |
-    | CFB | `Cᵢ = Pᵢ ⊕ E(Cᵢ₋₁)` | `Pᵢ = Cᵢ ⊕ E(Cᵢ₋₁)` | self-synchronizing stream |
-    | OFB | `Oᵢ = E(Oᵢ₋₁)`, `Cᵢ = Pᵢ ⊕ Oᵢ` | same | keystream independent of data |
-    | CTR | `Cᵢ = Pᵢ ⊕ E(nonce ‖ i)` | same | parallel; nonce must never repeat |
+    | ECB | $C_i = E(P_i)$ | $P_i = D(C_i)$ | equal blocks leak |
+    | CBC | $C_i = E(P_i \oplus C_{i-1})$, $C_0 = \mathit{IV}$ | $P_i = D(C_i) \oplus C_{i-1}$ | IV must be unpredictable; needs padding |
+    | CFB | $C_i = P_i \oplus E(C_{i-1})$ | $P_i = C_i \oplus E(C_{i-1})$ | self-synchronizing stream |
+    | OFB | $O_i = E(O_{i-1})$, $C_i = P_i \oplus O_i$ | same | keystream independent of data |
+    | CTR | $C_i = P_i \oplus E(\mathit{nonce} \,\Vert\, i)$ | same | parallel; nonce must never repeat |
 
-    **The padding oracle (Vaudenay, 2002).** In CBC, `Pᵢ = D(Cᵢ) ⊕ Cᵢ₋₁`. An attacker who changes the last byte
-    of `Cᵢ₋₁` to `g` and learns only "padding OK" (last byte `01`) knows `D(Cᵢ)` ends in `g ⊕ 01`; XOR with the
-    real `Cᵢ₋₁` byte gives the plaintext byte. At most 256 tries per byte, so a 16-byte block falls in at most
+    **The padding oracle (Vaudenay, 2002).** In CBC, $P_i = D(C_i) \oplus C_{i-1}$. An attacker who changes the last byte
+    of $C_{i-1}$ to $g$ and learns only "padding OK" (last byte `01`) knows $D(C_i)$ ends in $g \oplus \mathtt{01}$; XOR with the
+    real $C_{i-1}$ byte gives the plaintext byte. At most 256 tries per byte, so a 16-byte block falls in at most
     4,096 queries. That is why CBC must be paired with a MAC checked first (encrypt-then-MAC), or replaced by
     an AEAD.
 
-    **CTR keystream reuse.** With a repeated nonce, `C ⊕ C′ = P ⊕ P′`, the same failure as a reused one-time
+    **CTR keystream reuse.** With a repeated nonce, $C \oplus C' = P \oplus P'$, the same failure as a reused one-time
     pad.
 
 ??? tip "Watch it step by step: CBC encryption"
@@ -258,10 +258,10 @@ Each part below starts closed; open the ones you want.
     <div class="mars-steps" markdown>
 
     1. Split the message into 16-byte blocks and pad the last one.
-    2. XOR block 1 with a random IV, then encrypt: that is `C₁`.
-    3. XOR block 2 with `C₁`, then encrypt: that is `C₂`.
+    2. XOR block 1 with a random IV, then encrypt: that is $C_1$.
+    3. XOR block 2 with $C_1$, then encrypt: that is $C_2$.
     4. Continue: every block depends on all blocks before it.
-    5. Decryption reverses it: decrypt `Cᵢ`, then XOR with `Cᵢ₋₁`.
+    5. Decryption reverses it: decrypt $C_i$, then XOR with $C_{i-1}$.
     6. Equal plaintext blocks now give different ciphertext blocks, unlike ECB.
 
     </div>
@@ -273,7 +273,7 @@ Each part below starts closed; open the ones you want.
     - **IND-CPA security:** CBC with a random IV and CTR with unique nonces are secure against eavesdroppers,
       ECB is not.
     - **Chosen-ciphertext attacks:** padding oracles and why integrity comes first ([AEAD](AEAD.md)).
-    - **The birthday bound:** CBC and CTR wear out after about 2⁶⁴ blocks with AES (2³² with 64-bit ciphers).
+    - **The birthday bound:** CBC and CTR wear out after about $2^{64}$ blocks with AES ($2^{32}$ with 64-bit ciphers).
 
 ## See also
 

@@ -23,28 +23,27 @@ same result as in the 2016 version.
 
 ## How it works
 
-cSHAKE is SHAKE with two extra inputs: a function name N, which only NIST
-sets, and a customization string S, which is yours. KMAC is cSHAKE with
-N = "KMAC" and the key in front:
+cSHAKE is SHAKE with two extra inputs: a function name $N$, which only NIST
+sets, and a customization string $S$, which is yours. KMAC is cSHAKE with
+$N$ = "KMAC" and the key in front:
 
-```
-cSHAKE128(X, L, N, S) =
-    KECCAK[256](bytepad(encode_string(N) ‖ encode_string(S), 168) ‖ X ‖ 00, L)
-
-KMAC128(K, X, L, S) =
-    cSHAKE128(bytepad(encode_string(K), 168) ‖ X ‖ right_encode(L), L, "KMAC", S)
-```
+$$
+\begin{aligned}
+\mathrm{cSHAKE128}(X, L, N, S) &= \mathrm{KECCAK}[256]\big(\mathrm{bytepad}(\mathrm{encode\_string}(N) \,\Vert\, \mathrm{encode\_string}(S), 168) \,\Vert\, X \,\Vert\, \mathtt{00},\, L\big) \\[4pt]
+\mathrm{KMAC128}(K, X, L, S) &= \mathrm{cSHAKE128}\big(\mathrm{bytepad}(\mathrm{encode\_string}(K), 168) \,\Vert\, X \,\Vert\, \mathrm{right\_encode}(L),\, L,\, \text{"KMAC"},\, S\big)
+\end{aligned}
+$$
 
 - `encode_string` puts a string's length in front of it, and `bytepad`
-  zero-fills to a multiple of 168 bytes, the rate. So N and S fill whole
+  zero-fills to a multiple of 168 bytes, the rate. So $N$ and $S$ fill whole
   blocks, the key fills blocks of its own, and then the message follows.
-- The output length L goes last, which is why each length gives an
+- The output length $L$ goes last, which is why each length gives an
   unrelated tag. KMACXOF writes 0 there instead.
 - `00` is two domain bits that keep cSHAKE apart from SHAKE, which puts
-  `1111` there. (With N and S both empty, cSHAKE is defined as SHAKE.)
+  `1111` there. (With $N$ and $S$ both empty, cSHAKE is defined as SHAKE.)
 - KMAC256 is the same with cSHAKE256 and 136-byte blocks.
 
-With a fixed key and S, those first blocks can be absorbed once, and after
+With a fixed key and $S$, those first blocks can be absorbed once, and after
 that KMAC costs the same as SHAKE. Python's hashlib has SHAKE but no
 cSHAKE, and it always appends SHAKE's `1111`, so KMAC can't be built on
 it. That's why this page has no Python example.
@@ -52,8 +51,8 @@ it. That's why this page has no Python example.
 ### Why Keccak needs no HMAC wrapper
 
 HMAC nests two hashes because SHA-2 outputs its whole internal state.
-From SHA-256(K ‖ m), anyone can keep hashing and get the hash of K ‖ m ‖
-padding ‖ more without knowing K. A sponge never outputs its capacity
+From $\text{SHA-256}(K \,\Vert\, m)$, anyone can keep hashing and get the hash of
+$K \,\Vert\, m \,\Vert\, \mathit{padding} \,\Vert\, \mathit{more}$ without knowing $K$. A sponge never outputs its capacity
 bits, so that length extension fails, and the Keccak team says prefixing
 the key is enough for a MAC. KMAC is that idea plus encodings that keep
 key, message, length and purpose apart. HMAC-SHA3 is allowed too (FIPS
@@ -88,13 +87,13 @@ job and every library and protocol has it.
 
 ## Security notes
 
-- The key length caps security: with a few tags, finding K takes at most
-  2^len(K) work. SP 800-185 forbids keys shorter than the security
+- The key length caps security: with a few tags, finding $K$ takes at most
+  $2^{\mathrm{len}(K)}$ work. SP 800-185 forbids keys shorter than the security
   strength you need.
-- The tag length sets the forgery odds, about one success per 2^L
+- The tag length sets the forgery odds, about one success per $2^L$
   guesses. SP 800-185 forbids tags under 32 bits and allows under 64 only
   after a careful risk analysis.
-- KMAC128's collision and preimage bounds stop at 2^128 however long the
+- KMAC128's collision and preimage bounds stop at $2^{128}$ however long the
   output. SP 800-185 pairs AES-CMAC with KMAC128 and a 128-bit tag, and
   HMAC-SHA-256 with KMAC256 and a 256-bit tag.
 - Compare tags in constant time, as with HMAC.
@@ -109,33 +108,35 @@ Each part below starts closed; open the ones you want.
     256-bit output. Recomputed here with a small Keccak written in Python (checked against `hashlib`'s
     SHAKE128 first); both match NIST:
 
-    | Customization string `S` | KMAC128 output |
+    | Customization string $S$ | KMAC128 output |
     |---|---|
     | empty | `e5780b0d3ea6f7d3a429c5706aa43a00fadbd7d49628839e3187243f456ee14e` |
     | `My Tagged Application` | `3b1fba963cd8b0b59e8c1a6d71888b7143651af8ba0a7070c0979e2811324aa5` |
 
-    Same key, same data, different `S`: unrelated outputs. That is domain separation: one key can serve two
+    Same key, same data, different $S$: unrelated outputs. That is domain separation: one key can serve two
     purposes without the tags of one being valid for the other.
 
 ??? abstract "The math, with formulas"
 
     **KMAC (SP 800-185)** is cSHAKE with the key in front and the output length at the end:
 
-    ```
-    newX = bytepad(encode_string(K), 168) ‖ X ‖ right_encode(L)
-    KMAC128(K, X, L, S) = cSHAKE128(newX, L, "KMAC", S)
-    cSHAKE128(X, L, N, S) = KECCAK[256](bytepad(encode_string(N) ‖ encode_string(S), 168) ‖ X ‖ 00, L)
-    ```
+    $$
+    \begin{aligned}
+    \mathit{newX} &= \mathrm{bytepad}(\mathrm{encode\_string}(K), 168) \,\Vert\, X \,\Vert\, \mathrm{right\_encode}(L) \\
+    \mathrm{KMAC128}(K, X, L, S) &= \mathrm{cSHAKE128}(\mathit{newX}, L, \text{"KMAC"}, S) \\
+    \mathrm{cSHAKE128}(X, L, N, S) &= \mathrm{KECCAK}[256]\big(\mathrm{bytepad}(\mathrm{encode\_string}(N) \,\Vert\, \mathrm{encode\_string}(S), 168) \,\Vert\, X \,\Vert\, \mathtt{00},\, L\big)
+    \end{aligned}
+    $$
 
-    `left_encode(x)` and `right_encode(x)` write a length with its own byte count, so no two inputs encode the
-    same way. `bytepad(…, 168)` fills to the rate (168 bytes for the 128-bit version, 136 for KMAC256).
+    $\mathrm{left\_encode}(x)$ and $\mathrm{right\_encode}(x)$ write a length with its own byte count, so no two inputs encode the
+    same way. $\mathrm{bytepad}(\ldots, 168)$ fills to the rate (168 bytes for the 128-bit version, 136 for KMAC256).
 
     **Why a sponge can MAC directly.** SHA-3's capacity (256 bits for KMAC128) is never output, so there is no
-    length extension: `KECCAK(K ‖ m)` is already a secure MAC, and the HMAC double hash is unnecessary.
-    Including `L` in the input means outputs of different lengths are unrelated (asking for 32 bytes is not a
+    length extension: $\mathrm{KECCAK}(K \,\Vert\, m)$ is already a secure MAC, and the HMAC double hash is unnecessary.
+    Including $L$ in the input means outputs of different lengths are unrelated (asking for 32 bytes is not a
     prefix of asking for 64).
 
-    **KMACXOF** sets `right_encode(0)` instead of `L`, for an output of any length.
+    **KMACXOF** sets $\mathrm{right\_encode}(0)$ instead of $L$, for an output of any length.
 
 ??? tip "Watch it step by step: KMAC as one sponge"
 
@@ -153,7 +154,7 @@ Each part below starts closed; open the ones you want.
 ??? info "The math underneath"
 
     - **The sponge construction** and the Keccak-f[1600] permutation: [SHA-3](../07-hash/SHA-3.md).
-    - **Capacity and generic security:** about `c/2` bits against collisions, so 128 for KMAC128.
+    - **Capacity and generic security:** about $c/2$ bits against collisions, so 128 for KMAC128.
     - **Prefix-free encodings** (`left_encode`, `encode_string`) and domain separation.
     - **PRF security of keyed sponges** (Bertoni, Daemen, Peeters and Van Assche; Andreeva, Daemen,
       Mennink and Van Assche, 2015).

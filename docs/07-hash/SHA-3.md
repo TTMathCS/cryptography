@@ -67,7 +67,7 @@ print(hashlib.shake_128(b"hello world").hexdigest(16))   # 16 bytes out
 - SHA3-256 has the same collision and preimage strength as SHA-256.
 - Keccak-256 (Ethereum) and SHA3-256 give different digests for the same input;
   check which one a system means.
-- Plain SHA-3 is a safe MAC as `SHA3(key ‖ message)` thanks to the sponge, but
+- Plain SHA-3 is a safe MAC as $\mathrm{SHA3}(\mathit{key} \,\Vert\, \mathit{message})$ thanks to the sponge, but
   KMAC is the standard keyed form.
 
 ## Going deeper
@@ -90,27 +90,31 @@ Each part below starts closed; open the ones you want.
 
 ??? abstract "The math, with formulas"
 
-    **The sponge.** A state of `b = 1,600` bits split into rate `r` and capacity `c = b − r`.
+    **The sponge.** A state of $b = 1{,}600$ bits split into rate $r$ and capacity $c = b - r$.
 
-    ```
-    absorb:  for each r-bit block Pᵢ:  S = f(S ⊕ (Pᵢ ‖ 0ᶜ))
-    squeeze: output the first r bits of S; S = f(S); repeat until enough
-    ```
+    $$
+    \begin{aligned}
+    &\text{absorb:} && \text{for each } r\text{-bit block } P_i\text{:}\quad S = f(S \oplus (P_i \,\Vert\, 0^c)) \\
+    &\text{squeeze:} && \text{output the first } r \text{ bits of } S\text{;}\quad S = f(S)\text{; repeat until enough}
+    \end{aligned}
+    $$
 
-    Security against generic attacks is `c/2` bits, so SHA3-256 (c = 512) gives 256-bit preimage resistance and
+    Security against generic attacks is $c/2$ bits, so SHA3-256 ($c = 512$) gives 256-bit preimage resistance and
     128-bit collision resistance plus margin.
 
-    **Keccak-f[1600]**, 24 rounds on a 5 × 5 array of 64-bit lanes `A[x][y]`:
+    **Keccak-f[1600]**, 24 rounds on a $5 \times 5$ array of 64-bit lanes $A[x][y]$:
 
-    ```
-    θ:  C[x] = ⊕_y A[x][y];  A[x][y] ⊕= C[x−1] ⊕ (C[x+1] <<< 1)       column parity mixing
-    ρ:  rotate each lane by a fixed offset                               spread bits within lanes
-    π:  A[y][2x+3y] = A[x][y]                                            move lanes around
-    χ:  A[x][y] ⊕= (¬A[x+1][y]) ∧ A[x+2][y]                             the only non-linear step
-    ι:  A[0][0] ⊕= RC[round]                                             break symmetry
-    ```
+    $$
+    \begin{aligned}
+    &\theta: && C[x] = \textstyle\bigoplus_y A[x][y];\quad A[x][y] \mathrel{\oplus}= C[x-1] \oplus (C[x+1] \lll 1) && \text{column parity mixing} \\
+    &\rho: && \text{rotate each lane by a fixed offset} && \text{spread bits within lanes} \\
+    &\pi: && A[y][2x+3y] = A[x][y] && \text{move lanes around} \\
+    &\chi: && A[x][y] \mathrel{\oplus}= (\lnot A[x+1][y]) \land A[x+2][y] && \text{the only non-linear step} \\
+    &\iota: && A[0][0] \mathrel{\oplus}= RC[\mathit{round}] && \text{break symmetry}
+    \end{aligned}
+    $$
 
-    χ has algebraic degree 2, which keeps hardware cheap; the 24 rounds give a wide margin (the best
+    $\chi$ has algebraic degree 2, which keeps hardware cheap; the 24 rounds give a wide margin (the best
     practical collision attacks reach 6 rounds).
 
     **Domain bits:** SHA-3 appends `01`, SHAKE `1111`, cSHAKE `00` before the `10…01` padding, so the
@@ -123,7 +127,7 @@ Each part below starts closed; open the ones you want.
     1. Start with 1,600 bits of zeros.
     2. Pad "abc" to a 136-byte block: `61 62 63 06 00 … 80`.
     3. XOR the block into the first 136 bytes of the state; the last 64 bytes (the capacity) are untouched.
-    4. Scramble the whole state with 24 rounds of θ, ρ, π, χ, ι.
+    4. Scramble the whole state with 24 rounds of $\theta$, $\rho$, $\pi$, $\chi$, $\iota$.
     5. Read out the first 32 bytes: `3a985da7…11431532`.
     6. The capacity is never output, so there is nothing to extend: SHA-3 has no length-extension attack.
 
@@ -133,8 +137,8 @@ Each part below starts closed; open the ones you want.
 
     - **Permutation-based cryptography:** sponges and duplexes (Bertoni, Daemen, Peeters and Van Assche).
     - **Indifferentiability** (Maurer, Renner and Holenstein): a sponge with a random permutation behaves like
-      a random oracle up to `2^(c/2)` queries.
-    - **Boolean functions and algebraic degree** (χ), and **linear diffusion** (θ).
+      a random oracle up to $2^{c/2}$ queries.
+    - **Boolean functions and algebraic degree** ($\chi$), and **linear diffusion** ($\theta$).
     - **Extendable-output functions (XOFs):** SHAKE128 and SHAKE256, used by [ML-KEM](../01-key-exchange/ML-KEM.md)
       and [ML-DSA](../02-signatures/ML-DSA.md).
     - [KMAC](../06-mac/KMAC.md), the keyed version.

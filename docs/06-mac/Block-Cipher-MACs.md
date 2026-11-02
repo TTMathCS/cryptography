@@ -14,7 +14,7 @@ radio chip in a phone.
 - **CMAC** runs AES in CBC mode and keeps the last block, with a fix that
   makes it safe for any message length.
 - **GMAC** is GCM with nothing to encrypt: a polynomial hash over
-  GF(2¹²⁸), masked with AES of a nonce.
+  $\mathrm{GF}(2^{128})$, masked with AES of a nonce.
 
 ## How it works
 
@@ -25,9 +25,9 @@ last block. The DES version was FIPS 113 (1985, withdrawn 2008).
 Bellare, Kilian and Rogaway proved it secure when all messages have the
 same number of blocks (CRYPTO 1994).
 
-With mixed lengths it breaks. If t is the tag of a one-block message m,
-then m ‖ (m ⊕ t) also has tag t: the second block reaches the cipher as
-t ⊕ m ⊕ t = m, the same input as before. One tag is enough to extend a
+With mixed lengths it breaks. If $t$ is the tag of a one-block message $m$,
+then $m \,\Vert\, (m \oplus t)$ also has tag $t$: the second block reaches the cipher as
+$t \oplus m \oplus t = m$, the same input as before. One tag is enough to extend a
 message without the key.
 
 ### CMAC
@@ -37,29 +37,29 @@ Iwata and Kurosawa cut that to one key with OMAC (FSE 2003), then OMAC1,
 which NIST adopted as CMAC in SP 800-38B (2005). RFC 4493 (2006) has
 AES-CMAC with test vectors.
 
-- L = AES(K, 0¹²⁸). K1 is L shifted left one bit, with 0x87 XORed into
-  the last byte if a bit fell off. K2 is K1 done the same way.
+- $L = \mathrm{AES}(K, 0^{128})$. $K_1$ is $L$ shifted left one bit, with `0x87` XORed into
+  the last byte if a bit fell off. $K_2$ is $K_1$ done the same way.
 - Run CBC-MAC over every block but the last.
-- XOR K1 into a full last block, or pad a short one with 0x80 and zeros
-  and XOR K2. Encrypting it gives the tag.
+- XOR $K_1$ into a full last block, or pad a short one with `0x80` and zeros
+  and XOR $K_2$. Encrypting it gives the tag.
 
 The secret mask means a tag is no longer the chaining value a longer
 message would carry on from, so the trick above stops working.
 
 SP 800-38B says a tag of at least 64 bits suits most uses, and one AES key
-should tag no more than 2⁴⁸ messages. NIST decided in April 2025 to
+should tag no more than $2^{48}$ messages. NIST decided in April 2025 to
 revise it, matching CCM's tag-length rules and dropping Triple DES.
 
 ### GMAC
 
 SP 800-38D (2007) defines GCM and GMAC, its variant with no plaintext.
-The hash key is H = AES(K, 0¹²⁸). GHASH evaluates the message blocks as a
-polynomial at H, and the tag is that value XOR AES(K, J0), where J0 comes
+The hash key is $H = \mathrm{AES}(K, 0^{128})$. GHASH evaluates the message blocks as a
+polynomial at $H$, and the tag is that value XOR $\mathrm{AES}(K, J_0)$, where $J_0$ comes
 from the IV. It is the Wegman–Carter idea, like
 [Poly1305](Universal-Hash-MACs.md).
 
 The IV must never repeat under one key. Two tags with one IV give an
-equation in H, and solving it lets you forge anything (Joux, 2006).
+equation in $H$, and solving it lets you forge anything (Joux, 2006).
 SP 800-38D calls this "almost as important as the secrecy of the key".
 NIST decided in 2024 to revise SP 800-38D and drop tags under 96 bits.
 Its second call for comments (June 2026) adds wGCM, for 256-bit blocks.
@@ -82,7 +82,7 @@ Its second call for comments (June 2026) adds wGCM, for 256-bit blocks.
   hardware has.
 - **GMAC** when GCM hardware is there, nothing needs encrypting, and every
   message can get a fresh IV.
-- **Otherwise HMAC-SHA-256,** which needs no nonce and has no 2⁴⁸ limit.
+- **Otherwise HMAC-SHA-256,** which needs no nonce and has no $2^{48}$ limit.
   See [HMAC](HMAC.md).
 - **If you also encrypt,** use an [AEAD](../05-modes-aead/AEAD.md), not
   CBC plus CMAC.
@@ -147,7 +147,7 @@ plaintext.
 
 - Compare tags in constant time, as with HMAC.
 - Use a CMAC key only for CMAC, not also for CBC encryption.
-- One repeated GMAC IV gives away H. Use a counter or another IV scheme
+- One repeated GMAC IV gives away $H$. Use a counter or another IV scheme
   that can't repeat.
 - Short tags, such as 5G's 32 bits, are safe only where the protocol caps
   how many forgeries anyone can try.
@@ -163,40 +163,42 @@ Each part below starts closed; open the ones you want.
 
     | Step | Value |
     |---|---|
-    | `L = AES_K(0¹²⁸)` | `7df76b0c1ab899b33e42f047b91b546f` |
-    | `K1 = L·2` (shift left; top bit was 0, so no XOR) | `fbeed618357133667c85e08f7236a8de` |
+    | $L = \mathrm{AES}_K(0^{128})$ | `7df76b0c1ab899b33e42f047b91b546f` |
+    | $K_1 = L \cdot 2$ (shift left; top bit was 0, so no XOR) | `fbeed618357133667c85e08f7236a8de` |
     | Message (one full block) | `6bc1bee22e409f96e93d7e117393172a` |
-    | Last block `⊕ K1`, then AES | |
+    | Last block $\oplus K_1$, then AES | |
     | Tag | `070a16b46b4d4144f79bdd9dd04a287c` |
 
 ??? abstract "The math, with formulas"
 
-    **CBC-MAC.** `T = Cₙ` where `C₀ = 0`, `Cᵢ = E_K(Cᵢ₋₁ ⊕ Mᵢ)`. Secure only for messages of one fixed length:
-    from tags `T` for `M` and `T′` for `M′`, the message `M ‖ (M′₁ ⊕ T) ‖ M′₂ …` has tag `T′`.
+    **CBC-MAC.** $T = C_n$ where $C_0 = 0$, $C_i = E_K(C_{i-1} \oplus M_i)$. Secure only for messages of one fixed length:
+    from tags $T$ for $M$ and $T'$ for $M'$, the message $M \,\Vert\, (M'_1 \oplus T) \,\Vert\, M'_2 \cdots$ has tag $T'$.
 
     **CMAC (OMAC1, SP 800-38B)** fixes this by changing the last block with one of two subkeys:
 
-    ```
-    L  = E_K(0¹²⁸)
-    K1 = L·x,   K2 = L·x²        in GF(2¹²⁸): shift left 1 bit, XOR 0x87 if a bit fell off
-    last block = Mₙ ⊕ K1         if Mₙ is a full block
-               = (Mₙ ‖ 10…0) ⊕ K2  otherwise
-    T = CBC-MAC_K(M₁, …, Mₙ₋₁, last block)
-    ```
+    $$
+    \begin{aligned}
+    L &= E_K(0^{128}) \\
+    K_1 &= L \cdot x, \quad K_2 = L \cdot x^2 && \text{in } \mathrm{GF}(2^{128})\text{: shift left 1 bit, XOR } \mathtt{0x87} \text{ if a bit fell off} \\
+    \text{last block} &= M_n \oplus K_1 && \text{if } M_n \text{ is a full block} \\
+    &= (M_n \,\Vert\, 10\ldots0) \oplus K_2 && \text{otherwise} \\
+    T &= \text{CBC-MAC}_K(M_1, \ldots, M_{n-1}, \text{last block})
+    \end{aligned}
+    $$
 
     **GMAC** is GCM with no plaintext: the tag is GHASH of the data, masked. It needs a unique nonce per
     message.
 
-    **Limits.** With a 128-bit block, the tag forgery chance stays about `q²/2¹²⁸` for `q` messages, which
-    caps CMAC-AES at around 2⁴⁸ messages per key in practice.
+    **Limits.** With a 128-bit block, the tag forgery chance stays about $q^2/2^{128}$ for $q$ messages, which
+    caps CMAC-AES at around $2^{48}$ messages per key in practice.
 
 ??? tip "Watch it step by step: CMAC on two blocks"
 
     <div class="mars-steps" markdown>
 
-    1. Encrypt a block of zeros: `L = AES_K(0)`. Double it in GF(2¹²⁸) to get `K1`, and again for `K2`.
-    2. Block 1: encrypt `M₁`.
-    3. Block 2 is the last: XOR it with `K1` (or pad it and use `K2` if it is short).
+    1. Encrypt a block of zeros: $L = \mathrm{AES}_K(0)$. Double it in $\mathrm{GF}(2^{128})$ to get $K_1$, and again for $K_2$.
+    2. Block 1: encrypt $M_1$.
+    3. Block 2 is the last: XOR it with $K_1$ (or pad it and use $K_2$ if it is short).
     4. XOR that into the previous result and encrypt.
     5. The final 16 bytes are the tag; it may be truncated, but not below 64 bits.
     6. The subkey makes the last block special, so tags cannot be glued together as in plain CBC-MAC.
@@ -206,7 +208,7 @@ Each part below starts closed; open the ones you want.
 ??? info "The math underneath"
 
     - **CBC-MAC** and its fixed-length security proof (Bellare, Kilian and Rogaway, 1994).
-    - **GF(2¹²⁸) doubling:** the same "multiply by x" as in XTS and OCB.
+    - **$\mathrm{GF}(2^{128})$ doubling:** the same "multiply by $x$" as in XTS and OCB.
     - **Pseudorandom permutations:** [AES](../04-symmetric-ciphers/AES.md).
     - **The birthday bound** on 128-bit blocks.
     - Compare [HMAC](HMAC.md) (hash-based) and [Universal-hash MACs](Universal-Hash-MACs.md) (faster, need

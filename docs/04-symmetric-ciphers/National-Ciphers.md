@@ -27,7 +27,7 @@ trouble of the [old 64-bit ciphers](Retired.md#64-bit-block-ciphers).
 
 **Camellia** was designed by NTT and Mitsubishi Electric in 2000, with the
 same interface as AES. It is a Feistel cipher, and every six rounds it
-inserts key-dependent FL and FL⁻¹ layers. The EU's NESSIE project picked
+inserts key-dependent $FL$ and $FL^{-1}$ layers. The EU's NESSIE project picked
 it, it went on Japan's CRYPTREC list for e-government in 2003, and RFC 3713
 (2004) describes it. OpenPGP has it, and so does TLS up to 1.2 (RFC 5932).
 
@@ -50,7 +50,7 @@ suites and notes that the SM algorithms "are becoming mandatory in China".
 **Kuznyechik** ("grasshopper") is the 128-bit cipher in GOST R 34.12-2015,
 approved in June 2015. The FSB's information protection center developed
 it with InfoTeCS. It runs 9 rounds of key XOR, an S-box layer and a linear
-layer over GF(2⁸), then a last key XOR. The same standard also has Magma,
+layer over $\mathrm{GF}(2^8)$, then a last key XOR. The same standard also has Magma,
 a revised version of the old 64-bit GOST 28147-89 cipher (RFC 8891).
 Kuznyechik is RFC 7801 (2016), and RFC 9367 (2023) defines GOST suites for
 TLS 1.3.
@@ -142,30 +142,32 @@ Each part below starts closed; open the ones you want.
     | Camellia-128 | RFC 3713, Appendix A | `67673138549669730857065648eabe43` |
 
     For comparison, the same key and plaintext under AES-128 give a completely different block: each cipher is
-    its own fixed but random-looking permutation of the 2¹²⁸ possible blocks.
+    its own fixed but random-looking permutation of the $2^{128}$ possible blocks.
 
 ??? abstract "The math, with formulas"
 
-    **Feistel networks (Camellia).** Split the block into halves `L`, `R`; each round
-    `Lᵢ₊₁ = Rᵢ`, `Rᵢ₊₁ = Lᵢ ⊕ F(Rᵢ, kᵢ)`. Decryption runs the same rounds with the keys reversed, whether or not
-    `F` is invertible. Camellia's `F` is an S-box layer and a byte-mixing layer (the "P-function"); every 6
-    rounds the key-dependent `FL`/`FL⁻¹` layers break up regular structure.
+    **Feistel networks (Camellia).** Split the block into halves $L$, $R$; each round
+    $L_{i+1} = R_i$, $R_{i+1} = L_i \oplus F(R_i, k_i)$. Decryption runs the same rounds with the keys reversed, whether or not
+    $F$ is invertible. Camellia's $F$ is an S-box layer and a byte-mixing layer (the "P-function"); every 6
+    rounds the key-dependent $FL$/$FL^{-1}$ layers break up regular structure.
 
-    **Unbalanced Feistel (SM4).** The state is four 32-bit words `X₀ … X₃`. Each of 32 rounds computes
+    **Unbalanced Feistel (SM4).** The state is four 32-bit words $X_0, \ldots, X_3$. Each of 32 rounds computes
 
-    ```
-    Xᵢ₊₄ = Xᵢ ⊕ T(Xᵢ₊₁ ⊕ Xᵢ₊₂ ⊕ Xᵢ₊₃ ⊕ rkᵢ)
-    T(x) = L(τ(x)),   τ = the S-box on each byte
-    L(B) = B ⊕ (B <<< 2) ⊕ (B <<< 10) ⊕ (B <<< 18) ⊕ (B <<< 24)
-    ```
+    $$
+    \begin{aligned}
+    X_{i+4} &= X_i \oplus T(X_{i+1} \oplus X_{i+2} \oplus X_{i+3} \oplus rk_i) \\
+    T(x) &= L(\tau(x)), && \tau = \text{the S-box on each byte} \\
+    L(B) &= B \oplus (B \lll 2) \oplus (B \lll 10) \oplus (B \lll 18) \oplus (B \lll 24)
+    \end{aligned}
+    $$
 
-    The output is `(X₃₅, X₃₄, X₃₃, X₃₂)`. The key schedule uses the same shape with a different linear map.
+    The output is $(X_{35}, X_{34}, X_{33}, X_{32})$. The key schedule uses the same shape with a different linear map.
 
     **SPN (ARIA, Kuznyechik).** Like AES: key XOR, S-boxes, then a linear layer. ARIA's linear layer is a
-    16×16 binary matrix (branch number 8); Kuznyechik's is a 16-byte LFSR-like transform over GF(2⁸) with the
-    polynomial `x⁸ + x⁷ + x⁶ + x + 1`.
+    $16 \times 16$ binary matrix (branch number 8); Kuznyechik's is a 16-byte LFSR-like transform over $\mathrm{GF}(2^8)$ with the
+    polynomial $x^8 + x^7 + x^6 + x + 1$.
 
-    **S-boxes.** SM4's and ARIA's S-boxes, like AES's, are built from the inverse in GF(2⁸) with affine maps.
+    **S-boxes.** SM4's and ARIA's S-boxes, like AES's, are built from the inverse in $\mathrm{GF}(2^8)$ with affine maps.
     Kuznyechik's S-box (shared with the Streebog hash) was presented as random, but Perrin (2019) showed a
     hidden structure in it; no attack follows from it so far.
 
@@ -173,11 +175,11 @@ Each part below starts closed; open the ones you want.
 
     <div class="mars-steps" markdown>
 
-    1. The 128-bit block is four 32-bit words `X₀, X₁, X₂, X₃`.
-    2. XOR the last three words with the round key: `X₁ ⊕ X₂ ⊕ X₃ ⊕ rk₀`.
+    1. The 128-bit block is four 32-bit words $X_0, X_1, X_2, X_3$.
+    2. XOR the last three words with the round key: $X_1 \oplus X_2 \oplus X_3 \oplus rk_0$.
     3. Send each of the 4 bytes of that word through the S-box.
-    4. Mix with rotations: `B ⊕ (B <<< 2) ⊕ (B <<< 10) ⊕ (B <<< 18) ⊕ (B <<< 24)`.
-    5. XOR the result into `X₀` to make the new word `X₄`. The window slides: now `X₁, X₂, X₃, X₄`.
+    4. Mix with rotations: $B \oplus (B \lll 2) \oplus (B \lll 10) \oplus (B \lll 18) \oplus (B \lll 24)$.
+    5. XOR the result into $X_0$ to make the new word $X_4$. The window slides: now $X_1, X_2, X_3, X_4$.
     6. After 32 rounds, output the last four words in reverse order. Decryption is the same with the round
        keys reversed.
 
@@ -186,7 +188,7 @@ Each part below starts closed; open the ones you want.
 ??? info "The math underneath"
 
     - **Feistel and substitution–permutation networks:** the two ways to build a block cipher.
-    - **Finite fields GF(2⁸)** for the S-boxes and linear layers, as in [AES](AES.md).
+    - **Finite fields $\mathrm{GF}(2^8)$** for the S-boxes and linear layers, as in [AES](AES.md).
     - **Branch numbers and MDS matrices:** how linear layers guarantee diffusion.
     - **Differential and linear cryptanalysis**, which every one of these was designed to resist.
     - **Luby–Rackoff (1988):** four Feistel rounds with random functions give a strong pseudorandom

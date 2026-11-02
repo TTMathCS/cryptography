@@ -16,12 +16,12 @@ padding oracles in TLS came from that (see [Classic modes](Classic-Modes.md)).
 An AEAD, authenticated encryption with associated data, does both jobs in
 one algorithm. RFC 5116 (2008) fixed the interface protocols code against:
 
-- **encrypt(K, N, P, A)** returns the ciphertext with a tag on the end, and
-  **decrypt(K, N, A, C)** returns the plaintext or FAIL, nothing else.
-- **K**, the key: random and secret.
-- **N**, the nonce: not secret, but it must never repeat under one key.
+- **$\mathrm{encrypt}(K, N, P, A)$** returns the ciphertext with a tag on the end, and
+  **$\mathrm{decrypt}(K, N, A, C)$** returns the plaintext or FAIL, nothing else.
+- **$K$**, the key: random and secret.
+- **$N$**, the nonce: not secret, but it must never repeat under one key.
   RFC 5116 recommends 12 bytes, a fixed part plus a counter.
-- **A**, the associated data: headers, sequence numbers, a file name. It
+- **$A$**, the associated data: headers, sequence numbers, a file name. It
   stays readable but the tag covers it, so changing one byte of it makes
   decryption fail.
 - **The tag**, usually 16 bytes. Without the key nobody can make a valid one.
@@ -44,20 +44,20 @@ Sizes are in bits.
 
 McGrew and Viega (2004); NIST SP 800-38D (2007). AES in counter mode
 encrypts. GHASH evaluates the associated data, the ciphertext and their
-lengths as a polynomial at H = AES(K, 0¹²⁸) in GF(2¹²⁸), and AES of the
+lengths as a polynomial at $H = \mathrm{AES}(K, 0^{128})$ in $\mathrm{GF}(2^{128})$, and AES of the
 first counter block masks the result into the tag. With AES and carry-less
 multiply instructions it is very fast, and TLS 1.3 makes
 `TLS_AES_128_GCM_SHA256` mandatory to implement.
 
 - **A repeated nonce is fatal.** The XOR of the two plaintexts leaks, and
-  the two tags give an equation in H, which lets the attacker forge under
+  the two tags give an equation in $H$, which lets the attacker forge under
   that key (Joux, 2006). In 2016 Böck and others found 184 HTTPS servers
   repeating GCM nonces.
-- **Random nonces wear out.** SP 800-38D allows at most 2³² messages per
+- **Random nonces wear out.** SP 800-38D allows at most $2^{32}$ messages per
   key with random 96-bit nonces, which keeps the chance of a repeat near
-  2⁻³³. A counter has no such limit; TLS 1.3 XORs the record number into a
+  $2^{-33}$. A counter has no such limit; TLS 1.3 XORs the record number into a
   fixed IV.
-- Up to 2³⁹ − 256 bits, about 64 GB, per message.
+- Up to $2^{39} - 256$ bits, about 64 GB, per message.
 - **A revision is coming.** In March 2024 NIST decided to revise SP 800-38D:
   drop tags shorter than 96 bits, confirm that TLS 1.3's nonce
   construction is approved, and clarify the other nonce rules. A second
@@ -91,8 +91,8 @@ of GHASH, runs over the associated data and the *plaintext*; AES of that
 value, with the nonce mixed in, is the tag, and the tag is also the
 starting counter for AES-CTR. So a repeated nonce only shows whether two
 messages were equal. The price is two passes: encryption can't start until
-the whole message is in. RFC 8452 allows 2³² random-nonce messages of up to
-8 GB per key, or 2⁴⁸ of up to 32 MB.
+the whole message is in. RFC 8452 allows $2^{32}$ random-nonce messages of up to
+8 GB per key, or $2^{48}$ of up to 32 MB.
 
 ### AES-CCM
 
@@ -126,9 +126,9 @@ specifies AEGIS-128L, AEGIS-256 and the multi-lane 128X and 256X. The state
 is eight (128L) or six (256) AES blocks, and each message block goes in
 with one AES round per state block. There is no key schedule. It beats
 AES-GCM by a wide margin on CPUs with AES instructions. AEGIS-128L takes
-2⁴⁸ random-nonce messages per key and AEGIS-256 has no practical limit.
-RFC 10032 expects it to commit to the key (2⁶⁴ work with a 128-bit tag,
-2¹²⁸ with 256) as long as the attacker can't choose the associated data.
+$2^{48}$ random-nonce messages per key and AEGIS-256 has no practical limit.
+RFC 10032 expects it to commit to the key ($2^{64}$ work with a 128-bit tag,
+$2^{128}$ with 256) as long as the attacker can't choose the associated data.
 libsodium ships it.
 
 ## Ascon
@@ -156,11 +156,11 @@ at sensors and embedded chips where AES is too big or too slow.
 - SP 800-232 starts from the submission's Ascon-128a but switched to
   little-endian byte order and new initial values, so old test vectors
   don't match.
-- At most 2⁵⁴ bytes per key. Tags may be cut to 32 bits, below 64 only
+- At most $2^{54}$ bytes per key. Tags may be cut to 32 bits, below 64 only
   after a risk analysis. An optional nonce-masking mode XORs a second
   128-bit key into the nonce, for better security across many keys.
 - A repeated nonce exposes the plaintexts, but integrity holds as long as
-  no nonce and associated data pair repeats more than 2⁸ times.
+  no nonce and associated data pair repeats more than $2^8$ times.
 
 ## When to use it
 
@@ -211,7 +211,7 @@ two halves of ChaCha20-Poly1305 run from the standard library on the
 - **Never use unverified plaintext.** Decryption either returns the
   plaintext or fails. APIs that stream out plaintext before the tag is
   checked lose the protection; RFC 8452 and RFC 10032 forbid it.
-- **Rekey before the limits.** TLS 1.3 asks for a new key after about 2²⁴·⁵
+- **Rekey before the limits.** TLS 1.3 asks for a new key after about $2^{24.5}$
   full records with AES-GCM.
 - **Most AEADs don't commit to the key.** With GCM or ChaCha20-Poly1305 one
   ciphertext can be built to decrypt under two keys. Dodis and others used
@@ -239,51 +239,53 @@ Each part below starts closed; open the ones you want.
 
     The XOR of the ciphertexts equals the XOR of the plaintexts, because both used the same keystream. Anyone
     who knows or guesses one message reads the other, and with two tags under one nonce the authentication
-    key `H` can be solved for too, so forgeries follow (Joux's "forbidden attack", 2006). Each message also
+    key $H$ can be solved for too, so forgeries follow (Joux's "forbidden attack", 2006). Each message also
     carries a 16-byte tag; with distinct nonces none of this works.
 
 ??? abstract "The math, with formulas"
 
     **GCM (NIST SP 800-38D):**
 
-    ```
-    H   = AES_K(0¹²⁸)                         hash key
-    J₀  = nonce ‖ 0³¹ ‖ 1                      for a 96-bit nonce
-    Cᵢ  = Pᵢ ⊕ AES_K(J₀ + i)                   counter mode, i = 1, 2, …
-    S   = GHASH_H(A ‖ pad ‖ C ‖ pad ‖ len(A) ‖ len(C))
-    Tag = AES_K(J₀) ⊕ S
-    ```
+    $$
+    \begin{aligned}
+    H &= \mathrm{AES}_K(0^{128}) && \text{hash key} \\
+    J_0 &= \mathit{nonce} \,\Vert\, 0^{31} \,\Vert\, 1 && \text{for a 96-bit nonce} \\
+    C_i &= P_i \oplus \mathrm{AES}_K(J_0 + i) && \text{counter mode, } i = 1, 2, \ldots \\
+    S &= \mathrm{GHASH}_H(A \,\Vert\, \mathit{pad} \,\Vert\, C \,\Vert\, \mathit{pad} \,\Vert\, \mathrm{len}(A) \,\Vert\, \mathrm{len}(C)) \\
+    \mathit{Tag} &= \mathrm{AES}_K(J_0) \oplus S
+    \end{aligned}
+    $$
 
-    **GHASH** treats each 16-byte block `Xᵢ` as an element of GF(2¹²⁸) (modulo
-    `x¹²⁸ + x⁷ + x² + x + 1`) and evaluates a polynomial at `H`:
-    `S = X₁·Hᵐ ⊕ X₂·Hᵐ⁻¹ ⊕ … ⊕ Xₘ·H`. Two different inputs collide with probability at most `m/2¹²⁸`, which
-    is why the tag is unforgeable as long as `H` stays secret.
+    **GHASH** treats each 16-byte block $X_i$ as an element of $\mathrm{GF}(2^{128})$ (modulo
+    $x^{128} + x^7 + x^2 + x + 1$) and evaluates a polynomial at $H$:
+    $S = X_1 \cdot H^m \oplus X_2 \cdot H^{m-1} \oplus \cdots \oplus X_m \cdot H$. Two different inputs collide with probability at most $m/2^{128}$, which
+    is why the tag is unforgeable as long as $H$ stays secret.
 
-    **ChaCha20-Poly1305 (RFC 8439):** block 0 of ChaCha20 gives the one-time Poly1305 key `(r, s)`; blocks 1, 2, …
-    encrypt; the tag is `(Σ cᵢ·r^(q−i+1) mod 2¹³⁰ − 5) + s mod 2¹²⁸` over the AAD, the ciphertext and the
+    **ChaCha20-Poly1305 (RFC 8439):** block 0 of ChaCha20 gives the one-time Poly1305 key $(r, s)$; blocks $1, 2, \ldots$
+    encrypt; the tag is $\left(\sum_{i=1}^{q} c_i \cdot r^{q-i+1} \bmod (2^{130} - 5)\right) + s \bmod 2^{128}$ over the AAD, the ciphertext and the
     lengths.
 
-    **Limits.** With random 96-bit nonces, NIST caps one GCM key at 2³² messages (collision chance about
-    2⁻³³). AES-GCM-SIV (RFC 8452) derives the nonce-dependent keys and a synthetic IV from the message, so a
+    **Limits.** With random 96-bit nonces, NIST caps one GCM key at $2^{32}$ messages (collision chance about
+    $2^{-33}$). AES-GCM-SIV (RFC 8452) derives the nonce-dependent keys and a synthetic IV from the message, so a
     repeated nonce only reveals that two messages were identical.
 
 ??? tip "Watch it step by step: sealing a message with AES-GCM"
 
     <div class="mars-steps" markdown>
 
-    1. From the key, compute the hash key `H = AES(K, 0)`.
-    2. Build the first counter block `J₀` from the 12-byte nonce and a counter of 1.
-    3. Encrypt counters `J₀ + 1`, `J₀ + 2`, … and XOR them into the plaintext: that is the ciphertext.
+    1. From the key, compute the hash key $H = \mathrm{AES}(K, 0)$.
+    2. Build the first counter block $J_0$ from the 12-byte nonce and a counter of 1.
+    3. Encrypt counters $J_0 + 1$, $J_0 + 2$, … and XOR them into the plaintext: that is the ciphertext.
     4. Feed the associated data, the ciphertext and their lengths through GHASH: multiply and add in
-       GF(2¹²⁸) with `H`.
-    5. Encrypt `J₀` and XOR it into the GHASH result: that is the 16-byte tag.
+       $\mathrm{GF}(2^{128})$ with $H$.
+    5. Encrypt $J_0$ and XOR it into the GHASH result: that is the 16-byte tag.
     6. The receiver recomputes the tag first and refuses to decrypt anything whose tag doesn't match.
 
     </div>
 
 ??? info "The math underneath"
 
-    - **Finite fields GF(2¹²⁸)** and polynomial evaluation (GHASH); the prime field mod `2¹³⁰ − 5` (Poly1305).
+    - **Finite fields $\mathrm{GF}(2^{128})$** and polynomial evaluation (GHASH); the prime field $\bmod 2^{130} - 5$ (Poly1305).
     - **Universal hashing** (Carter and Wegman, 1979): a keyed hash with provably small collision
       probability, turned into a MAC by a one-time mask. See [Universal-hash MACs](../06-mac/Universal-Hash-MACs.md).
     - **Counter mode** and **pseudorandom permutations**: [Classic modes](Classic-Modes.md), [AES](../04-symmetric-ciphers/AES.md).

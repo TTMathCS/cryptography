@@ -19,15 +19,15 @@ or [BLAKE2](BLAKE.md).
 bit rotation in its message schedule. For about twenty years it was the
 usual hash inside certificate and code signatures.
 
-**What broke it.** A 160-bit hash should take about 2⁸⁰ work to collide.
-Wang, Yin and Yu (CRYPTO 2005) found a way in about 2⁶⁹. In February 2017
+**What broke it.** A 160-bit hash should take about $2^{80}$ work to collide.
+Wang, Yin and Yu (CRYPTO 2005) found a way in about $2^{69}$. In February 2017
 CWI and Google published SHAttered, the first real collision: two different
-PDF files with the same SHA-1, for about 2⁶³ SHA-1 computations (6,500 CPU
+PDF files with the same SHA-1, for about $2^{63}$ SHA-1 computations (6,500 CPU
 years and 100 GPU years). That is the ~63 bits in the main table.
 
 Leurent and Peyrin's "SHA-1 is a Shambles" (USENIX Security 2020) did a
 chosen-prefix collision, where the attacker picks two different starting
-texts and then finds endings that make them collide. It also cost about 2⁶³,
+texts and then finds endings that make them collide. It also cost about $2^{63}$,
 run on 900 rented GPUs for two months. They built two PGP keys with
 different user IDs whose certification signatures collide, so a signature
 made for one key also verifies on the other. GnuPG 2.2.18 (November 2019)
@@ -107,9 +107,9 @@ print(hashlib.sha256(a).digest() == hashlib.sha256(b).digest())   # False
 bits, three rounds, built for speed on 32-bit machines. MD5 and SHA-1 follow
 its design.
 
-**What broke it.** Hans Dobbertin found collisions in 1996 at about 2²⁰ MD4
-computations, and Wang et al. (EUROCRYPT 2005) cut that to about 2⁸.
-Preimages fell too: Leurent reached 2¹⁰⁰ in 2008, and later work about 2⁷⁸.
+**What broke it.** Hans Dobbertin found collisions in 1996 at about $2^{20}$ MD4
+computations, and Wang et al. (EUROCRYPT 2005) cut that to about $2^8$.
+Preimages fell too: Leurent reached $2^{100}$ in 2008, and later work about $2^{78}$.
 RFC 6150 (2011) moved MD4 to Historic.
 
 **Where you still see it.** Windows passwords. The NT hash behind NTLM is MD4
@@ -158,32 +158,32 @@ Each part below starts closed; open the ones you want.
 
     | Hash | Output for "abc" | Output size | Generic collision cost | Actual collision cost |
     |---|---|---|---|---|
-    | MD5 | `900150983cd24fb0d6963f7d28e17f72` | 128 bits | 2⁶⁴ | seconds on a laptop (since 2005–2006) |
-    | SHA-1 | `a9993e364706816aba3e25717850c26c9cd0d89d` | 160 bits | 2⁸⁰ | about 2⁶³·¹ (SHAttered, 2017) |
-    | SHA-256 | `ba7816bf…f20015ad` | 256 bits | 2¹²⁸ | none known |
+    | MD5 | `900150983cd24fb0d6963f7d28e17f72` | 128 bits | $2^{64}$ | seconds on a laptop (since 2005–2006) |
+    | SHA-1 | `a9993e364706816aba3e25717850c26c9cd0d89d` | 160 bits | $2^{80}$ | about $2^{63.1}$ (SHAttered, 2017) |
+    | SHA-256 | `ba7816bf…f20015ad` | 256 bits | $2^{128}$ | none known |
 
-    2⁸⁰ / 2⁶³·¹ ≈ 120,000: the SHAttered team found a SHA-1 collision about 120,000 times faster than the
-    birthday bound. In 2020 a chosen-prefix collision (two different chosen beginnings) cost about 2⁶³·⁴,
-    some US$45,000 of GPU time.
+    $2^{80} / 2^{63.1} \approx 120{,}000$: the SHAttered team found a SHA-1 collision about 120,000 times faster than the
+    birthday bound. In 2020 a chosen-prefix collision (two different chosen beginnings) cost about $2^{63.4}$,
+    some US\$45,000 of GPU time.
 
 ??? abstract "The math, with formulas"
 
-    **The birthday bound.** Among `q` random `n`-bit outputs, the chance of some collision is about
-    `1 − e^(−q²/2ⁿ⁺¹)`, so a 50% chance needs `q ≈ 1.18 · 2^(n/2)`. That is why a 128-bit hash gives at most
+    **The birthday bound.** Among $q$ random $n$-bit outputs, the chance of some collision is about
+    $1 - e^{-q^2/2^{n+1}}$, so a 50% chance needs $q \approx 1.18 \cdot 2^{n/2}$. That is why a 128-bit hash gives at most
     64-bit collision security.
 
-    **Differential attacks (Wang and Yu, 2005).** Choose a difference `Δ` between two message blocks and a
-    path of differences through the rounds that cancels by the end, so `compress(H, M) = compress(H, M ⊕ Δ)`.
+    **Differential attacks (Wang and Yu, 2005).** Choose a difference $\Delta$ between two message blocks and a
+    path of differences through the rounds that cancels by the end, so $\mathrm{compress}(H, M) = \mathrm{compress}(H, M \oplus \Delta)$.
     Each step of the path holds with some probability; message modification forces the early steps,
-    leaving the attacker to pay only for the late ones. MD5's path costs about 2³⁹ work in the original paper;
+    leaving the attacker to pay only for the late ones. MD5's path costs about $2^{39}$ work in the original paper;
     later work brought it to seconds.
 
-    **Why a collision is enough to hurt.** Merkle–Damgård passes the state along, so if `H(M) = H(M′)` then
-    `H(M ‖ S) = H(M′ ‖ S)` for any suffix `S`. Two documents with a shared ending and colliding beginnings can
+    **Why a collision is enough to hurt.** Merkle–Damgård passes the state along, so if $H(M) = H(M')$ then
+    $H(M \,\Vert\, S) = H(M' \,\Vert\, S)$ for any suffix $S$. Two documents with a shared ending and colliding beginnings can
     carry the same signature (the Flame malware's forged Microsoft certificate, 2012, used an MD5
     chosen-prefix collision).
 
-    **Preimages are still hard.** No practical preimage attack exists on MD5 (best known about 2¹²³·⁴) or
+    **Preimages are still hard.** No practical preimage attack exists on MD5 (best known about $2^{123.4}$) or
     SHA-1, which is why old HMAC-MD5 and HMAC-SHA-1 tags are not forgeable, even though the hashes are broken
     for signatures.
 
@@ -192,11 +192,11 @@ Each part below starts closed; open the ones you want.
     <div class="mars-steps" markdown>
 
     1. With 23 people in a room, there is a 50% chance two share a birthday, though there are 365 days.
-    2. 23 people make 253 pairs; each pair matches with chance 1/365. Pairs, not people, are what count.
-    3. For a hash with `2ⁿ` outputs, about `2^(n/2)` random inputs give a 50% chance of a collision.
-    4. MD5 (`n = 128`) would need 2⁶⁴ tries; SHA-1 (`n = 160`) 2⁸⁰. That was the design target.
-    5. Differential attacks found shortcuts: seconds for MD5, about 2⁶³ for SHA-1.
-    6. SHA-256 (`n = 256`) needs 2¹²⁸ tries and no shortcut is known.
+    2. 23 people make 253 pairs; each pair matches with chance $1/365$. Pairs, not people, are what count.
+    3. For a hash with $2^n$ outputs, about $2^{n/2}$ random inputs give a 50% chance of a collision.
+    4. MD5 ($n = 128$) would need $2^{64}$ tries; SHA-1 ($n = 160$) $2^{80}$. That was the design target.
+    5. Differential attacks found shortcuts: seconds for MD5, about $2^{63}$ for SHA-1.
+    6. SHA-256 ($n = 256$) needs $2^{128}$ tries and no shortcut is known.
 
     </div>
 

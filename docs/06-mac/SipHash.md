@@ -9,7 +9,7 @@ stop hash flooding.*
 
 A hash table puts each entry in a bucket picked by a hash of its key. If
 an attacker can choose keys that all land in one bucket, the table turns
-into one long list, and inserting n of them takes about n² steps. That's
+into one long list, and inserting $n$ of them takes about $n^2$ steps. That's
 hash flooding. Crosby and Wallach described it in 2003. In December 2011,
 at 28C3, Alexander Klink and Julian Wälde showed it still worked against
 PHP, ASP.NET, Java, Python, Ruby and more. About 500 KB of chosen POST
@@ -26,21 +26,21 @@ bytes in the paper, against 600 for MD5 and 82 for CityHash.
 
 ## How it works
 
-SipHash-c-d does c rounds per message word and d rounds at the end:
+SipHash-c-d does $c$ rounds per message word and $d$ rounds at the end:
 
-1. Four 64-bit words v0 to v3 start as the key halves k0 and k1 XORed
+1. Four 64-bit words $v_0$ to $v_3$ start as the key halves $k_0$ and $k_1$ XORed
    with constants (the ASCII of "somepseudorandomlygeneratedbytes").
 2. The message is cut into 8-byte little-endian words. The last word
-   holds the leftover bytes and, in its top byte, the length mod 256.
-3. For each word m: `v3 ^= m`, c SipRounds, `v0 ^= m`.
-4. Then `v2 ^= 0xff`, d SipRounds, and the output is v0 ^ v1 ^ v2 ^ v3.
+   holds the leftover bytes and, in its top byte, the length $\bmod 256$.
+3. For each word $m$: $v_3 \mathrel{\oplus}= m$, $c$ SipRounds, $v_0 \mathrel{\oplus}= m$.
+4. Then $v_2 \mathrel{\oplus}= \mathtt{0xff}$, $d$ SipRounds, and the output is $v_0 \oplus v_1 \oplus v_2 \oplus v_3$.
 
 A SipRound is 14 additions, rotations and XORs on the four words, the
 same add-rotate-XOR style as ChaCha and BLAKE.
 
 ### 2-4 or 1-3
 
-SipHash-2-4 is the default. For c ≥ 2 and d ≥ 4 the designers expect the
+SipHash-2-4 is the default. For $c \ge 2$ and $d \ge 4$ the designers expect the
 best PRF security any function with this key and output size can have;
 SipHash-4-8 is their conservative pick, at half the speed. SipHash-1-3
 does half the work per word. It's outside that claim and shows up where
@@ -67,8 +67,8 @@ output, and HalfSipHash uses 32-bit words and a 64-bit key.
 - **A short-input PRF** where 64 bits is enough, like the kernel's
   sequence numbers.
 - **Not as a general MAC.** The designers say it's a secure MAC, but a
-  64-bit tag is a low bar: 2^s blind guesses succeed with probability
-  2^(s−64). It has no RFC or NIST standard either, so protocols don't
+  64-bit tag is a low bar: $2^s$ blind guesses succeed with probability
+  $2^{s-64}$. It has no RFC or NIST standard either, so protocols don't
   offer it. Use [HMAC](HMAC.md), [KMAC](KMAC.md) or keyed
   [BLAKE2](../07-hash/BLAKE.md).
 - **Not as a hash.** Anyone who knows the key can find collisions, so it's
@@ -117,7 +117,7 @@ print(format(siphash(key, msg, 1, 3), "016x"))
 ```
 
 The function also matches all 64 vectors in the reference `vectors.h`
-and, with c=1 and d=3, the 64 in Rust's SipHash-1-3 tests. Those files
+and, with $c = 1$ and $d = 3$, the 64 in Rust's SipHash-1-3 tests. Those files
 store outputs as little-endian bytes, so the first value shows up there
 as `e5 45 be 49 61 ca 29 a1`.
 
@@ -128,7 +128,7 @@ as `e5 45 be 49 61 ca 29 a1`.
 - A hash table leaks a little through timing, such as which inputs share a
   bucket. SipHash is built so that even full outputs don't help an
   attacker, so those leaks don't matter.
-- Key search costs 2^128; the 64-bit output is the real limit.
+- Key search costs $2^{128}$; the 64-bit output is the real limit.
 
 ## Going deeper
 
@@ -141,36 +141,38 @@ Each part below starts closed; open the ones you want.
 
     | Step | Value |
     |---|---|
-    | `v0 = k0 ⊕ "somepseu"`, `v1 = k1 ⊕ "dorandom"`, `v2 = k0 ⊕ "lygenera"`, `v3 = k1 ⊕ "tedbytes"` | four 64-bit words |
+    | $v_0 = k_0 \oplus \text{"somepseu"}$, $v_1 = k_1 \oplus \text{"dorandom"}$, $v_2 = k_0 \oplus \text{"lygenera"}$, $v_3 = k_1 \oplus \text{"tedbytes"}$ | four 64-bit words |
     | Block 1: bytes `00…07` as a little-endian word | 2 SipRounds |
     | Last block: bytes `08…0e` plus the length 15 in the top byte | 2 SipRounds |
-    | Finalize: `v2 ⊕= ff`, then 4 SipRounds | |
-    | Output `v0 ⊕ v1 ⊕ v2 ⊕ v3` | `a129ca6149be45e5` |
+    | Finalize: $v_2 \mathrel{\oplus}= \mathtt{ff}$, then 4 SipRounds | |
+    | Output $v_0 \oplus v_1 \oplus v_2 \oplus v_3$ | `a129ca6149be45e5` |
 
     In a hash table, the bucket is this 64-bit value mod the table size. Without the key, an attacker cannot
     choose inputs that all land in one bucket.
 
 ??? abstract "The math, with formulas"
 
-    **One SipRound** (all 64-bit, `<<<` is rotate left):
+    **One SipRound** (all 64-bit, $\lll$ is rotate left, $+$ is addition $\bmod 2^{64}$):
 
-    ```
-    v0 += v1;  v1 <<<= 13;  v1 ^= v0;  v0 <<<= 32
-    v2 += v3;  v3 <<<= 16;  v3 ^= v2
-    v0 += v3;  v3 <<<= 21;  v3 ^= v0
-    v2 += v1;  v1 <<<= 17;  v1 ^= v2;  v2 <<<= 32
-    ```
+    $$
+    \begin{aligned}
+    v_0 &\leftarrow v_0 + v_1, & v_1 &\leftarrow (v_1 \lll 13) \oplus v_0, & v_0 &\leftarrow v_0 \lll 32 \\
+    v_2 &\leftarrow v_2 + v_3, & v_3 &\leftarrow (v_3 \lll 16) \oplus v_2 \\
+    v_0 &\leftarrow v_0 + v_3, & v_3 &\leftarrow (v_3 \lll 21) \oplus v_0 \\
+    v_2 &\leftarrow v_2 + v_1, & v_1 &\leftarrow (v_1 \lll 17) \oplus v_2, & v_2 &\leftarrow v_2 \lll 32
+    \end{aligned}
+    $$
 
-    **SipHash-c-d:** for each 8-byte word `m`: `v3 ^= m`, `c` SipRounds, `v0 ^= m`. Then `v2 ^= 0xff`, `d`
-    SipRounds, output `v0 ⊕ v1 ⊕ v2 ⊕ v3`. SipHash-2-4 is the standard; SipHash-1-3 is the faster variant
+    **SipHash-c-d:** for each 8-byte word $m$: $v_3 \mathrel{\oplus}= m$, $c$ SipRounds, $v_0 \mathrel{\oplus}= m$. Then $v_2 \mathrel{\oplus}= \mathtt{0xff}$, $d$
+    SipRounds, output $v_0 \oplus v_1 \oplus v_2 \oplus v_3$. SipHash-2-4 is the standard; SipHash-1-3 is the faster variant
     Rust and Python use for hash tables.
 
     **Why it exists: hash flooding.** With a fixed, public hash function an attacker sends many keys that
-    collide, turning each table lookup from `O(1)` into `O(n)`; `n` inserts cost `O(n²)`. In 2011 a few
+    collide, turning each table lookup from $O(1)$ into $O(n)$; $n$ inserts cost $O(n^2)$. In 2011 a few
     hundred kilobytes of crafted form data kept a web server's CPU busy for minutes. A keyed PRF with a
     random per-process key makes collisions unpredictable.
 
-    **Security target:** a 64-bit tag, so up to 2⁶⁴ work to forge; enough for hash tables and short-lived
+    **Security target:** a 64-bit tag, so up to $2^{64}$ work to forge; enough for hash tables and short-lived
     checks, too short for long-term message authentication.
 
 ??? tip "Watch it step by step: hashing a short key"
@@ -178,10 +180,10 @@ Each part below starts closed; open the ones you want.
     <div class="mars-steps" markdown>
 
     1. Mix the 128-bit secret key into four 64-bit words, each XORed with a constant ("somepseudorandomlygeneratedbytes").
-    2. Read the message 8 bytes at a time. XOR each word into `v3`.
-    3. Run 2 SipRounds (add, rotate, XOR), then XOR the word into `v0`.
+    2. Read the message 8 bytes at a time. XOR each word into $v_3$.
+    3. Run 2 SipRounds (add, rotate, XOR), then XOR the word into $v_0$.
     4. The last word carries the leftover bytes and the message length in its top byte.
-    5. Flip `v2` with `0xff` and run 4 more SipRounds.
+    5. Flip $v_2$ with `0xff` and run 4 more SipRounds.
     6. XOR the four words together: `a129ca6149be45e5`. Mod the table size, that picks the bucket.
 
     </div>

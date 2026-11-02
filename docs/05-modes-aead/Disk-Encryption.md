@@ -29,7 +29,7 @@ XTS.
 
 **Where it came from.** Liskov, Rivest and Wagner defined tweakable block
 ciphers (CRYPTO 2002). Rogaway's XEX (ASIACRYPT 2004) builds one from a
-block cipher: C = E(K, P ⊕ Δ) ⊕ Δ, where Δ comes from encrypting the tweak.
+block cipher: $C = E(K, P \oplus \Delta) \oplus \Delta$, where $\Delta$ comes from encrypting the tweak.
 The IEEE P1619 group started with LRW, then switched to XEX because of
 worries about key material being swapped to disk. It used two keys instead
 of XEX's one and added ciphertext stealing: XTS, the "XEX-based tweaked
@@ -39,14 +39,14 @@ NIST approved it in SP 800-38E (2010), and IEEE has since revised it as
 
 **How it works.**
 
-- Two AES keys: K1 for the data and K2 for the tweak. XTS-AES-128 takes 256
-  key bits and XTS-AES-256 takes 512. FIPS validation requires K1 ≠ K2.
-- For block j of sector i: T = E(K2, i) · αʲ, and C = E(K1, P ⊕ T) ⊕ T.
-  Multiplying by α in GF(2¹²⁸) is a 1-bit shift and, on overflow, an XOR
+- Two AES keys: $K_1$ for the data and $K_2$ for the tweak. XTS-AES-128 takes 256
+  key bits and XTS-AES-256 takes 512. FIPS validation requires $K_1 \ne K_2$.
+- For block $j$ of sector $i$: $T = E(K_2, i) \cdot \alpha^j$, and $C = E(K_1, P \oplus T) \oplus T$.
+  Multiplying by $\alpha$ in $\mathrm{GF}(2^{128})$ is a 1-bit shift and, on overflow, an XOR
   with 0x87.
 - A short last block uses ciphertext stealing. Sectors are whole blocks, so
   disks rarely need it.
-- SP 800-38E caps one data unit at 2²⁰ blocks (16 MiB). IEEE 1619-2018 made
+- SP 800-38E caps one data unit at $2^{20}$ blocks (16 MiB). IEEE 1619-2018 made
   that a requirement too, and 1619-2025 adds a cap on how much data one key
   may cover. NIST's draft SP 800-38E Rev. 1 (September 2026) moves to
   IEEE 1619-2025.
@@ -76,15 +76,15 @@ Paul Crowley and Eric Biggers at Google designed Adiantum (2018) for cheap
 phones whose CPUs lack AES instructions, where AES-XTS is slow. It is a
 wide-block mode: the whole sector is one block, so changing any bit changes
 the whole sector's ciphertext. The paper calls the structure HBSH (hash,
-block cipher, stream cipher, hash). For a sector split into P_L and its
-last 16 bytes P_R, with tweak T:
+block cipher, stream cipher, hash). For a sector split into $P_L$ and its
+last 16 bytes $P_R$, with tweak $T$:
 
-1. P_M = P_R + H(T, P_L), where H is NH plus Poly1305 and + is mod 2¹²⁸
-2. C_M = AES-256(K_E, P_M)
-3. C_L = P_L ⊕ XChaCha12(K_S, nonce from C_M)
-4. C_R = C_M − H(T, C_L)
+1. $P_M = P_R + H(T, P_L)$, where $H$ is NH plus Poly1305 and $+$ is mod $2^{128}$
+2. $C_M = \text{AES-256}(K_E, P_M)$
+3. $C_L = P_L \oplus \text{XChaCha12}(K_S, \text{nonce from } C_M)$
+4. $C_R = C_M - H(T, C_L)$
 
-The user key is the 256-bit XChaCha12 key K_S, and K_E and the hash keys
+The user key is the 256-bit XChaCha12 key $K_S$, and $K_E$ and the hash keys
 come from its keystream. On an ARM Cortex-A7 it decrypts 4096-byte sectors
 at 10.6 cycles per byte, over five times faster than AES-256-XTS. Linux
 5.0 (2019) added it, and Android 9 and later can use it on devices without
@@ -152,7 +152,7 @@ Adiantum that last line would list all 256 blocks.
 
 - XTS protects a powered-off, stolen disk. It does not stop someone who can
   watch and write the disk over time, such as a host holding a VM image.
-- Generate K1 and K2 independently. A 512-bit XTS key is AES-256 strength,
+- Generate $K_1$ and $K_2$ independently. A 512-bit XTS key is AES-256 strength,
   not 512.
 
 ## Going deeper
@@ -175,14 +175,16 @@ Each part below starts closed; open the ones you want.
 
 ??? abstract "The math, with formulas"
 
-    **XTS-AES (IEEE 1619, SP 800-38E)** with keys `K₁`, `K₂`, sector number `i`, block `j` inside the sector:
+    **XTS-AES (IEEE 1619, SP 800-38E)** with keys $K_1$, $K_2$, sector number $i$, block $j$ inside the sector:
 
-    ```
-    T  = AES_K₂(i) ⊗ αʲ          α = x in GF(2¹²⁸), i.e. multiply by 2
-    Cⱼ = AES_K₁(Pⱼ ⊕ T) ⊕ T
-    ```
+    $$
+    \begin{aligned}
+    T &= \mathrm{AES}_{K_2}(i) \otimes \alpha^j && \alpha = x \text{ in } \mathrm{GF}(2^{128}) \text{, i.e. multiply by } 2 \\
+    C_j &= \mathrm{AES}_{K_1}(P_j \oplus T) \oplus T
+    \end{aligned}
+    $$
 
-    Multiplying by `α` is a 1-bit shift left with a conditional XOR of `0x87`, so each next tweak is nearly
+    Multiplying by $\alpha$ is a 1-bit shift left with a conditional XOR of `0x87`, so each next tweak is nearly
     free. A last partial block is handled by ciphertext stealing, so the sector size never grows. There is
     no room for a tag: XTS gives confidentiality only, and a changed ciphertext block decrypts to 16 random
     bytes instead of raising an error.
@@ -190,13 +192,15 @@ Each part below starts closed; open the ones you want.
     **Adiantum (Crowley and Biggers, 2018)** encrypts a whole 4 KiB sector as one wide block
     (hash-encrypt-hash):
 
-    ```
-    P = (P_L, P_R)                      P_R is 16 bytes, P_L the rest
-    P_M = P_R + H(T, P_L)               H = NH then Poly1305 (an ε-universal hash)
-    C_M = AES-256(P_M)                  one block cipher call
-    C_L = P_L ⊕ XChaCha12(C_M)
-    C_R = C_M − H(T, C_L)
-    ```
+    $$
+    \begin{aligned}
+    P &= (P_L, P_R) && P_R \text{ is 16 bytes, } P_L \text{ the rest} \\
+    P_M &= P_R + H(T, P_L) && H = \text{NH then Poly1305 (an } \varepsilon\text{-universal hash)} \\
+    C_M &= \text{AES-256}(P_M) && \text{one block cipher call} \\
+    C_L &= P_L \oplus \text{XChaCha12}(C_M) \\
+    C_R &= C_M - H(T, C_L)
+    \end{aligned}
+    $$
 
     Change one bit anywhere and the whole sector changes, which is stronger than XTS's 16-byte granularity.
 
@@ -204,12 +208,12 @@ Each part below starts closed; open the ones you want.
 
     <div class="mars-steps" markdown>
 
-    1. The sector number `i` is encrypted with the second key: `AES_K₂(i)`.
-    2. For block `j` inside the sector, multiply by 2 in GF(2¹²⁸) `j` times: that is the tweak `T`.
-    3. XOR the plaintext block with `T`.
+    1. The sector number $i$ is encrypted with the second key: $\mathrm{AES}_{K_2}(i)$.
+    2. For block $j$ inside the sector, multiply by 2 in $\mathrm{GF}(2^{128})$ $j$ times: that is the tweak $T$.
+    3. XOR the plaintext block with $T$.
     4. Encrypt it with the first key.
-    5. XOR with `T` again: that is the ciphertext block, the same size as the plaintext.
-    6. The same data in another sector, or another position, gets a different `T` and so looks different.
+    5. XOR with $T$ again: that is the ciphertext block, the same size as the plaintext.
+    6. The same data in another sector, or another position, gets a different $T$ and so looks different.
 
     </div>
 
@@ -217,7 +221,7 @@ Each part below starts closed; open the ones you want.
 
     - **Tweakable block ciphers** (Liskov, Rivest and Wagner, 2002) and Rogaway's XEX construction, which XTS
       is built on.
-    - **GF(2¹²⁸) multiplication by `x`:** the doubling used for the tweaks (also in CMAC and OCB).
+    - **$\mathrm{GF}(2^{128})$ multiplication by $x$:** the doubling used for the tweaks (also in CMAC and OCB).
     - **Wide-block encryption** and universal hashing ([Universal-hash MACs](../06-mac/Universal-Hash-MACs.md)).
     - **Why there is no tag:** length-preserving encryption cannot detect tampering; file systems that need
       it add integrity separately (dm-integrity, APFS's per-file keys).

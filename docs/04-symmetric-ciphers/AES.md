@@ -25,13 +25,13 @@ standard yet.
 
 ## How it works
 
-AES arranges each 16-byte block as a 4×4 byte matrix (the *state*) and runs it
+AES arranges each 16-byte block as a $4 \times 4$ byte matrix (the *state*) and runs it
 through several rounds of four steps:
 
 - **SubBytes** — replace each byte using a fixed lookup table (the S-box). Adds
   non-linearity.
 - **ShiftRows** — rotate the rows by 0, 1, 2, 3 bytes. Spreads bytes across columns.
-- **MixColumns** — mix each column with a matrix multiply in GF(2⁸). Spreads
+- **MixColumns** — mix each column with a matrix multiply in $\mathrm{GF}(2^8)$. Spreads
   within columns.
 - **AddRoundKey** — XOR in a round key derived from the main key.
 
@@ -100,61 +100,63 @@ Each part below starts closed; open the ones you want.
     | Input | `32 43 f6 a8 · 88 5a 30 8d · 31 31 98 a2 · e0 37 07 34` |
     | AddRoundKey (XOR with the key) | `19 3d e3 be · a0 f4 e2 2b · 9a c6 8d 2a · e9 f8 48 08` |
     | SubBytes (S-box on each byte) | `d4 27 11 ae · e0 bf 98 f1 · b8 b4 5d e5 · 1e 41 52 30` |
-    | ShiftRows (row r moves r places left) | `d4 bf 5d 30 · e0 b4 52 ae · b8 41 11 f1 · 1e 27 98 e5` |
+    | ShiftRows (row $r$ moves $r$ places left) | `d4 bf 5d 30 · e0 b4 52 ae · b8 41 11 f1 · 1e 27 98 e5` |
     | MixColumns (mix each column) | `04 66 81 e5 · e0 cb 19 9a · 48 f8 d3 7a · 28 06 26 4c` |
     | … 9 more rounds (the last without MixColumns) | |
     | Ciphertext | `39 25 84 1d · 02 dc 09 fb · dc 11 85 97 · 19 6a 0b 32` |
 
-    The first output byte of MixColumns: `02·d4 ⊕ 03·bf ⊕ 5d ⊕ 30 = b3 ⊕ da ⊕ 5d ⊕ 30 = 04`.
+    The first output byte of MixColumns: $\mathtt{02} \cdot \mathtt{d4} \oplus \mathtt{03} \cdot \mathtt{bf} \oplus \mathtt{5d} \oplus \mathtt{30} = \mathtt{b3} \oplus \mathtt{da} \oplus \mathtt{5d} \oplus \mathtt{30} = \mathtt{04}$.
 
 ??? abstract "The math, with formulas"
 
-    **Bytes are elements of GF(2⁸)**, polynomials of degree below 8 with bits as coefficients, multiplied
-    modulo `x⁸ + x⁴ + x³ + x + 1` (`0x11b`). Adding is XOR. Multiplying by `02` is a shift left, then XOR with
-    `1b` if a bit fell off: `02·d4 = 1a8 → a8 ⊕ 1b = b3`. FIPS 197's own example: `57 · 83 = c1`.
+    **Bytes are elements of $\mathrm{GF}(2^8)$**, polynomials of degree below 8 with bits as coefficients, multiplied
+    modulo $x^8 + x^4 + x^3 + x + 1$ (`0x11b`). Adding is XOR. Multiplying by `02` is a shift left, then XOR with
+    `1b` if a bit fell off: $\mathtt{02} \cdot \mathtt{d4} = \mathtt{1a8} \to \mathtt{a8} \oplus \mathtt{1b} = \mathtt{b3}$. FIPS 197's own example: $\mathtt{57} \cdot \mathtt{83} = \mathtt{c1}$.
 
-    **SubBytes:** `S(a) = A·a⁻¹ ⊕ 63`, the inverse in GF(2⁸) (0 maps to 0) followed by a fixed bit-matrix
-    `A`. Example: `53⁻¹ = ca`, and the affine step gives `S(53) = ed`. The inverse makes the S-box highly
-    non-linear (no input/output correlation above 2⁻³, differential probability at most 2⁻⁶).
+    **SubBytes:** $S(a) = A \cdot a^{-1} \oplus \mathtt{63}$, the inverse in $\mathrm{GF}(2^8)$ ($0$ maps to $0$) followed by a fixed bit-matrix
+    $A$. Example: $\mathtt{53}^{-1} = \mathtt{ca}$, and the affine step gives $S(\mathtt{53}) = \mathtt{ed}$. The inverse makes the S-box highly
+    non-linear (no input/output correlation above $2^{-3}$, differential probability at most $2^{-6}$).
 
-    **ShiftRows** moves row `r` left by `r` bytes; **MixColumns** multiplies each column by the matrix
+    **ShiftRows** moves row $r$ left by $r$ bytes; **MixColumns** multiplies each column by the matrix
 
-    ```
-    [02 03 01 01]
-    [01 02 03 01]
-    [01 01 02 03]
-    [03 01 01 02]
-    ```
+    $$
+    \begin{bmatrix}
+    \mathtt{02} & \mathtt{03} & \mathtt{01} & \mathtt{01} \\
+    \mathtt{01} & \mathtt{02} & \mathtt{03} & \mathtt{01} \\
+    \mathtt{01} & \mathtt{01} & \mathtt{02} & \mathtt{03} \\
+    \mathtt{03} & \mathtt{01} & \mathtt{01} & \mathtt{02}
+    \end{bmatrix}
+    $$
 
     Any change to one input byte changes all four output bytes (branch number 5). After two rounds every
     output byte depends on every input byte: the wide-trail design.
 
-    **Key schedule:** each round key is 4 words; `wᵢ = wᵢ₋₄ ⊕ f(wᵢ₋₁)`, where every 4th word goes through a
+    **Key schedule:** each round key is 4 words; $w_i = w_{i-4} \oplus f(w_{i-1})$, where every 4th word goes through a
     rotate, the S-box and a round constant. 10, 12 or 14 rounds for 128, 192 or 256-bit keys.
 
 ??? tip "Watch it step by step: one round on one block"
 
     <div class="mars-steps" markdown>
 
-    1. Start: the block `32 43 f6 a8 …` is written as a 4×4 grid of bytes, column by column.
+    1. Start: the block `32 43 f6 a8 …` is written as a $4 \times 4$ grid of bytes, column by column.
     2. AddRoundKey: XOR with the key, giving `19 3d e3 be …`.
     3. SubBytes: replace each byte with its S-box value; `19` becomes `d4`, `3d` becomes `27`.
     4. ShiftRows: row 1 moves one place left, row 2 two, row 3 three. The first column becomes `d4 bf 5d 30`.
-    5. MixColumns: each column is mixed in GF(2⁸); `d4 bf 5d 30` becomes `04 66 81 e5`.
+    5. MixColumns: each column is mixed in $\mathrm{GF}(2^8)$; `d4 bf 5d 30` becomes `04 66 81 e5`.
     6. AddRoundKey with round key 1, and the next round starts. After 10 rounds: `39 25 84 1d …`.
 
     </div>
 
 ??? info "The math underneath"
 
-    - **Finite fields GF(2⁸):** polynomial arithmetic over bits, irreducible polynomials, inverses.
-    - **Linear algebra over GF(2) and GF(2⁸):** the S-box's affine map and the MixColumns matrix (an MDS
+    - **Finite fields $\mathrm{GF}(2^8)$:** polynomial arithmetic over bits, irreducible polynomials, inverses.
+    - **Linear algebra over $\mathrm{GF}(2)$ and $\mathrm{GF}(2^8)$:** the S-box's affine map and the MixColumns matrix (an MDS
       matrix, from coding theory).
     - **Substitution–permutation networks:** confusion from the S-box, diffusion from ShiftRows and
       MixColumns.
     - **Differential and linear cryptanalysis**, and the wide-trail strategy that bounds them.
-    - **Best known attack:** biclique, about 2¹²⁶·¹ for AES-128, a factor of 4 from brute force; on a quantum
-      computer Grover's search makes it about 2⁶⁴, so AES-256 is the long-term choice.
+    - **Best known attack:** biclique, about $2^{126.1}$ for AES-128, a factor of 4 from brute force; on a quantum
+      computer Grover's search makes it about $2^{64}$, so AES-256 is the long-term choice.
 
 ## See also
 
