@@ -67,9 +67,9 @@ and a password learned later doesn't open old sessions.
 3. **WPA3-Personal PMK (SAE).** Before associating, both sides hash the
    password, both MAC addresses and a counter until the result lands on the
    curve: the password element PWE (here at counter 4, but all 40 rounds run
-   so timing hides it). Each picks random rand and mask, sends scalar = rand +
-   mask and element = −mask·PWE (98 bytes on P-256), and computes K =
-   rand·(scalar′·PWE + element′). Its x coordinate gives a KCK and the PMK
+   so timing hides it). Each picks random rand and mask, sends $\mathit{scalar} = \mathit{rand} + \mathit{mask}$
+   and $\mathit{element} = -\mathit{mask} \cdot \mathit{PWE}$ (98 bytes on P-256), and computes
+   $K = \mathit{rand} \cdot (\mathit{scalar}' \cdot \mathit{PWE} + \mathit{element}')$. Its $x$ coordinate gives a KCK and the PMK
    (HMAC-SHA-256, then the KDF); 34-byte confirms prove both got the same.
 4. **The 4-way handshake.** Message 1 brings the AP's ANonce. The station
    picks an SNonce and computes PTK = KDF(PMK, "Pairwise key expansion", both

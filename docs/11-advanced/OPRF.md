@@ -1,29 +1,28 @@
 # OPRF (oblivious pseudorandom function)
 
-*The client learns F(k, x) for a key only the server holds, and the server
-learns nothing about x. A small two-party trick under OPAQUE, Privacy Pass
+*The client learns $F(k, x)$ for a key only the server holds, and the server
+learns nothing about $x$. A small two-party trick under OPAQUE, Privacy Pass
 and password breach checks.*
 
 **Status and standards:** see [Advanced primitives](../index.md#11-advanced-primitives) in the main table.
 
 ## What it is
 
-A pseudorandom function `F(k, x)` looks random to anyone without the key
-k. In an oblivious PRF two parties compute it together: the server holds
-k, the client holds x, and only the client gets the output. The server
-sees neither x nor the output, and the client learns nothing about k
+A pseudorandom function $F(k, x)$ looks random to anyone without the key
+$k$. In an oblivious PRF two parties compute it together: the server holds
+$k$, the client holds $x$, and only the client gets the output. The server
+sees neither $x$ nor the output, and the client learns nothing about $k$
 beyond the outputs it asked for. Freedman, Ishai, Pinkas and Reingold
 defined OPRFs at TCC 2005, for keyword search. The version in use is
 Jarecki, Kiayias and Krawczyk's 2HashDH (ASIACRYPT 2014):
 
-`F(k, x) = H(x, H'(x)ᵏ)`, where H' hashes onto a group of prime order.
+$F(k, x) = H(x, H'(x)^k)$, where $H'$ hashes onto a group of prime order.
 
 RFC 9497 (December 2023, from the IRTF's CFRG) defines three modes:
 
 - **OPRF** (mode 0x00): the protocol above.
-- **VOPRF** (0x01): verifiable. The server publishes `pkS = Gᵏ` and proves
-  with each answer that it used that same k, so it can't give one client
-  its own key to recognize it later.
+- **VOPRF** (0x01): verifiable. The server publishes $\mathit{pkS} = G^k$ and proves
+  with each answer that it used that same $k$, so it can't give one client
 - **POPRF** (0x02): partially oblivious. Both sides also know a public
   input `info`, such as a date or a token type, and it changes the output.
   The design is from Tyagi et al. (EUROCRYPT 2022).
@@ -34,27 +33,27 @@ minus a little for heavy use (see Security notes).
 
 ## How it works
 
-In a group of prime order q with generator G (the RFC writes the group
+In a group of prime order $q$ with generator $G$ (the RFC writes the group
 additively; this page writes it multiplicatively):
 
-1. **Blind:** the client picks a random r and sends `B = H'(x)ʳ`.
-2. **Evaluate:** the server sends back `Z = Bᵏ`.
-3. **Finalize:** the client computes `N = Z^(r⁻¹ mod q) = H'(x)ᵏ` and
-   outputs `H(x, N)`. The RFC hashes length-prefixed x and N with the
+1. **Blind:** the client picks a random $r$ and sends $B = H'(x)^r$.
+2. **Evaluate:** the server sends back $Z = B^k$.
+3. **Finalize:** the client computes $N = Z^{r^{-1} \bmod q} = H'(x)^k$ and
+   outputs $H(x, N)$. The RFC hashes length-prefixed $x$ and $N$ with the
    label "Finalize".
 
-B is a uniformly random group element whatever x is, so the server learns
-nothing about x even with unlimited computing power. RFC 9497 calls this
+$B$ is a uniformly random group element whatever $x$ is, so the server learns
+nothing about $x$ even with unlimited computing power. RFC 9497 calls this
 unconditional input secrecy. The other half, that a client can't work out
 outputs it didn't ask for, rests on the one-more gap computational
 Diffie-Hellman assumption.
 
-- **VOPRF** adds a proof that `log_G(pkS) = log_B(Z)`: a Chaum–Pedersen
+- **VOPRF** adds a proof that $\log_G(\mathit{pkS}) = \log_B(Z)$: a Chaum–Pedersen
   DLEQ proof, made non-interactive with Fiat–Shamir. One proof can cover a
   whole batch of answers.
-- **POPRF** hashes `info` to a scalar m and uses the key `t = k + m`: the
-  server returns `B^(1/t)`, and the client checks the proof against
-  `pkS·Gᵐ`. One public key covers every value of `info`. Its security
+- **POPRF** hashes `info` to a scalar $m$ and uses the key $t = k + m$: the
+  server returns $B^{1/t}$, and the client checks the proof against
+  $\mathit{pkS} \cdot G^m$. One public key covers every value of `info`. Its security
   rests on a one-more gap strong Diffie-Hellman inversion assumption.
 
 ## When to use it
@@ -75,23 +74,23 @@ and must not see the secret.
   each answer to the issuer's published key. Type 0x0002 is
   [blind RSA](../02-signatures/Blind-Signatures.md), which anyone can check.
 - **Password breach checks:** Apple's Password Monitoring hashes the
-  password to a P-256 point and blinds it with a random β, and the server
-  multiplies it by its secret α. The server also returns the bucket of
+  password to a P-256 point and blinds it with a random $\beta$, and the server
+  multiplies it by its secret $\alpha$. The server also returns the bucket of
   leaked passwords whose SHA-256 starts with the same 15 bits, already
-  multiplied by α. The device compares on its own side, so Apple sees only
+  multiplied by $\alpha$. The device compares on its own side, so Apple sees only
   the 15-bit prefix. Microsoft Edge's Password Monitor (2021) runs the
   credential through an OPRF too, so a client can't run a dictionary
   attack on the breach list, then looks it up with
   [homomorphic encryption](Homomorphic-Encryption.md).
-- **Private set intersection:** the server sends `F(k, y)` for each y in
-  its set, the client gets `F(k, x)` for each of its own, and the client
+- **Private set intersection:** the server sends $F(k, y)$ for each $y$ in
+  its set, the client gets $F(k, x)$ for each of its own, and the client
   compares.
 
 ## Example (Python)
 
 The three steps over the RFC 3526 2048-bit group from
 [Diffie-Hellman](../01-key-exchange/Diffie-Hellman.md). Squaring a hash
-mod p lands in the subgroup of order q, which stands in for H'. RFC 9497
+mod $p$ lands in the subgroup of order $q$, which stands in for $H'$. RFC 9497
 uses elliptic-curve groups and hashes onto them with hash-to-curve
 (RFC 9380); this toy has no domain separation and isn't constant-time.
 
@@ -128,23 +127,23 @@ print(oprf(b"hunter3")[1] == y1)        # False
 
 ## Security notes
 
-- **Each answer is a static Diffie-Hellman sample.** With Q evaluations,
+- **Each answer is a static Diffie-Hellman sample.** With $Q$ evaluations,
   the best attacks (Brown and Gallant, 2004; Cheon, 2006) cut security by
-  about `log₂(Q) / 2` bits, so a million queries cost about 10. RFC 9497
+  about $\log_2(Q) / 2$ bits, so a million queries cost about 10. RFC 9497
   says to rate-limit clients and rotate keys, or pick decaf448, P-384 or
   P-521 when 128 bits isn't enough.
-- **Hash onto the group properly.** If `H'(x)` were `G^h(x)` with h known,
-  one answer would let the client work out `F(k, x)` for every x. Use the
+- **Hash onto the group properly.** If $H'(x)$ were $G^{h(x)}$ with $h$ known,
+  one answer would let the client work out $F(k, x)$ for every $x$. Use the
   RFC 9380 maps, and reject the identity element as the RFC does.
 - **Plain OPRF mode proves nothing.** A server could use a different key
   for each client and tell them apart later. Use VOPRF or POPRF when that
   matters, and make sure everyone gets the same public key.
 - **Online guesses still need a limit.** The server answers anyone, so it
-  must rate-limit; an OPRF only stops offline guessing by those without k.
-  Whoever steals k can guess offline again, which is why OPAQUE also
+  must rate-limit; an OPRF only stops offline guessing by those without $k$.
+  Whoever steals $k$ can guess offline again, which is why OPAQUE also
   stretches the output with a slow hash.
-- A quantum computer could recover k from the public key or past answers.
-  Blinding hides x perfectly, so the requests themselves stay private.
+- A quantum computer could recover $k$ from the public key or past answers.
+  Blinding hides $x$ perfectly, so the requests themselves stay private.
 
 ## Going deeper
 
@@ -152,36 +151,38 @@ Each part below starts closed; open the ones you want.
 
 ??? example "Sample calculation: 2HashDH blind, evaluate, unblind in a group of 53 elements"
 
-    Work mod p = 107, in the group of squares, which has prime order q = 53. Say the client's input
-    hashes onto the group as `H'(x) = 30`. The server's key is k = 11; the client picks r = 7.
+    Work mod $p = 107$, in the group of squares, which has prime order $q = 53$. Say the client's input
+    hashes onto the group as $H'(x) = 30$. The server's key is $k = 11$; the client picks $r = 7$.
 
     | Step | Who | Calculation | Value |
     |---|---|---|---|
-    | Blind | client | `B = 30⁷ mod 107` | 39 |
-    | Evaluate | server | `Z = 39¹¹ mod 107` | 85 |
-    | Inverse of r | client | `7⁻¹ mod 53` (7 · 38 = 266 = 5 · 53 + 1) | 38 |
-    | Unblind | client | `N = 85³⁸ mod 107` | 69 |
-    | Check | anyone with k | `30¹¹ mod 107` | 69, the same |
+    | Blind | client | $B = 30^7 \bmod 107$ | 39 |
+    | Evaluate | server | $Z = 39^{11} \bmod 107$ | 85 |
+    | Inverse of $r$ | client | $7^{-1} \bmod 53$ ($7 \cdot 38 = 266 = 5 \cdot 53 + 1$) | 38 |
+    | Unblind | client | $N = 85^{38} \bmod 107$ | 69 |
+    | Check | anyone with $k$ | $30^{11} \bmod 107$ | 69, the same |
 
-    The client then outputs `H(x, 69)`. A second run with r = 20 sends B = 62, gets Z = 100 back, and
-    unblinds with `20⁻¹ mod 53 = 8` to the same N = 69. The server saw 39 and 62: two unrelated
-    elements, so it can't tell both requests carried the same x.
+    The client then outputs $H(x, 69)$. A second run with $r = 20$ sends $B = 62$, gets $Z = 100$ back, and
+    unblinds with $20^{-1} \bmod 53 = 8$ to the same $N = 69$. The server saw 39 and 62: two unrelated
+    elements, so it can't tell both requests carried the same $x$.
 
 ??? abstract "The math, with formulas"
 
-    ```
-    Blind:     B = H'(x)^r            (r random, 1 ≤ r < q)
-    Evaluate:  Z = B^k
-    Unblind:   N = Z^(r⁻¹ mod q) = H'(x)^(r·k·r⁻¹) = H'(x)^k
-    Output:    F(k, x) = H(x, N)
-    VOPRF:     proof that log_G(pkS) = log_B(Z),   pkS = G^k
-    POPRF:     t = k + m(info),   Z = B^(1/t)
-    ```
+    $$
+    \begin{aligned}
+    &\text{Blind:} && B = H'(x)^r \qquad (r \text{ random}, 1 \le r < q) \\
+    &\text{Evaluate:} && Z = B^k \\
+    &\text{Unblind:} && N = Z^{r^{-1} \bmod q} = H'(x)^{r k r^{-1}} = H'(x)^k \\
+    &\text{Output:} && F(k, x) = H(x, N) \\
+    &\text{VOPRF:} && \text{proof that } \log_G(\mathit{pkS}) = \log_B(Z), \qquad \mathit{pkS} = G^k \\
+    &\text{POPRF:} && t = k + m(\mathit{info}), \qquad Z = B^{1/t}
+    \end{aligned}
+    $$
 
-    - **Why unblinding works:** exponents count mod q, the group order, so `r · r⁻¹ ≡ 1 mod q` cancels.
+    - **Why unblinding works:** exponents count mod $q$, the group order, so $r \cdot r^{-1} \equiv 1 \pmod{q}$ cancels.
     - **Why the server learns nothing:** in a prime-order group any element other than 1 generates
-      everything, so `H'(x)^r` for a uniform r is a uniform element, whatever x is.
-    - **Why the client can't do more:** making Q + 1 outputs from Q answers is the one-more gap
+      everything, so $H'(x)^r$ for a uniform $r$ is a uniform element, whatever $x$ is.
+    - **Why the client can't do more:** making $Q + 1$ outputs from $Q$ answers is the one-more gap
       computational Diffie-Hellman problem, assumed hard.
     - **Cost:** two exponentiations for the client, one for the server, plus the proof in VOPRF.
 
@@ -189,19 +190,19 @@ Each part below starts closed; open the ones you want.
 
     <div class="mars-steps" markdown>
 
-    1. The client hashes its input onto the group: `H'(x) = 30`, an element of order 53 mod 107.
-    2. It picks r = 7 and sends `B = 30⁷ mod 107 = 39`. The 30 stays home.
-    3. The server applies its key k = 11: `Z = 39¹¹ mod 107 = 85`, and sends 85 back.
-    4. The client finds `7⁻¹ mod 53 = 38`, since 7 · 38 leaves 1 after dividing by 53.
-    5. It unblinds: `85³⁸ mod 107 = 69`, which equals `30¹¹`: the server's key applied to its input.
-    6. It hashes x with 69 to get the output. With r = 20 the server would see 62, yet N is still 69.
+    1. The client hashes its input onto the group: $H'(x) = 30$, an element of order 53 mod 107.
+    2. It picks $r = 7$ and sends $B = 30^7 \bmod 107 = 39$. The 30 stays home.
+    3. The server applies its key $k = 11$: $Z = 39^{11} \bmod 107 = 85$, and sends 85 back.
+    4. The client finds $7^{-1} \bmod 53 = 38$, since $7 \cdot 38$ leaves 1 after dividing by 53.
+    5. It unblinds: $85^{38} \bmod 107 = 69$, which equals $30^{11}$: the server's key applied to its input.
+    6. It hashes $x$ with 69 to get the output. With $r = 20$ the server would see 62, yet $N$ is still 69.
 
     </div>
 
 ??? info "The math underneath"
 
     - **Prime-order groups:** Lagrange's theorem makes every element other than 1 a generator, so the
-      inverse of r mod q always exists and blinding is perfect.
+      inverse of $r$ mod $q$ always exists and blinding is perfect.
     - **Diffie-Hellman assumptions:** the one-more gap CDH problem, and the discrete log behind the
       server's key; see [hard problems](../10-math-foundations/Hard-Problems.md).
     - **Hashing onto the group:** RFC 9380 maps inputs to curve points with no known discrete log. A

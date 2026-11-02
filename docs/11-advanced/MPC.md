@@ -9,9 +9,9 @@ rounds of messages between them.*
 ## What it is
 
 Andrew Yao posed the millionaires' problem in 1982: two millionaires want
-to know who is richer without saying how rich they are. In general, n
-parties with inputs x₁ … xₙ want `f(x₁, …, xₙ)`, and each should learn
-only what a trusted party computing f would have told it.
+to know who is richer without saying how rich they are. In general, $n$
+parties with inputs $x_1, \ldots, x_n$ want $f(x_1, \ldots, x_n)$, and each should learn
+only what a trusted party computing $f$ would have told it.
 
 - **Garbled circuits** (Yao): two parties, a constant number of rounds.
   Credited to Yao's FOCS 1986 paper, though he gave the construction in
@@ -35,19 +35,19 @@ June 2026.
 
 ### Oblivious transfer
 
-In 1-out-of-2 oblivious transfer (OT), a sender holds `m₀` and `m₁`. A
-receiver with a choice bit c gets `m_c` and nothing about the other, and
-the sender learns nothing about c. Even, Goldreich and Lempel gave this
+In 1-out-of-2 oblivious transfer (OT), a sender holds $m_0$ and $m_1$. A
+receiver with a choice bit $c$ gets $m_c$ and nothing about the other, and
+the sender learns nothing about $c$. Even, Goldreich and Lempel gave this
 form in 1985, after Rabin's 1981 variant. Kilian (STOC 1988) showed OT
 alone is enough for any secure computation. A Diffie-Hellman version
 (Chou and Orlandi, 2015):
 
-1. The sender sends `A = gᵃ`.
-2. The receiver sends `B = gᵇ` if c = 0, or `B = A·gᵇ` if c = 1.
-3. The sender encrypts `m₀` under `H(Bᵃ)` and `m₁` under `H((B/A)ᵃ)`.
-4. The receiver can compute only `H(Aᵇ)`, the key for `m_c`.
+1. The sender sends $A = g^a$.
+2. The receiver sends $B = g^b$ if $c = 0$, or $B = A \cdot g^b$ if $c = 1$.
+3. The sender encrypts $m_0$ under $H(B^a)$ and $m_1$ under $H((B/A)^a)$.
+4. The receiver can compute only $H(A^b)$, the key for $m_c$.
 
-B looks random either way, and the other key needs `g^(a²)`, as hard as a
+$B$ looks random either way, and the other key needs $g^{a^2}$, as hard as a
 Diffie-Hellman secret. Public-key OT is slow, so systems run about 128 of
 them and stretch them into millions with symmetric crypto (OT extension;
 Ishai, Kilian, Nissim and Petrank, CRYPTO 2003).
@@ -69,16 +69,16 @@ circuit.
 
 ### Secret sharing
 
-Each input is split into shares, additive (`x = x₁ + … + xₙ mod p`) or
+Each input is split into shares, additive ($x = x_1 + \cdots + x_n \bmod p$) or
 [Shamir](Secret-Sharing.md). Adding shared values needs no messages.
 Multiplying needs help. Beaver's trick (CRYPTO '91) uses a shared random
-triple `a, b, c = a·b`: the parties open `d = x − a` and `e = y − b`,
-which reveal nothing, and `x·y = c + d·b + e·a + d·e` is then a sum of
+triple $a, b, c = a \cdot b$: the parties open $d = x - a$ and $e = y - b$,
+which reveal nothing, and $x \cdot y = c + d \cdot b + e \cdot a + d \cdot e$ is then a sum of
 shares and public values.
 
 SPDZ makes the triples ahead of time with somewhat homomorphic
-encryption. Each shared value also carries a shared MAC `α·x` under a key
-α nobody knows, so a party who changes a share is caught at the end.
+encryption. Each shared value also carries a shared MAC $\alpha \cdot x$ under a key
+$\alpha$ nobody knows, so a party who changes a share is caught at the end.
 
 ### Threshold signatures and FHE
 
@@ -168,54 +168,56 @@ Each part below starts closed; open the ones you want.
 
 ??? example "Sample calculation: multiplying shared numbers with a Beaver triple"
 
-    Two parties work mod 97. Party 1 and party 2 hold additive shares of x = 12 and y = 7, and of a
-    triple a = 5, b = 9, c = a·b = 45 made ahead of time. Neither party sees x, y, a, b or c.
+    Two parties work mod 97. Party 1 and party 2 hold additive shares of $x = 12$ and $y = 7$, and of a
+    triple $a = 5$, $b = 9$, $c = a \cdot b = 45$ made ahead of time. Neither party sees $x$, $y$, $a$, $b$ or $c$.
 
     | Value | Party 1 share | Party 2 share | Sum mod 97 |
     |---|---|---|---|
-    | x | 40 | 69 | 12 |
-    | y | 50 | 54 | 7 |
-    | a | 60 | 42 | 5 |
-    | b | 20 | 86 | 9 |
-    | c | 30 | 15 | 45 |
-    | d = x − a, opened | 77 | 27 | 7 |
-    | e = y − b, opened | 30 | 65 | 95 (that is, −2) |
-    | z = x·y | 30 + 43 + 74 + 83 = 36 | 15 + 20 + 13 = 48 | **84 = 12 · 7** |
+    | $x$ | 40 | 69 | 12 |
+    | $y$ | 50 | 54 | 7 |
+    | $a$ | 60 | 42 | 5 |
+    | $b$ | 20 | 86 | 9 |
+    | $c$ | 30 | 15 | 45 |
+    | $d = x - a$, opened | 77 | 27 | 7 |
+    | $e = y - b$, opened | 30 | 65 | 95 (that is, $-2$) |
+    | $z = x \cdot y$ | $30 + 43 + 74 + 83 = 36$ | $15 + 20 + 13 = 48$ | **$84 = 12 \cdot 7$** |
 
-    Party 1 computes `c₁ + d·b₁ + e·a₁ + d·e`; party 2 computes `c₂ + d·b₂ + e·a₂`. Only one party
-    adds the public `d·e = 83`. Opening d = 7 and e = 95 gives nothing away, because a and b are random
-    and used once. Adding needs no help at all: shares of x + y are 40 + 50 = 90 and 69 + 54 = 26,
-    which sum to 116 ≡ 19.
+    Party 1 computes $c_1 + d \cdot b_1 + e \cdot a_1 + d \cdot e$; party 2 computes $c_2 + d \cdot b_2 + e \cdot a_2$. Only one party
+    adds the public $d \cdot e = 83$. Opening $d = 7$ and $e = 95$ gives nothing away, because $a$ and $b$ are random
+    and used once. Adding needs no help at all: shares of $x + y$ are $40 + 50 = 90$ and $69 + 54 = 26$,
+    which sum to $116 \equiv 19$.
 
 ??? abstract "The math, with formulas"
 
-    ```
-    Additive sharing:  x = x₁ + x₂ + … + xₙ  (mod p),  all but one share random
-    Add:               [x + y]ᵢ = xᵢ + yᵢ                 (no messages)
-    Beaver triple:     [a], [b], [c] with c = a·b
-    Open:              d = x − a,   e = y − b
-    Multiply:          x·y = c + d·b + e·a + d·e
-    ```
+    $$
+    \begin{aligned}
+    &\text{Additive sharing:} && x = x_1 + x_2 + \cdots + x_n \pmod{p}, \quad \text{all but one share random} \\
+    &\text{Add:} && [x + y]_i = x_i + y_i \qquad (\text{no messages}) \\
+    &\text{Beaver triple:} && [a],\ [b],\ [c] \text{ with } c = a \cdot b \\
+    &\text{Open:} && d = x - a, \quad e = y - b \\
+    &\text{Multiply:} && x \cdot y = c + d \cdot b + e \cdot a + d \cdot e
+    \end{aligned}
+    $$
 
-    - **Why it works:** expand `(d + a)(e + b) = d·e + d·b + e·a + a·b`, and `a·b = c`. Every term is
+    - **Why it works:** expand $(d + a)(e + b) = d \cdot e + d \cdot b + e \cdot a + a \cdot b$, and $a \cdot b = c$. Every term is
       either public or a share times a public number, so each party works on its own.
-    - **Why d and e leak nothing:** a is uniform and used once, so `x − a` is uniform whatever x is.
-      It is a one-time pad mod p.
+    - **Why $d$ and $e$ leak nothing:** $a$ is uniform and used once, so $x - a$ is uniform whatever $x$ is.
+      It is a one-time pad mod $p$.
     - **Cost:** one triple and one round of opening per multiplication. Additions are free, so the
       number of rounds follows the circuit's multiplicative depth.
-    - **SPDZ MACs:** each value also carries shares of `α·x`; a party who changes a share is caught by the
-      MAC check at the end, except with probability about 1/p.
+    - **SPDZ MACs:** each value also carries shares of $\alpha \cdot x$; a party who changes a share is caught by the
+      MAC check at the end, except with probability about $1/p$.
 
 ??? tip "Watch it step by step: 12 times 7 on shares"
 
     <div class="mars-steps" markdown>
 
-    1. Share the inputs mod 97: x = 12 as 40 and 69, y = 7 as 50 and 54.
-    2. Take a prepared triple: a = 5 (60, 42), b = 9 (20, 86), c = 45 (30, 15).
-    3. Each party subtracts locally, then both open d = 77 + 27 = 7 and e = 30 + 65 = 95.
-    4. Party 1: 30 + 7·20 + 95·60 + 7·95 mod 97 = 30 + 43 + 74 + 83 = 36.
-    5. Party 2: 15 + 7·86 + 95·42 mod 97 = 15 + 20 + 13 = 48.
-    6. Only the output is opened: 36 + 48 = 84 = 12 · 7. The triple is thrown away.
+    1. Share the inputs mod 97: $x = 12$ as 40 and 69, $y = 7$ as 50 and 54.
+    2. Take a prepared triple: $a = 5$ (60, 42), $b = 9$ (20, 86), $c = 45$ (30, 15).
+    3. Each party subtracts locally, then both open $d = 77 + 27 = 7$ and $e = 30 + 65 = 95$.
+    4. Party 1: $30 + 7 \cdot 20 + 95 \cdot 60 + 7 \cdot 95 \bmod 97 = 30 + 43 + 74 + 83 = 36$.
+    5. Party 2: $15 + 7 \cdot 86 + 95 \cdot 42 \bmod 97 = 15 + 20 + 13 = 48$.
+    6. Only the output is opened: $36 + 48 = 84 = 12 \cdot 7$. The triple is thrown away.
 
     </div>
 
@@ -226,7 +228,7 @@ Each part below starts closed; open the ones you want.
     - **Linearity:** any linear function of shared values is computed on the shares alone. Only
       multiplication needs interaction.
     - **Security by simulation:** a protocol is secure if whatever a party sees could be made up from
-      its own input and the output, as if a trusted party had computed f.
+      its own input and the output, as if a trusted party had computed $f$.
     - **Thresholds:** BGW needs no hardness assumption if fewer than a third of the parties cheat.
       With no honest majority, protocols need public-key tools such as oblivious transfer.
     - **Oblivious transfer** in the Chou-Orlandi version on this page rests on a Diffie-Hellman

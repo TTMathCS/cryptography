@@ -61,7 +61,7 @@ makes AES-GCM a MUST for ESP, which carries all the traffic.
    key share and a nonce Ni; the responder picks one proposal and returns its
    own key share and Nr. Here: 972 bytes out, mostly the default proposals,
    and 280 back.
-2. **Seven keys.** SKEYSEED = prf(Ni | Nr, g^ir), and
+2. **Seven keys.** SKEYSEED = prf(Ni | Nr, $g^{ir}$), and
    prf+(SKEYSEED, Ni | Nr | SPIi | SPIr) is cut into SK_d (for later keys),
    SK_ai/SK_ar (MAC), SK_ei/SK_er (encryption) and SK_pi/SK_pr (for AUTH), one
    of each pair per direction (RFC 7296 §2.13–2.14).
@@ -78,7 +78,7 @@ makes AES-GCM a MUST for ESP, which carries all the traffic.
    16-byte tag. `tcpdump` showed a ping as `ESP(spi=0xb9697120,seq=0x4),
    length 120`: 8 + 8 + 84 + 4 + 16 bytes.
 6. **CREATE_CHILD_SA** replaces SAs before they expire. An IKE SA rekey always
-   runs a new key exchange, SKEYSEED = prf(SK_d (old), g^ir (new) | Ni | Nr)
+   runs a new key exchange, SKEYSEED = prf(SK_d (old), $g^{ir}$ (new) | Ni | Nr)
    (§2.18). A CHILD_SA rekey does so only if the ESP proposal lists a group
    (PFS); 5.9.13's default lists none, and since 6.0.2 (2025) the default
    lists the groups plus "none".
@@ -142,7 +142,7 @@ sudo tcpdump -n esp or udp port 4500  # SPI and sequence number of each packet
 ```
 
 - **Python:** SKEYSEED and prf+ with the standard library. Press Enter four
-  times for the run above. The SPIs are on the `--list-sas` line; g^ir and the
+  times for the run above. The SPIs are on the `--list-sas` line; $g^{ir}$ and the
   nonces come from charon's log with `ike = 4` in a `charon.filelog` section
   of `strongswan.conf` (it logs every key, so never on a real gateway).
 

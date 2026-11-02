@@ -53,11 +53,11 @@ protection "very weak at best": a spend shows the key before it is confirmed.
    Bitcoin Core skips BIP-39 and keeps BIP-32 keys in its descriptors.
 2. **Address.** Core's default, P2WPKH, is version 0 plus HASH160 of the
    compressed key, in bech32 (`bc1q…`). Taproot's `bc1p…` (bech32m) holds
-   Q = P + H_TapTweak(P ‖ root)·G, which also commits to an optional script
+   $Q = P + H_{\text{TapTweak}}(P \,\Vert\, \mathit{root}) \cdot G$, which also commits to an optional script
    tree. The checksums catch typos; they are codes, not hashes.
 3. **Signing.** The sighash covers the transaction and, since BIP-143 and
    BIP-341, the amounts spent. Core signs ECDSA with RFC 6979 nonces, retrying
-   until r fits in 32 bytes (since 0.17, 2018). For Schnorr it passes zeros as
+   until $r$ fits in 32 bytes (since 0.17, 2018). For Schnorr it passes zeros as
    BIP-340's extra randomness, which the BIP allows but doesn't recommend.
 4. **Broadcast.** Since 27.0 (April 2024) Core tries BIP-324 with each peer:
    ElligatorSwift ECDH, HKDF-SHA256, then ChaCha20-Poly1305, rekeyed every 224

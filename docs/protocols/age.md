@@ -51,8 +51,8 @@ old files kept opening, "one well-oiled joint" in the plugin spec's words.
    HKDF (salt = ephemeral share `||` recipient, info `age-encryption.org/v1/X25519`)
    gives a wrap key used once, so the zero nonce is safe.
 3. **Or a passphrase.** `-p` writes one `scrypt` stanza: a 16-byte salt and
-   log₂ N (18 in age, about a second; it refuses over 22). The wrap key is
-   scrypt (r = 8, p = 1) of the passphrase and `age-encryption.org/v1/scrypt`
+   $\log_2 N$ (18 in age, about a second; it refuses over 22). The wrap key is
+   scrypt ($r = 8$, $p = 1$) of the passphrase and `age-encryption.org/v1/scrypt`
    `||` salt. The stanza must be alone, so only someone who knows the
    passphrase can have made the file.
 4. **Header MAC:** HMAC-SHA-256 over everything through `---`, keyed with
@@ -82,7 +82,7 @@ IDs, expiry, revocation, a web of trust and per-key cipher choices.
 | Key exchange, post-quantum | ML-KEM-768 + X25519 (X-Wing) via HPKE: `age1pq1…`, `age-keygen -pq`, age 1.3.0 and later | C2SP age v1.1.0 (2025), RFC 9180, draft-ietf-hpke-pq, FIPS 203 | — |
 | Hardware keys | `p256tag` (P-256 HPKE), `mlkem768p256tag` (ML-KEM-768 + P-256) | C2SP age v1.1.0 | — |
 | SSH keys | `ssh-ed25519`, `ssh-rsa` (RSA-OAEP with SHA-256) | age and rage code only | RSA under 2048 bits refused |
-| Passphrase | scrypt, N = 2¹⁸, r = 8, p = 1 | RFC 7914 | — |
+| Passphrase | scrypt, $N = 2^{18}$, $r = 8$, $p = 1$ | RFC 7914 | — |
 | Signature | none | — | — |
 | Cipher (AEAD) | ChaCha20-Poly1305 for stanza bodies and payload | RFC 7539 (now RFC 8439) | — |
 | MAC | HMAC-SHA-256 on the header; Poly1305 in each chunk | RFC 2104 | — |

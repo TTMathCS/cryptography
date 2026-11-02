@@ -390,7 +390,7 @@ Three other writers shaped what people knew.
   furtivis literarum notis* ("On secret marks in writing") in 1563. It
   sums up the ciphers of the day and gives real advice on breaking them,
   including guessing probable words. It also has the first known
-  *digraphic* cipher: a 20 × 20 table giving a single symbol for each pair
+  *digraphic* cipher: a $20 \times 20$ table giving a single symbol for each pair
   of letters, which hides the single-letter counts completely. Porta also
   wrote about invisible inks, and claimed you could write on a hard-boiled
   egg's shell so the message appears on the white inside.

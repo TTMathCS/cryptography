@@ -189,7 +189,7 @@ complained it was too complicated; Wheatstone offered to teach it to boys
 from a nearby school in a quarter of an hour, and an official replied that
 he could never teach it to attachés.
 
-The key is a word written into a 5 × 5 square, followed by the rest of the
+The key is a word written into a $5 \times 5$ square, followed by the rest of the
 alphabet (I and J share a cell). The plaintext is split into pairs, with an
 X between doubled letters. Each pair is then replaced by the two letters at
 the other corners of the rectangle it forms in the square, or by the
@@ -398,10 +398,10 @@ spring offensive, the German army
 introduced a new field cipher designed by Fritz Nebel. It used only the
 letters A, D, F, G and X, chosen because they sound very different in
 Morse code. Each plaintext letter was replaced by its row and column in a
-5 × 5 grid (the [Polybius square](01-Ancient.md#greece-polybius-and-his-square)
+$5 \times 5$ grid (the [Polybius square](01-Ancient.md#greece-polybius-and-his-square)
 again), and the resulting letters were then shuffled by a keyed column
 transposition. Around the start of June a sixth letter, V, extended the
-grid to 6 × 6 so that digits could be sent too.
+grid to $6 \times 6$ so that digits could be sent too.
 
 The French cryptanalyst Georges Painvin, working himself into exhaustion,
 found a way in. On 2 June 1918 he read a message ordering ammunition to be
@@ -535,7 +535,7 @@ exception is the one-time pad, used correctly.
 |---|---|---|
 | Commercial codebooks | at once, with the book | Codes were sold openly. Without the book, the same code word for the same phrase repeats, and context fills it in, as Room 40 did with the Zimmermann telegram. |
 | Keyword ("Vigenère") cipher | in a fraction of a second | Kasiski's repeats give the key length; then each column is a Caesar shift. The program above does it. |
-| Playfair | in seconds | The same pair always gives the same pair. A computer climbs: change the 5 × 5 square a little, keep the change if the text looks more like English. A few hundred letters are enough. |
+| Playfair | in seconds | The same pair always gives the same pair. A computer climbs: change the $5 \times 5$ square a little, keep the change if the text looks more like English. A few hundred letters are enough. |
 | Wheel cipher (Jefferson, Bazeries, M-94) | easily, with a guessed word | The disk order is the key, and the disks themselves are often captured. Guess a likely word: each plain letter and its cipher letter must sit the same distance apart on their disk, which rules out almost every order. The Marquis de Viaris broke Bazeries's cylinder this way in 1893. |
 | Route transposition (Union army) | easily | Letters and words are only moved, so they are all still there. Try the likely grids and paths until sentences appear; the code words for names need context. |
 | ADFGVX | easily, by computer | Painvin needed weeks of work and messages with matching beginnings. Today a program tries column orders and checks whether the resulting pairs behave like letters of a substitution. |

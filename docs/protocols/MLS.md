@@ -59,8 +59,8 @@ Discord uses `0x0002` (P-256, ECDSA).
    whose nodes hold HPKE key pairs; each member knows the private keys on its
    path to the root. A Commit's update path brings a fresh leaf key and new
    path secrets up to the root (each DeriveSecret of the last), each one
-   HPKE-encrypted to the subtree beside it: log₂ n ciphertexts in a full tree
-   instead of n − 1. The secret past the root is the commit_secret.
+   HPKE-encrypted to the subtree beside it: $\log_2 n$ ciphertexts in a full tree
+   instead of $n - 1$. The secret past the root is the commit_secret.
 4. **Epochs and the key schedule** (§8). HKDF-Extract mixes the old
    init_secret with the commit_secret; ExpandWithLabel binds in the
    GroupContext (group ID, epoch, tree hash, transcript hash) to give the

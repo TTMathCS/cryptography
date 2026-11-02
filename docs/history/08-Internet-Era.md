@@ -176,8 +176,8 @@ Ron Rivest's MD5 (1992) and NSA's SHA-1 (1995) were the workhorses of the
 1990s, used for signatures, certificates, software downloads and
 passwords.
 
-The *birthday paradox* sets the limit for any hash: with an *n*-bit output,
-a collision is expected after about 2^(*n*/2) tries, not 2^*n*. In a room of 23
+The *birthday paradox* sets the limit for any hash: with an $n$-bit output,
+a collision is expected after about $2^{n/2}$ tries, not $2^n$. In a room of 23
 people, two probably share a birthday. This program finds collisions in a
 deliberately short hash, cut down from SHA-256.
 
@@ -210,8 +210,8 @@ Output:
 40-bit hash: inputs 98759 and 1179000 collide after 1,179,001 tries; 2^20 = 1,048,576
 ```
 
-So a 128-bit hash like MD5 can never offer more than about 2⁶⁴ collision
-resistance, and SHA-1's 160 bits give 2⁸⁰. Cryptanalysis cut far below
+So a 128-bit hash like MD5 can never offer more than about $2^{64}$ collision
+resistance, and SHA-1's 160 bits give $2^{80}$. Cryptanalysis cut far below
 those numbers.
 
 - **MD5.** Hans Dobbertin found collisions in its compression function in
@@ -224,13 +224,13 @@ those numbers.
   turned out to have used a new MD5 collision to forge a Microsoft
   code-signing certificate.
 - **SHA-1.** In February 2005 Wang's team showed how to find SHA-1
-  collisions in about 2⁶⁹ operations, far below 2⁸⁰. NIST told agencies to
+  collisions in about $2^{69}$ operations, far below $2^{80}$. NIST told agencies to
   move to SHA-2. The first actual collision, *SHAttered*, came on
   23 February 2017 from CWI Amsterdam and Google: two different PDF files
-  with the same SHA-1, after about 2⁶³ computations. In 2020 Gaëtan
+  with the same SHA-1, after about $2^{63}$ computations. In 2020 Gaëtan
   Leurent and Thomas Peyrin made a chosen-prefix collision with about two
-  months of rented graphics cards, costing them about $75,000; they
-  estimated $45,000 at cheaper rental prices.
+  months of rented graphics cards, costing them about \$75,000; they
+  estimated \$45,000 at cheaper rental prices.
 
 The details of both breaks, and where the old hashes linger, are on the
 [retired hashes page](../07-hash/Retired.md).
@@ -387,7 +387,7 @@ The consequences:
 
 - NIST withdrew Dual_EC_DRBG in 2014 and reviewed how it worked with NSA.
 - Reuters reported that RSA Security had made Dual_EC the default in its
-  widely used BSAFE library under a $10 million contract with NSA, which
+  widely used BSAFE library under a \$10 million contract with NSA, which
   RSA denied knowingly weakening.
 - In December 2015 Juniper Networks found unauthorized code in its
   firewalls. Juniper's products used Dual_EC with a point Q of its own,
@@ -475,7 +475,7 @@ plain bugs.
 | AES | no | The best attack on the full cipher is only about four times faster than trying every key. |
 | AES-GCM, ChaCha20-Poly1305 | no, if nonces never repeat | Reuse a nonce and the keystream and the authentication key leak, as on the [AEAD page](../05-modes-aead/AEAD.md). |
 | MD5 | yes, in seconds | Collisions on a laptop; chosen-prefix collisions forged a CA certificate in 2008 and Flame's code-signing certificate in 2012. |
-| SHA-1 | yes, with money | A first collision in 2017 (SHAttered); a chosen-prefix collision in 2020 that cost about $45,000 of rented GPUs. |
+| SHA-1 | yes, with money | A first collision in 2017 (SHAttered); a chosen-prefix collision in 2020 that cost about \$45,000 of rented GPUs. |
 | SHA-2, SHA-3 | no | No practical attack on either. |
 | Unsalted fast password hashes | yes | Graphics cards try billions of guesses a second, and one table of guesses works for every account. |
 | Debian's broken OpenSSL keys | yes, instantly | Only 32,767 keys of each type existed. List them all and look the key up, as the program above does. |
@@ -523,4 +523,4 @@ plain bugs.
 - Abelson et al., "Keys Under Doormats: Mandating Insecurity by Requiring Government Access to All Data and Communications" (MIT CSAIL Technical Report, July 2015)
 - Satoshi Nakamoto, "Bitcoin: A Peer-to-Peer Electronic Cash System" (2008) / David Chaum, "Blind Signatures for Untraceable Payments" (CRYPTO '82) / Craig Gentry, "Fully Homomorphic Encryption Using Ideal Lattices" (STOC 2009)
 
-*Weaker sources:* news reports for the share of servers hit by Heartbleed, the LinkedIn breach numbers, the Reuters report on RSA's $10 million contract, WhatsApp's April 2016 announcement and the FBI–Apple case; search summaries of reporting on Apple's February 2025 withdrawal of Advanced Data Protection in the UK and the still-unsettled legal challenge; HTTPS share figures from browser telemetry as reported in the press.
+*Weaker sources:* news reports for the share of servers hit by Heartbleed, the LinkedIn breach numbers, the Reuters report on RSA's \$10 million contract, WhatsApp's April 2016 announcement and the FBI–Apple case; search summaries of reporting on Apple's February 2025 withdrawal of Advanced Data Protection in the UK and the still-unsettled legal challenge; HTTPS share figures from browser telemetry as reported in the press.

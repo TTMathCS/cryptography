@@ -35,7 +35,7 @@ Counter: 0x1 (1)
 |---|---|---|
 | `TOTP mode: SHA1`, `Counter` | [MAC](../index.md#6-mac) | [HMAC](../06-mac/HMAC.md)-SHA-1 keyed with the secret, over the counter as 8 big-endian bytes. HOTP counts codes; TOTP counts 30-second steps since `Start time` |
 | `SHA1` | [Hash](../index.md#7-hash-functions) | [SHA-1](../07-hash/Retired.md#sha-1), only inside HMAC; TOTP may use [SHA-256 or SHA-512](../07-hash/SHA-2.md) instead |
-| `Digits: 8` | [MAC](../index.md#6-mac) | dynamic truncation: the low 4 bits of the last tag byte pick 4 bytes, the top bit is cleared, and the 31-bit number is taken mod 10⁸ (usually 10⁶) |
+| `Digits: 8` | [MAC](../index.md#6-mac) | dynamic truncation: the low 4 bits of the last tag byte pick 4 bytes, the top bit is cleared, and the 31-bit number is taken mod $10^8$ (usually $10^6$) |
 | `Base32 secret` | [Random numbers](../index.md#9-random-number-generation) | drawn once by the server from its [OS RNG](../09-random/OS-RNG.md): at least 128 bits, 160 recommended |
 | none | [Key exchange](../index.md#1-key-exchange) / [KDF](../index.md#8-key-derivation-and-password-hashing) | the server shows the secret once, as a QR code on a TLS page; its bytes are the HMAC key as they are, and truncation only shortens the tag |
 | none | [Cipher](../index.md#4-symmetric-ciphers) / [Signature](../index.md#2-digital-signatures) | nothing is encrypted or signed: the code itself is the proof |
@@ -54,15 +54,15 @@ limit is the output: a 6-digit guess wins once in a million, whatever the hash.
    base32 (RFC 4648 §6) without padding; optional `algorithm`, `digits`,
    `period` default to SHA1, 6, 30. The user types one code to confirm.
 2. **Code.** The app takes its counter (HOTP: one more for each code shown;
-   TOTP: floor(Unix time / 30)), computes HMAC-SHA-1 over it as 8 bytes,
-   truncates to 31 bits and keeps the number mod 10⁶.
+   TOTP: $\lfloor \text{Unix time} / 30 \rfloor$), computes HMAC-SHA-1 over it as 8 bytes,
+   truncates to 31 bits and keeps the number mod $10^6$.
 3. **Check.** The server recomputes. TOTP: at most one step back for delay
    (RFC 6238 §5.2); pam_google_authenticator takes the previous, current and
    next step. HOTP: a look-ahead window of counters (RFC 4226 §7.4).
 4. **Once only, few guesses.** The server refuses a code whose step already
    worked (RFC 6238 §5.2) and throttles failures across sessions (RFC 4226
    §7.3); SP 800-63B-4 (§3.2.2) allows at most 100 in a row. RFC 4226's
-   odds, s·v / 10^Digit (§6), give 0.03% for 3 valid codes and 100 guesses.
+   odds, $s \cdot v / 10^{\mathit{Digit}}$ (§6), give 0.03% for 3 valid codes and 100 guesses.
 
 **Not phishing-resistant.** A fake site can ask for the code and use it within
 the 30 seconds; proxy kits such as Evilginx (2017) relay the whole login and
@@ -82,7 +82,7 @@ took an employee's Google account got the codes too.
 |---|---|---|---|
 | MAC | HMAC-SHA-1 (HOTP, and the TOTP default); HMAC-SHA-256, HMAC-SHA-512 as TOTP options | RFC 4226 §5, RFC 6238 §1.2, RFC 2104 | — |
 | Hash | SHA-1 inside HMAC; SHA-256 or SHA-512 if chosen | FIPS 180-4 | — |
-| Truncation | dynamic truncation to 31 bits, then mod 10⁶ (at least 6 digits; 7 or 8 allowed) of a counter: 30-second steps since 1970 (TOTP) or an event count (HOTP) | RFC 4226 §5.3, RFC 6238 §4 | — |
+| Truncation | dynamic truncation to 31 bits, then mod $10^6$ (at least 6 digits; 7 or 8 allowed) of a counter: 30-second steps since 1970 (TOTP) or an event count (HOTP) | RFC 4226 §5.3, RFC 6238 §4 | — |
 | Secret | random, 128 bits minimum, 160 recommended; base32 in an `otpauth://` URI | RFC 4226 §4 (R6), RFC 4648 §6 | 80 bits (pam_google_authenticator before 2016; 128 until 1.11, 2025) |
 | Challenge-response | OCRA: HOTP's HMAC and truncation over a server challenge, e.g. suite `OCRA-1:HOTP-SHA1-6:QN08` | RFC 6287 | — |
 
@@ -144,7 +144,7 @@ code 005924 for step 41152263
 
 The rows match RFC 6238 Appendix B; its SHA256 and SHA512 columns need the 32-
 and 64-byte seeds of Appendix A, though the text names only the 20-byte key.
-The last line is the 8-digit code mod 10⁶; step 41152263 is T, 0x273EF07.
+The last line is the 8-digit code mod $10^6$; step 41152263 is $T$, 0x273EF07.
 
 ## See also
 

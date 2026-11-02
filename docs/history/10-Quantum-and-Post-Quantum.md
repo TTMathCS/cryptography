@@ -47,7 +47,7 @@ and let nature do the work? In 1985 David Deutsch at Oxford described a
 A quantum computer's basic unit is the *qubit*. A classical bit is 0 or 1.
 A qubit can be in a *superposition* of both, described by two numbers
 called amplitudes. Measuring it gives 0 or 1 at random, with
-probabilities set by the amplitudes. With *n* qubits there are 2^*n*
+probabilities set by the amplitudes. With $n$ qubits there are $2^n$
 amplitudes at once, and a quantum algorithm works by arranging for the
 amplitudes of wrong answers to cancel out and those of right answers to
 add up, like waves. The hard part, for both theory and engineering, is
@@ -64,10 +64,10 @@ in polynomial time, that is, efficiently, where the best classical methods
 take time that grows almost exponentially.
 
 The trick is that factoring reduces to finding a *period*. Pick a number
-*a* and look at *a*, *a*², *a*³, … mod *N*: the sequence eventually repeats,
-with some period *r*. For an RSA modulus, knowing *r* reveals a factor at
-least half the time; if it doesn't, pick another *a* and try again.
-Classically, finding *r* is as hard as factoring. A quantum computer can
+$a$ and look at $a, a^2, a^3, \ldots \bmod N$: the sequence eventually repeats,
+with some period $r$. For an RSA modulus, knowing $r$ reveals a factor at
+least half the time; if it doesn't, pick another $a$ and try again.
+Classically, finding $r$ is as hard as factoring. A quantum computer can
 put all the exponents into superposition at once and use a *quantum
 Fourier transform*, which makes the amplitudes interfere so that
 measurements land on values related to the period. The same method finds
@@ -115,9 +115,9 @@ replaces, and it is enough.
 ### Grover's algorithm, 1996
 
 In 1996 Lov Grover, also at Bell Labs, found a quantum algorithm for
-unstructured search: finding the one input out of *N* that passes some
+unstructured search: finding the one input out of $N$ that passes some
 test, such as the key that decrypts a message. A classical search needs
-about *N*/2 tries on average; Grover's needs about √*N* steps.
+about $N/2$ tries on average; Grover's needs about $\sqrt{N}$ steps.
 
 This program simulates Grover's algorithm on a classical computer for 64
 "boxes". Each step flips the sign of the right answer's amplitude, then
@@ -155,10 +155,10 @@ best after about 6 steps; a classical search needs 32 on average
 
 After six steps the right box comes up 99.7% of the time; keep going and
 the probability falls again, which is why the number of steps has to be
-right. Against a 128-bit key Grover's algorithm needs about 2⁶⁴ steps
-instead of 2¹²⁸, but those steps must run one after another on a single
-fault-tolerant machine, and splitting the work across *k* machines only
-gains √*k*. So symmetric cryptography survives with, at most, longer
+right. Against a 128-bit key Grover's algorithm needs about $2^{64}$ steps
+instead of $2^{128}$, but those steps must run one after another on a single
+fault-tolerant machine, and splitting the work across $k$ machines only
+gains $\sqrt{k}$. So symmetric cryptography survives with, at most, longer
 keys: AES-256 is comfortably safe, and NIST still counts AES-128 as
 acceptable. The [Hard problems](../10-math-foundations/Hard-Problems.md#shor-and-grover)
 page has the numbers.
@@ -241,9 +241,9 @@ in fifteen years, everything recorded with a classical key exchange can
 be decrypted then. Data that must stay secret for longer than the time
 left is already at risk.
 
-Michele Mosca put it as an inequality: if *x* is how long your data must
-stay secret, *y* how long it takes you to migrate, and *z* how long until a
-quantum computer exists, you have a problem whenever *x* + *y* > *z*. For key
+Michele Mosca put it as an inequality: if $x$ is how long your data must
+stay secret, $y$ how long it takes you to migrate, and $z$ how long until a
+quantum computer exists, you have a problem whenever $x + y > z$. For key
 exchange the answer was clear: switch as soon as possible. For signatures
 it is less urgent, since a forged signature only matters once the machine
 exists, but long-lived devices and root keys have to be planned years
@@ -277,16 +277,16 @@ decades:
 
 ### Learning with errors
 
-LWE is simple to state. Given many equations of the form *a* · *s* = *b* mod
-*q*, where *s* is secret, anyone can find *s* by ordinary linear algebra. Add
-a small random error to each *b*, and the problem becomes, as far as anyone
+LWE is simple to state. Given many equations of the form $a \cdot s = b \bmod q$,
+where $s$ is secret, anyone can find $s$ by ordinary linear algebra. Add
+a small random error to each $b$, and the problem becomes, as far as anyone
 knows, hard even for a quantum computer. The error is the whole point:
-it hides *s*, but it is small enough that the key holder can round it away.
+it hides $s$, but it is small enough that the key holder can round it away.
 
 This toy encrypts single bits with Regev's scheme, using ML-KEM's modulus
 3329 but a tiny dimension of 16 (ML-KEM works with 256 coefficients per
 block, structured so the arithmetic is fast). A ciphertext decrypts to a
-number near 0 for a 0 bit, or near *q*/2 for a 1 bit.
+number near 0 for a 0 bit, or near $q/2$ for a 1 bit.
 
 ```python
 import random

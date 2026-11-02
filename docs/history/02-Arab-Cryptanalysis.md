@@ -203,8 +203,8 @@ counts are less reliable and the guessing has to do more of the work.
 
 ### Why a huge key space didn't help
 
-A mixed alphabet like the one above has 26 × 25 × 24 × … × 1 possible
-keys, written 26! and equal to about 4 × 10²⁶. Trying them all is out of
+A mixed alphabet like the one above has $26 \times 25 \times 24 \times \cdots \times 1$ possible
+keys, written $26!$ and equal to about $4 \times 10^{26}$. Trying them all is out of
 the question even for a modern computer working one key at a time. Yet
 frequency analysis breaks it in minutes by hand, because it never tries
 keys. It reads the key off the ciphertext, a few letters at a time.

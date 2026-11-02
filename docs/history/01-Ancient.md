@@ -352,7 +352,7 @@ tablets could read the torches. But the idea of turning a letter into a
 pair of coordinates turns out to be one of the most reused ideas in
 cryptography. Russian political prisoners in the 19th century knocked out
 the row and column of each letter on their cell walls. American prisoners
-of war in Hanoi used the same tap code from 1965, on a 5 × 5 Latin grid with
+of war in Hanoi used the same tap code from 1965, on a $5 \times 5$ Latin grid with
 C standing in for K. And in 1918 the German army's
 [ADFGVX cipher](04-Telegraph-Age.md#adfgvx-and-the-radiogram-of-victory)
 started by turning each letter into grid coordinates, then shuffled them.
@@ -490,7 +490,7 @@ VENI VIDI VICI
 
 Line 3 is the only one in Latin. This attack, trying every key, is called
 *brute force*, and it is still the first question asked of any cipher:
-how many keys are there? A modern 128-bit key has about 3.4 × 10³⁸ of
+how many keys are there? A modern 128-bit key has about $3.4 \times 10^{38}$ of
 them, which is why nobody brute-forces [AES](../04-symmetric-ciphers/AES.md).
 The [FAQ](../FAQ.md#can-an-attacker-just-pre-calculate-everything-and-look-up-the-answer)
 puts numbers on how far out of reach that is.

@@ -279,7 +279,7 @@ argument. The US government still claimed that 56-bit [DES](06-Shannon-to-DES.md
 was secure enough for export, and that cracking it would need a
 government budget. Working with Paul Kocher's company, Cryptography
 Research, and Advanced Wireless Technologies, the EFF built a machine of
-1,856 custom chips on 29 circuit boards for less than $250,000. It tested
+1,856 custom chips on 29 circuit boards for less than \$250,000. It tested
 about 90 billion keys a second and in July 1998 found the key to RSA's DES
 Challenge in 56 hours. In January 1999, with help from distributed.net's
 volunteers, it did it in 22 hours and 15 minutes.
@@ -311,7 +311,7 @@ Bitcoin's proof of work is a race to compute double SHA-256 hashes. Miners
 moved from ordinary processors (2009) to graphics cards (2010), to
 programmable chips (2011), and from 2013 to *ASICs*, chips that do nothing
 but Bitcoin hashing. By the mid-2020s the network as a whole computed more
-than 5 × 10²⁰ hashes a second. At that rate it performs 2⁸⁰ hashes, the
+than $5 \times 10^{20}$ hashes a second. At that rate it performs $2^{80}$ hashes, the
 old security level of 80-bit keys and SHA-1's design strength, in under
 an hour. Hardware built for one narrow job keeps showing how fast
 yesterday's security margins disappear. See [Bitcoin](../protocols/Bitcoin.md).

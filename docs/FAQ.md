@@ -29,46 +29,46 @@ the storage to save it can ever exist.
 
 A few reference points to anchor the numbers below:
 
-- Atoms in the observable universe: about 10^80
-- All digital data stored on Earth today: roughly 10^23 bytes
-- Age of the universe: about 1.4 × 10^10 years
+- Atoms in the observable universe: about $10^{80}$
+- All digital data stored on Earth today: roughly $10^{23}$ bytes
+- Age of the universe: about $1.4 \times 10^{10}$ years
 
 ### How big is the space, per algorithm
 
 | Algorithm | What you'd precompute | Size of the space | Why it fails |
 |-----------|----------------------|-------------------|--------------|
-| RSA-2048 | every ~1024-bit prime | ~10^305 primes (~10^307 bytes) | more storage than 10^225 universes, one prime per atom |
-| AES-128 | every key | 2^128 ≈ 3.4 × 10^38 keys (~10^39 bytes) | ~10^16 × all of Earth's storage |
-| AES-256 | every key | 2^256 ≈ 10^77 keys | close to the atom count of the universe |
-| ECC P-256 / Ed25519 | every private key | 2^256 ≈ 10^77 scalars | same wall as AES-256 |
-| SHA-256 | a reverse-lookup table | 2^256 outputs, unbounded inputs | inputs have no fixed length, so the table can't be finished |
+| RSA-2048 | every ~1024-bit prime | ~$10^{305}$ primes (~$10^{307}$ bytes) | more storage than $10^{225}$ universes, one prime per atom |
+| AES-128 | every key | $2^{128} \approx 3.4 \times 10^{38}$ keys (~$10^{39}$ bytes) | ~$10^{16} \times$ all of Earth's storage |
+| AES-256 | every key | $2^{256} \approx 10^{77}$ keys | close to the atom count of the universe |
+| ECC P-256 / Ed25519 | every private key | $2^{256} \approx 10^{77}$ scalars | same wall as AES-256 |
+| SHA-256 | a reverse-lookup table | $2^{256}$ outputs, unbounded inputs | inputs have no fixed length, so the table can't be finished |
 
 ### How much disk would that actually be?
 
-Translating the RSA prime table (~10^307 bytes) into real units doesn't help,
+Translating the RSA prime table (~$10^{307}$ bytes) into real units doesn't help,
 because the number runs off the end of every unit we have:
 
 | Unit | Bytes each | Table size |
 |------|-----------|-----------|
-| Terabyte (TB) | 10^12 | 10^295 TB |
-| Exabyte (EB) | 10^18 | 10^289 EB |
-| Zettabyte (ZB) | 10^21 | 10^286 ZB |
-| Yottabyte (YB) | 10^24 | 10^283 YB |
-| Quettabyte (QB) | 10^30 | 10^277 QB |
+| Terabyte (TB) | $10^{12}$ | $10^{295}$ TB |
+| Exabyte (EB) | $10^{18}$ | $10^{289}$ EB |
+| Zettabyte (ZB) | $10^{21}$ | $10^{286}$ ZB |
+| Yottabyte (YB) | $10^{24}$ | $10^{283}$ YB |
+| Quettabyte (QB) | $10^{30}$ | $10^{277}$ QB |
 
-The quettabyte (10^30 bytes) is the largest unit SI has a name for, and the
-table is still 10^277 of them. All digital data on Earth today is about 10^23
-bytes, so this is roughly 10^284 copies of everything humanity has ever stored.
+The quettabyte ($10^{30}$ bytes) is the largest unit SI has a name for, and the
+table is still $10^{277}$ of them. All digital data on Earth today is about $10^{23}$
+bytes, so this is roughly $10^{284}$ copies of everything humanity has ever stored.
 
 A smaller case makes the method clearer. Storing every AES-128 key takes
-2^128 × 16 ≈ 10^39 bytes — about 10^18 zettabytes, or 10^16 times all the data on
+$2^{128} \times 16 \approx 10^{39}$ bytes — about $10^{18}$ zettabytes, or $10^{16}$ times all the data on
 Earth. And AES-128 is the *easy* end of the table above.
 
 ### Why time doesn't save you either
 
-Brute force is the time-side version of the same problem. To search a 2^128 key
-space, even a billion machines each testing a trillion keys per second (10^21
-keys/s total) would need 2^128 / 10^21 ≈ 3 × 10^17 seconds, about 10^10 years —
+Brute force is the time-side version of the same problem. To search a $2^{128}$ key
+space, even a billion machines each testing a trillion keys per second ($10^{21}$
+keys/s total) would need $2^{128} / 10^{21} \approx 3 \times 10^{17}$ seconds, about $10^{10}$ years —
 roughly the age of the universe, and that is the *small* case. AES-256, ECC-256,
 and RSA-2048 all sit far beyond it.
 
@@ -93,16 +93,16 @@ can absolutely precompute hashes and look passwords up. Tools that do exactly
 this are common: dictionary tables, rainbow tables, and online hash-lookup sites.
 
 Why does it work here but not for keys? Because passwords are not random. A
-256-bit key has 2^256 ≈ 10^77 equally likely values. Real passwords come from a
+256-bit key has $2^{256} \approx 10^{77}$ equally likely values. Real passwords come from a
 tiny, predictable space — dictionary words, names, dates, and leaked password
-lists — realistically 10^10 to 10^12 candidates. That many hashes fit on an
+lists — realistically $10^{10}$ to $10^{12}$ candidates. That many hashes fit on an
 ordinary disk and can be computed once and reused forever. The hash function is
 fine; the input space is small.
 
 **Defense 1 — salt.** A salt is a unique random value stored with each hash and
 mixed in before hashing: `SHA-256(salt + password)`. With a unique salt per
 user, a precomputed table is useless, because the attacker would need a separate
-table for every possible salt. A 128-bit salt means 2^128 of them — back to
+table for every possible salt. A 128-bit salt means $2^{128}$ of them — back to
 impossible. Salting doesn't make cracking one chosen hash much harder; it kills
 the "compute once, crack everyone" economics.
 

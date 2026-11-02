@@ -150,11 +150,11 @@ the brink of a revolution in cryptography." It contained:
 
 ### How the key exchange works
 
-Alice and Bob agree in public on a large prime *p* and a number *g*. Alice
-picks a secret *a* and sends *g^a* mod *p*; Bob picks a secret *b* and sends
-*g^b* mod *p*. Each raises what they received to their own secret power,
-and both get *g^ab* mod *p*. An eavesdropper sees *g^a* and *g^b* but, as far
-as anyone knows, can only get *g^ab* by finding *a* or *b*, the *discrete
+Alice and Bob agree in public on a large prime $p$ and a number $g$. Alice
+picks a secret $a$ and sends $g^a \bmod p$; Bob picks a secret $b$ and sends
+$g^b \bmod p$. Each raises what they received to their own secret power,
+and both get $g^{ab} \bmod p$. An eavesdropper sees $g^a$ and $g^b$ but, as far
+as anyone knows, can only get $g^{ab}$ by finding $a$ or $b$, the *discrete
 logarithm problem*. With a 2048-bit prime that is far out of reach. With a
 small prime it is easy, as this toy shows.
 
@@ -197,14 +197,14 @@ months. In April 1977, after a Passover evening at a student's home, Rivest
 couldn't sleep, worked through the night, and by morning had written up a
 scheme based on multiplying two large primes. Adleman couldn't break it.
 
-**RSA** works like this. Pick two large primes *p* and *q* and multiply
-them to get *n*. Choose a public exponent *e*, and compute a private
-exponent *d* that undoes it, which is easy only if you know *p* and *q*. To
-encrypt *m*, compute *m^e* mod *n*; to decrypt, raise the result to *d*.
-Reversing the process without *d* seems to require factoring *n*, and
+**RSA** works like this. Pick two large primes $p$ and $q$ and multiply
+them to get $n$. Choose a public exponent $e$, and compute a private
+exponent $d$ that undoes it, which is easy only if you know $p$ and $q$. To
+encrypt $m$, compute $m^e \bmod n$; to decrypt, raise the result to $d$.
+Reversing the process without $d$ seems to require factoring $n$, and
 factoring a product of two 300-digit primes is beyond any known method.
-The same keys give signatures: raise a message to *d* to sign it, and
-anyone can check it by raising the signature to *e*.
+The same keys give signatures: raise a message to $d$ to sign it, and
+anyone can check it by raising the signature to $e$.
 
 ```python
 from math import gcd
@@ -245,7 +245,7 @@ The idea reached the public in Martin Gardner's "Mathematical Games"
 column in *Scientific American* in August 1977, under the title "A new
 kind of cipher that would take millions of years to break". The column
 printed a challenge: a message encrypted with a 129-digit modulus, with
-$100 from the inventors to whoever read it. The column quoted Rivest's
+\$100 from the inventors to whoever read it. The column quoted Rivest's
 estimate that factoring a 125-digit number with the best methods of the
 day would take 40 quadrillion years; Rivest later said he didn't recall
 how that figure was reached. Thousands of readers wrote in for the technical memo, which went
@@ -342,7 +342,7 @@ The late 1970s and 1980s turned the two discoveries into a toolkit.
 In 1985 Neal Koblitz at the University of Washington and Victor Miller at
 IBM independently proposed doing Diffie–Hellman and similar schemes in the
 group of points on an *elliptic curve* over a finite field, instead of in
-the numbers mod *p*. Hendrik Lenstra's new factoring method, which used
+the numbers mod $p$. Hendrik Lenstra's new factoring method, which used
 elliptic curves, had just shown how useful the curves could be.
 
 The point was size. The best attacks on the elliptic-curve discrete
@@ -459,9 +459,9 @@ computer, which is the story of the [last page](10-Quantum-and-Post-Quantum.md).
 |---|---|---|
 | Merkle's puzzles | yes, for any practical size | The attacker's work is only the square of the users'. Buy a million times more computers than the users have and you keep up with puzzles a thousand times harder. |
 | Diffie–Hellman, 2048 bits and up | no | Taking discrete logarithms modulo a 2048-bit prime is out of reach. The 512-bit "export" size fell in 2015 (Logjam): one big precomputation per prime, then each connection in minutes. |
-| RSA, 2048 bits and up | no | Factoring is the known way in, and the record is 829 bits (RSA-250, 2020, about 2,700 core-years). A 512-bit key cost under four hours and about $75 of rented cloud computing in 2015. |
+| RSA, 2048 bits and up | no | Factoring is the known way in, and the record is 829 bits (RSA-250, 2020, about 2,700 core-years). A 512-bit key cost under four hours and about \$75 of rented cloud computing in 2015. |
 | Cocks's and Williamson's GCHQ versions | the same as RSA and Diffie–Hellman | They are the same mathematics. |
-| Elliptic curves, 256 bits | no | The best attack, Pollard's rho, needs about 2¹²⁸ steps. Records stop near 117 bits. |
+| Elliptic curves, 256 bits | no | The best attack, Pollard's rho, needs about $2^{128}$ steps. Records stop near 117 bits. |
 | BassOmatic (PGP 1.0) | yes | Biham soon showed it weak, and PGP 2.0 replaced it with IDEA. |
 | Clipper's escrow | bypassed | Its 16-bit check meant about 65,000 tries made a fake escrow field: Blaze's 1994 attack. Skipjack itself held, apart from reduced-round attacks. |
 | Toy keys of any kind | instantly | See below. |
@@ -503,7 +503,7 @@ Output:
 b'OSSIFRAG'
 ```
 
-The same steps on a 2048-bit key would need about 2⁵¹² rho steps, and
+The same steps on a 2048-bit key would need about $2^{512}$ rho steps, and
 the best real method, the number field sieve, still needs far more than
 all the computers on Earth could do. That gap, from instant to
 impossible as the numbers grow, is what public-key cryptography rests

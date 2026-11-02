@@ -13,7 +13,7 @@ New readers can start with [History](history/index.md), which tells how these
 algorithms came to be, from Caesar's cipher to post-quantum keys.
 
 **Columns:** *Size* is the key, output or group size (B means bytes).
-*Security* is the classical strength in bits: about 2ⁿ work to break it, so
+*Security* is the classical strength in bits: about $2^n$ work to break it, so
 RSA-2048 at 112 is weaker than X25519 at 128. For post-quantum rows it is the
 AES-equivalent of the NIST category. *Released* is the year the algorithm first
 appeared. *Standard* is the RFC, FIPS or other document that defines it.
@@ -60,7 +60,7 @@ combine the two secrets, so the session stays safe if either one breaks.
 | | PKCS#1 v1.5 | 2048–4096-bit key | 112–140 | RFC 2313 (1998), RFC 8017 (2016) | 1993 | NIST IR 8547: 2030 / 2035 | Acceptable |
 | | RSA with SHA-1 | 160-bit digest | ~63 | RFC 3279 (2002) | 1995 | NIST SP 800-131A (after 2013); OpenSSH 8.8 (2021) | Broken |
 | | keys under 2048 bits | 1024-bit key | 80 | — | — | NIST SP 800-131A (after 2013) | Broken |
-| [DSA](02-signatures/DSA.md) | DSA | 2048–3072-bit p | 112–128 | FIPS 186 (1994) | 1991 | FIPS 186-5 (2023); OpenSSH 10 (2025) | Legacy |
+| [DSA](02-signatures/DSA.md) | DSA | 2048–3072-bit $p$ | 112–128 | FIPS 186 (1994) | 1991 | FIPS 186-5 (2023); OpenSSH 10 (2025) | Legacy |
 | [ECDSA](02-signatures/ECDSA.md) | P-256/384/521 | 256 / 384 / 521-bit key | 128 / 192 / 256 | ANSI X9.62 (1999), FIPS 186-2 (2000) | 1992 | NIST IR 8547: 2030 / 2035 | Acceptable |
 | | deterministic ECDSA | 256 / 384 / 521-bit key | 128 / 192 / 256 | RFC 6979 (2013) | 2013 | NIST IR 8547: 2030 / 2035 | Recommended |
 | | secp256k1 | 256-bit key | 128 | SEC 2 (2000) | 2000 | — | Acceptable |
@@ -168,7 +168,7 @@ Keyed BLAKE2 and BLAKE3 also work as MACs; see BLAKE under hash functions.
 | | X9.63 KDF | any output length | — | ANSI X9.63 (2001) | 2001 | — | Acceptable |
 | [Argon2](08-kdf-password-hashing/Argon2.md) | Argon2id | any output, 19 MiB+ memory | — | RFC 9106 (2021) | 2015 | — | Recommended |
 | | Argon2i / Argon2d | any output, set memory | — | RFC 9106 (2021) | 2015 | — | Acceptable |
-| [scrypt](08-kdf-password-hashing/scrypt.md) | scrypt | any output, 128·N·r B memory | — | RFC 7914 (2016) | 2009 | — | Recommended |
+| [scrypt](08-kdf-password-hashing/scrypt.md) | scrypt | any output, $128 \cdot N \cdot r$ B memory | — | RFC 7914 (2016) | 2009 | — | Recommended |
 | | yescrypt | 256-bit output | — | — | 2015 | — | Acceptable |
 | [bcrypt](08-kdf-password-hashing/bcrypt.md) | bcrypt | 184-bit hash, 72 B input max | — | — | 1999 | — | Acceptable |
 | [PBKDF](08-kdf-password-hashing/PBKDF2.md) | PBKDF2 | any output (keep ≤ hash size) | — | RFC 2898 (2000), RFC 8018 (2017), SP 800-132 (2010) | 2000 | — | Acceptable |

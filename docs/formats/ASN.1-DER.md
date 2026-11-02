@@ -65,12 +65,12 @@ and DER write each value as tag, length, value (TLV):
    length bytes. `80` alone is indefinite, ended by `00 00`: BER only.
 3. **Value.** INTEGER is two's complement in the fewest bytes, so 127 is
    `02 01 7f` and 128 is `02 02 00 80`. RSA-4096 moduli take 513 bytes, and
-   ECDSA's r and s each gain a `00` half the time, so 400 P-256 signatures
+   ECDSA's $r$ and $s$ each gain a `00` half the time, so 400 P-256 signatures
    here ran from 69 to 72 bytes, mostly 71.
-   [JWT](../protocols/JWT.md) and [DNSSEC](../protocols/DNSSEC.md) send r and s raw, 64 bytes.
+   [JWT](../protocols/JWT.md) and [DNSSEC](../protocols/DNSSEC.md) send $r$ and $s$ raw, 64 bytes.
 4. **OIDs** name algorithms, attributes and extensions in one global tree. The
-   first two arcs share a byte, 40·X + Y; later arcs are base 128, top bit set
-   on all but the last byte: `2a 86 48 86 f7 0d …` is 1.2 (42), 840 (6·128 + 72), …
+   first two arcs share a byte, $40 \cdot X + Y$; later arcs are base 128, top bit set
+   on all but the last byte: `2a 86 48 86 f7 0d …` is 1.2 (42), 840 ($6 \cdot 128 + 72$), …
 
 | OID | Bytes after `06 len` | Name | Defined in |
 |---|---|---|---|

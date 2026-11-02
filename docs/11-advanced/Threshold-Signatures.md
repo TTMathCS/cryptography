@@ -1,6 +1,6 @@
 # Threshold signatures
 
-*Any t of n key holders sign together and the key is never rebuilt. Out
+*Any $t$ of $n$ key holders sign together and the key is never rebuilt. Out
 comes one ordinary signature under one public key.*
 
 **Status and standards:** see [Advanced primitives](../index.md#11-advanced-primitives) in the main table.
@@ -9,9 +9,9 @@ comes one ordinary signature under one public key.*
 
 [Secret sharing](Secret-Sharing.md) protects a key at rest, but the key
 comes back together every time it's used. A threshold scheme keeps it split:
-each signer works only with its share, and any t of them produce a
+each signer works only with its share, and any $t$ of them produce a
 signature that checks under the group's single public key. A verifier
-can't tell it from a normal signature, and a thief needs t shares, not one.
+can't tell it from a normal signature, and a thief needs $t$ shares, not one.
 
 - **FROST** (Komlo and Goldberg, SAC 2020) for Schnorr signatures. RFC 9591
   (June 2024, from the IRTF's CFRG) defines it for ristretto255, Ed25519,
@@ -34,29 +34,29 @@ standard has come out of it yet.
 
 ### FROST
 
-The shares `xᵢ` of a Schnorr key x come from a trusted dealer (RFC 9591,
+The shares $x_i$ of a Schnorr key $x$ come from a trusted dealer (RFC 9591,
 Appendix C) or from distributed key generation, where each participant
 deals shares of its own random secret, with Feldman commitments and a
-Schnorr proof that it knows the secret. Signing by a set S of t or more:
+Schnorr proof that it knows the secret. Signing by a set $S$ of $t$ or more:
 
-1. **Round 1:** each signer i picks two nonces `dᵢ, eᵢ` and publishes
-   `Dᵢ = g^dᵢ` and `Eᵢ = g^eᵢ`. This can be done ahead of time.
-2. **Round 2:** the coordinator sends the message m and the list B of
-   commitments. Each signer computes binding factors `ρⱼ = H(P, m, B, j)`,
-   the group commitment `R = Π Dⱼ·Eⱼ^ρⱼ`, the challenge `c = H(R, P, m)`,
-   and its share `zᵢ = dᵢ + eᵢ·ρᵢ + λᵢ·xᵢ·c`, where `λᵢ` is its Lagrange
-   coefficient for S.
-3. **Aggregate:** `z = Σ zᵢ`. Then `(R, z)` is a plain Schnorr signature:
-   `g^z = R·P^c`.
+1. **Round 1:** each signer $i$ picks two nonces $d_i, e_i$ and publishes
+   $D_i = g^{d_i}$ and $E_i = g^{e_i}$. This can be done ahead of time.
+2. **Round 2:** the coordinator sends the message $m$ and the list $B$ of
+   commitments. Each signer computes binding factors $\rho_j = H(P, m, B, j)$,
+   the group commitment $R = \prod_j D_j \cdot E_j^{\rho_j}$, the challenge $c = H(R, P, m)$,
+   and its share $z_i = d_i + e_i \cdot \rho_i + \lambda_i \cdot x_i \cdot c$, where $\lambda_i$ is its Lagrange
+   coefficient for $S$.
+3. **Aggregate:** $z = \sum_i z_i$. Then $(R, z)$ is a plain Schnorr signature:
+   $g^z = R \cdot P^c$.
 
-The second nonce and ρ are FROST's main idea. With one nonce each, an
+The second nonce and $\rho$ are FROST's main idea. With one nonce each, an
 attacker running many sessions at once can choose its nonces after seeing
 the others' and forge (Drijvers et al., 2019, on two-round
-multi-signatures). ρ ties every nonce to one message and one commitment list.
+multi-signatures). $\rho$ ties every nonce to one message and one commitment list.
 
 ### Threshold ECDSA
 
-ECDSA's `s = k⁻¹·(H(m) + r·x)` multiplies two secrets. Shares add but
+ECDSA's $s = k^{-1} \cdot (H(m) + r \cdot x)$ multiplies two secrets. Shares add but
 don't multiply, so the signers must turn shares of two values into shares
 of their product. GG18 and CGGMP do it with Paillier encryption and
 zero-knowledge proofs that each party's numbers are in range. That means
@@ -65,10 +65,10 @@ names the cheater when a run fails.
 
 ### BLS
 
-A BLS signature is `σ = x·H(m)`, a curve point, checked with a pairing:
-`e(g, σ) = e(P, H(m))`. It is deterministic and linear, so threshold BLS
-needs no extra rounds: each signer sends `xᵢ·H(m)`, and anyone with t of
-them combines them with Lagrange coefficients into the σ the whole key
+A BLS signature is $\sigma = x \cdot H(m)$, a curve point, checked with a pairing:
+$e(g, \sigma) = e(P, H(m))$. It is deterministic and linear, so threshold BLS
+needs no extra rounds: each signer sends $x_i \cdot H(m)$, and anyone with $t$ of
+them combines them with Lagrange coefficients into the $\sigma$ the whole key
 would give (Boldyreva, PKC 2003).
 
 BLS signatures from different keys also add into one point. Ethereum's
@@ -97,7 +97,7 @@ under 128.
 The shape of FROST in the 2048-bit group from
 [Diffie-Hellman](../01-key-exchange/Diffie-Hellman.md): a dealer makes 2-of-3
 shares, signers 1 and 3 sign, and the result checks as a plain Schnorr
-signature under P. The hashing is made up for the demo; RFC 9591 fixes the
+signature under $P$. The hashing is made up for the demo; RFC 9591 fixes the
 encodings for each ciphersuite, and real code uses an audited library.
 
 ```python
@@ -143,7 +143,7 @@ print(pow(g, s, p) == R * pow(P, c, p) % p)   # True: a plain Schnorr check on (
 - **Never reuse a nonce pair.** RFC 9591 makes each signer delete its
   nonces after one signing. A few signings with the same pair give away
   the share by plain algebra, as with [Schnorr](../02-signatures/Schnorr.md).
-- **FROST isn't robust.** One silent signer stops the run. A bad `zᵢ` can
+- **FROST isn't robust.** One silent signer stops the run. A bad $z_i$ can
   be traced, a refusal can't; ROAST wraps FROST to try other subsets.
 - **Threshold ECDSA is easy to get wrong.** In 2023 Makriyannis, Yomtov and
   Galansky showed key-extraction attacks on several popular implementations:
@@ -163,60 +163,62 @@ Each part below starts closed; open the ones you want.
 
 ??? example "Sample calculation: a 2-of-3 Schnorr signature mod 23"
 
-    The subgroup of order `q = 11` in the numbers mod `p = 23`, generated by `g = 2`. This is a simplified
+    The subgroup of order $q = 11$ in the numbers mod $p = 23$, generated by $g = 2$. This is a simplified
     round with one nonce per signer (FROST adds a second nonce and a binding factor). The challenge stands
     in for a hash; the rest is checked with Python:
 
     | Step | Calculation | Value |
     |---|---|---|
-    | Key and shares | `x = 7`, line `7 + 3i mod 11` | x₁ = 10, x₂ = 2, x₃ = 5 |
-    | Public key | `P = 2⁷ mod 23` | 13 |
-    | Signers 1 and 3: Lagrange | `λ₁ = 3/(3 − 1)`, `λ₃ = 1/(1 − 3)` mod 11 | λ₁ = 7, λ₃ = 5 |
-    | Nonces | `k₁ = 4`, `k₃ = 9`: `R₁ = 2⁴`, `R₃ = 2⁹` mod 23 | R₁ = 16, R₃ = 6 |
-    | Group commitment | `R = 16 · 6 mod 23` | 4 |
-    | Challenge | `c = H(R, P, m) mod 11`, say | 5 |
-    | Shares of z | `z₁ = 4 + 7·10·5`, `z₃ = 9 + 5·5·5` mod 11 | z₁ = 2, z₃ = 2 |
-    | Signature | `z = 2 + 2` | (R, z) = (4, 4) |
-    | Verify | `2⁴ = 16`; `R · P⁵ = 4 · 4 mod 23` | 16 = 16: valid |
+    | Key and shares | $x = 7$, line $7 + 3i \bmod 11$ | $x_1 = 10$, $x_2 = 2$, $x_3 = 5$ |
+    | Public key | $P = 2^7 \bmod 23$ | 13 |
+    | Signers 1 and 3: Lagrange | $\lambda_1 = 3/(3 - 1)$, $\lambda_3 = 1/(1 - 3)$ mod 11 | $\lambda_1 = 7$, $\lambda_3 = 5$ |
+    | Nonces | $k_1 = 4$, $k_3 = 9$: $R_1 = 2^4$, $R_3 = 2^9$ mod 23 | $R_1 = 16$, $R_3 = 6$ |
+    | Group commitment | $R = 16 \cdot 6 \bmod 23$ | 4 |
+    | Challenge | $c = H(R, P, m) \bmod 11$, say | 5 |
+    | Shares of $z$ | $z_1 = 4 + 7 \cdot 10 \cdot 5$, $z_3 = 9 + 5 \cdot 5 \cdot 5$ mod 11 | $z_1 = 2$, $z_3 = 2$ |
+    | Signature | $z = 2 + 2$ | $(R, z) = (4, 4)$ |
+    | Verify | $2^4 = 16$; $R \cdot P^5 = 4 \cdot 4 \bmod 23$ | $16 = 16$: valid |
 
-    Neither signer ever held x = 7, yet `λ₁x₁ + λ₃x₃ = 70 + 25 = 95 ≡ 7 (mod 11)`.
+    Neither signer ever held $x = 7$, yet $\lambda_1 x_1 + \lambda_3 x_3 = 70 + 25 = 95 \equiv 7 \pmod{11}$.
 
 ??? abstract "The math, with formulas"
 
-    For a signing set S, with shares `xᵢ` of x and `P = gˣ`:
+    For a signing set $S$, with shares $x_i$ of $x$ and $P = g^x$:
 
-    ```
-    x       = Σ (i in S) λᵢ · xᵢ   (mod q)          Lagrange at 0, never computed
-    R       = Π (i in S) Rᵢ,       Rᵢ = g^kᵢ
-    zᵢ      = kᵢ + λᵢ · xᵢ · c     (mod q),         c = H(R, P, m)
-    z       = Σ zᵢ,                check  g^z = R · P^c
-    ```
+    $$
+    \begin{aligned}
+    x &= \sum_{i \in S} \lambda_i \cdot x_i \pmod{q} && \text{Lagrange at 0, never computed} \\
+    R &= \prod_{i \in S} R_i, \quad R_i = g^{k_i} \\
+    z_i &= k_i + \lambda_i \cdot x_i \cdot c \pmod{q}, && c = H(R, P, m) \\
+    z &= \sum_i z_i, && \text{check } g^z = R \cdot P^c
+    \end{aligned}
+    $$
 
-    - **Why the sum works:** `Σ zᵢ = Σ kᵢ + c · Σ λᵢxᵢ = k + c·x`, a plain Schnorr response.
-    - **Checking one signer:** `g^zᵢ = Rᵢ · (g^xᵢ)^(λᵢc)`, so a bad share can be traced to its sender.
-    - **FROST (RFC 9591):** `Rᵢ = Dᵢ · Eᵢ^ρᵢ` with `ρᵢ = H(P, m, B, i)`, so each nonce is bound to this message
+    - **Why the sum works:** $\sum z_i = \sum k_i + c \cdot \sum \lambda_i x_i = k + c \cdot x$, a plain Schnorr response.
+    - **Checking one signer:** $g^{z_i} = R_i \cdot (g^{x_i})^{\lambda_i c}$, so a bad share can be traced to its sender.
+    - **FROST (RFC 9591):** $R_i = D_i \cdot E_i^{\rho_i}$ with $\rho_i = H(P, m, B, i)$, so each nonce is bound to this message
       and this list of commitments.
-    - **Threshold BLS:** `σ = Σ λᵢ · (xᵢ·H(m))`, the same Lagrange step done on curve points.
+    - **Threshold BLS:** $\sigma = \sum \lambda_i \cdot (x_i \cdot H(m))$, the same Lagrange step done on curve points.
 
 ??? tip "Watch it step by step: two holders, one signature"
 
     <div class="mars-steps" markdown>
 
-    1. The dealer draws the line `7 + 3i mod 11` and hands out 10, 2 and 5. The public key is `2⁷ = 13`.
+    1. The dealer draws the line $7 + 3i \bmod 11$ and hands out 10, 2 and 5. The public key is $2^7 = 13$.
     2. Holders 1 and 3 will sign. Their Lagrange weights are 7 and 5.
-    3. Each picks a nonce, 4 and 9, and publishes 16 and 6. Their product, 4, is R.
-    4. The challenge for this message is c = 5.
-    5. Holder 1 sends 2 and holder 3 sends 2. The coordinator adds them: z = 4.
-    6. Anyone checks `2⁴ = 16 = 4 · 13⁵ mod 23`. It looks like a signature from one key.
+    3. Each picks a nonce, 4 and 9, and publishes 16 and 6. Their product, 4, is $R$.
+    4. The challenge for this message is $c = 5$.
+    5. Holder 1 sends 2 and holder 3 sends 2. The coordinator adds them: $z = 4$.
+    6. Anyone checks $2^4 = 16 = 4 \cdot 13^5 \bmod 23$. It looks like a signature from one key.
 
     </div>
 
 ??? info "The math underneath"
 
     - **Shamir sharing and Lagrange interpolation:** see [secret sharing](Secret-Sharing.md).
-    - **Interpolation in the exponent:** because `g^(a+b) = gᵃ·gᵇ`, a linear formula on shares also works on
-      their public values, which is why Schnorr and BLS split easily and ECDSA's `k⁻¹` does not.
-    - **Discrete log** keeps x hidden behind P: [hard problems](../10-math-foundations/Hard-Problems.md).
+    - **Interpolation in the exponent:** because $g^{a+b} = g^a \cdot g^b$, a linear formula on shares also works on
+      their public values, which is why Schnorr and BLS split easily and ECDSA's $k^{-1}$ does not.
+    - **Discrete log** keeps $x$ hidden behind $P$: [hard problems](../10-math-foundations/Hard-Problems.md).
     - **Schnorr signatures** as the target format: [Schnorr](../02-signatures/Schnorr.md).
     - **Zero-knowledge proofs** in key generation show each dealer knows its secret:
       [zero-knowledge proofs](Zero-Knowledge.md).

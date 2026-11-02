@@ -182,7 +182,7 @@ same settings are used again. The rotor windows show a quirk of the
 mechanism: when the middle rotor reaches its own turnover point it steps
 again on the next key press, so it moves twice in a row (AEW, then BFX).
 
-The last number, about 1.6 × 10²⁰ daily keys, is why the Germans trusted
+The last number, about $1.6 \times 10^{20}$ daily keys, is why the Germans trusted
 Enigma. Even a machine testing a million keys a second would need five
 million years to try them all. But as on the
 [Arab cryptanalysis](02-Arab-Cryptanalysis.md#why-a-huge-key-space-didnt-help)

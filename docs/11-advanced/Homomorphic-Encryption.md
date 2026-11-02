@@ -16,7 +16,7 @@ the product of the messages.
 - **Additive schemes** do one operation, as often as you like. In
   **Paillier** (EUROCRYPT '99), multiplying ciphertexts adds the messages;
   it rests on the decisional composite residuosity problem.
-  **Exponential ElGamal** encrypts `gᵐ`, so multiplying adds, but
+  **Exponential ElGamal** encrypts $g^m$, so multiplying adds, but
   decryption ends in a discrete log and only small totals come back (see
   [ElGamal](../03-public-key-encryption/ElGamal.md)). ISO/IEC 18033-6
   (2019) specifies both.
@@ -42,15 +42,15 @@ FDIS ballot in September 2026.
 
 ### Paillier
 
-Take primes p and q, `n = pq`, `λ = lcm(p − 1, q − 1)` and `μ = λ⁻¹ mod n`.
+Take primes $p$ and $q$, $n = pq$, $\lambda = \operatorname{lcm}(p - 1, q - 1)$ and $\mu = \lambda^{-1} \bmod n$.
 
-- **Encrypt:** `c = (n + 1)ᵐ · rⁿ mod n²`, with a fresh random r.
-- **Decrypt:** `m = L(c^λ mod n²) · μ mod n`, where `L(u) = (u − 1) / n`.
-- **Why it adds:** `(n + 1)ᵐ = 1 + m·n mod n²`, so exponents add when
-  ciphertexts multiply. The random parts multiply into another `rⁿ`, which
-  raising to λ wipes out. `c^k` encrypts `k·m`.
+- **Encrypt:** $c = (n + 1)^m \cdot r^n \bmod n^2$, with a fresh random $r$.
+- **Decrypt:** $m = L(c^\lambda \bmod n^2) \cdot \mu \bmod n$, where $L(u) = (u - 1) / n$.
+- **Why it adds:** $(n + 1)^m = 1 + m \cdot n \bmod n^2$, so exponents add when
+  ciphertexts multiply. The random parts multiply into another $r^n$, which
+  raising to $\lambda$ wipes out. $c^k$ encrypts $k \cdot m$.
 
-Two Paillier ciphertexts can't be multiplied together. A 2048-bit n gives
+Two Paillier ciphertexts can't be multiplied together. A 2048-bit $n$ gives
 4096-bit ciphertexts.
 
 ### Lattice schemes and noise
@@ -112,7 +112,7 @@ computation](MPC.md) is often faster. FHE needs only one round.
 ## Example (Python)
 
 Paillier with the [Mersenne primes](../10-math-foundations/Mersenne-Primes.md)
-2^61 − 1 and 2^89 − 1, so n has 150 bits. Real moduli are 2048 bits or
+$2^{61} - 1$ and $2^{89} - 1$, so $n$ has 150 bits. Real moduli are 2048 bits or
 more, from random primes.
 
 ```python
@@ -155,8 +155,8 @@ print(dec(total))                       # 4
   recovered the secret key from decrypted CKKS results in HEAAN, SEAL,
   HElib and PALISADE. Don't show CKKS outputs to the party that computed
   them unless noise is added first.
-- **Fresh r in Paillier.** Two ciphertexts with the same r give
-  `c₁ / c₂ = (n + 1)^(m₁ − m₂)`, so anyone can read the difference.
+- **Fresh $r$ in Paillier.** Two ciphertexts with the same $r$ give
+  $c_1 / c_2 = (n + 1)^{m_1 - m_2}$, so anyone can read the difference.
 - **The output can leak the function** through its noise. If the function
   is secret, add fresh noise before sending the result back.
 - Paillier and exponential ElGamal fall to Shor's algorithm. The lattice
@@ -168,59 +168,61 @@ Each part below starts closed; open the ones you want.
 
 ??? example "Sample calculation: Paillier with p = 5 and q = 7"
 
-    n = 35, n² = 1225, `λ = lcm(4, 6) = 12`, and `μ = 12⁻¹ mod 35 = 3` (since 12 · 3 = 36 ≡ 1).
-    Encrypt a = 5 with r = 2 and b = 8 with r = 3. Each r must share no factor with n.
+    $n = 35$, $n^2 = 1225$, $\lambda = \operatorname{lcm}(4, 6) = 12$, and $\mu = 12^{-1} \bmod 35 = 3$ (since $12 \cdot 3 = 36 \equiv 1$).
+    Encrypt $a = 5$ with $r = 2$ and $b = 8$ with $r = 3$. Each $r$ must share no factor with $n$.
 
     | Step | Calculation | Value mod 1225 |
     |---|---|---|
-    | Encrypt 5 | `36⁵ = 176`, `2³⁵ = 18`, `c_a = 176 · 18` | 718 |
-    | Encrypt 8 | `36⁸ = 281`, `3³⁵ = 607`, `c_b = 281 · 607` | 292 |
-    | Multiply ciphertexts | `c = 718 · 292` | 181 |
-    | Decrypt: power | `181¹²` | 561 |
-    | Decrypt: L | `(561 − 1) / 35` | 16 |
-    | Decrypt: times μ | `16 · 3 mod 35` | **13 = 5 + 8** |
+    | Encrypt 5 | $36^5 = 176$, $2^{35} = 18$, $c_a = 176 \cdot 18$ | 718 |
+    | Encrypt 8 | $36^8 = 281$, $3^{35} = 607$, $c_b = 281 \cdot 607$ | 292 |
+    | Multiply ciphertexts | $c = 718 \cdot 292$ | 181 |
+    | Decrypt: power | $181^{12}$ | 561 |
+    | Decrypt: $L$ | $(561 - 1) / 35$ | 16 |
+    | Decrypt: times $\mu$ | $16 \cdot 3 \bmod 35$ | **$13 = 5 + 8$** |
 
-    The product 181 is exactly the encryption of 13 with r = 2 · 3 = 6. The server that multiplied 718
-    by 292 never saw 5, 8 or 13. Raising `c_a` to the power 3 gives 232, which decrypts to 15 = 3 · 5.
-    Note `36ᵐ = 1 + 35m` mod 1225: `36⁵ = 176 = 1 + 5 · 35` and `36⁸ = 281 = 1 + 8 · 35`.
+    The product 181 is exactly the encryption of 13 with $r = 2 \cdot 3 = 6$. The server that multiplied 718
+    by 292 never saw 5, 8 or 13. Raising $c_a$ to the power 3 gives 232, which decrypts to $15 = 3 \cdot 5$.
+    Note $36^m = 1 + 35m \pmod{1225}$: $36^5 = 176 = 1 + 5 \cdot 35$ and $36^8 = 281 = 1 + 8 \cdot 35$.
 
 ??? abstract "The math, with formulas"
 
-    ```
-    Keys:     n = pq,  λ = lcm(p − 1, q − 1),  μ = λ⁻¹ mod n
-    Encrypt:  c = (n + 1)^m · r^n  mod n²
-    Decrypt:  m = L(c^λ mod n²) · μ  mod n,    L(u) = (u − 1) / n
-    Add:      E(m₁) · E(m₂) = E(m₁ + m₂)        Scale:  E(m)^k = E(k·m)
-    ```
+    $$
+    \begin{aligned}
+    &\text{Keys:} && n = pq,\quad \lambda = \operatorname{lcm}(p - 1, q - 1),\quad \mu = \lambda^{-1} \bmod n \\
+    &\text{Encrypt:} && c = (n + 1)^m \cdot r^n \bmod n^2 \\
+    &\text{Decrypt:} && m = L(c^\lambda \bmod n^2) \cdot \mu \bmod n, \qquad L(u) = (u - 1) / n \\
+    &\text{Add:} && E(m_1) \cdot E(m_2) = E(m_1 + m_2) \qquad \text{Scale: } E(m)^k = E(k \cdot m)
+    \end{aligned}
+    $$
 
-    - **Binomial theorem:** `(1 + n)^m = 1 + m·n mod n²`, because every later term has n² in it. So
+    - **Binomial theorem:** $(1 + n)^m = 1 + m \cdot n \bmod n^2$, because every later term has $n^2$ in it. So
       the message sits in the exponent, and exponents add when ciphertexts multiply.
-    - **Removing r:** for r coprime to n, `r^(n·λ) ≡ 1 mod n²`. Raising c to λ wipes out the random
-      part and leaves `1 + m·λ·n`, which L and μ turn back into m.
-    - **Lattice schemes** add instead of multiply: a ciphertext is about `(a, a·s + e + Δ·m)`, and
-      adding two adds both the messages and the noises e.
-    - **Noise budget:** decryption works while the total noise stays under about Δ/2. Multiplying
+    - **Removing $r$:** for $r$ coprime to $n$, $r^{n \lambda} \equiv 1 \pmod{n^2}$. Raising $c$ to $\lambda$ wipes out the random
+      part and leaves $1 + m \lambda n$, which $L$ and $\mu$ turn back into $m$.
+    - **Lattice schemes** add instead of multiply: a ciphertext is about $(a,\, a \cdot s + e + \Delta \cdot m)$, and
+      adding two adds both the messages and the noises $e$.
+    - **Noise budget:** decryption works while the total noise stays under about $\Delta/2$. Multiplying
       grows it fast, which is why schemes rescale or bootstrap.
 
 ??? tip "Watch it step by step: adding two hidden numbers"
 
     <div class="mars-steps" markdown>
 
-    1. Key: n = 5 · 7 = 35. The private key is λ = 12, with μ = 3.
-    2. Alice encrypts 5 with r = 2: c_a = 718. Bob encrypts 8 with r = 3: c_b = 292.
-    3. The server multiplies: 718 · 292 mod 1225 = 181. It learns nothing about 5 or 8.
+    1. Key: $n = 5 \cdot 7 = 35$. The private key is $\lambda = 12$, with $\mu = 3$.
+    2. Alice encrypts 5 with $r = 2$: $c_a = 718$. Bob encrypts 8 with $r = 3$: $c_b = 292$.
+    3. The server multiplies: $718 \cdot 292 \bmod 1225 = 181$. It learns nothing about 5 or 8.
     4. The key holder raises 181 to the 12th power mod 1225: 561.
-    5. L(561) = (561 − 1) / 35 = 16. Then 16 · 3 mod 35 = 13.
-    6. 13 = 5 + 8. Real keys use a 2048-bit n, so totals can be huge and r can't be guessed.
+    5. $L(561) = (561 - 1) / 35 = 16$. Then $16 \cdot 3 \bmod 35 = 13$.
+    6. $13 = 5 + 8$. Real keys use a 2048-bit $n$, so totals can be huge and $r$ can't be guessed.
 
     </div>
 
 ??? info "The math underneath"
 
-    - **Groups mod n²:** the numbers coprime to n² form a group of size n·φ(n). Paillier's ciphertexts
+    - **Groups mod $n^2$:** the numbers coprime to $n^2$ form a group of size $n \cdot \varphi(n)$. Paillier's ciphertexts
       live there, and its correctness comes from Carmichael's function and the binomial theorem.
-    - **Decisional composite residuosity:** telling an n-th power mod n² from a random number is
-      believed hard. Paillier's semantic security rests on it, and it falls if n can be factored; see
+    - **Decisional composite residuosity:** telling an $n$-th power mod $n^2$ from a random number is
+      believed hard. Paillier's semantic security rests on it, and it falls if $n$ can be factored; see
       [hard problems](../10-math-foundations/Hard-Problems.md).
     - **Learning with errors:** BGV, BFV, CKKS and TFHE rest on it, mostly in its ring form; see
       [lattices](../10-math-foundations/Hard-Problems.md#lattices).

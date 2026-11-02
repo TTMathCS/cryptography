@@ -21,7 +21,7 @@ authentication (Base64), every web address (percent-encoding).
 | Purpose | carry bytes through a text-only channel | keep the content secret | a short fingerprint of the content |
 | Needs a key? | no | yes | no (a MAC adds one) |
 | Can it be undone? | yes, by anyone | only with the key | no, only checked |
-| Size | grows: hex ×2, Base64 ×4/3 | about the same, plus a nonce and tag | fixed, such as 32 bytes for SHA-256 |
+| Size | grows: hex $\times 2$, Base64 $\times 4/3$ | about the same, plus a nonce and tag | fixed, such as 32 bytes for SHA-256 |
 | Example | `TWFycyE=` | AES-GCM output | SHA-256 digest |
 
 Encoding is often used *after* encryption or hashing: the ciphertext or digest is

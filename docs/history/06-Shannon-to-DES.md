@@ -22,7 +22,7 @@ open research community that has run cryptography ever since.
 | 1955–1970 | Boris Hagelin, NSA, CIA | Crypto AG's machines, and then the company, quietly controlled |
 | late 1960s–1971 | Horst Feistel, IBM | the Feistel network; the Lucifer cipher |
 | 1973–1977 | National Bureau of Standards | the call for a cipher; DES published as FIPS 46 |
-| 1977 | Diffie and Hellman | "a $20 million machine could find a DES key in a day" |
+| 1977 | Diffie and Hellman | "a \$20 million machine could find a DES key in a day" |
 | 1977 | *Cryptologia* | the first journal on cryptology in the open |
 | 1981–1982 | CRYPTO, IACR | the first open conference; the research association |
 | 1990–1994 | Biham and Shamir; Matsui; Coppersmith | differential and linear cryptanalysis; IBM explains DES's S-boxes |
@@ -152,13 +152,13 @@ A *block cipher* encrypts a fixed-size block of bits, say 64, under a key.
 Feistel's structure, now called a *Feistel network*, splits the block into
 a left half and a right half and repeats a simple round many times:
 
-1. Feed the right half and a round key into a function *F*.
-2. Combine *F*'s output with the left half using XOR.
+1. Feed the right half and a round key into a function $F$.
+2. Combine $F$'s output with the left half using XOR.
 3. Swap the halves.
 
-The beauty is that *F* never has to be reversible. Decryption is the same
+The beauty is that $F$ never has to be reversible. Decryption is the same
 process with the round keys in reverse order, because each XOR undoes
-itself. Designers can make *F* as tangled as they like, a mix of
+itself. Designers can make $F$ as tangled as they like, a mix of
 substitution boxes and bit shuffles, Shannon's confusion and diffusion,
 without worrying about how to undo it.
 
@@ -211,7 +211,7 @@ ABD29F83FE220067
 
 After one round only one half has been scrambled; from the second round
 on, a one-bit change has spread across the whole block. A real cipher
-also needs a carefully designed *F* and key schedule, which is where all
+also needs a carefully designed $F$ and key schedule, which is where all
 the difficulty lies; a toy like this one has no security analysis behind
 it.
 
@@ -249,7 +249,7 @@ Critics raised two questions from the start.
 **The key was short.** Lucifer had used a 128-bit key in one version; DES
 used 56. In 1977 Whitfield Diffie and Martin Hellman published a design for
 a machine with a million special chips, each testing a million keys a
-second, that would find a DES key in about a day and cost around $20
+second, that would find a DES key in about a day and cost around \$20
 million, a sum within reach of a government. The obvious suspicion was
 that NSA wanted a key it could search but others couldn't. NSA's own
 internal history, Thomas Johnson's *American Cryptology during the Cold
@@ -278,7 +278,7 @@ The answer came in 1990, when Eli Biham and Adi Shamir published
 differences between pairs of plaintexts propagate through a cipher's
 rounds. It broke many ciphers of the time, including Japan's FEAL. Their
 first paper beat brute force only on DES cut down to 15 rounds or fewer;
-in 1992 they reached the full 16 rounds, and even then it needed 2⁴⁷
+in 1992 they reached the full 16 rounds, and even then it needed $2^{47}$
 chosen plaintexts, more than an attacker could realistically get, because
 DES's S-boxes resisted it unusually well.
 
@@ -288,7 +288,7 @@ designed the S-boxes to resist it; after discussions with NSA, it was
 decided to keep the technique secret, and it stayed secret for sixteen
 years. In 1993 Mitsuru Matsui found another general method, *linear
 cryptanalysis*, which DES had not been designed against. His first
-version needed 2⁴⁷ known plaintexts and an improved one 2⁴³, and in 1994
+version needed $2^{47}$ known plaintexts and an improved one $2^{43}$, and in 1994
 he ran the improved attack for real, recovering a key in about 50 days on
 twelve workstations.
 
@@ -326,11 +326,11 @@ Hardware followed the arithmetic. RSA Data Security ran a series of public
 DES challenges. In 1997 a volunteer network of ordinary computers found
 the first key after 96 days. In July 1998 the Electronic Frontier
 Foundation's purpose-built machine, *Deep Crack*, which cost under
-$250,000, found one in 56 hours, and in January 1999, working with
+\$250,000, found one in 56 hours, and in January 1999, working with
 distributed.net's volunteers, in 22 hours and 15 minutes. The
 [hardware page](09-Hardware-and-Engineering.md#deep-crack) tells how the
 machine was built. Each AES-128 key, by contrast, would take that machine about
-10²⁰ years.
+$10^{20}$ years.
 
 DES lived on as **Triple DES**: encrypt, decrypt and encrypt again with
 two or three keys, which IBM's Walter Tuchman proposed in the late 1970s.
@@ -377,7 +377,7 @@ counting; these fall, if at all, to a key too short or a block too small.
 |---|---|---|
 | Crypto AG's rigged machines | yes, by design | The weakness was built in for the CIA and BND to use. Without the design, a customer couldn't know. |
 | Lucifer | yes, in its published forms | Biham and Shamir's differential cryptanalysis breaks the Lucifer variants faster than trying every key. |
-| DES | yes, in hours | Try every one of the 2⁵⁶ keys against one known block. Deep Crack did it in 56 hours in 1998; a rack of FPGA chips, like the public crack.sh service of 2012, takes about a day. |
+| DES | yes, in hours | Try every one of the $2^{56}$ keys against one known block. Deep Crack did it in 56 hours in 1998; a rack of FPGA chips, like the public crack.sh service of 2012, takes about a day. |
 | Triple DES | not by key search | Two or three keys put trying every key out of reach. Its 64-bit block is the problem: after about 32 GB under one key, repeated blocks leak data (the Sweet32 attack, 2016). NIST disallowed it for new encryption after 2023. |
 | FEAL | yes, easily | Differential and linear cryptanalysis need only a handful of chosen or known plaintexts for the 4-round version. |
 | RC4 | yes, in practice | Its keystream is slightly biased, and with enough encryptions of the same secret, the biases reveal it. WEP fell this way; TLS banned RC4 in 2015 (RFC 7465). |

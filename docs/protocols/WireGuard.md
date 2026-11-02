@@ -60,7 +60,7 @@ types. With no menu of algorithms, there is nothing to downgrade.
    confirms the key. Each packet is zero-padded and sealed with
    ChaCha20-Poly1305 under a counter nonce.
 5. **Rotation.** The initiator starts a new handshake once the session is 2
-   minutes old (Rekey-After-Time, 120 s) or has sent 2⁶⁰ messages. After
+   minutes old (Rekey-After-Time, 120 s) or has sent $2^{60}$ messages. After
    180 s (Reject-After-Time) the old keys are refused. New ephemeral keys each
    time give forward secrecy: a key stolen later can't open older traffic.
 

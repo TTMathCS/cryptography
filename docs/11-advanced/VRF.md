@@ -8,10 +8,10 @@ use it to pick leaders, and key directories use it to hide usernames.*
 
 ## What it is
 
-A pseudorandom function `F(k, x)` looks random to anyone without the key
-k, but nobody else can check that a value really is `F(k, x)`. Micali,
+A pseudorandom function $F(k, x)$ looks random to anyone without the key
+$k$, but nobody else can check that a value really is $F(k, x)$. Micali,
 Rabin and Vadhan (FOCS 1999) added a public key: the key holder gives the
-output β with a proof π, and anyone with the public key can check them.
+output $\beta$ with a proof $\pi$, and anyone with the public key can check them.
 RFC 9381 asks for three things:
 
 - **Uniqueness:** each input has only one output that verifies, so the key
@@ -35,32 +35,31 @@ RFC 9380 maps (SSWU for P-256, ELL2 for edwards25519).
 
 ### RSA-FDH-VRF
 
-The key is an RSA key `(n, e, d)` with n k bytes long.
+The key is an RSA key $(n, e, d)$ with $n$ $k$ bytes long.
 
-1. **Prove:** hash the input to k − 1 bytes with MGF1,
-   `m = MGF1(suite ‖ 0x01 ‖ k ‖ n ‖ α)` with k and n written out as bytes,
-   so m is below n. Sign it: `π = m^d mod n`.
-2. **Output:** `β = Hash(suite ‖ 0x02 ‖ π)`.
-3. **Verify:** check `π^e mod n = m` with the public key, then compute β.
+1. **Prove:** hash the input to $k - 1$ bytes with MGF1,
+   $m = \mathrm{MGF1}(\mathit{suite} \,\Vert\, \mathtt{0x01} \,\Vert\, k \,\Vert\, n \,\Vert\, \alpha)$ with $k$ and $n$ written out as bytes,
+   so $m$ is below $n$. Sign it: $\pi = m^d \bmod n$.
+2. **Output:** $\beta = \mathrm{Hash}(\mathit{suite} \,\Vert\, \mathtt{0x02} \,\Vert\, \pi)$.
+3. **Verify:** check $\pi^e \bmod n = m$ with the public key, then compute $\beta$.
 
-For a proper RSA key, m has exactly one e-th root mod n, so each input has
-one π and one β. A bad n or e can break that, so RFC 9381 claims only the
-trusted kinds of uniqueness and collision resistance here.
+For a proper RSA key, $m$ has exactly one $e$-th root mod $n$, so each input has
+one $\pi$ and one $\beta$. A bad $n$ or $e$ can break that, so RFC 9381 claims only the
 
 ### ECVRF
 
-The secret is x and the public key is `Y = x·B` (written additively).
+The secret is $x$ and the public key is $Y = x \cdot B$ (written additively).
 
-1. **Prove:** hash to a point, `H = encode_to_curve(Y, α)`, and set
-   `Γ = x·H`. With a deterministic nonce k (made as in RFC 6979 on P-256,
-   or RFC 8032 on edwards25519), let c be the first 16 bytes of
-   `Hash(suite ‖ 0x02 ‖ Y ‖ H ‖ Γ ‖ k·B ‖ k·H ‖ 0x00)` and
-   `s = k + c·x mod q`. The proof is `π = Γ ‖ c ‖ s`.
-2. **Output:** `β = Hash(suite ‖ 0x03 ‖ cofactor·Γ ‖ 0x00)`.
-3. **Verify:** with `U = s·B − c·Y` and `V = s·H − c·Γ`, the same hash of
-   `Y, H, Γ, U, V` must give back c.
+1. **Prove:** hash to a point, $H = \text{encode\_to\_curve}(Y, \alpha)$, and set
+   $\Gamma = x \cdot H$. With a deterministic nonce $k$ (made as in RFC 6979 on P-256,
+   or RFC 8032 on edwards25519), let $c$ be the first 16 bytes of
+   $\mathrm{Hash}(\mathit{suite} \,\Vert\, \mathtt{0x02} \,\Vert\, Y \,\Vert\, H \,\Vert\, \Gamma \,\Vert\, k \cdot B \,\Vert\, k \cdot H \,\Vert\, \mathtt{0x00})$ and
+   $s = k + c \cdot x \bmod q$. The proof is $\pi = \Gamma \,\Vert\, c \,\Vert\, s$.
+2. **Output:** $\beta = \mathrm{Hash}(\mathit{suite} \,\Vert\, \mathtt{0x03} \,\Vert\, \mathit{cofactor} \cdot \Gamma \,\Vert\, \mathtt{0x00})$.
+3. **Verify:** with $U = s \cdot B - c \cdot Y$ and $V = s \cdot H - c \cdot \Gamma$, the same hash of
+   $Y, H, \Gamma, U, V$ must give back $c$.
 
-The proof is a Chaum–Pedersen proof that Γ and Y share x, the one a
+The proof is a Chaum–Pedersen proof that $\Gamma$ and $Y$ share $x$, the one a
 [VOPRF](OPRF.md) server sends. An OPRF computes the same kind of value, a
 key times a hash of the input, but blind, for a client. ECVRF has full
 uniqueness. The optional `validate_key`
@@ -83,7 +82,7 @@ can't choose, and everyone else has to be able to check it.
 - **Key transparency.** A key directory keeps users in a Merkle tree. If
   the position were a plain hash of the name, a lookup proof would let
   anyone test guessed names offline. CONIKS (USENIX Security 2015) puts
-  each user at `H(VUF(name))`, using a verifiable unpredictable function, a
+  each user at $H(\mathrm{VUF}(\mathit{name}))$, using a verifiable unpredictable function, a
   weaker relative of the VRF. Google's Key Transparency (archived in 2024)
   used a VRF, and the IETF's draft protocol uses `ECVRF-P256-SHA256-TAI`
   or `ECVRF-EDWARDS25519-SHA512-TAI`.
@@ -97,7 +96,7 @@ can't choose, and everyone else has to be able to check it.
 ## Example (Python)
 
 RSA-FDH-VRF-SHA256 as RFC 9381 section 4 writes it, with the 2048-bit test
-key from the RFC's appendix A.1. The first line checks the RFC's β for the
+key from the RFC's appendix A.1. The first line checks the RFC's $\beta$ for the
 empty input. The key is published, so it is only good for testing.
 
 ```python
@@ -151,10 +150,10 @@ print(verify(b"slot 43", pi))           # None
   only to ECVRF with `validate_key`, and names Algorand and Ouroboros
   Praos as users that need it.
 - **TAI leaks timing.** Try-and-increment runs longer for some inputs, so
-  RFC 9381 says not to use the TAI suites when α is secret.
-- **A proof doesn't hide the input.** With the public key and π, anyone can
-  test guesses of α offline; β alone reveals nothing about α. Use β only
-  after π verifies.
+  RFC 9381 says not to use the TAI suites when $\alpha$ is secret.
+- **A proof doesn't hide the input.** With the public key and $\pi$, anyone can
+  test guesses of $\alpha$ offline; $\beta$ alone reveals nothing about $\alpha$. Use $\beta$ only
+  after $\pi$ verifies.
 - A quantum computer could recover the secret key from the public key and
   compute every output. RFC 9381 has no post-quantum VRF.
 
@@ -164,62 +163,64 @@ Each part below starts closed; open the ones you want.
 
 ??? example "Sample calculation: a discrete-log VRF mod 23"
 
-    The ECVRF steps, written multiplicatively in the subgroup of order `q = 11` mod `p = 23`, generator
-    `g = 2`. The hashed input point and the challenge are made up; the rest is checked with Python:
+    The ECVRF steps, written multiplicatively in the subgroup of order $q = 11$ mod $p = 23$, generator
+    $g = 2$. The hashed input point and the challenge are made up; the rest is checked with Python:
 
     | Step | Calculation | Value |
     |---|---|---|
-    | Keys | `x = 6`, `Y = 2⁶ mod 23` | Y = 18 |
-    | Hash input to the group | `H = hash_to_group(Y, α)`, say | H = 3 |
-    | VRF point | `Γ = Hˣ = 3⁶ mod 23` | Γ = 16 |
-    | Nonce | `k = 5`: `U = 2⁵`, `V = 3⁵` mod 23 | U = 9, V = 13 |
-    | Challenge | `c = Hash(Y, H, Γ, U, V)`, say | c = 7 |
-    | Response | `s = k + c·x = 5 + 42 mod 11` | s = 3 |
-    | Verify U | `gˢ · Y⁻ᶜ = 8 · 6⁻¹ = 8 · 4 mod 23` | 9 = U |
-    | Verify V | `Hˢ · Γ⁻ᶜ = 4 · 18⁻¹ = 4 · 9 mod 23` | 13 = V |
-    | Output | `β = SHA-256(Γ)`, Γ as one byte | `c555eab4…` |
+    | Keys | $x = 6$, $Y = 2^6 \bmod 23$ | $Y = 18$ |
+    | Hash input to the group | $H = \text{hash\_to\_group}(Y, \alpha)$, say | $H = 3$ |
+    | VRF point | $\Gamma = H^x = 3^6 \bmod 23$ | $\Gamma = 16$ |
+    | Nonce | $k = 5$: $U = 2^5$, $V = 3^5$ mod 23 | $U = 9$, $V = 13$ |
+    | Challenge | $c = \mathrm{Hash}(Y, H, \Gamma, U, V)$, say | $c = 7$ |
+    | Response | $s = k + c \cdot x = 5 + 42 \bmod 11$ | $s = 3$ |
+    | Verify $U$ | $g^s \cdot Y^{-c} = 8 \cdot 6^{-1} = 8 \cdot 4 \bmod 23$ | $9 = U$ |
+    | Verify $V$ | $H^s \cdot \Gamma^{-c} = 4 \cdot 18^{-1} = 4 \cdot 9 \bmod 23$ | $13 = V$ |
+    | Output | $\beta = \text{SHA-256}(\Gamma)$, $\Gamma$ as one byte | `c555eab4…` |
 
-    The verifier recomputes U and V from the proof (Γ, c, s), hashes again and gets the same c. A false
-    Γ = 12 would give V = 6 instead of 13, a different hash, and the proof would fail.
+    The verifier recomputes $U$ and $V$ from the proof $(\Gamma, c, s)$, hashes again and gets the same $c$. A false
+    $\Gamma = 12$ would give $V = 6$ instead of 13, a different hash, and the proof would fail.
 
 ??? abstract "The math, with formulas"
 
-    In ECVRF notation (additive, base point B, secret x, public key `Y = x·B`):
+    In ECVRF notation (additive, base point $B$, secret $x$, public key $Y = x \cdot B$):
 
-    ```
-    Prove:   H = encode_to_curve(Y, α),   Γ = x·H
-             c = Hash(Y, H, Γ, k·B, k·H),  s = k + c·x  (mod q),   π = (Γ, c, s)
-    Verify:  U = s·B − c·Y,   V = s·H − c·Γ,   accept if Hash(Y, H, Γ, U, V) = c
-    Output:  β = Hash(cofactor · Γ)
-    ```
+    $$
+    \begin{aligned}
+    &\text{Prove:} && H = \text{encode\_to\_curve}(Y, \alpha), \quad \Gamma = x \cdot H \\
+    & && c = \mathrm{Hash}(Y, H, \Gamma, k \cdot B, k \cdot H), \quad s = k + c \cdot x \pmod{q}, \quad \pi = (\Gamma, c, s) \\
+    &\text{Verify:} && U = s \cdot B - c \cdot Y, \quad V = s \cdot H - c \cdot \Gamma, \quad \text{accept if } \mathrm{Hash}(Y, H, \Gamma, U, V) = c \\
+    &\text{Output:} && \beta = \mathrm{Hash}(\mathit{cofactor} \cdot \Gamma)
+    \end{aligned}
+    $$
 
-    - **Why it verifies:** `s·B − c·Y = (k + cx)·B − c·x·B = k·B`, and the same for H.
-    - **Uniqueness:** Γ is fixed by x and α, and the proof shows Γ uses the same x as Y. So no second Γ
+    - **Why it verifies:** $s \cdot B - c \cdot Y = (k + cx) \cdot B - c \cdot x \cdot B = k \cdot B$, and the same for $H$.
+    - **Uniqueness:** $\Gamma$ is fixed by $x$ and $\alpha$, and the proof shows $\Gamma$ uses the same $x$ as $Y$. So no second $\Gamma$
       passes for the same input.
-    - **Pseudorandomness:** telling Γ from random without x is a decisional Diffie-Hellman problem.
-    - **RSA-FDH-VRF:** `π = m^d mod n`, `β = Hash(π)`; one e-th root per m gives uniqueness.
+    - **Pseudorandomness:** telling $\Gamma$ from random without $x$ is a decisional Diffie-Hellman problem.
+    - **RSA-FDH-VRF:** $\pi = m^d \bmod n$, $\beta = \mathrm{Hash}(\pi)$; one $e$-th root per $m$ gives uniqueness.
 
 ??? tip "Watch it step by step: prove and verify one output"
 
     <div class="mars-steps" markdown>
 
-    1. The key holder's secret is 6. Its public key is `2⁶ = 18`.
-    2. The input α hashes to the group element 3. Raising it to the secret gives Γ = 16.
-    3. A nonce 5 gives the pair U = 9 and V = 13. The hash of everything gives c = 7.
-    4. The response is `s = 5 + 7 · 6 = 47 ≡ 3 (mod 11)`. The proof is (16, 7, 3).
-    5. The verifier rebuilds `U = 2³ · 18⁻⁷ = 9` and `V = 3³ · 16⁻⁷ = 13`. Same hash, same c: accepted.
-    6. The output β is a hash of Γ = 16. Nobody without the secret could have found it first.
+    1. The key holder's secret is 6. Its public key is $2^6 = 18$.
+    2. The input $\alpha$ hashes to the group element 3. Raising it to the secret gives $\Gamma = 16$.
+    3. A nonce 5 gives the pair $U = 9$ and $V = 13$. The hash of everything gives $c = 7$.
+    4. The response is $s = 5 + 7 \cdot 6 = 47 \equiv 3 \pmod{11}$. The proof is (16, 7, 3).
+    5. The verifier rebuilds $U = 2^3 \cdot 18^{-7} = 9$ and $V = 3^3 \cdot 16^{-7} = 13$. Same hash, same $c$: accepted.
+    6. The output $\beta$ is a hash of $\Gamma = 16$. Nobody without the secret could have found it first.
 
     </div>
 
 ??? info "The math underneath"
 
-    - **Discrete log:** getting x from Y must be infeasible, or anyone could compute every output:
+    - **Discrete log:** getting $x$ from $Y$ must be infeasible, or anyone could compute every output:
       [hard problems](../10-math-foundations/Hard-Problems.md).
-    - **Chaum–Pedersen proof:** shows two pairs `(B, Y)` and `(H, Γ)` share one exponent, a two-sided
+    - **Chaum–Pedersen proof:** shows two pairs $(B, Y)$ and $(H, \Gamma)$ share one exponent, a two-sided
       Schnorr proof. See [zero-knowledge proofs](Zero-Knowledge.md).
-    - **Fiat–Shamir:** the challenge c is a hash, so the proof needs no live verifier.
-    - **Hashing to curves** (RFC 9380): H must be a point whose discrete log nobody knows.
+    - **Fiat–Shamir:** the challenge $c$ is a hash, so the proof needs no live verifier.
+    - **Hashing to curves** (RFC 9380): $H$ must be a point whose discrete log nobody knows.
     - **Elliptic curves:** the real groups are P-256 and edwards25519:
       [elliptic curves](../10-math-foundations/Elliptic-Curves.md).
 
