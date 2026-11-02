@@ -384,3 +384,29 @@
     order: -1;
   }
 }
+
+/* step-by-step boxes inside the closed "Going deeper" sections (javascripts/modexp.js); nothing moves until Play */
+.mars-modexp { margin: 0.6rem 0; }
+.mars-modexp__head { font-weight: 600; margin: 0 0 0.3rem; }
+.mars-modexp__bits { margin: 0 0 0.5rem; }
+.mars-modexp__bit { display: inline-block; min-width: 1.3em; margin: 0 0.1em; padding: 0 0.2em; text-align: center;
+  font-family: var(--md-code-font-family); border-radius: 4px; background: var(--md-code-bg-color); }
+.mars-modexp__bit.is-done { opacity: 0.55; }
+.mars-modexp__bit.is-now { background: #eea66f; color: #1a100c; }
+.mars-modexp__bar { display: flex; gap: 0.4rem; margin: 0 0 0.5rem; }
+.mars-modexp__btn { font: inherit; font-size: 0.75rem; padding: 0.15rem 0.8rem; border-radius: 999px; cursor: pointer;
+  color: var(--md-default-fg-color); border: 1px solid var(--md-default-fg-color--lighter); background: transparent; }
+.mars-modexp__btn:hover { border-color: var(--md-typeset-a-color); }
+.mars-modexp__btn:disabled { opacity: 0.4; cursor: default; }
+.md-typeset .mars-modexp__table { font-size: 0.75rem; }
+.mars-modexp__table tr.is-now td { background: rgba(238, 166, 111, 0.18); }
+.mars-modexp__res { font-weight: 600; }
+.mars-modexp__out { margin: 0.4rem 0 0; font-weight: 600; }
+.md-typeset .mars-modexp__table td, .md-typeset .mars-modexp__table th { padding: 0.35em 0.9em; }
+.md-typeset .mars-modexp__table { border-collapse: collapse; }
+
+/* the closed "Going deeper" sections share one quiet look, so the page stays clean */
+.md-typeset details { border: 1px solid var(--md-default-fg-color--lightest) !important; border-radius: 8px; box-shadow: none; }
+.md-typeset details > summary { background: transparent !important; font-weight: 600; }
+.md-typeset details > summary::before { background-color: var(--md-typeset-a-color) !important; }
+.md-typeset details > summary::after { color: var(--md-default-fg-color--light); }
