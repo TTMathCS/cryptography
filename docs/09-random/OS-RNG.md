@@ -136,6 +136,67 @@ base64-encodes its 32 bytes into 43 characters.
 - A generator that keeps state in user space must reseed after `fork()`, or
   parent and child print the same bytes. OpenBSD's `arc4random` does.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: Linux's \"fast key erasure\""
+
+    Linux's generator makes each ChaCha20 block, keeps the first 32 bytes as its next key, and hands out
+    the rest. With the all-zero key and nonce (the RFC 8439 test key, so anyone can check it with
+    Python's `cryptography` library):
+
+    | Step | Bytes | Value |
+    |---|---|---|
+    | ChaCha20 block 0 under key `00` × 32 | 64 | `76b8e0ad…b2ee6586` |
+    | Bytes 0–31 become the new key, then the old key is wiped | 32 | `76b8e0ada0f13d90405d6ae55386bd28bdd219b8a08ded1aa836efcc8b770dc7` |
+    | Bytes 32–63 go to the caller | 32 | `da41597c5157488d7724e03fb8d84a376a43b8f41518a11cc387b669b2ee6586` |
+    | Next call: block 0 under the new key, first 32 bytes | 32 | `b0fd14ff96a0bda154c329082c9c6533bb4c9473bf5dde138f82c9ac5553d958` |
+
+    A real kernel's key comes from 256 bits of collected entropy, never zeros, and it is mixed with fresh
+    input every 60 seconds.
+
+??? abstract "The math, with formulas"
+
+    ```
+    Collect:     pool = BLAKE2s(pool ‖ event)                    interrupts, disk, jitter, RDSEED, …
+    Seed:        once 256 bits are credited,  key = BLAKE2s-derived 32 bytes from the pool
+    Each call:   block = ChaCha20(key, nonce, counter)
+                 key   = block[0 … 31]                             old key erased
+                 out   = block[32 … 63]  (more blocks for longer requests)
+    ```
+
+    **Why reading never "uses up" entropy:** if ChaCha20 is a secure PRF, outputs from a secret 256-bit key
+    are indistinguishable from random no matter how many are read. The best known attack is still guessing
+    the key: 2²⁵⁶ tries.
+
+    **Credited entropy:** each event is credited conservatively (for example, one bit for every 64
+    interrupts); the generator counts the credit and unblocks `getrandom()` only at 256 bits.
+
+??? tip "Watch it step by step: from keystrokes to keys"
+
+    <div class="mars-steps" markdown>
+
+    1. Interrupt timings, disk timings and CPU jitter arrive. Each is hashed into the BLAKE2s pool.
+    2. The kernel credits each event with a small, careful entropy estimate.
+    3. At 256 credited bits, the pool's hash becomes the ChaCha20 key. `getrandom()` stops waiting.
+    4. A program asks for 32 bytes: one ChaCha20 block, first half becomes the next key, second half is returned.
+    5. Every 60 seconds the key is refreshed with whatever new input the pool has gathered.
+    6. A stolen key reveals nothing earlier (it was overwritten) and goes stale at the next refresh.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Entropy and min-entropy:** how many bits an attacker would have to guess, measured by the most
+      likely value.
+    - **Randomness extraction:** hashing many weak inputs into one strong key (the leftover hash lemma and
+      computational extractors, see [HKDF](../08-kdf-password-hashing/HKDF.md)).
+    - **Stream ciphers as generators:** [ChaCha20](../04-symmetric-ciphers/ChaCha.md#the-linux-kernel-rng).
+    - **Fast key erasure** (Bernstein, 2017): forward secrecy for a generator at almost no cost.
+    - **Boot-time entropy holes:** what goes wrong before the pool is seeded,
+      [Mining your Ps and Qs](Retired.md#mining-your-ps-and-qs-2012).
+
 ## See also
 
 - [ChaCha and Salsa20](../04-symmetric-ciphers/ChaCha.md#the-linux-kernel-rng):

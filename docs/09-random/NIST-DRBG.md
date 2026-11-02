@@ -188,6 +188,74 @@ the OS. Use this to learn how it works, not in place of the OS generator.
   request, 2³² requests), but [3DES](../04-symmetric-ciphers/Retired.md#3des)
   itself is retired. Use AES.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: HMAC_DRBG's state, step by step"
+
+    The NIST CAVP vector from the example below (SHA-256, no reseed), with the state printed after each
+    step. Recomputed with Python's `hmac`; the last row matches NIST's expected output.
+
+    | Step | K (key) | V (value) |
+    |---|---|---|
+    | Start | `00` × 32 | `01` × 32 |
+    | Instantiate: `update(entropy ‖ nonce)` | `302a4aba78412ab3…97f9dd6e` | `e75855f93b971ac4…0bfb53f9` |
+    | Generate 128 bytes: `V = HMAC(K, V)` four times | same K | first block `591adfe6e6ee9ba3…0bc56344` |
+    | Update after the request | `911bf7cbda4387a1…f88d2811` | new V |
+    | Second generate, 128 bytes | | starts `e528e9abf2dece54d47c7e75e5fe3021`, ends `1f50d476aa0458bdaba806f48be9dcb8` |
+
+    The update after every request is what makes old output impossible to rebuild from a stolen state.
+
+??? abstract "The math, with formulas"
+
+    **HMAC_DRBG** (SP 800-90A §10.1.2):
+
+    ```
+    Update(data):   K = HMAC(K, V ‖ 00 ‖ data);   V = HMAC(K, V)
+                    if data ≠ empty:  K = HMAC(K, V ‖ 01 ‖ data);   V = HMAC(K, V)
+    Instantiate:    K = 00…00,  V = 01…01,  Update(entropy ‖ nonce ‖ personalization)
+    Generate(n):    repeat V = HMAC(K, V), output V,  until n bits;   Update(additional input)
+    ```
+
+    **Hash_DRBG** (§10.1.1), seedlen = 440 bits for SHA-256:
+
+    ```
+    V = Hash_df(entropy ‖ nonce ‖ personalization, seedlen),   C = Hash_df(00 ‖ V, seedlen)
+    output = Hash(V) ‖ Hash(V + 1) ‖ …;   then  V = (V + Hash(03 ‖ V) + C + counter) mod 2^seedlen
+    ```
+
+    **CTR_DRBG** (§10.2.1), with AES-256: state is Key and V; output is `AES_Key(V+1) ‖ AES_Key(V+2) ‖ …`,
+    then Key and V are replaced by the next 48 bytes of the same stream (XORed with any additional input).
+
+    **Limits:** at most 2¹⁹ bits per request and 2⁴⁸ requests between reseeds.
+
+??? tip "Watch it step by step: forward and backward safety"
+
+    <div class="mars-steps" markdown>
+
+    1. Seed: mix 32 bytes from an entropy source and a nonce into K and V.
+    2. Ask for bytes: HMAC V under K, again and again, and hand out each V.
+    3. Update straight away: new K and V from the old ones. The old ones are erased.
+    4. An attacker who steals today's K and V can't run HMAC backwards, so yesterday's bytes stay safe.
+    5. Tomorrow's bytes are exposed, though, until fresh entropy arrives.
+    6. Reseed with new entropy: the stolen state is useless from here on (prediction resistance).
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Pseudorandom generators:** output that no efficient test can tell from random, as long as the seed
+      is secret and the PRF ([HMAC](../06-mac/HMAC.md), [AES](../04-symmetric-ciphers/AES.md) or the hash)
+      is secure.
+    - **Min-entropy:** `H∞ = −log₂(max p(x))`, the measure SP 800-90B uses for entropy sources, because an
+      attacker guesses the most likely value first.
+    - **Forward and backward security** (backtracking and prediction resistance): Hirose proved HMAC_DRBG
+      secure in 2008; Woodage and Shumow's 2019 analysis of all three DRBGs found caveats in how
+      additional input and reseeding are handled.
+    - **Why Dual_EC failed:** a public-key trapdoor (the discrete log of Q to base P) in a generator, see
+      [Dual_EC_DRBG](#dual_ec_drbg) above.
+
 ## See also
 
 - [OS random number generators](OS-RNG.md): what to call in practice

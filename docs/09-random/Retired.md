@@ -161,6 +161,67 @@ later Google said apps using the Java Cryptography Architecture "may not
 receive cryptographically strong values" and published a fix that seeds the
 generator from `/dev/urandom`.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: C's sample rand() and one shared prime"
+
+    **The C standard's sample generator** with `srand(1)`:
+
+    | Call | `next = next · 1103515245 + 12345 mod 2³²` | `rand() = (next / 65536) mod 32768` |
+    |---|---|---|
+    | 1 | 1,103,527,590 | 16,838 |
+    | 2 | 2,524,885,223 | 5,758 |
+    | 3 | 662,824,084 | 10,113 |
+    | 4 | | 17,515 |
+    | 5 | | 31,051 |
+
+    Each output shows 15 of the state's 32 bits, so trying the other 2¹⁷ possibilities against the next
+    output finds `next` at once, and then every later number.
+
+    **Two keys that share a prime**, in toy sizes: `n₁ = 3233 = 61 × 53` and `n₂ = 3599 = 61 × 59`. At real sizes neither
+    could be factored alone, but `gcd(3233, 3599) = 61` takes a few divisions, and then
+    `3233 / 61 = 53` and `3599 / 61 = 59`. This is the 2012 attack on real 1024-bit keys.
+
+??? abstract "The math, with formulas"
+
+    - **Linear congruential generator:** `x(n+1) = (a · x(n) + c) mod m`. Full period when c and m are coprime,
+      a − 1 is divisible by every prime factor of m, and by 4 if m is. Low bits are weak: modulo 2ᵏ the
+      lowest k bits repeat with period 2ᵏ.
+    - **Mersenne Twister:** a linear recurrence over GF(2), `x(k+n) = x(k+m) ⊕ (upper(x(k)) ‖ lower(x(k+1))) · A`
+      with n = 624, m = 397, then tempering `y ⊕= y≫11; y ⊕= (y≪7) & 9d2c5680; y ⊕= (y≪15) & efc60000;
+      y ⊕= y≫18`. Every step is linear, so 624 outputs give 19,968 linear equations for the 19,937 state bits.
+    - **Euclid's algorithm:** `gcd(a, b) = gcd(b, a mod b)`, about `log` steps, which is why one shared prime
+      exposes both keys.
+    - **ECDSA nonce reuse:** two signatures `s₁, s₂` with the same `r` give
+      `k = (z₁ − z₂) / (s₁ − s₂)` and then `d = (s₁k − z₁) / r`, all mod n.
+
+??? tip "Watch it step by step: cloning Mersenne Twister"
+
+    <div class="mars-steps" markdown>
+
+    1. A server hands out 624 "random" 32-bit numbers from Python's `random`.
+    2. Undo the tempering on each: four shift-and-XOR steps, each easy to reverse.
+    3. That gives the generator's 624 state words exactly.
+    4. Load them into a fresh generator.
+    5. Ask it for the next number: it matches the server's, and so does every one after.
+    6. A "random" reset token or session ID made this way can now be predicted.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Statistical versus cryptographic randomness:** passing statistical tests (equidistribution, long
+      period) says nothing about predictability.
+    - **Linear algebra over GF(2):** any generator whose state update and output are linear can be solved
+      from enough outputs (Berlekamp–Massey for LFSRs).
+    - **Seed space:** a 32-bit seed or a time-based seed limits the attacker's search to at most 2³²
+      possibilities, whatever the period.
+    - **Shared factors and batch gcd:** product and remainder trees find shared primes among millions of
+      keys at once; see [RSA](../02-signatures/RSA.md).
+    - What to use instead: [OS randomness](OS-RNG.md) and [NIST DRBGs](NIST-DRBG.md).
+
 ## See also
 
 - [OS random number generators](OS-RNG.md): what to use instead
