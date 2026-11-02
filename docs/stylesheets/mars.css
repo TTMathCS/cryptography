@@ -327,8 +327,8 @@
   }
 }
 
-/* the wordmark reads "Mars – Cryptography", like the homepage's "Mars – your new home";
-   "Mars" is the way back there (extra.homepage, overrides/partials/logo.html) */
+/* the header reads "Akadian – <site>": the Akadian logo, as on akadian.ca, is the way back there (Jim, 2 Nov 2026;
+   extra.homepage, overrides/partials/logo.html) */
 .md-header__button.md-logo {
   display: inline-flex;
   align-items: baseline;
@@ -348,23 +348,17 @@
   color: #cdb096;
 }
 
-.md-logo .mars-mark {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-  text-decoration-color: rgba(244, 230, 212, 0.35);
-  transition: color 0.2s, text-decoration-color 0.2s;
-}
+.md-header__button.md-logo { align-items: center; }
+.md-logo img { display: block; height: 1.4rem; width: auto; transition: filter 0.2s; }
 
 .md-header__button.md-logo:hover,
 .md-header__button.md-logo:focus-visible {
   opacity: 1;
 }
 
-.md-logo:hover .mars-mark,
-.md-logo:focus-visible .mars-mark {
-  color: #eea66f;
-  text-decoration-color: currentColor;
+.md-logo:hover img,
+.md-logo:focus-visible img {
+  filter: drop-shadow(0 0 8px rgba(238, 166, 111, 0.55));
 }
 
 .md-header__inner .md-header__title {
