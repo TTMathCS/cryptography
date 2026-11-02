@@ -144,6 +144,70 @@ scrypt and yescrypt make each guess far more expensive on a GPU.
 **Where you still see them.** `/etc/shadow` files from before the switch,
 and systems whose C library has no yescrypt (Debian 10, for one).
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: PBKDF1 and DES-crypt by hand"
+
+    PBKDF1 with SHA-1, password "password", salt "saltsalt", recomputed with Python's `hashlib`:
+
+    | Iterations c | Calculation | Value (20 bytes, the most PBKDF1 can give) |
+    |---|---|---|
+    | 1 | `T1 = SHA-1("password" ‖ "saltsalt")` | `cab86dd6261710891e8cb56ee3625691a75df344` |
+    | 2 | `T2 = SHA-1(T1)` | `e3a8dfcf2eea6dc81d2ad154274faae96ff0b98a` |
+
+    Asking for a 32-byte AES-256 key is an error: there is nothing past byte 20.
+
+    DES-crypt's stored string `abJnggxhB/yWI` (from the example above) reads as 2 salt characters `ab`
+    (12 bits) and 11 characters of hash (64 bits, 6 bits per character, the last character carrying 4).
+
+??? abstract "The math, with formulas"
+
+    **PBKDF1** (RFC 8018 §5.1):
+
+    ```
+    T1 = Hash(P ‖ S),   Ti = Hash(T(i−1)),   DK = first dkLen bytes of Tc,   dkLen ≤ HashLen
+    ```
+
+    **DES-crypt:** `K` = the low 7 bits of each of the first 8 characters (56 bits). The salt's 12 bits each
+    swap a pair of entries in DES's E-table. Then
+
+    ```
+    X0 = 0⁶⁴,   Xi = DES′_K(X(i−1)) for i = 1 … 25,   output = salt ‖ base64(X25)
+    ```
+
+    **MD5-crypt** and **sha256/sha512crypt** follow the same shape: a starting digest of password, salt
+    and password, then a fixed or chosen number of rounds, each hashing a mix of the previous digest, the
+    password and the salt chosen by whether the round number is odd, divisible by 3 or by 7.
+
+    **Cost of one guess:** PBKDF1 c hashes, DES-crypt 25 DES runs, MD5-crypt 1,000 MD5 runs,
+    sha512crypt 5,000 SHA-512 runs by default. None of them needs more than a few hundred bytes of memory.
+
+??? tip "Watch it step by step: why DES-crypt fell"
+
+    <div class="mars-steps" markdown>
+
+    1. Take the password, keep only its first 8 characters, and make a 56-bit DES key.
+    2. Pick a 2-character salt: one of 4,096 ways to tweak DES.
+    3. Encrypt 64 zero bits with the tweaked DES, 25 times in a row.
+    4. Store the salt and the 11-character result: `abJnggxhB/yWI`.
+    5. "password123" gives the same string, because characters after the eighth never reach the key.
+    6. 25 DES runs per guess was slow on a 1979 minicomputer; a modern GPU runs billions of DES operations a second.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Iterated hashing:** repeating a hash adds time per guess but no memory, and can't lengthen the
+      output, which is PBKDF1's ceiling.
+    - **Salts** defeat precomputed tables: an attacker must attack each salt separately, and 4,096 salts is
+      too few to matter today.
+    - **Key space:** 8 characters of 7 bits is 2⁵⁶; typed passwords use far fewer keys, so a dictionary and
+      brute force cover them quickly.
+    - What replaced them: [PBKDF2](PBKDF2.md) (any length, adjustable count), then the memory-hard
+      [scrypt](scrypt.md) and [Argon2](Argon2.md).
+
 ## See also
 
 - [Argon2](Argon2.md): the default for new password hashes

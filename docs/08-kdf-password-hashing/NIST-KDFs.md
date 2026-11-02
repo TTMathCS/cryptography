@@ -141,6 +141,78 @@ ANS X9.63 (as copied into PyCA `cryptography`'s test vectors).
 - **Length limits:** counter mode stops at 2^r − 1 blocks, and feedback,
   double pipeline, one-step and X9.63 at 2^32 − 1. Nobody gets near that.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: one key in, separate keys out"
+
+    SP 800-108 counter mode with HMAC-SHA-256, recomputed with Python's `hmac`. The input key is 32 bytes
+    of `01`, the context is "session 42", and the fixed input is
+    `[i]₄ ‖ Label ‖ 00 ‖ Context ‖ [L]₄` (4-byte big-endian counter and length):
+
+    | Label | L (bits) | Output |
+    |---|---|---|
+    | "encryption" | 256 | `d21b20ec21bc798f461038325da5f426d9e06c05a014e384928a5d2b64e872b6` |
+    | "authentication" | 256 | `cdb0d3bdae99f54b8ed6068395b2231d54942d38cd1f5886823176569dc9cfc9` |
+    | "encryption" | 512 | `0fdb19efbd7acfed5102f7ca1425906d…` (first 32 of 64 bytes) |
+
+    The last row is not the first row with more bytes added: L is part of every PRF input, so asking for a
+    longer key changes the whole output.
+
+    The one-step KDF and the X9.63 KDF, with Z = bytes `00 01 … 1f` and FixedInfo "AES-256 alice bob", one
+    SHA-256 call each:
+
+    | KDF | Hash input | Output |
+    |---|---|---|
+    | One-step (SP 800-56C) | `00000001 ‖ Z ‖ FixedInfo` | `4dd979e57b584004b50e341434b1a3213348b5f04e40ddbc13484aa02405944f` |
+    | X9.63 | `Z ‖ 00000001 ‖ FixedInfo` | `48c11d1d90d9820d72d1c03d65c651ab9894cfeb4d0a9518ee79321e4deaeea3` |
+
+    Moving the counter from front to back is the only difference, and it gives a different key: the two are
+    not interchangeable.
+
+??? abstract "The math, with formulas"
+
+    With `n = ⌈L / h⌉` PRF calls (h = output bits of the PRF):
+
+    ```
+    Counter:          K(i) = PRF(K_IN, [i] ‖ Label ‖ 00 ‖ Context ‖ [L])
+    Feedback:         K(i) = PRF(K_IN, K(i−1) {‖ [i]} ‖ Label ‖ 00 ‖ Context ‖ [L]),   K(0) = IV
+    Double pipeline:  A(0) = Label ‖ 00 ‖ Context ‖ [L],   A(i) = PRF(K_IN, A(i−1))
+                      K(i) = PRF(K_IN, A(i) {‖ [i]} ‖ Label ‖ 00 ‖ Context ‖ [L])
+    KMAC (Rev. 1):    K_OUT = KMAC(K_IN, Context, L, Label)
+    One-step:         K(i) = H(i₄ ‖ Z ‖ FixedInfo)
+    X9.63:            K(i) = Hash(Z ‖ i₄ ‖ SharedInfo)
+    Output:           K_OUT = first L bits of K(1) ‖ K(2) ‖ … ‖ K(n)
+    ```
+
+    `[i]` and `[L]` are big-endian integers of an agreed width. In SP 800-108 the counter is at most
+    32 bits, so a KDF can make at most `(2³² − 1) · h` bits; the one-step KDF also caps `n` at `2³² − 1`.
+
+??? tip "Watch it step by step: counter mode"
+
+    <div class="mars-steps" markdown>
+
+    1. Start with one 32-byte key, for example the output of a key exchange.
+    2. Write the fixed input: the label "encryption", a zero byte, the context "session 42", and the length 256.
+    3. Put the counter 1 in front and run HMAC-SHA-256: 32 bytes, `d21b20ec…72b6`.
+    4. Need more? Counter 2, same fixed input, another HMAC, and so on.
+    5. Change only the label to "authentication": an unrelated key, `cdb0d3bd…cfc9`.
+    6. Each part of the system gets its own key, and leaking one tells nothing about the others.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Pseudorandom functions:** if the PRF ([HMAC](../06-mac/HMAC.md), [CMAC](../06-mac/Block-Cipher-MACs.md) or
+      [KMAC](../06-mac/KMAC.md)) can't be told apart from random, neither can the derived keys.
+    - **Domain separation:** distinct labels and contexts make distinct PRF inputs, so keys for different
+      jobs are independent.
+    - **Why the zero byte and `[L]`:** they stop "label + context" from being split two ways and stop a short
+      key from being a prefix of a long one.
+    - **Extract, then expand:** a Diffie-Hellman secret is not uniform, so SP 800-56C's two-step method
+      first condenses it; [HKDF](HKDF.md) is the best-known example.
+
 ## See also
 
 - [HKDF](HKDF.md): the extract-then-expand KDF most protocols use

@@ -67,6 +67,71 @@ later and rehash on the next login (`ph.check_needs_rehash(stored)`).
 - Consider a "pepper": a server-side secret mixed in, kept outside the
   database.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: one Argon2id hash, recomputed"
+
+    Computed with the `argon2-cffi` library (the reference C code underneath):
+
+    | Input | Value |
+    |---|---|
+    | Password, salt | "password", "somesalt" |
+    | Passes `t`, memory `m`, lanes `p` | 2, 65,536 KiB (64 MiB), 1 |
+    | Memory blocks | 65,536 blocks of 1 KiB, filled twice |
+    | Argon2id, 32-byte tag | `09316115d5cf24ed5a15a31a3ba326e5cf32edc24702987c02b6566f61913cf7` |
+    | Argon2i, same inputs | `c1628832147d9720c5bd1cfd61367078729f6dfb6f8fea9ff98158e0d7816ed0` |
+    | Argon2id, password "passwore" | `a667a63020b973d48ad5afb94b08b995e7caed73865baae4390ff516a5167ce1` |
+
+    One letter changed gives an unrelated tag. Every guess an attacker tries has to fill and reread the
+    same 64 MiB.
+
+??? abstract "The math, with formulas"
+
+    From RFC 9106 (Argon2 version 1.3). `H` is BLAKE2b; `H′` is a variable-length hash built from it.
+
+    ```
+    H0       = H(p, T, m, t, v, y, |P|‖P, |S|‖S, |K|‖K, |X|‖X)          64 bytes
+    B[i][0]  = H′(H0 ‖ 0 ‖ i)          B[i][1] = H′(H0 ‖ 1 ‖ i)          1 KiB each, lane i
+    B[i][j]  = G(B[i][j−1], B[l][z])                                     first pass
+    B[i][j]  = G(B[i][j−1], B[l][z]) ⊕ B[i][j]                           later passes
+    C        = B[0][q−1] ⊕ B[1][q−1] ⊕ … ⊕ B[p−1][q−1]                   last column
+    Tag      = H′(C)                                                     T bytes
+    ```
+
+    - **Which earlier block `B[l][z]`:** picked from a 64-bit number J. In Argon2i, J comes from a counter
+      (data-independent, so timing leaks nothing). In Argon2d, J is read from the previous block
+      (data-dependent, harder to attack with less memory). Argon2id uses the "i" way for the first half
+      of the first pass and the "d" way after that.
+    - **G** is BLAKE2b's round function with one change: each addition `a + b` becomes
+      `a + b + 2·lo32(a)·lo32(b)`, so a chip can't skip the multiplications.
+    - **Memory:** m KiB rounded down to a multiple of 4p blocks. Each lane is cut into 4 slices; lanes
+      only reference each other's finished slices, which is what lets them run in parallel.
+
+??? tip "Watch it step by step: filling the memory"
+
+    <div class="mars-steps" markdown>
+
+    1. Hash every parameter, the password and the salt into a 64-byte seed `H0`.
+    2. Stretch `H0` into the first two 1 KiB blocks of each lane.
+    3. Block 3 = G(block 2, an earlier block chosen by a counter). Keep going down the lane.
+    4. Halfway through the first pass, Argon2id switches: the earlier block is now chosen by the data itself.
+    5. At the end of the lane, all 64 MiB is full. Pass 2 starts again at the top and XORs new blocks over old.
+    6. XOR the last block of every lane together and hash it down to the 32-byte tag `09316115…3cf7`.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Memory-hardness:** the cost of a guess is measured as memory × time (cumulative memory complexity).
+      Using less memory forces the attacker to recompute missing blocks, and the penalty grows fast.
+    - **Time-memory trade-offs** and the ranking attacks on Argon2i (Alwen and Blocki, 2016–2017), which
+      are why Argon2id is the recommended mode.
+    - **Side channels:** data-dependent memory access (Argon2d) can leak through cache timing.
+    - **BLAKE2b** as the compression and output hash: [BLAKE2 and BLAKE3](../07-hash/BLAKE.md).
+    - Related: [scrypt](scrypt.md) (the first memory-hard KDF) and [bcrypt](bcrypt.md).
+
 ## See also
 
 - [scrypt](scrypt.md) / [bcrypt](bcrypt.md) / [PBKDF2](PBKDF2.md): the older password hashes

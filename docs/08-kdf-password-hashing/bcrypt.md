@@ -71,6 +71,75 @@ print(bcrypt.checkpw(password, stored))    # True
   typical server.
 - The salt is built into the string; there's nothing extra to store.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: reading one bcrypt hash"
+
+    Made with the Python `bcrypt` library from the password "password" and a fixed salt, so anyone can
+    repeat it:
+
+    ```
+    $2b$12$abcdefghijklmnopqrstuutwZ1IOTtu3SsEBT5lI/LFncP31tIybm
+    ```
+
+    | Part | Characters | Meaning |
+    |---|---|---|
+    | `$2b$` | 4 | version (the 2014 fix of `$2a$`) |
+    | `12$` | 3 | cost: the slow loop runs 2¹² = 4,096 times |
+    | `abcdefghijklmnopqrstuu` | 22 | 16-byte salt, in bcrypt's own base-64 alphabet |
+    | `twZ1IOTtu3SsEBT5lI/LFncP31tIybm` | 31 | 23 bytes of the 24-byte result |
+
+    The same password and salt at cost 4 give `…uughE8Ev8uGFaUgY2cNEySvxngrb/Jzdm`: a different hash, and
+    256 times less work (2¹² ÷ 2⁴). Each step of 1 in the cost doubles the time.
+
+??? abstract "The math, with formulas"
+
+    From Provos and Mazières (USENIX 1999):
+
+    ```
+    state = InitState()                          Blowfish's P-array and S-boxes, digits of π
+    state = ExpandKey(state, salt, key)
+    repeat 2^cost times:
+        state = ExpandKey(state, 0, key)
+        state = ExpandKey(state, 0, salt)
+    ctext = "OrpheanBeholderScryDoubt"           24 bytes, three 64-bit blocks
+    repeat 64 times:
+        ctext = EncryptECB(state, ctext)
+    hash = cost ‖ salt ‖ ctext
+    ```
+
+    - **Key:** the password bytes plus a closing zero byte, at most 72 bytes; anything longer is cut off
+      (newer libraries, like Python's `bcrypt` 5, refuse it instead).
+    - **Blowfish:** a 16-round Feistel cipher with 18 round keys and four 256-entry S-boxes (4 KiB),
+      `F(x) = ((S1[a] + S2[b]) ⊕ S3[c]) + S4[d]` on the four bytes a, b, c, d of x, sums mod 2³².
+    - **ExpandKey** XORs the key into the 18 round keys, then encrypts a running block over and over
+      (mixing in the salt) to overwrite all 1,042 table entries: 521 Blowfish encryptions per call.
+
+??? tip "Watch it step by step: why bcrypt is slow"
+
+    <div class="mars-steps" markdown>
+
+    1. Load Blowfish's starting tables: 4 KiB of the digits of π.
+    2. Mix the password and the salt into the tables (one ExpandKey: 521 encryptions).
+    3. Re-key the tables from the password, then from the salt. That is one round of the slow loop.
+    4. Repeat 4,096 times at cost 12: over 4 million Blowfish encryptions for one guess.
+    5. Encrypt "OrpheanBeholderScryDoubt" 64 times with the final tables.
+    6. Write out `$2b$12$`, the salt and the result: a 60-character string.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Key stretching:** an adjustable work factor, raised as hardware gets faster (OWASP asks for at
+      least 10).
+    - **Small-memory hardness:** every step reads the 4 KiB tables at data-dependent places, which suits CPU
+      caches and hurts GPUs, but it is not memory-hard in the [Argon2](Argon2.md) sense; FPGAs crack it well.
+    - **Feistel ciphers** and [Blowfish](../04-symmetric-ciphers/Retired.md).
+    - **The 72-byte limit** and why pre-hashing long passwords needs care (encode the hash, since a raw
+      zero byte would end the key).
+
 ## See also
 
 - [Argon2](Argon2.md): the memory-hard first choice

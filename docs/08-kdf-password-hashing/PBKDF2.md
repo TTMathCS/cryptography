@@ -72,6 +72,70 @@ on. The time depends on your CPU.
 - The original PBKDF1 is limited to the hash length and is kept only for old
   systems.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: RFC 6070 and RFC 7914 test vectors, recomputed"
+
+    Recomputed with Python's `hashlib.pbkdf2_hmac`, matching the RFCs:
+
+    | PRF | Password, salt | Iterations | Output (first bytes) |
+    |---|---|---|---|
+    | HMAC-SHA-1 | "password", "salt" | 1 | `0c60c80f961f0e71f3a9b524af6012062fe037a6` |
+    | HMAC-SHA-1 | "password", "salt" | 2 | `ea6c014dc72d6f8ccd1ed92ace1d41f0d8de8957` |
+    | HMAC-SHA-1 | "password", "salt" | 4,096 | `4b007901b765489abead49d926f721d065a429c1` |
+    | HMAC-SHA-256 | "passwd", "salt" | 1 | `55ac046e56e3089fec1691c22544b605…` (64 bytes asked) |
+
+    Each extra iteration is one more HMAC for you and for every guess an attacker tries. At 600,000
+    iterations (OWASP's 2023 figure for HMAC-SHA-256), one login takes a fraction of a second; a
+    billion guesses cost 600,000 times more than with plain SHA-256.
+
+??? abstract "The math, with formulas"
+
+    **PBKDF2 (RFC 8018 §5.2):**
+
+    ```
+    DK = T₁ ‖ T₂ ‖ … (cut to dkLen)
+    Tᵢ = U₁ ⊕ U₂ ⊕ … ⊕ U_c
+    U₁ = PRF(P, S ‖ INT(i))
+    Uⱼ = PRF(P, Uⱼ₋₁)                 for j = 2 … c
+    ```
+
+    `PRF` is HMAC with the password as the key, `S` the salt, `c` the iteration count, and `INT(i)` the block
+    number as 4 bytes.
+
+    **The salt** makes each user's hash different, so one precomputed table (a rainbow table) cannot serve
+    every account, and two users with the same password get different hashes.
+
+    **Its weakness: no memory cost.** Each guess needs only a few hundred bytes of state, so a GPU with
+    thousands of cores or an ASIC runs thousands of guesses side by side. That is the gap
+    [scrypt](scrypt.md) and [Argon2](Argon2.md) close. A second quirk: asking for more output than the hash
+    length (e.g. 64 bytes from SHA-1) doubles the defender's work but not the attacker's, who only needs the
+    first block to test a guess.
+
+??? tip "Watch it step by step: stretching a password"
+
+    <div class="mars-steps" markdown>
+
+    1. Take the password and a random 16-byte salt stored next to the hash.
+    2. `U₁ = HMAC(password, salt ‖ 00000001)`.
+    3. `U₂ = HMAC(password, U₁)`, `U₃ = HMAC(password, U₂)`, … one after another; no shortcut.
+    4. XOR all of them together: that is the 32-byte key.
+    5. Store salt, iteration count and key. To check a login, repeat with the typed password and compare.
+    6. An attacker with the database must repeat the whole chain for every guess and every salt.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **HMAC as a PRF:** [HMAC](../06-mac/HMAC.md).
+    - **Key stretching:** adding `log₂(c)` bits of work to every guess (600,000 ≈ 2¹⁹·²).
+    - **Password entropy:** a random 8-character lowercase password has about 37.6 bits; stretching cannot
+      add what the password lacks.
+    - **Time–memory trade-offs** and rainbow tables, which salts defeat: [FAQ](../FAQ.md).
+    - **Parallel hardware:** why memory-hard functions followed ([scrypt](scrypt.md), [Argon2](Argon2.md)).
+
 ## See also
 
 - [HMAC](../06-mac/HMAC.md): the PRF PBKDF2 repeats
