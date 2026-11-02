@@ -35,6 +35,7 @@ extra_css:
   - fonts/fonts.css
   - stylesheets/mars.css
   - stylesheets/ask.css
+  - katex/katex.min.css
 
 extra:
   homepage: https://www.akadian.ca/
@@ -46,6 +47,9 @@ extra_javascript:
   - javascripts/ask.js
   - javascripts/modexp.js
   - javascripts/steps.js
+  - katex/katex.min.js
+  - katex/auto-render.min.js
+  - javascripts/math.js
   - path: holidays/badge.js
     type: module
 
@@ -62,6 +66,8 @@ markdown_extensions:
   - attr_list
   - pymdownx.highlight
   - pymdownx.superfences
+  - pymdownx.arithmatex:
+      generic: true
 
 # With --strict, a broken link or #anchor stops the build
 validation:
