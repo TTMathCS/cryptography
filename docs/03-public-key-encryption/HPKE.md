@@ -112,6 +112,81 @@ print(len(ct), suite.decrypt(ct, sk, info=b"demo v1"))          # 53 b'hello': 3
   handles both.
 - Bad randomness in `Encap` can lose base-mode confidentiality completely.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: RFC 9180's first test vector, recomputed"
+
+    Suite DHKEM(X25519, HKDF-SHA256), HKDF-SHA256, AES-128-GCM, base mode, `info` = "Ode on a Grecian Urn".
+    Values from RFC 9180 Appendix A.1, shortened with `…`; the DH value, the shared secret and the first
+    ciphertext were recomputed here with Python's `cryptography` and `hmac`, and match:
+
+    | Step | Value |
+    |---|---|
+    | Receiver public key `pkR` | `3948cfe0…80815c4d` |
+    | Sender's ephemeral `enc = pkE` | `37fda356…f1bf4431` (32 bytes, sent first) |
+    | `dh = X25519(skE, pkR)` | `b3b5c19e…c9c72e35` |
+    | `shared_secret` = HKDF of `dh`, `enc`, `pkR` | `fe0e18c9…7d2ea1fc` |
+    | Key schedule: `key` | `4531685d41d65f03dc48f6b8302c05b0` (16 bytes for AES-128) |
+    | Key schedule: `base_nonce` | `56d890e5accaaf011cff4b7d` (12 bytes) |
+    | Message 0: nonce = `base_nonce ⊕ 0` | `…4b7d` |
+    | Message 1: nonce = `base_nonce ⊕ 1` | `…4b7c` |
+    | Message 2: nonce = `base_nonce ⊕ 2` | `…4b7f` |
+    | Seal "Beauty is truth, truth beauty", aad "Count-0" | `f938558b…3c512a` (29 bytes + 16-byte tag) |
+
+??? abstract "The math, with formulas"
+
+    **Labeled HKDF.** Every HKDF call is prefixed with `"HPKE-v1"` and a suite id, so outputs for different
+    uses or suites can never collide:
+
+    ```
+    LabeledExtract(salt, label, ikm)   = HKDF-Extract(salt, "HPKE-v1" ‖ suite_id ‖ label ‖ ikm)
+    LabeledExpand(prk, label, info, L) = HKDF-Expand(prk, I2OSP(L, 2) ‖ "HPKE-v1" ‖ suite_id ‖ label ‖ info, L)
+    ```
+
+    **DHKEM:**
+    `shared_secret = LabeledExpand(LabeledExtract("", "eae_prk", dh), "shared_secret", enc ‖ pkR, Nsecret)`.
+    Including `enc` and `pkR` binds the secret to this exchange.
+
+    **Key schedule:**
+
+    ```
+    context = mode ‖ LabeledExtract("", "psk_id_hash", psk_id) ‖ LabeledExtract("", "info_hash", info)
+    secret  = LabeledExtract(shared_secret, "secret", psk)
+    key        = LabeledExpand(secret, "key", context, Nk)
+    base_nonce = LabeledExpand(secret, "base_nonce", context, Nn)
+    exporter   = LabeledExpand(secret, "exp", context, Nh)
+    ```
+
+    **Sealing message `i`:** `nonce = base_nonce ⊕ I2OSP(i, Nn)`, then AEAD. The counter never repeats, so no
+    nonce repeats; after `2⁹⁶ − 1` messages the context must stop.
+
+    **Auth mode** adds a second DH with the sender's static key: `dh = DH(skE, pkR) ‖ DH(skS, pkR)`.
+
+??? tip "Watch it step by step: one sealed message"
+
+    <div class="mars-steps" markdown>
+
+    1. The receiver publishes an X25519 public key.
+    2. The sender makes a one-time key pair and computes the Diffie-Hellman value with the receiver's key.
+    3. HKDF turns that value, the one-time public key and the receiver's key into the shared secret.
+    4. The key schedule mixes in the mode and the `info` string and outputs an AES key and a base nonce.
+    5. The sender seals message 0 with nonce `base_nonce ⊕ 0`, message 1 with `base_nonce ⊕ 1`, and so on.
+    6. It sends the one-time public key once, then the ciphertexts.
+    7. The receiver repeats steps 2 to 4 with its private key and opens the messages in order.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **KEMs** and the KEM/DEM design: [ECDH](../01-key-exchange/ECDH.md), [ML-KEM](../01-key-exchange/ML-KEM.md).
+    - **HKDF** (extract-then-expand): [HKDF](../08-kdf-password-hashing/HKDF.md).
+    - **AEADs** and nonce uniqueness: [AEAD](../05-modes-aead/AEAD.md).
+    - **Domain separation:** labels and suite ids so one key never serves two purposes.
+    - **Security proofs:** IND-CCA2 in base mode under the gap Diffie-Hellman assumption (Alwen, Blanchet,
+      Hauck, Kiltz, Lipp and Riepel, 2021).
+
 ## See also
 
 - [ECIES](ECIES.md): the older, option-heavy scheme HPKE replaces

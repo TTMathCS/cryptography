@@ -117,6 +117,74 @@ Each line is a choice some standard pins down differently. The
 - A quantum computer breaks it like all elliptic-curve schemes; see the
   post-quantum part of [HPKE](HPKE.md).
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: ECIES with a tiny curve"
+
+    Bob's key from the [ECDH](../01-key-exchange/ECDH.md#going-deeper) example: curve `y² = x³ + 2x + 2 (mod
+    17)`, `G = (5, 1)`, private `b = 10`, public `Q_B = (7, 11)`. The KDF and MAC are real SHA-256 and HMAC, cut
+    short to fit; checked with Python:
+
+    | Step | Calculation | Value |
+    |---|---|---|
+    | Ephemeral key | Alice picks `a = 3`, `R = 3·G` | `R = (10, 6)` |
+    | Shared point | `3·Q_B` | `(13, 10)` |
+    | KDF | `SHA-256("13")`, first 6 bytes | `3fdb a35f04dc` |
+    | Split | 2-byte stream key, 4-byte MAC key | `3fdb`, `a35f04dc` |
+    | Encrypt `"Hi"` = `48 69` | XOR with `3f db` | `77 b2` |
+    | Tag | `HMAC-SHA256(a35f04dc, 77b2)`, first 4 bytes | `7ea8cbf6` |
+    | Send | `R`, ciphertext, tag | `(10, 6)`, `77b2`, `7ea8cbf6` |
+
+    Bob computes `10·R = (13, 10)`, runs the same KDF, checks the tag, and XORs `77 b2` with `3f db` to get
+    `48 69`, "Hi".
+
+??? abstract "The math, with formulas"
+
+    **Encrypt to `Q_B`:**
+
+    ```
+    r ← random,  R = r·G
+    Z = x-coordinate of r·Q_B
+    (k_enc ‖ k_mac) = KDF(Z, R, shared info)
+    c = Enc(k_enc, m),  t = MAC(k_mac, c ‖ shared info)
+    send (R, c, t)
+    ```
+
+    **Decrypt:** `Z = x(b·R)`; derive the same keys; check `t` before decrypting.
+
+    **Why it works:** `b·R = b·r·G = r·(b·G) = r·Q_B`, as in ECDH.
+
+    **Why each piece is there.** The fresh `R` makes every ciphertext different (no deterministic leaks). The
+    KDF turns the structured point into uniform keys. The MAC (or an AEAD) stops the malleability of
+    [ElGamal](ElGamal.md): a tampered `c` fails the check. Checking that `R` is on the curve stops
+    invalid-curve attacks. SEC 1 offers XOR or a block cipher for `Enc`; modern profiles use AES-GCM or
+    ChaCha20-Poly1305, which is what [HPKE](HPKE.md) standardized.
+
+??? tip "Watch it step by step: sealing \"Hi\" to Bob"
+
+    <div class="mars-steps" markdown>
+
+    1. Bob's public key is the point `(7, 11)`.
+    2. Alice makes a one-time key `a = 3` and the point `R = 3·G = (10, 6)`.
+    3. She computes `3·(7, 11) = (13, 10)`; only she and Bob can get this point.
+    4. SHA-256 of "13" gives the stream key `3fdb` and the MAC key `a35f04dc`.
+    5. "Hi" (`48 69`) XOR `3f db` is `77 b2`; the HMAC tag is `7ea8cbf6`. She sends `R`, `77b2` and the tag.
+    6. Bob computes `10·(10, 6) = (13, 10)`, derives the same keys, checks the tag and recovers "Hi".
+
+    </div>
+
+??? info "The math underneath"
+
+    - **ECDH** and elliptic-curve arithmetic: [ECDH](../01-key-exchange/ECDH.md), [Elliptic curves](../10-math-foundations/Elliptic-Curves.md).
+    - **Key derivation functions:** [HKDF](../08-kdf-password-hashing/HKDF.md) and the X9.63 KDF.
+    - **Authenticated encryption:** encrypt-then-MAC, or an [AEAD](../05-modes-aead/AEAD.md).
+    - **The KEM/DEM split** (Cramer and Shoup): a key-encapsulation part plus a data-encapsulation part, the
+      design HPKE follows.
+    - **Chosen-ciphertext security** (IND-CCA2): what the MAC buys, proven under the gap Diffie-Hellman
+      assumption.
+
 ## See also
 
 - [ElGamal](ElGamal.md): the unhashed scheme it replaced

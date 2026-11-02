@@ -122,6 +122,67 @@ print(next(n for n in range(len(votes) + 1) if pow(g, n, p) == t))   # 3
   some cases the secret key.
 - Use groups of 2048 bits or more. A quantum computer breaks every size.
 
+## Going deeper
+
+Each part below starts closed; open the ones you want.
+
+??? example "Sample calculation: ElGamal with small numbers"
+
+    The group is the numbers mod `p = 23` with generator `g = 5`. Messages are numbers 1 to 22. Checked with
+    Python:
+
+    | Step | Calculation | Value |
+    |---|---|---|
+    | Private key | `x = 6` | |
+    | Public key | `h = 5⁶ mod 23` | `h = 8` |
+    | Message, fresh random `k` | `m = 10`, `k = 3` | |
+    | `c₁` | `gᵏ = 5³ mod 23 = 125 mod 23` | `c₁ = 10` |
+    | Mask | `hᵏ = 8³ mod 23 = 512 mod 23` | `6` |
+    | `c₂` | `m · hᵏ = 10 · 6 mod 23 = 60 mod 23` | `c₂ = 14` |
+    | Decrypt: mask again | `c₁ˣ = 10⁶ mod 23` | `6` |
+    | Remove it | `c₂ · 6⁻¹ = 14 · 4 mod 23 = 56 mod 23` | `m = 10` |
+
+    **Multiplying ciphertexts multiplies messages.** `E(3)` with `k = 4` is `(4, 6)`. Multiplying it into
+    `E(10)` part by part gives `(10·4, 14·6) mod 23 = (17, 15)`, which decrypts to `7 = 10 · 3 mod 23`.
+
+??? abstract "The math, with formulas"
+
+    **Encrypt:** `c₁ = gᵏ`, `c₂ = m · hᵏ` (mod `p`), with a fresh random `k`. **Decrypt:** `m = c₂ · (c₁ˣ)⁻¹`.
+
+    **Why it works:** `c₁ˣ = (gᵏ)ˣ = (gˣ)ᵏ = hᵏ`, the same mask the sender used. It is Diffie-Hellman with a
+    one-time key pair `(k, gᵏ)`, the shared secret used as a multiplicative mask.
+
+    **Security.** Recovering `m` without `x` means computing `g^(xk)` from `gˣ` and `gᵏ` (the computational
+    Diffie-Hellman problem). Not learning *anything* about `m` needs the decisional version, which holds only
+    in a prime-order subgroup and with `m` encoded inside it; in the full group mod `p`, whether `m` is a
+    square leaks.
+
+    **Homomorphic and malleable.** `E(m₁)·E(m₂) = (g^(k₁+k₂), m₁m₂·h^(k₁+k₂)) = E(m₁m₂)`. Useful for voting and
+    mix-nets (exponential ElGamal puts `m` in the exponent, `gᵐ`, to make it additive); dangerous elsewhere,
+    since anyone can turn an encryption of `m` into one of `2m`. ECIES and HPKE avoid this with an AEAD.
+
+??? tip "Watch it step by step: encrypt and decrypt 10"
+
+    <div class="mars-steps" markdown>
+
+    1. Bob's public key is `h = 5⁶ mod 23 = 8`; his private key `x = 6` stays secret.
+    2. Alice picks a fresh `k = 3` and sends `c₁ = 5³ mod 23 = 10`.
+    3. She computes the mask `8³ mod 23 = 6` and sends `c₂ = 10 · 6 mod 23 = 14`.
+    4. Bob rebuilds the mask from `c₁`: `10⁶ mod 23 = 6`.
+    5. He divides it out: `14 · 6⁻¹ = 14 · 4 mod 23 = 10`. That is Alice's message.
+
+    </div>
+
+??? info "The math underneath"
+
+    - **Diffie-Hellman** and the CDH and DDH problems: [Diffie-Hellman](../01-key-exchange/Diffie-Hellman.md),
+      [Hard problems](../10-math-foundations/Hard-Problems.md).
+    - **Quadratic residues:** why the full group mod `p` leaks one bit, and why prime-order subgroups fix it.
+    - **Homomorphic encryption:** ElGamal is multiplicatively homomorphic; see
+      [Homomorphic encryption](../11-advanced/Homomorphic-Encryption.md).
+    - **Probabilistic encryption:** the same message encrypts differently every time because of `k`.
+    - **The elliptic-curve version**, where `c₂ = M + k·Q` for a message point `M`.
+
 ## See also
 
 - [Diffie-Hellman](../01-key-exchange/Diffie-Hellman.md): the key exchange underneath
