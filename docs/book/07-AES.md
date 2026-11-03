@@ -64,10 +64,137 @@ servers, its simple structure, and its comfortable security margin. FIPS 197 was
 published on 26 November 2001. Rijndael itself allows blocks of 128, 192 and 256
 bits; AES is Rijndael with the 128-bit block only.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 680 300" width="680" role="img" aria-label="Fifteen candidates in 1998, five finalists in 1999, one winner in 2000" fill="currentColor" font-size="13">
+<text x="110" y="20" font-size="13" text-anchor="middle" font-weight="bold">August 1998: 15</text>
+<text x="110" y="44" font-size="12.5" text-anchor="middle" fill-opacity="0.6">CAST-256</text>
+<text x="110" y="61.5" font-size="12.5" text-anchor="middle" fill-opacity="0.6">CRYPTON</text>
+<text x="110" y="79" font-size="12.5" text-anchor="middle" fill-opacity="0.6">DEAL</text>
+<text x="110" y="96.5" font-size="12.5" text-anchor="middle" fill-opacity="0.6">DFC</text>
+<text x="110" y="114" font-size="12.5" text-anchor="middle" fill-opacity="0.6">E2</text>
+<text x="110" y="131.5" font-size="12.5" text-anchor="middle" fill-opacity="0.6">FROG</text>
+<text x="110" y="149" font-size="12.5" text-anchor="middle" fill-opacity="0.6">HPC</text>
+<text x="110" y="166.5" font-size="12.5" text-anchor="middle" fill-opacity="0.6">LOKI97</text>
+<text x="110" y="184" font-size="12.5" text-anchor="middle" fill-opacity="0.6">MAGENTA</text>
+<text x="110" y="201.5" font-size="12.5" text-anchor="middle" font-weight="bold">MARS</text>
+<text x="110" y="219" font-size="12.5" text-anchor="middle" font-weight="bold">RC6</text>
+<text x="110" y="236.5" font-size="12.5" text-anchor="middle" font-weight="bold" class="acc-fill">Rijndael</text>
+<text x="110" y="254" font-size="12.5" text-anchor="middle" fill-opacity="0.6">SAFER+</text>
+<text x="110" y="271.5" font-size="12.5" text-anchor="middle" font-weight="bold">Serpent</text>
+<text x="110" y="289" font-size="12.5" text-anchor="middle" font-weight="bold">Twofish</text>
+<text x="360" y="20" font-size="13" text-anchor="middle" font-weight="bold">August 1999: 5</text>
+<rect x="300" y="70" width="120" height="28" rx="4" class="soft"/>
+<rect x="300" y="70" width="120" height="28" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="360" y="88.5" font-size="13" text-anchor="middle">MARS</text>
+<line x1="165" y1="197.5" x2="298" y2="84" stroke="currentColor" stroke-width="1"/>
+<polygon points="298,84 294.9,90.3 291.3,86.1" fill="currentColor"/>
+<rect x="300" y="110" width="120" height="28" rx="4" class="soft"/>
+<rect x="300" y="110" width="120" height="28" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="360" y="128.6" font-size="13" text-anchor="middle">RC6</text>
+<line x1="165" y1="215" x2="298" y2="124" stroke="currentColor" stroke-width="1"/>
+<polygon points="298,124 294.2,129.9 291.1,125.4" fill="currentColor"/>
+<rect x="300" y="150" width="120" height="28" rx="4" class="soft-acc"/>
+<rect x="300" y="150" width="120" height="28" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="360" y="168.6" font-size="13" text-anchor="middle">Rijndael</text>
+<line x1="165" y1="232.5" x2="298" y2="164" class="acc" stroke-width="1"/>
+<polygon points="298,164 293.5,169.4 291,164.5" class="acc-fill"/>
+<rect x="300" y="190" width="120" height="28" rx="4" class="soft"/>
+<rect x="300" y="190" width="120" height="28" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="360" y="208.6" font-size="13" text-anchor="middle">Serpent</text>
+<line x1="165" y1="267.5" x2="298" y2="204" stroke="currentColor" stroke-width="1"/>
+<polygon points="298,204 293.4,209.2 291,204.3" fill="currentColor"/>
+<rect x="300" y="230" width="120" height="28" rx="4" class="soft"/>
+<rect x="300" y="230" width="120" height="28" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="360" y="248.6" font-size="13" text-anchor="middle">Twofish</text>
+<line x1="165" y1="285" x2="298" y2="244" stroke="currentColor" stroke-width="1"/>
+<polygon points="298,244 292.6,248.5 291,243.3" fill="currentColor"/>
+<text x="580" y="20" font-size="13" text-anchor="middle" font-weight="bold">October 2000: 1</text>
+<rect x="510" y="140" width="140" height="34" rx="4" class="soft-acc"/>
+<rect x="510" y="140" width="140" height="34" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="580" y="161.6" font-size="13" text-anchor="middle" font-weight="bold">Rijndael → AES</text>
+<line x1="420" y1="164" x2="508" y2="157" class="acc" stroke-width="1.4"/>
+<polygon points="508,157 501.8,160.2 501.4,154.8" class="acc-fill"/>
+<text x="580" y="200" font-size="12.5" text-anchor="middle">Joan Daemen and</text>
+<text x="580" y="216" font-size="12.5" text-anchor="middle">Vincent Rijmen, Belgium</text>
+</svg>
+<figcaption>Figure 7.1. The AES competition. All fifteen designs were attacked in public at three conferences; the five finalists all survived, and Rijndael won on speed across every kind of processor, simplicity and margin.</figcaption>
+</figure>
+
+The winners were two young Belgian cryptographers. Joan Daemen and Vincent
+Rijmen had both done their doctorates in the COSIC group of the Katholieke
+Universiteit Leuven; by the time of the competition Daemen worked for Proton
+World, a smart-card company, and Rijmen was a researcher at Leuven. Daemen's
+doctoral thesis of 1995 had set out a way to design ciphers whose resistance to
+differential and linear cryptanalysis could be proved, the **wide trail
+strategy** of §7.11, and the two had already built ciphers on it, among them
+Square in 1997. Rijndael was that idea scaled up to a standard. The candidates
+were examined at three open conferences, in Ventura, California (August 1998),
+Rome (March 1999) and New York (April 2000), where the attendees were asked
+which ciphers they preferred, and Rijndael came out on top.
+
 The open process worked. In 2003 the NSA approved AES for classified information
 (128-bit keys up to SECRET, 192 and 256 up to TOP SECRET), the first time a public
 cipher was trusted that way, and NIST has run its big choices since (SHA-3, the
 post-quantum standards) the same way.
+
+!!! note "Life story: AES (Rijndael)"
+    **Born:** 1997 to 1998, Rijndael by Joan Daemen and Vincent Rijmen in
+    Belgium; chosen by NIST on 2 October 2000; FIPS 197 on 26 November 2001 ·
+    **Purpose:** to replace DES with a public, royalty-free cipher that was fast
+    on everything from smart cards to servers · **Helped:** TLS, Wi-Fi, disk
+    and phone encryption, VPNs and archives; the first public cipher approved
+    for TOP SECRET information (2003); built into nearly every processor sold
+    since about 2010 · **Status:** current and recommended; AES-256 for data
+    that must stay secret for decades
+
+Figure 7.2 collects the dates of the story so far and of the attacks this
+chapter will show.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 368" width="640" role="img" aria-label="Timeline of AES from the 1997 call for candidates to the 2023 update of FIPS 197" fill="currentColor" font-size="14">
+<line x1="92" y1="8" x2="92" y2="360" stroke="currentColor" stroke-width="1.6"/>
+<text x="78" y="27" font-size="14" text-anchor="end" font-weight="bold">1997</text>
+<circle cx="92" cy="22" r="3.5" fill="currentColor"/>
+<text x="108" y="27" font-size="14" text-anchor="start">January: NIST asks the world for a new cipher</text>
+<text x="78" y="53" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">1997</text>
+<circle cx="92" cy="48" r="4.5" class="acc-fill"/>
+<text x="108" y="53" font-size="14" text-anchor="start" class="acc-fill">Daemen, Knudsen, Rijmen: Square and its attack</text>
+<text x="78" y="79" font-size="14" text-anchor="end" font-weight="bold">1998</text>
+<circle cx="92" cy="74" r="3.5" fill="currentColor"/>
+<text x="108" y="79" font-size="14" text-anchor="start">August: 15 candidates presented at AES1, California</text>
+<text x="78" y="105" font-size="14" text-anchor="end" font-weight="bold">1999</text>
+<circle cx="92" cy="100" r="3.5" fill="currentColor"/>
+<text x="108" y="105" font-size="14" text-anchor="start">March: AES2 in Rome; August: five finalists</text>
+<text x="78" y="131" font-size="14" text-anchor="end" font-weight="bold">2000</text>
+<circle cx="92" cy="126" r="3.5" fill="currentColor"/>
+<text x="108" y="131" font-size="14" text-anchor="start">October 2: Rijndael chosen</text>
+<text x="78" y="157" font-size="14" text-anchor="end" font-weight="bold">2001</text>
+<circle cx="92" cy="152" r="3.5" fill="currentColor"/>
+<text x="108" y="157" font-size="14" text-anchor="start">November 26: FIPS 197 published</text>
+<text x="78" y="183" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2002</text>
+<circle cx="92" cy="178" r="4.5" class="acc-fill"/>
+<text x="108" y="183" font-size="14" text-anchor="start" class="acc-fill">XSL algebraic attack claimed (does not work)</text>
+<text x="78" y="209" font-size="14" text-anchor="end" font-weight="bold">2003</text>
+<circle cx="92" cy="204" r="3.5" fill="currentColor"/>
+<text x="108" y="209" font-size="14" text-anchor="start">NSA approves AES for classified information</text>
+<text x="78" y="235" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2005</text>
+<circle cx="92" cy="230" r="4.5" class="acc-fill"/>
+<text x="108" y="235" font-size="14" text-anchor="start" class="acc-fill">Bernstein; Osvik, Shamir, Tromer: cache-timing attacks</text>
+<text x="78" y="261" font-size="14" text-anchor="end" font-weight="bold">2008</text>
+<circle cx="92" cy="256" r="3.5" fill="currentColor"/>
+<text x="108" y="261" font-size="14" text-anchor="start">Intel announces AES-NI (shipped 2010)</text>
+<text x="78" y="287" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2009</text>
+<circle cx="92" cy="282" r="4.5" class="acc-fill"/>
+<text x="108" y="287" font-size="14" text-anchor="start" class="acc-fill">Related-key attacks on AES-256</text>
+<text x="78" y="313" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2011</text>
+<circle cx="92" cy="308" r="4.5" class="acc-fill"/>
+<text x="108" y="313" font-size="14" text-anchor="start" class="acc-fill">Biclique attack: 2¹²⁶·¹ for AES-128</text>
+<text x="78" y="339" font-size="14" text-anchor="end" font-weight="bold">2023</text>
+<circle cx="92" cy="334" r="3.5" fill="currentColor"/>
+<text x="108" y="339" font-size="14" text-anchor="start">FIPS 197 updated, editorial changes</text>
+</svg>
+<figcaption>Figure 7.2. The life of AES so far. Accent marks the attacks; none of them threatens the full cipher in practice.</figcaption>
+</figure>
 
 ## 7.2 The plan of AES
 
@@ -84,6 +211,90 @@ s_{3} & s_{7} & s_{11} & s_{15}
 \end{bmatrix}
 $$
 
+<figure class="mars-fig">
+<svg viewBox="0 0 560 200" width="560" role="img" aria-label="The 16 input bytes fill the 4 by 4 state column by column" fill="currentColor" font-size="13">
+<rect x="20" y="20" width="30" height="26" rx="4" class="soft-acc"/>
+<rect x="20" y="20" width="30" height="26" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="35" y="37.4" font-size="12.5" text-anchor="middle">0</text>
+<rect x="52" y="20" width="30" height="26" rx="4" class="soft-acc"/>
+<rect x="52" y="20" width="30" height="26" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="67" y="37.4" font-size="12.5" text-anchor="middle">1</text>
+<rect x="84" y="20" width="30" height="26" rx="4" class="soft-acc"/>
+<rect x="84" y="20" width="30" height="26" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="99" y="37.4" font-size="12.5" text-anchor="middle">2</text>
+<rect x="116" y="20" width="30" height="26" rx="4" class="soft-acc"/>
+<rect x="116" y="20" width="30" height="26" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="131" y="37.4" font-size="12.5" text-anchor="middle">3</text>
+<rect x="148" y="20" width="30" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="163" y="37.4" font-size="12.5" text-anchor="middle">4</text>
+<rect x="180" y="20" width="30" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="195" y="37.4" font-size="12.5" text-anchor="middle">5</text>
+<rect x="212" y="20" width="30" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="227" y="37.4" font-size="12.5" text-anchor="middle">6</text>
+<rect x="244" y="20" width="30" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="259" y="37.4" font-size="12.5" text-anchor="middle">7</text>
+<rect x="276" y="20" width="30" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="291" y="37.4" font-size="12.5" text-anchor="middle">8</text>
+<rect x="308" y="20" width="30" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="323" y="37.4" font-size="12.5" text-anchor="middle">9</text>
+<rect x="340" y="20" width="30" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="355" y="37.4" font-size="12.5" text-anchor="middle">10</text>
+<rect x="372" y="20" width="30" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="387" y="37.4" font-size="12.5" text-anchor="middle">11</text>
+<rect x="404" y="20" width="30" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="419" y="37.4" font-size="12.5" text-anchor="middle">12</text>
+<rect x="436" y="20" width="30" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="451" y="37.4" font-size="12.5" text-anchor="middle">13</text>
+<rect x="468" y="20" width="30" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="483" y="37.4" font-size="12.5" text-anchor="middle">14</text>
+<rect x="500" y="20" width="30" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="515" y="37.4" font-size="12.5" text-anchor="middle">15</text>
+<text x="280" y="14" font-size="1" text-anchor="middle"></text>
+<rect x="200" y="70" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="200" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="215" y="89.2" font-size="12" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">s0</text>
+<rect x="200" y="100" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="200" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="215" y="119.2" font-size="12" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">s1</text>
+<rect x="200" y="130" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="200" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="215" y="149.2" font-size="12" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">s2</text>
+<rect x="200" y="160" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="200" y="160" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="215" y="179.2" font-size="12" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">s3</text>
+<rect x="230" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="245" y="89.2" font-size="12" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s4</text>
+<rect x="230" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="245" y="119.2" font-size="12" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s5</text>
+<rect x="230" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="245" y="149.2" font-size="12" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s6</text>
+<rect x="230" y="160" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="245" y="179.2" font-size="12" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s7</text>
+<rect x="260" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="275" y="89.2" font-size="12" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s8</text>
+<rect x="260" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="275" y="119.2" font-size="12" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s9</text>
+<rect x="260" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="275" y="149.2" font-size="12" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s10</text>
+<rect x="260" y="160" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="275" y="179.2" font-size="12" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s11</text>
+<rect x="290" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="305" y="89.2" font-size="12" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s12</text>
+<rect x="290" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="305" y="119.2" font-size="12" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s13</text>
+<rect x="290" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="305" y="149.2" font-size="12" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s14</text>
+<rect x="290" y="160" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="305" y="179.2" font-size="12" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s15</text>
+<polyline points="84,46 84,60 215,60 215,68" fill="none" class="acc" stroke-width="1.2"/>
+<polygon points="215,68 212.3,61.6 217.7,61.6" class="acc-fill"/>
+<text x="340" y="92" font-size="12.5" text-anchor="start" fill-opacity="0.8">row 0</text>
+<text x="340" y="182" font-size="12.5" text-anchor="start" fill-opacity="0.8">row 3</text>
+<text x="152" y="190" font-size="12.5" text-anchor="middle" fill-opacity="0.8">column 0</text>
+</svg>
+<figcaption>Figure 7.3. Bytes 0 to 3 of the input (accent) become column 0 of the state, bytes 4 to 7 column 1, and so on. Every step of AES works on this grid.</figcaption>
+</figure>
+
 It first XORs the key into the state, then runs 10 rounds (for a 128-bit key; 12
 for 192 bits, 14 for 256). Each round has four steps:
 
@@ -98,6 +309,68 @@ The last round skips MixColumns (§7.6 explains why that costs nothing). ShiftRo
 spreads bytes across columns, and MixColumns spreads them within a column, so
 after two rounds every output byte depends on every input byte. That is the
 diffusion.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 680 250" width="680" role="img" aria-label="AES-128: an initial AddRoundKey, nine full rounds, and a last round without MixColumns" fill="currentColor" font-size="13">
+<rect x="20" y="20" width="110" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="75" y="41.5" font-size="13" text-anchor="middle">plaintext</text>
+<line x1="130" y1="37" x2="160" y2="37" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="160,37 153.6,39.7 153.6,34.3" fill="currentColor"/>
+<rect x="160" y="20" width="120" height="34" rx="4" class="soft-acc"/>
+<rect x="160" y="20" width="120" height="34" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="220" y="41.5" font-size="13" text-anchor="middle">AddRoundKey</text>
+<text x="220" y="70" font-size="12.5" text-anchor="middle">key K₀</text>
+<line x1="280" y1="37" x2="315" y2="37" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="315,37 308.6,39.7 308.6,34.3" fill="currentColor"/>
+<rect x="315" y="8" width="350" height="140" rx="3" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="490" y="140" font-size="13" text-anchor="middle" font-weight="bold">rounds 1 to 9</text>
+<rect x="330" y="16" width="130" height="24" rx="4" class="soft"/>
+<rect x="330" y="16" width="130" height="24" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="395" y="32.5" font-size="13" text-anchor="middle">SubBytes</text>
+<text x="470" y="33" font-size="12.5" text-anchor="start" fill-opacity="0.85">confusion</text>
+<rect x="330" y="44" width="130" height="24" rx="4" class="soft"/>
+<rect x="330" y="44" width="130" height="24" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="395" y="60.5" font-size="13" text-anchor="middle">ShiftRows</text>
+<text x="470" y="61" font-size="12.5" text-anchor="start" fill-opacity="0.85">spread across columns</text>
+<line x1="395" y1="40" x2="395" y2="44" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="395,44 392.3,37.6 397.7,37.6" fill="currentColor"/>
+<rect x="330" y="72" width="130" height="24" rx="4" class="soft"/>
+<rect x="330" y="72" width="130" height="24" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="395" y="88.5" font-size="13" text-anchor="middle">MixColumns</text>
+<text x="470" y="89" font-size="12.5" text-anchor="start" fill-opacity="0.85">spread within a column</text>
+<line x1="395" y1="68" x2="395" y2="72" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="395,72 392.3,65.6 397.7,65.6" fill="currentColor"/>
+<rect x="330" y="100" width="130" height="24" rx="4" class="soft-acc"/>
+<rect x="330" y="100" width="130" height="24" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="395" y="116.5" font-size="13" text-anchor="middle">AddRoundKey</text>
+<text x="470" y="117" font-size="12.5" text-anchor="start" fill-opacity="0.85">mix in round key</text>
+<line x1="395" y1="96" x2="395" y2="100" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="395,100 392.3,93.6 397.7,93.6" fill="currentColor"/>
+<line x1="395" y1="128" x2="395" y2="165" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="395,165 392.3,158.6 397.7,158.6" fill="currentColor"/>
+<text x="405" y="160" font-size="13" text-anchor="start" font-weight="bold">round 10</text>
+<rect x="150" y="175" width="130" height="26" rx="4" class="soft"/>
+<rect x="150" y="175" width="130" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="215" y="192.6" font-size="13" text-anchor="middle">SubBytes</text>
+<rect x="300" y="175" width="130" height="26" rx="4" class="soft"/>
+<rect x="300" y="175" width="130" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="365" y="192.6" font-size="13" text-anchor="middle">ShiftRows</text>
+<line x1="280" y1="188" x2="300" y2="188" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="300,188 293.6,190.7 293.6,185.3" fill="currentColor"/>
+<rect x="450" y="175" width="130" height="26" rx="4" class="soft-acc"/>
+<rect x="450" y="175" width="130" height="26" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="515" y="192.6" font-size="13" text-anchor="middle">AddRoundKey</text>
+<line x1="430" y1="188" x2="450" y2="188" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="450,188 443.6,190.7 443.6,185.3" fill="currentColor"/>
+<polyline points="395,165 215,165 215,175" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="215,175 212.3,168.6 217.7,168.6" fill="currentColor"/>
+<line x1="580" y1="188" x2="600" y2="188" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="600,188 593.6,190.7 593.6,185.3" fill="currentColor"/>
+<text x="640" y="193" font-size="13" text-anchor="middle">ciphertext</text>
+<text x="340" y="236" font-size="13" text-anchor="middle">AES-192 runs 12 rounds and AES-256 14, with the same steps</text>
+</svg>
+<figcaption>Figure 7.4. The shape of AES-128. Eleven round keys are used: one before the first round and one at the end of each of the ten rounds.</figcaption>
+</figure>
 
 Three of the four steps are easy. SubBytes and MixColumns need arithmetic on
 bytes that is not ordinary arithmetic, and that is the next section.
@@ -189,6 +462,113 @@ $$
 \mathtt{57} \cdot \mathtt{13} = \mathtt{07} \oplus \mathtt{ae} \oplus \mathtt{57} = \mathtt{fe}.
 $$
 
+<figure class="mars-fig">
+<svg viewBox="0 0 680 270" width="680" role="img" aria-label="A byte as a polynomial, and xtime: shift left, and if a bit falls off the top, XOR 1b" fill="currentColor" font-size="13">
+<text x="140" y="20" font-size="13" text-anchor="middle" font-style="italic">x⁷</text>
+<text x="182" y="20" font-size="13" text-anchor="middle" font-style="italic">x⁶</text>
+<text x="224" y="20" font-size="13" text-anchor="middle" font-style="italic">x⁵</text>
+<text x="266" y="20" font-size="13" text-anchor="middle" font-style="italic">x⁴</text>
+<text x="308" y="20" font-size="13" text-anchor="middle" font-style="italic">x³</text>
+<text x="350" y="20" font-size="13" text-anchor="middle" font-style="italic">x²</text>
+<text x="392" y="20" font-size="13" text-anchor="middle" font-style="italic">x</text>
+<text x="434" y="20" font-size="13" text-anchor="middle" font-style="italic">1</text>
+<text x="110" y="50" font-size="13" text-anchor="end" style="font-family:var(--md-code-font-family,monospace)">57</text>
+<rect x="120" y="28" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="140" y="49.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<rect x="162" y="28" width="40" height="32" rx="4" class="soft-acc"/>
+<rect x="162" y="28" width="40" height="32" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="182" y="49.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<rect x="204" y="28" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="224" y="49.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<rect x="246" y="28" width="40" height="32" rx="4" class="soft-acc"/>
+<rect x="246" y="28" width="40" height="32" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="266" y="49.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<rect x="288" y="28" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="308" y="49.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<rect x="330" y="28" width="40" height="32" rx="4" class="soft-acc"/>
+<rect x="330" y="28" width="40" height="32" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="350" y="49.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<rect x="372" y="28" width="40" height="32" rx="4" class="soft-acc"/>
+<rect x="372" y="28" width="40" height="32" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="392" y="49.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<rect x="414" y="28" width="40" height="32" rx="4" class="soft-acc"/>
+<rect x="414" y="28" width="40" height="32" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="434" y="49.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<text x="470" y="50" font-size="13" text-anchor="start">= x⁶ + x⁴ + x² + x + 1</text>
+<text x="340" y="92" font-size="13" text-anchor="middle">xtime(ae): shift left one place</text>
+<text x="110" y="124" font-size="13" text-anchor="end" style="font-family:var(--md-code-font-family,monospace)">ae</text>
+<rect x="120" y="102" width="40" height="32" rx="4" class="soft-acc"/>
+<rect x="120" y="102" width="40" height="32" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="140" y="123.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<rect x="162" y="102" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="182" y="123.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<rect x="204" y="102" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="224" y="123.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<rect x="246" y="102" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="266" y="123.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<rect x="288" y="102" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="308" y="123.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<rect x="330" y="102" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="350" y="123.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<rect x="372" y="102" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="392" y="123.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<rect x="414" y="102" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="434" y="123.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<rect x="70" y="152" width="40" height="32" rx="4" class="soft-acc"/>
+<rect x="70" y="152" width="40" height="32" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="90" y="173.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<text x="90" y="200" font-size="12.5" text-anchor="middle" class="acc-fill">falls off</text>
+<text x="130" y="210" font-size="1" text-anchor="middle"></text>
+<rect x="120" y="152" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="140" y="173.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<rect x="162" y="152" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="182" y="173.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<rect x="204" y="152" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="224" y="173.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<rect x="246" y="152" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="266" y="173.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<rect x="288" y="152" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="308" y="173.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<rect x="330" y="152" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="350" y="173.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<rect x="372" y="152" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="392" y="173.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<rect x="414" y="152" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="434" y="173.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<text x="470" y="174" font-size="13" text-anchor="start">shifted (x⁸ dropped)</text>
+<text x="110" y="218" font-size="13" text-anchor="end" style="font-family:var(--md-code-font-family,monospace)">⊕ 1b</text>
+<rect x="120" y="196" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="140" y="217.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<rect x="162" y="196" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="182" y="217.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<rect x="204" y="196" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="224" y="217.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<rect x="246" y="196" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="266" y="217.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<rect x="288" y="196" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="308" y="217.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<rect x="330" y="196" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="350" y="217.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<rect x="372" y="196" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="392" y="217.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<rect x="414" y="196" width="40" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="434" y="217.6" font-size="16" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<text x="470" y="218" font-size="13" text-anchor="start">x⁸ = x⁴ + x³ + x + 1</text>
+<line x1="120" y1="234" x2="456" y2="234" stroke="currentColor" stroke-width="1.4"/>
+<text x="140" y="256" font-size="16" text-anchor="middle" font-weight="bold" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<text x="182" y="256" font-size="16" text-anchor="middle" font-weight="bold" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<text x="224" y="256" font-size="16" text-anchor="middle" font-weight="bold" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<text x="266" y="256" font-size="16" text-anchor="middle" font-weight="bold" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<text x="308" y="256" font-size="16" text-anchor="middle" font-weight="bold" style="font-family:var(--md-code-font-family,monospace)">0</text>
+<text x="350" y="256" font-size="16" text-anchor="middle" font-weight="bold" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<text x="392" y="256" font-size="16" text-anchor="middle" font-weight="bold" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<text x="434" y="256" font-size="16" text-anchor="middle" font-weight="bold" style="font-family:var(--md-code-font-family,monospace)">1</text>
+<text x="110" y="256" font-size="13" text-anchor="end" font-weight="bold" style="font-family:var(--md-code-font-family,monospace)">47</text>
+<text x="470" y="256" font-size="13" text-anchor="start" font-weight="bold" class="acc-fill">= 57 · 04</text>
+</svg>
+<figcaption>Figure 7.5. Top: the byte 57 read as a polynomial. Bottom: one xtime step from the table, doubling ae. The top bit falls off as x⁸, and since x⁸ ≡ x⁴ + x³ + x + 1 modulo m(x), it comes back as an XOR with 1b.</figcaption>
+</figure>
+
 ### Inverses
 
 Every nonzero byte $a$ has an inverse $a^{-1}$ with $a \cdot a^{-1} = \mathtt{01}$.
@@ -242,6 +622,35 @@ $$
 S(a) = b \oplus (b \lll 1) \oplus (b \lll 2) \oplus (b \lll 3) \oplus (b \lll 4) \oplus \mathtt{63}, \qquad b = a^{-1}.
 $$
 
+<figure class="mars-fig">
+<svg viewBox="0 0 660 150" width="660" role="img" aria-label="The AES S-box: invert in GF(2^8), then apply a fixed affine map; 53 goes to ca, then to ed" fill="currentColor" font-size="13">
+<rect x="20" y="40" width="90" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="65" y="68.3" font-size="18" text-anchor="middle" font-weight="bold" style="font-family:var(--md-code-font-family,monospace)">53</text>
+<line x1="110" y1="62" x2="170" y2="62" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="170,62 163.6,64.7 163.6,59.3" fill="currentColor"/>
+<rect x="170" y="30" width="150" height="64" rx="4" class="soft-acc"/>
+<rect x="170" y="30" width="150" height="64" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="245" y="58.5" font-size="13" text-anchor="middle">invert in</text>
+<text x="245" y="74.5" font-size="13" text-anchor="middle">GF(2⁸)</text>
+<line x1="320" y1="62" x2="360" y2="62" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="360,62 353.6,64.7 353.6,59.3" fill="currentColor"/>
+<rect x="360" y="40" width="70" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="395" y="68.3" font-size="18" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">ca</text>
+<line x1="430" y1="62" x2="470" y2="62" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="470,62 463.6,64.7 463.6,59.3" fill="currentColor"/>
+<rect x="470" y="30" width="110" height="64" rx="4" class="soft"/>
+<rect x="470" y="30" width="110" height="64" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="525" y="58.5" font-size="13" text-anchor="middle">affine:</text>
+<text x="525" y="74.5" font-size="13" text-anchor="middle">rotate, XOR 63</text>
+<line x1="580" y1="62" x2="600" y2="62" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="600,62 593.6,64.7 593.6,59.3" fill="currentColor"/>
+<text x="630" y="68" font-size="18" text-anchor="middle" font-weight="bold" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">ed</text>
+<text x="245" y="122" font-size="12.5" text-anchor="middle">the only nonlinear step</text>
+<text x="525" y="122" font-size="12.5" text-anchor="middle">breaks the clean algebra</text>
+</svg>
+<figcaption>Figure 7.6. How SubBytes is defined, on the worked example: S(53) = ed. Because it is a formula, anyone can check that nothing is hidden in the table.</figcaption>
+</figure>
+
 **By hand: $S(\mathtt{53})$.** The inverse of `53` is `ca` = `11001010`. Write
 the rotations under each other and XOR the columns:
 
@@ -276,6 +685,284 @@ makes sure the S-box has no fixed points ($S(a) \ne a$ for every $a$) and no
 Because the S-box has a formula, nobody has to trust that its designers hid
 nothing in it. That openness is a direct answer to the DES S-box controversy.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 560 330" width="560" role="img" aria-label="Scatter plot of S(x) against x for the 256 bytes: no visible structure" fill="currentColor" font-size="13">
+<line x1="58" y1="290" x2="524" y2="290" stroke="currentColor" stroke-width="1.4"/>
+<line x1="58" y1="290" x2="58" y2="18" stroke="currentColor" stroke-width="1.4"/>
+<text x="60" y="308" font-size="12.5" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">00</text>
+<text x="50" y="294" font-size="12.5" text-anchor="end" style="font-family:var(--md-code-font-family,monospace)">00</text>
+<text x="175.2" y="308" font-size="12.5" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">40</text>
+<text x="50" y="226.8" font-size="12.5" text-anchor="end" style="font-family:var(--md-code-font-family,monospace)">40</text>
+<text x="290.4" y="308" font-size="12.5" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">80</text>
+<text x="50" y="159.6" font-size="12.5" text-anchor="end" style="font-family:var(--md-code-font-family,monospace)">80</text>
+<text x="405.6" y="308" font-size="12.5" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">c0</text>
+<text x="50" y="92.4" font-size="12.5" text-anchor="end" style="font-family:var(--md-code-font-family,monospace)">c0</text>
+<text x="519" y="308" font-size="12.5" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">ff</text>
+<text x="50" y="26.2" font-size="12.5" text-anchor="end" style="font-family:var(--md-code-font-family,monospace)">ff</text>
+<circle cx="60" cy="186.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="61.8" cy="159.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="63.6" cy="165.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="65.4" cy="160.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="67.2" cy="35.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="69" cy="177.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="70.8" cy="173.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="72.6" cy="83.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="74.4" cy="239.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="76.2" cy="288.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="78" cy="181.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="79.8" cy="244.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="81.6" cy="23.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="83.4" cy="64.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="85.2" cy="110.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="87" cy="166.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="88.8" cy="77.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="90.6" cy="153.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="92.4" cy="78.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="94.2" cy="158.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="96" cy="27.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="97.8" cy="196.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="99.6" cy="215.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="101.4" cy="38" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="103.2" cy="108.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="105" cy="67.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="106.8" cy="119.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="108.6" cy="106.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="110.4" cy="126.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="112.2" cy="117.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="114" cy="170.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="115.8" cy="88.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="117.6" cy="97.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="119.4" cy="24.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="121.2" cy="135.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="123" cy="250.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="124.8" cy="233.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="126.6" cy="223.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="128.4" cy="30.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="130.2" cy="75.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="132" cy="235.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="133.8" cy="116.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="135.6" cy="49.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="137.4" cy="36.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="139.2" cy="171.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="141" cy="63.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="142.8" cy="238.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="144.6" cy="267.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="146.4" cy="285.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="148.2" cy="81" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="150" cy="253.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="151.8" cy="85.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="153.6" cy="264.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="155.4" cy="132.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="157.2" cy="284.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="159" cy="128.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="160.8" cy="282.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="162.6" cy="271.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="164.4" cy="155.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="166.2" cy="52.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="168" cy="43.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="169.8" cy="249.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="171.6" cy="103.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="173.4" cy="167.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="175.2" cy="280.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="177" cy="152.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="178.8" cy="243.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="180.6" cy="262.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="182.4" cy="261.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="184.2" cy="174.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="186" cy="195.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="187.8" cy="122" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="189.6" cy="203.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="191.4" cy="228.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="193.2" cy="65.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="195" cy="102" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="196.8" cy="246.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="198.6" cy="51.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="200.4" cy="240.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="202.2" cy="151.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="204" cy="202.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="205.8" cy="70.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="207.6" cy="290" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="209.4" cy="41.1" r="4.5" class="acc-fill"/>
+<circle cx="211.2" cy="256.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="213" cy="25.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="214.8" cy="104.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="216.6" cy="194.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="218.4" cy="178.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="220.2" cy="76.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="222" cy="90.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="223.8" cy="230.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="225.6" cy="212.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="227.4" cy="210.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="229.2" cy="197.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="231" cy="72.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="232.8" cy="71.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="234.6" cy="39" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="236.4" cy="111.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="238.2" cy="26.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="240" cy="219.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="241.8" cy="209.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="243.6" cy="236.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="245.4" cy="150.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="247.2" cy="217.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="249" cy="28.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="250.8" cy="287.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="252.6" cy="156.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="254.4" cy="206" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="256.2" cy="227" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="258" cy="123" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="259.8" cy="113.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="261.6" cy="204.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="263.4" cy="118.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="265.2" cy="222.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="267" cy="139.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="268.8" cy="136.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="270.6" cy="125.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="272.4" cy="231.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="274.2" cy="32.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="276" cy="92.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="277.8" cy="98.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="279.6" cy="61.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="281.4" cy="255.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="283.2" cy="273.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="285" cy="22.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="286.8" cy="34.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="288.6" cy="69.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="290.4" cy="74.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="292.2" cy="277.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="294" cy="270.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="295.8" cy="42.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="297.6" cy="190.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="299.4" cy="131.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="301.2" cy="218.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="303" cy="265.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="304.8" cy="84.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="306.6" cy="114.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="308.4" cy="157.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="310.2" cy="225.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="312" cy="185" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="313.8" cy="192.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="315.6" cy="263.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="317.4" cy="169.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="319.2" cy="189.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="321" cy="154.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="322.8" cy="207.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="324.6" cy="59" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="326.4" cy="254.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="328.2" cy="245.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="330" cy="138.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="331.8" cy="147.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="333.6" cy="216.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="335.4" cy="40.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="337.2" cy="96.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="339" cy="269" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="340.8" cy="56.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="342.6" cy="191.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="344.4" cy="278.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="346.2" cy="60" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="348" cy="54.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="349.8" cy="237.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="351.6" cy="229.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="353.4" cy="279.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="355.2" cy="213.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="357" cy="283.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="358.8" cy="252.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="360.6" cy="193.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="362.4" cy="86.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="364.2" cy="68.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="366" cy="109.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="367.8" cy="187.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="369.6" cy="137.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="371.4" cy="133.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="373.2" cy="50.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="375" cy="162.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="376.8" cy="47.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="378.6" cy="80" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="380.4" cy="232.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="382.2" cy="175.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="384" cy="141.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="385.8" cy="66.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="387.6" cy="208.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="389.4" cy="112.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="391.2" cy="176.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="393" cy="199.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="394.8" cy="33.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="396.6" cy="44.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="398.4" cy="183.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="400.2" cy="161.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="402" cy="107.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="403.8" cy="281.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="405.6" cy="94.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="407.4" cy="164" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="409.2" cy="251.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="411" cy="241.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="412.8" cy="260.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="414.6" cy="115.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="416.4" cy="101" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="418.2" cy="82.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="420" cy="46.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="421.8" cy="57.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="423.6" cy="168.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="425.4" cy="257.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="427.2" cy="211.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="429" cy="91.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="430.8" cy="144" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="432.6" cy="145.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="434.4" cy="172.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="436.2" cy="224.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="438" cy="99.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="439.8" cy="182.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="441.6" cy="214.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="443.4" cy="286.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="445.2" cy="31.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="447" cy="275.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="448.8" cy="188.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="450.6" cy="234.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="452.4" cy="198.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="454.2" cy="95.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="456" cy="149.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="457.8" cy="87.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="459.6" cy="259.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="461.4" cy="124.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="463.2" cy="53.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="465" cy="29.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="466.8" cy="130.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="468.6" cy="272.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="470.4" cy="179.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="472.2" cy="62.1" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="474" cy="140.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="475.8" cy="134.6" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="477.6" cy="127.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="479.4" cy="258.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="481.2" cy="148.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="483" cy="45.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="484.8" cy="73.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="486.6" cy="200.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="488.4" cy="248" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="490.2" cy="55.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="492" cy="143" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="493.8" cy="120.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="495.6" cy="146.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="497.4" cy="276.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="499.2" cy="89.4" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="501" cy="48.5" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="502.8" cy="220.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="504.6" cy="180.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="506.4" cy="221.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="508.2" cy="129.3" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="510" cy="242.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="511.8" cy="274.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="513.6" cy="105.2" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="515.4" cy="201.8" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="517.2" cy="93.7" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<circle cx="519" cy="266.9" r="1.8" fill="currentColor" fill-opacity="0.75"/>
+<text x="217.4" y="35.1" font-size="13" text-anchor="start" font-weight="bold" class="acc-fill">S(53) = ed</text>
+<text x="68" y="182.1" font-size="12.5" text-anchor="start" fill-opacity="0.85">S(00) = 63</text>
+<text x="290" y="326" font-size="13" text-anchor="middle">input byte x</text>
+<text x="18" y="150" font-size="13" text-anchor="middle" font-style="italic">S(x)</text>
+</svg>
+<figcaption>Figure 7.7. Every byte and its S-box value, computed from the formula. The points look scattered at random, which is what nonlinearity looks like: no line, curve or pattern lets an attacker predict one value from another.</figcaption>
+</figure>
+
 ## 7.5 ShiftRows and MixColumns
 
 *Level: intermediate.*
@@ -302,6 +989,98 @@ s_{15} & s_{3} & s_{7} & s_{11}
 $$
 
 After it, the four bytes of each column came from four different columns.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 620 200" width="620" role="img" aria-label="ShiftRows: row r rotates left by r places, so each column receives one byte from each of the four columns" fill="currentColor" font-size="13">
+<text x="120" y="20" font-size="13" text-anchor="middle" font-weight="bold">before</text>
+<rect x="40" y="30" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="40" y="30" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="60" y="55" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">s0</text>
+<rect x="40" y="70" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="40" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="60" y="95" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">s1</text>
+<rect x="40" y="110" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="40" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="60" y="135" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">s2</text>
+<rect x="40" y="150" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="40" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="60" y="175" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">s3</text>
+<rect x="80" y="30" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="100" y="55" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s4</text>
+<rect x="80" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="100" y="95" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s5</text>
+<rect x="80" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="100" y="135" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s6</text>
+<rect x="80" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="100" y="175" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s7</text>
+<rect x="120" y="30" width="40" height="40" rx="0" class="soft"/>
+<rect x="120" y="30" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="140" y="55" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s8</text>
+<rect x="120" y="70" width="40" height="40" rx="0" class="soft"/>
+<rect x="120" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="140" y="95" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s9</text>
+<rect x="120" y="110" width="40" height="40" rx="0" class="soft"/>
+<rect x="120" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="140" y="135" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s10</text>
+<rect x="120" y="150" width="40" height="40" rx="0" class="soft"/>
+<rect x="120" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="140" y="175" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s11</text>
+<rect x="160" y="30" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="180" y="55" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s12</text>
+<rect x="160" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="180" y="95" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s13</text>
+<rect x="160" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="180" y="135" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s14</text>
+<rect x="160" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="180" y="175" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s15</text>
+<text x="480" y="20" font-size="13" text-anchor="middle" font-weight="bold">after</text>
+<rect x="400" y="30" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="400" y="30" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="420" y="55" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">s0</text>
+<rect x="400" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="420" y="95" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s5</text>
+<rect x="400" y="110" width="40" height="40" rx="0" class="soft"/>
+<rect x="400" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="420" y="135" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s10</text>
+<rect x="400" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="420" y="175" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s15</text>
+<rect x="440" y="30" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="460" y="55" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s4</text>
+<rect x="440" y="70" width="40" height="40" rx="0" class="soft"/>
+<rect x="440" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="460" y="95" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s9</text>
+<rect x="440" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="460" y="135" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s14</text>
+<rect x="440" y="150" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="440" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="460" y="175" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">s3</text>
+<rect x="480" y="30" width="40" height="40" rx="0" class="soft"/>
+<rect x="480" y="30" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="500" y="55" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s8</text>
+<rect x="480" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="500" y="95" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s13</text>
+<rect x="480" y="110" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="480" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="500" y="135" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">s2</text>
+<rect x="480" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="500" y="175" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s7</text>
+<rect x="520" y="30" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="540" y="55" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s12</text>
+<rect x="520" y="70" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="520" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="540" y="95" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">s1</text>
+<rect x="520" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="540" y="135" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s6</text>
+<rect x="520" y="150" width="40" height="40" rx="0" class="soft"/>
+<rect x="520" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="540" y="175" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">s11</text>
+<text x="300" y="55" font-size="13" text-anchor="middle">no shift</text>
+<text x="300" y="95" font-size="13" text-anchor="middle">← 1</text>
+<text x="300" y="135" font-size="13" text-anchor="middle">← 2</text>
+<text x="300" y="175" font-size="13" text-anchor="middle">← 3</text>
+</svg>
+<figcaption>Figure 7.8. ShiftRows on the state. The accent bytes start in column 0; afterwards they sit in four different columns, so the next MixColumns mixes each of them with bytes from three other columns.</figcaption>
+</figure>
 
 ### MixColumns
 
@@ -338,6 +1117,92 @@ $$
 
 The other three rows give `66`, `81` and `e5`, so the column becomes
 `04 66 81 e5`.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 700 250" width="700" role="img" aria-label="MixColumns multiplies each column by a fixed matrix; one changed input byte changes all four output bytes" fill="currentColor" font-size="13">
+<rect x="150" y="40" width="40" height="40" rx="0" class="soft"/>
+<rect x="150" y="40" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="170" y="64.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">02</text>
+<rect x="190" y="40" width="40" height="40" rx="0" class="soft"/>
+<rect x="190" y="40" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="210" y="64.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">03</text>
+<rect x="230" y="40" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="250" y="64.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">01</text>
+<rect x="270" y="40" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="290" y="64.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">01</text>
+<rect x="150" y="80" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="170" y="104.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">01</text>
+<rect x="190" y="80" width="40" height="40" rx="0" class="soft"/>
+<rect x="190" y="80" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="210" y="104.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">02</text>
+<rect x="230" y="80" width="40" height="40" rx="0" class="soft"/>
+<rect x="230" y="80" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="250" y="104.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">03</text>
+<rect x="270" y="80" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="290" y="104.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">01</text>
+<rect x="150" y="120" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="170" y="144.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">01</text>
+<rect x="190" y="120" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="210" y="144.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">01</text>
+<rect x="230" y="120" width="40" height="40" rx="0" class="soft"/>
+<rect x="230" y="120" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="250" y="144.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">02</text>
+<rect x="270" y="120" width="40" height="40" rx="0" class="soft"/>
+<rect x="270" y="120" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="290" y="144.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">03</text>
+<rect x="150" y="160" width="40" height="40" rx="0" class="soft"/>
+<rect x="150" y="160" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="170" y="184.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">03</text>
+<rect x="190" y="160" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="210" y="184.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">01</text>
+<rect x="230" y="160" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="250" y="184.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">01</text>
+<rect x="270" y="160" width="40" height="40" rx="0" class="soft"/>
+<rect x="270" y="160" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="290" y="184.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">02</text>
+<text x="230" y="28" font-size="13" text-anchor="middle" font-weight="bold">fixed matrix</text>
+<rect x="345" y="40" width="50" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="370" y="64.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">d4</text>
+<rect x="455" y="40" width="50" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="480" y="64.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">04</text>
+<rect x="345" y="80" width="50" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="370" y="104.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">bf</text>
+<rect x="455" y="80" width="50" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="480" y="104.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">66</text>
+<rect x="345" y="120" width="50" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="370" y="144.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">5d</text>
+<rect x="455" y="120" width="50" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="480" y="144.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">81</text>
+<rect x="345" y="160" width="50" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="370" y="184.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">30</text>
+<rect x="455" y="160" width="50" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="480" y="184.9" font-size="14" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">e5</text>
+<text x="328" y="126" font-size="18" text-anchor="middle">×</text>
+<text x="425" y="126" font-size="18" text-anchor="middle">=</text>
+<text x="370" y="28" font-size="13" text-anchor="middle" font-weight="bold">column</text>
+<text x="480" y="28" font-size="13" text-anchor="middle" font-weight="bold">result</text>
+<text x="625" y="28" font-size="13" text-anchor="middle" font-weight="bold">change 1 byte</text>
+<rect x="560" y="40" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="560" y="40" width="40" height="40" rx="0" fill="none" class="acc" stroke-width="1"/>
+<rect x="645" y="40" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="645" y="40" width="40" height="40" rx="0" fill="none" class="acc" stroke-width="1"/>
+<rect x="560" y="80" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="645" y="80" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="645" y="80" width="40" height="40" rx="0" fill="none" class="acc" stroke-width="1"/>
+<rect x="560" y="120" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="645" y="120" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="645" y="120" width="40" height="40" rx="0" fill="none" class="acc" stroke-width="1"/>
+<rect x="560" y="160" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="645" y="160" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="645" y="160" width="40" height="40" rx="0" fill="none" class="acc" stroke-width="1"/>
+<line x1="604" y1="120" x2="641" y2="120" class="acc" stroke-width="1.4"/>
+<polygon points="641,120 634.6,122.7 634.6,117.3" class="acc-fill"/>
+<text x="622" y="225" font-size="13" text-anchor="middle" class="acc-fill">1 in, 4 out:</text>
+<text x="622" y="243" font-size="13" text-anchor="middle" class="acc-fill">branch number 5</text>
+<text x="320" y="228" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">02 · d4 ⊕ 03 · bf ⊕ 5d ⊕ 30 = 04</text>
+</svg>
+<figcaption>Figure 7.9. Left: the column mixed by hand in the text. Right: the property that makes the matrix special. However one input byte changes, all four output bytes change; in general the changed bytes in and out add up to at least 5.</figcaption>
+</figure>
 
 **Why this matrix?** Its rows are rotations of one another, so the same small
 circuit serves for all four bytes, and its entries are tiny (`01`, `02`, `03`), so
@@ -384,6 +1249,79 @@ different, which stops the slide attacks of [Chapter 6](06-Block-Ciphers.md).
 
 </div>
 
+<figure class="mars-fig">
+<svg viewBox="0 0 680 260" width="680" role="img" aria-label="AES-128 key schedule: w4 = w0 XOR g(w3), then each next word is the previous word XOR the word four places back" fill="currentColor" font-size="13">
+<rect x="40" y="20" width="120" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="100" y="40.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">2b7e1516</text>
+<text x="78" y="70" font-size="12.5" text-anchor="middle" fill-opacity="0.8">w0</text>
+<rect x="40" y="190" width="120" height="32" rx="4" class="soft-acc"/>
+<rect x="40" y="190" width="120" height="32" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="100" y="210.6" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">a0fafe17</text>
+<text x="100" y="240" font-size="12.5" text-anchor="middle" fill-opacity="0.8">w4</text>
+<rect x="190" y="20" width="120" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="250" y="40.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">28aed2a6</text>
+<text x="228" y="70" font-size="12.5" text-anchor="middle" fill-opacity="0.8">w1</text>
+<rect x="190" y="190" width="120" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="250" y="210.6" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">88542cb1</text>
+<text x="250" y="240" font-size="12.5" text-anchor="middle" fill-opacity="0.8">w5</text>
+<rect x="340" y="20" width="120" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="400" y="40.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">abf71588</text>
+<text x="378" y="70" font-size="12.5" text-anchor="middle" fill-opacity="0.8">w2</text>
+<rect x="340" y="190" width="120" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="400" y="210.6" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">23a33939</text>
+<text x="400" y="240" font-size="12.5" text-anchor="middle" fill-opacity="0.8">w6</text>
+<rect x="490" y="20" width="120" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="550" y="40.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">09cf4f3c</text>
+<text x="528" y="70" font-size="12.5" text-anchor="middle" fill-opacity="0.8">w3</text>
+<rect x="490" y="190" width="120" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="550" y="210.6" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">2a6c7605</text>
+<text x="550" y="240" font-size="12.5" text-anchor="middle" fill-opacity="0.8">w7</text>
+<rect x="470" y="80" width="200" height="46" rx="4" class="soft-acc"/>
+<rect x="470" y="80" width="200" height="46" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="570" y="99.6" font-size="12.5" text-anchor="middle">g: RotWord, SubWord,</text>
+<text x="570" y="115.1" font-size="12.5" text-anchor="middle">XOR Rcon₁ = 01</text>
+<line x1="600" y1="52" x2="600" y2="80" class="acc" stroke-width="1.4"/>
+<polygon points="600,80 597.3,73.6 602.7,73.6" class="acc-fill"/>
+<circle cx="100" cy="160" r="9" fill="none" class="acc" stroke-width="1.4"/>
+<line x1="91" y1="160" x2="109" y2="160" class="acc" stroke-width="1.4"/>
+<line x1="100" y1="151" x2="100" y2="169" class="acc" stroke-width="1.4"/>
+<line x1="100" y1="52" x2="100" y2="151" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="100,151 97.3,144.6 102.7,144.6" fill="currentColor"/>
+<line x1="100" y1="169" x2="100" y2="190" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="100,190 97.3,183.6 102.7,183.6" fill="currentColor"/>
+<circle cx="250" cy="160" r="9" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<line x1="241" y1="160" x2="259" y2="160" stroke="currentColor" stroke-width="1.4"/>
+<line x1="250" y1="151" x2="250" y2="169" stroke="currentColor" stroke-width="1.4"/>
+<line x1="250" y1="52" x2="250" y2="151" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="250,151 247.3,144.6 252.7,144.6" fill="currentColor"/>
+<line x1="250" y1="169" x2="250" y2="190" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="250,190 247.3,183.6 252.7,183.6" fill="currentColor"/>
+<circle cx="400" cy="160" r="9" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<line x1="391" y1="160" x2="409" y2="160" stroke="currentColor" stroke-width="1.4"/>
+<line x1="400" y1="151" x2="400" y2="169" stroke="currentColor" stroke-width="1.4"/>
+<line x1="400" y1="52" x2="400" y2="151" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="400,151 397.3,144.6 402.7,144.6" fill="currentColor"/>
+<line x1="400" y1="169" x2="400" y2="190" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="400,190 397.3,183.6 402.7,183.6" fill="currentColor"/>
+<circle cx="550" cy="160" r="9" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<line x1="541" y1="160" x2="559" y2="160" stroke="currentColor" stroke-width="1.4"/>
+<line x1="550" y1="151" x2="550" y2="169" stroke="currentColor" stroke-width="1.4"/>
+<line x1="550" y1="52" x2="550" y2="151" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="550,151 547.3,144.6 552.7,144.6" fill="currentColor"/>
+<line x1="550" y1="169" x2="550" y2="190" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="550,190 547.3,183.6 552.7,183.6" fill="currentColor"/>
+<polyline points="570,126 570,138 125,138 109,158" fill="none" class="acc" stroke-width="1.4"/>
+<polygon points="109,158 110.9,151.3 115.2,154.7" class="acc-fill"/>
+<polyline points="160,206 172,206 172,172 242,164" fill="none" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="242,164 235.9,167.4 235.3,162" fill="currentColor"/>
+<polyline points="310,206 322,206 322,172 392,164" fill="none" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="392,164 385.9,167.4 385.3,162" fill="currentColor"/>
+<polyline points="460,206 472,206 472,172 542,164" fill="none" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="542,164 535.9,167.4 535.3,162" fill="currentColor"/>
+</svg>
+<figcaption>Figure 7.10. The first step of the key schedule with the FIPS 197 key, as worked in the text. The word g(w3) carries the S-box and a round constant; the other three words are plain XOR chains. Round key 1 is w4 to w7.</figcaption>
+</figure>
+
 **Why no MixColumns in the last round?** In the last round, MixColumns would be
 followed only by the key XOR. Both are linear, so an attacker could swap their
 order (using a modified key) and strip the MixColumns off for free. It adds no
@@ -410,6 +1348,125 @@ Trace a few bytes yourself: `32` XOR `2b` = `19`; $S(\mathtt{19}) = \mathtt{d4}$
 row 1 of the grid after SubBytes is `27 bf b4 41`, which ShiftRows turns into
 `bf b4 41 27`, so the first column becomes `d4 bf 5d 30`, the column you mixed by
 hand in §7.5.
+
+How fast does a change spread? Flip the lowest bit of the first plaintext byte
+and run both blocks through the code of §7.8. Figure 7.11 marks the bytes
+that differ after each round.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 190" width="640" role="img" aria-label="Bytes that differ after rounds 0, 1, 2 and 10 when one bit of the plaintext changes" fill="currentColor" font-size="13">
+<text x="80" y="30" font-size="13" text-anchor="middle" font-weight="bold">input</text>
+<rect x="20" y="40" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="20" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="20" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="20" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="20" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="50" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="50" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="50" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="50" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="80" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="80" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="80" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="80" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="110" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="110" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="110" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="110" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="80" y="175" font-size="12.5" text-anchor="middle">1 byte differs</text>
+<text x="240" y="30" font-size="13" text-anchor="middle" font-weight="bold">after round 1</text>
+<rect x="180" y="40" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="180" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="180" y="70" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="180" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="180" y="100" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="180" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="180" y="130" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="180" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="210" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="210" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="210" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="210" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="240" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="240" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="240" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="240" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="270" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="270" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="270" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="270" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="240" y="175" font-size="12.5" text-anchor="middle">4 bytes differ</text>
+<text x="400" y="30" font-size="13" text-anchor="middle" font-weight="bold">after round 2</text>
+<rect x="340" y="40" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="340" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="340" y="70" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="340" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="340" y="100" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="340" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="340" y="130" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="340" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="370" y="40" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="370" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="370" y="70" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="370" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="370" y="100" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="370" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="370" y="130" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="370" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="400" y="40" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="400" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="400" y="70" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="400" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="400" y="100" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="400" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="400" y="130" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="400" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="430" y="40" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="430" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="430" y="70" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="430" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="430" y="100" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="430" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="430" y="130" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="430" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="400" y="175" font-size="12.5" text-anchor="middle">16 bytes differ</text>
+<text x="560" y="30" font-size="13" text-anchor="middle" font-weight="bold">after round 10</text>
+<rect x="500" y="40" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="500" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="500" y="70" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="500" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="500" y="100" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="500" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="500" y="130" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="500" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="530" y="40" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="530" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="530" y="70" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="530" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="530" y="100" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="530" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="530" y="130" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="530" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="560" y="40" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="560" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="560" y="70" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="560" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="560" y="100" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="560" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="560" y="130" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="560" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="590" y="40" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="590" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="590" y="70" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="590" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="590" y="100" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="590" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="590" y="130" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="590" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="560" y="175" font-size="12.5" text-anchor="middle">16 bytes differ</text>
+</svg>
+<figcaption>Figure 7.11. Diffusion in AES, computed on the FIPS 197 example with the lowest bit of byte 0 flipped. One round spreads the change through a column; two rounds reach every byte, and the remaining eight rounds keep mixing.</figcaption>
+</figure>
 
 ## 7.8 Code it
 
@@ -534,6 +1591,183 @@ plaintexts that are equal except in one byte, which runs through all 256 values.
   XORed over the 256 texts, still sums to **zero**. Such a set is called
   **balanced**.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 210" width="640" role="img" aria-label="The square attack: an all-values byte spreads to a column, then the whole state, then becomes balanced" fill="currentColor" font-size="13">
+<text x="80" y="30" font-size="13" text-anchor="middle" font-weight="bold">input</text>
+<rect x="20" y="40" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="20" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="35" y="59.5" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="20" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="35" y="89.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="20" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="35" y="119.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="20" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="35" y="149.6" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="50" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="65" y="59.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="50" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="65" y="89.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="50" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="65" y="119.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="50" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="65" y="149.6" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="80" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="95" y="59.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="80" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="95" y="89.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="80" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="95" y="119.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="80" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="95" y="149.6" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="110" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="125" y="59.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="110" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="125" y="89.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="110" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="125" y="119.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="110" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="125" y="149.6" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<text x="240" y="30" font-size="13" text-anchor="middle" font-weight="bold">after round 1</text>
+<rect x="180" y="40" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="180" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="195" y="59.5" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="180" y="70" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="180" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="195" y="89.5" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="180" y="100" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="180" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="195" y="119.5" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="180" y="130" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="180" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="195" y="149.6" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="210" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="225" y="59.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="210" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="225" y="89.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="210" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="225" y="119.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="210" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="225" y="149.6" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="240" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="255" y="59.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="240" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="255" y="89.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="240" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="255" y="119.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="240" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="255" y="149.6" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="270" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="285" y="59.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="270" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="285" y="89.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="270" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="285" y="119.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<rect x="270" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="285" y="149.6" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">C</text>
+<text x="400" y="30" font-size="13" text-anchor="middle" font-weight="bold">after round 2</text>
+<rect x="340" y="40" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="340" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="355" y="59.5" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="340" y="70" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="340" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="355" y="89.5" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="340" y="100" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="340" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="355" y="119.5" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="340" y="130" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="340" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="355" y="149.6" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="370" y="40" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="370" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="385" y="59.5" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="370" y="70" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="370" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="385" y="89.5" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="370" y="100" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="370" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="385" y="119.5" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="370" y="130" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="370" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="385" y="149.6" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="400" y="40" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="400" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="415" y="59.5" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="400" y="70" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="400" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="415" y="89.5" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="400" y="100" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="400" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="415" y="119.5" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="400" y="130" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="400" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="415" y="149.6" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="430" y="40" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="430" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="445" y="59.5" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="430" y="70" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="430" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="445" y="89.5" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="430" y="100" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="430" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="445" y="119.5" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<rect x="430" y="130" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="430" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="445" y="149.6" font-size="13" text-anchor="middle" class="acc-fill" style="font-family:var(--md-code-font-family,monospace)">A</text>
+<text x="560" y="30" font-size="13" text-anchor="middle" font-weight="bold">after round 3</text>
+<rect x="500" y="40" width="30" height="30" rx="0" class="soft"/>
+<rect x="500" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="515" y="59.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">B</text>
+<rect x="500" y="70" width="30" height="30" rx="0" class="soft"/>
+<rect x="500" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="515" y="89.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">B</text>
+<rect x="500" y="100" width="30" height="30" rx="0" class="soft"/>
+<rect x="500" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="515" y="119.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">B</text>
+<rect x="500" y="130" width="30" height="30" rx="0" class="soft"/>
+<rect x="500" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="515" y="149.6" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">B</text>
+<rect x="530" y="40" width="30" height="30" rx="0" class="soft"/>
+<rect x="530" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="545" y="59.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">B</text>
+<rect x="530" y="70" width="30" height="30" rx="0" class="soft"/>
+<rect x="530" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="545" y="89.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">B</text>
+<rect x="530" y="100" width="30" height="30" rx="0" class="soft"/>
+<rect x="530" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="545" y="119.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">B</text>
+<rect x="530" y="130" width="30" height="30" rx="0" class="soft"/>
+<rect x="530" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="545" y="149.6" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">B</text>
+<rect x="560" y="40" width="30" height="30" rx="0" class="soft"/>
+<rect x="560" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="575" y="59.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">B</text>
+<rect x="560" y="70" width="30" height="30" rx="0" class="soft"/>
+<rect x="560" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="575" y="89.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">B</text>
+<rect x="560" y="100" width="30" height="30" rx="0" class="soft"/>
+<rect x="560" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="575" y="119.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">B</text>
+<rect x="560" y="130" width="30" height="30" rx="0" class="soft"/>
+<rect x="560" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="575" y="149.6" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">B</text>
+<rect x="590" y="40" width="30" height="30" rx="0" class="soft"/>
+<rect x="590" y="40" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="605" y="59.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">B</text>
+<rect x="590" y="70" width="30" height="30" rx="0" class="soft"/>
+<rect x="590" y="70" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="605" y="89.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">B</text>
+<rect x="590" y="100" width="30" height="30" rx="0" class="soft"/>
+<rect x="590" y="100" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="605" y="119.5" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">B</text>
+<rect x="590" y="130" width="30" height="30" rx="0" class="soft"/>
+<rect x="590" y="130" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="605" y="149.6" font-size="13" text-anchor="middle" style="font-family:var(--md-code-font-family,monospace)">B</text>
+<text x="320" y="185" font-size="12.5" text-anchor="middle">A: takes all 256 values   C: constant   B: balanced (XOR of the 256 values is 0)</text>
+<text x="320" y="204" font-size="12.5" text-anchor="middle">round 4 is peeled off one byte at a time by guessing its key byte</text>
+</svg>
+<figcaption>Figure 7.12. What the 256 chosen plaintexts look like after each round. After three rounds no byte takes all values any more, but every byte still XORs to zero over the set, and a random permutation would not do that.</figcaption>
+</figure>
+
 So three rounds of AES, under any key, have a property a random permutation does
 not. Add a fourth round and guess one byte of its round key: undo that byte's
 AddRoundKey and S-box for all 256 ciphertexts and XOR the results. The right
@@ -591,6 +1825,15 @@ round, which is why the bytes can be attacked one at a time. With more guessing,
 the same idea reaches 6 rounds: the designers described it themselves, and Niels
 Ferguson and colleagues improved it in 2000. That is why AES has 10.
 
+!!! note "Life story: the square (integral) attack"
+    **Born:** 1997, Joan Daemen, Lars Knudsen and Vincent Rijmen, against their
+    own cipher Square; generalized as **integral cryptanalysis** by Lars
+    Knudsen and David Wagner in 2002 · **Purpose:** to exploit sets of
+    plaintexts that run through all values of some bytes · **Helped:** set the
+    number of rounds of AES, and became a standard test for every
+    byte-oriented cipher · **Status:** current; it still gives some of the best
+    attacks on reduced AES
+
 ### How far the attacks reach
 
 Twenty-five years of public attacks on full AES amount to this:
@@ -606,6 +1849,57 @@ The related-key results do say something: AES-256's key schedule is weaker than
 its rounds. It matters only in constructions that use AES with related keys,
 such as some hash function designs.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 200" width="640" role="img" aria-label="Security margin of AES-128: attacks reach 6 rounds in 1998 and 7 today, out of 10" fill="currentColor" font-size="13">
+<rect x="110" y="50" width="46" height="34" rx="2" class="soft-acc"/>
+<rect x="110" y="50" width="46" height="34" rx="2" fill="none" class="acc" stroke-width="1.2"/>
+<text x="133" y="72" font-size="13" text-anchor="middle">1</text>
+<rect x="160" y="50" width="46" height="34" rx="2" class="soft-acc"/>
+<rect x="160" y="50" width="46" height="34" rx="2" fill="none" class="acc" stroke-width="1.2"/>
+<text x="183" y="72" font-size="13" text-anchor="middle">2</text>
+<rect x="210" y="50" width="46" height="34" rx="2" class="soft-acc"/>
+<rect x="210" y="50" width="46" height="34" rx="2" fill="none" class="acc" stroke-width="1.2"/>
+<text x="233" y="72" font-size="13" text-anchor="middle">3</text>
+<rect x="260" y="50" width="46" height="34" rx="2" class="soft-acc"/>
+<rect x="260" y="50" width="46" height="34" rx="2" fill="none" class="acc" stroke-width="1.2"/>
+<text x="283" y="72" font-size="13" text-anchor="middle">4</text>
+<rect x="310" y="50" width="46" height="34" rx="2" class="soft-acc"/>
+<rect x="310" y="50" width="46" height="34" rx="2" fill="none" class="acc" stroke-width="1.2"/>
+<text x="333" y="72" font-size="13" text-anchor="middle">5</text>
+<rect x="360" y="50" width="46" height="34" rx="2" class="soft-acc"/>
+<rect x="360" y="50" width="46" height="34" rx="2" fill="none" class="acc" stroke-width="1.2"/>
+<text x="383" y="72" font-size="13" text-anchor="middle">6</text>
+<rect x="410" y="50" width="46" height="34" rx="2" class="soft"/>
+<rect x="410" y="50" width="46" height="34" rx="2" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<text x="433" y="72" font-size="13" text-anchor="middle">7</text>
+<rect x="460" y="50" width="46" height="34" rx="2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="483" y="72" font-size="13" text-anchor="middle">8</text>
+<rect x="510" y="50" width="46" height="34" rx="2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="533" y="72" font-size="13" text-anchor="middle">9</text>
+<rect x="560" y="50" width="46" height="34" rx="2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text x="583" y="72" font-size="13" text-anchor="middle">10</text>
+<text x="100" y="72" font-size="13" text-anchor="end">rounds</text>
+<line x1="110" y1="100" x2="406" y2="100" class="acc" stroke-width="1.6"/>
+<text x="258" y="118" font-size="12.5" text-anchor="middle" class="acc-fill">square attack, known when AES was designed</text>
+<line x1="110" y1="136" x2="456" y2="136" stroke="currentColor" stroke-width="1.6"/>
+<text x="283" y="154" font-size="12.5" text-anchor="middle">best single-key attacks today (impractical)</text>
+<text x="533" y="118" font-size="13" text-anchor="middle" font-weight="bold">margin</text>
+<text x="533" y="136" font-size="13" text-anchor="middle" font-weight="bold">3 rounds</text>
+<text x="320" y="34" font-size="13" text-anchor="middle">full AES-128: best attack, biclique, about 2¹²⁶·¹ instead of 2¹²⁸ work</text>
+<text x="320" y="188" font-size="12.5" text-anchor="middle" fill-opacity="0.85">AES-192 and AES-256 add 2 and 4 rounds for the longer keys</text>
+</svg>
+<figcaption>Figure 7.13. How much of AES the public attacks reach. The designers added four rounds beyond the best attack they knew; twenty-five years of work have used up one of them.</figcaption>
+</figure>
+
+!!! note "Life story: the attacks on full AES"
+    **Born:** 2009, related-key attacks on AES-192 and AES-256 by Alex
+    Biryukov and Dmitry Khovratovich; 2011, the biclique attack by Andrey
+    Bogdanov, Dmitry Khovratovich and Christian Rechberger · **Purpose:** to
+    find the real security margin of the standard · **Helped:** showed that
+    AES-256's key schedule is its weakest part, and that no shortcut gains more
+    than a factor of about four over brute force · **Status:** theoretical; no
+    practical effect on AES used in the normal way
+
 ### Where AES has actually failed: side channels
 
 No real system has lost data because of the mathematics of AES. It has lost keys
@@ -619,6 +1913,77 @@ running OpenSSL just by timing its responses over a network, and Dag Arne Osvik,
 Adi Shamir and Eran Tromer recovered keys from another process on the same
 machine by watching the cache.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 660 240" width="660" role="img" aria-label="Cache-timing attack on table-based AES: the table entry read depends on key XOR data, and the cache remembers which lines were touched" fill="currentColor" font-size="13">
+<rect x="20" y="30" width="150" height="50" rx="4" class="soft"/>
+<rect x="20" y="30" width="150" height="50" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="95" y="51.5" font-size="13" text-anchor="middle">AES software</text>
+<text x="95" y="67.5" font-size="13" text-anchor="middle">reads T[p ⊕ k]</text>
+<line x1="170" y1="55" x2="240" y2="55" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="240,55 233.6,57.7 233.6,52.3" fill="currentColor"/>
+<text x="205" y="46" font-size="12.5" text-anchor="middle">index</text>
+<text x="345" y="22" font-size="13" text-anchor="middle" font-weight="bold">T-table in memory (cache lines)</text>
+<rect x="240" y="36" width="12" height="40" rx="0" class="soft"/>
+<rect x="240" y="36" width="12" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<rect x="253" y="36" width="12" height="40" rx="0" class="soft"/>
+<rect x="253" y="36" width="12" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<rect x="266" y="36" width="12" height="40" rx="0" class="soft"/>
+<rect x="266" y="36" width="12" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<rect x="279" y="36" width="12" height="40" rx="0" class="soft-acc"/>
+<rect x="279" y="36" width="12" height="40" rx="0" fill="none" class="acc" stroke-width="0.6"/>
+<rect x="292" y="36" width="12" height="40" rx="0" class="soft"/>
+<rect x="292" y="36" width="12" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<rect x="305" y="36" width="12" height="40" rx="0" class="soft"/>
+<rect x="305" y="36" width="12" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<rect x="318" y="36" width="12" height="40" rx="0" class="soft"/>
+<rect x="318" y="36" width="12" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<rect x="331" y="36" width="12" height="40" rx="0" class="soft"/>
+<rect x="331" y="36" width="12" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<rect x="344" y="36" width="12" height="40" rx="0" class="soft"/>
+<rect x="344" y="36" width="12" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<rect x="357" y="36" width="12" height="40" rx="0" class="soft-acc"/>
+<rect x="357" y="36" width="12" height="40" rx="0" fill="none" class="acc" stroke-width="0.6"/>
+<rect x="370" y="36" width="12" height="40" rx="0" class="soft"/>
+<rect x="370" y="36" width="12" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<rect x="383" y="36" width="12" height="40" rx="0" class="soft"/>
+<rect x="383" y="36" width="12" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<rect x="396" y="36" width="12" height="40" rx="0" class="soft-acc"/>
+<rect x="396" y="36" width="12" height="40" rx="0" fill="none" class="acc" stroke-width="0.6"/>
+<rect x="409" y="36" width="12" height="40" rx="0" class="soft"/>
+<rect x="409" y="36" width="12" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<rect x="422" y="36" width="12" height="40" rx="0" class="soft"/>
+<rect x="422" y="36" width="12" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<rect x="435" y="36" width="12" height="40" rx="0" class="soft"/>
+<rect x="435" y="36" width="12" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="345" y="96" font-size="12.5" text-anchor="middle" class="acc-fill">accent: lines now in the cache</text>
+<rect x="470" y="30" width="170" height="50" rx="4" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="555" y="51.5" font-size="13" text-anchor="middle">attacker: times its own</text>
+<text x="555" y="67.5" font-size="13" text-anchor="middle">memory or the server</text>
+<line x1="470" y1="55" x2="450" y2="55" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="450,55 456.4,52.3 456.4,57.7" fill="currentColor"/>
+<polyline points="555,80 555,140 330,140" fill="none" class="acc" stroke-width="1.4"/>
+<polygon points="330,140 336.4,137.3 336.4,142.7" class="acc-fill"/>
+<rect x="130" y="120" width="200" height="40" rx="4" class="soft-acc"/>
+<rect x="130" y="120" width="200" height="40" rx="4" fill="none" class="acc" stroke-width="1.4"/>
+<text x="230" y="144.6" font-size="13" text-anchor="middle">fast or slow ⇒ which line</text>
+<line x1="230" y1="160" x2="230" y2="185" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="230,185 227.3,178.6 232.7,178.6" fill="currentColor"/>
+<text x="330" y="205" font-size="13" text-anchor="middle">which line ⇒ bits of p ⊕ k ⇒ bits of k, since p is known</text>
+<text x="330" y="228" font-size="12.5" text-anchor="middle" fill-opacity="0.85">fix: AES instructions in hardware, or constant-time code with no secret-indexed tables</text>
+</svg>
+<figcaption>Figure 7.14. How the 2005 cache-timing attacks worked. Nothing about the mathematics of AES is used; the leak is which memory the program touches.</figcaption>
+</figure>
+
+!!! note "Life story: cache-timing attacks on AES"
+    **Born:** 2005, Daniel J. Bernstein (over a network) and Dag Arne Osvik, Adi
+    Shamir and Eran Tromer (from another process) · **Purpose:** to show that
+    table lookups indexed by secret data leak through the processor's cache ·
+    **Helped:** led to constant-time AES in software, such as Emilia Käsper and
+    Peter Schwabe's bitsliced AES (2009), and pushed processor makers to add AES
+    instructions · **Status:** current as a threat to any table-based code;
+    the Spectre and Meltdown attacks of 2018 read out their stolen data through
+    the same kind of cache timing
+
 The fixes were constant-time software, which computes the S-box without
 secret-dependent memory access (bitslicing), and above all **hardware**. Intel
 announced the AES-NI instructions in 2008 and shipped them in 2010; ARMv8
@@ -626,6 +1991,15 @@ processors have equivalent instructions. They run a whole AES round in one
 instruction, with no tables, many times faster than software. Power analysis and
 fault injection against smart cards and embedded chips are a separate story,
 told with the general methods in [Chapter 18](18-Side-Channels.md).
+
+!!! note "Life story: AES instructions in hardware"
+    **Born:** announced by Intel in 2008 and shipped in its processors from
+    2010 (AES-NI); ARM's version arrived with the ARMv8 architecture, announced
+    in 2011 · **Purpose:** AES that is both fast and free of table lookups, so
+    of cache leaks · **Helped:** made AES-GCM nearly free on servers, laptops and
+    phones, removing the speed argument against encrypting all web
+    traffic · **Status:**
+    current, in nearly every laptop, server and phone processor
 
 ## 7.10 In the real world
 

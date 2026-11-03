@@ -424,3 +424,9 @@
 .md-typeset figure.mars-fig .acc-fill { fill: var(--md-accent-fg-color); }
 .md-typeset figure.mars-fig .soft { fill: currentColor; fill-opacity: .08; }
 .md-typeset figure.mars-fig .soft-acc { fill: var(--md-accent-fg-color); fill-opacity: .18; }
+
+/* Long display formulas scroll inside their own box on phones instead of widening the page */
+.md-typeset .katex-display { overflow-x: auto; overflow-y: hidden; padding: .2em 0; }
+.md-typeset .arithmatex { max-width: 100%; }
+/* KaTeX's hidden screen-reader copy is absolutely placed; anchor it so it cannot widen the page on phones */
+.md-typeset .katex, .md-typeset .md-typeset__scrollwrap { position: relative; }
