@@ -48,6 +48,58 @@ the key holder could remove. Both were overshadowed by RSA, whose keys and
 signatures were tiny by comparison. Both are now standards, because the
 problem they rest on has resisted every attack, quantum ones included.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 580 444" width="580" role="img" aria-label="Timeline of hash-based, code-based, multivariate and isogeny cryptography, 1950 to 2025">
+<line x1="84" y1="12" x2="84" y2="432" stroke-width="2" stroke="currentColor" opacity="0.6"/>
+<circle cx="84" cy="22" r="5" fill="currentColor"/>
+<text x="70" y="27" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">1950</text>
+<text x="98" y="27" font-size="14" text-anchor="start" fill="currentColor">Hamming: codes that correct their own errors</text>
+<circle cx="84" cy="50" r="5" fill="currentColor"/>
+<text x="70" y="55" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">1970</text>
+<text x="98" y="55" font-size="14" text-anchor="start" fill="currentColor">Goppa codes</text>
+<circle cx="84" cy="78" r="5" class="acc-fill"/>
+<text x="70" y="83" font-size="14" text-anchor="end" class="acc-fill" font-weight="bold">1978</text>
+<text x="98" y="83" font-size="14" text-anchor="start" fill="currentColor">McEliece: encryption hidden in a code's errors</text>
+<circle cx="84" cy="106" r="5" class="acc-fill"/>
+<text x="70" y="111" font-size="14" text-anchor="end" class="acc-fill" font-weight="bold">1979</text>
+<text x="98" y="111" font-size="14" text-anchor="start" fill="currentColor">Lamport's one-time signature; Merkle's tree</text>
+<circle cx="84" cy="134" r="5" fill="currentColor"/>
+<text x="70" y="139" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">1986</text>
+<text x="98" y="139" font-size="14" text-anchor="start" fill="currentColor">Niederreiter's dual form</text>
+<circle cx="84" cy="162" r="5" fill="currentColor"/>
+<text x="70" y="167" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">1995</text>
+<text x="98" y="167" font-size="14" text-anchor="start" fill="currentColor">Leighton and Micali: the LMS patent</text>
+<circle cx="84" cy="190" r="5" fill="currentColor"/>
+<text x="70" y="195" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">1997</text>
+<text x="98" y="195" font-size="14" text-anchor="start" fill="currentColor">Patarin: Oil and Vinegar</text>
+<circle cx="84" cy="218" r="5" fill="currentColor"/>
+<text x="70" y="223" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">2005</text>
+<text x="98" y="223" font-size="14" text-anchor="start" fill="currentColor">Rainbow (Ding and Schmidt)</text>
+<circle cx="84" cy="246" r="5" fill="currentColor"/>
+<text x="70" y="251" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">2008</text>
+<text x="98" y="251" font-size="14" text-anchor="start" fill="currentColor">McEliece's 1978 parameters broken in practice</text>
+<circle cx="84" cy="274" r="5" fill="currentColor"/>
+<text x="70" y="279" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">2011</text>
+<text x="98" y="279" font-size="14" text-anchor="start" fill="currentColor">XMSS; SIDH (Jao and De Feo)</text>
+<circle cx="84" cy="302" r="5" fill="currentColor"/>
+<text x="70" y="307" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">2015</text>
+<text x="98" y="307" font-size="14" text-anchor="start" fill="currentColor">SPHINCS: hash signatures without state</text>
+<circle cx="84" cy="330" r="5" fill="currentColor"/>
+<text x="70" y="335" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">2020</text>
+<text x="98" y="335" font-size="14" text-anchor="start" fill="currentColor">SP 800-208: LMS and XMSS approved</text>
+<circle cx="84" cy="358" r="5" class="acc-fill"/>
+<text x="70" y="363" font-size="14" text-anchor="end" class="acc-fill" font-weight="bold">2022</text>
+<text x="98" y="363" font-size="14" text-anchor="start" fill="currentColor">Rainbow (February) and SIKE (July) broken</text>
+<circle cx="84" cy="386" r="5" class="acc-fill"/>
+<text x="70" y="391" font-size="14" text-anchor="end" class="acc-fill" font-weight="bold">2024</text>
+<text x="98" y="391" font-size="14" text-anchor="start" fill="currentColor">FIPS 205: SLH-DSA</text>
+<circle cx="84" cy="414" r="5" class="acc-fill"/>
+<text x="70" y="419" font-size="14" text-anchor="end" class="acc-fill" font-weight="bold">2025</text>
+<text x="98" y="419" font-size="14" text-anchor="start" fill="currentColor">HQC chosen as NIST's backup KEM</text>
+</svg>
+<figcaption>Figure 22.1. The two oldest post-quantum families date from 1978 and 1979 and became standards after 45 years; two much younger ones, Rainbow and SIKE, fell in the same year.</figcaption>
+</figure>
+
 ## 22.2 Lamport's one-time signature
 
 *Level: intermediate.* Lamport's idea needs only a hash function $H$ that can't
@@ -67,6 +119,61 @@ $x_0[0], x_1[1], x_1[2], x_0[3]$. Positions 0, 1 and 3 now have **both** secrets
 public. Only position 2 still has a hidden secret ($x_0[2]$). So anyone can sign
 every 4-bit message whose bit 2 is 1: eight of the sixteen. That is why it is a
 **one-time** signature.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 660 250" width="660" role="img" aria-label="A 4-bit Lamport key: which secrets are revealed after signing 1011, and after also signing 0110">
+<text x="130" y="22" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">after signing 1011</text>
+<text x="92" y="52" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">bit 0</text>
+<text x="147" y="52" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">bit 1</text>
+<text x="202" y="52" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">bit 2</text>
+<text x="257" y="52" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">bit 3</text>
+<text x="50" y="92" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">x₀</text>
+<rect x="70" y="66" width="44" height="44" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="92" y="94" font-size="11" text-anchor="middle" fill="currentColor" opacity="0.8">secret</text>
+<rect x="125" y="66" width="44" height="44" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="147" y="94" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">open</text>
+<rect x="180" y="66" width="44" height="44" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="202" y="94" font-size="11" text-anchor="middle" fill="currentColor" opacity="0.8">secret</text>
+<rect x="235" y="66" width="44" height="44" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="257" y="94" font-size="11" text-anchor="middle" fill="currentColor" opacity="0.8">secret</text>
+<text x="50" y="152" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">x₁</text>
+<rect x="70" y="126" width="44" height="44" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="92" y="154" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">open</text>
+<rect x="125" y="126" width="44" height="44" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="147" y="154" font-size="11" text-anchor="middle" fill="currentColor" opacity="0.8">secret</text>
+<rect x="180" y="126" width="44" height="44" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="202" y="154" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">open</text>
+<rect x="235" y="126" width="44" height="44" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="257" y="154" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">open</text>
+<text x="460" y="22" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">after also signing 0110</text>
+<text x="422" y="52" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">bit 0</text>
+<text x="477" y="52" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">bit 1</text>
+<text x="532" y="52" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">bit 2</text>
+<text x="587" y="52" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">bit 3</text>
+<text x="380" y="92" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">x₀</text>
+<rect x="400" y="66" width="44" height="44" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="422" y="94" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">open</text>
+<rect x="455" y="66" width="44" height="44" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="477" y="94" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">open</text>
+<rect x="510" y="66" width="44" height="44" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="532" y="94" font-size="11" text-anchor="middle" fill="currentColor" opacity="0.8">secret</text>
+<rect x="565" y="66" width="44" height="44" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="587" y="94" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">open</text>
+<text x="380" y="152" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">x₁</text>
+<rect x="400" y="126" width="44" height="44" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="422" y="154" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">open</text>
+<rect x="455" y="126" width="44" height="44" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="477" y="154" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">open</text>
+<rect x="510" y="126" width="44" height="44" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="532" y="154" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">open</text>
+<rect x="565" y="126" width="44" height="44" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="587" y="154" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">open</text>
+<text x="165" y="210" font-size="13" text-anchor="middle" fill="currentColor">a forger can sign only 1011</text>
+<text x="495" y="210" font-size="13" text-anchor="middle" fill="currentColor">positions 0, 1, 3 fully open:</text>
+<text x="495" y="228" font-size="13" text-anchor="middle" class="acc-fill" font-weight="bold">any message ??1? can be forged</text>
+</svg>
+<figcaption>Figure 22.2. A 4-bit Lamport key. Each signature opens one of the two secrets in every column. After one signature only that message can be signed; after a second, three columns have both secrets open, and eight of the sixteen messages (all with bit 2 = 1) are forgeable.</figcaption>
+</figure>
 
 **Code it.** Real keys sign the 256-bit SHA-256 hash of the message, so they
 hold 256 pairs of 32-byte secrets:
@@ -113,6 +220,22 @@ reuse roughly halves what is left.
 256 secrets, 8 KB, for one message. Everything else in this half of the chapter
 makes that smaller and makes "one message" into many.
 
+**Lamport's story.** Leslie Lamport is better known for other things: the
+clocks and consensus algorithms behind distributed computing, and the LaTeX
+system in which much of science is typeset. In 1979, at SRI International, he
+wrote up the one-time signature in a short technical report, at a time when
+public-key cryptography was three years old and nobody knew whether RSA would
+survive. His scheme needed no number theory at all, only a function that is easy
+to compute and hard to invert. It was too bulky to compete with RSA, and for
+decades it was a classroom example. Today it is the seed of every hash-based
+standard. Lamport received the Turing Award in 2013, for his work on distributed
+systems.
+
+!!! note "Life story: the Lamport one-time signature"
+    **Born:** 1979, Leslie Lamport at SRI International · **Purpose:** digital signatures from
+    nothing but a one-way function · **Helped:** the building block of Winternitz, Merkle, LMS, XMSS and
+    SLH-DSA · **Status:** still secure, one message per key; used today only inside its descendants
+
 ## 22.3 Winternitz chains
 
 *Level: intermediate.* Winternitz's trick signs several bits at once with a
@@ -136,6 +259,42 @@ To sign the digit 2, reveal `97eff218`. The verifier hashes it $3 - 2 = 1$ more
 time, gets `faa88dfc`, and accepts. One chain signed 2 bits; Lamport needed two
 secrets per bit.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 660 210" width="660" role="img" aria-label="A Winternitz hash chain of four values; signing the digit 2 reveals the third value">
+<rect x="20" y="60" width="120" height="44" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="80" y="88" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">secret</text>
+<text x="80" y="50" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">position 0</text>
+<line x1="142" y1="82" x2="175" y2="82" stroke-width="1.5" stroke="currentColor"/>
+<polygon points="183,82 175,78.4 175,85.6" fill="currentColor"/>
+<text x="162" y="74" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">H</text>
+<rect x="185" y="60" width="120" height="44" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="245" y="88" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">2bb80d53</text>
+<text x="245" y="50" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">position 1</text>
+<line x1="307" y1="82" x2="340" y2="82" stroke-width="1.5" stroke="currentColor"/>
+<polygon points="348,82 340,78.4 340,85.6" fill="currentColor"/>
+<text x="327" y="74" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">H</text>
+<rect x="350" y="60" width="120" height="44" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="410" y="88" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">97eff218</text>
+<text x="410" y="50" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">position 2</text>
+<line x1="472" y1="82" x2="505" y2="82" stroke-width="1.5" stroke="currentColor"/>
+<polygon points="513,82 505,78.4 505,85.6" fill="currentColor"/>
+<text x="492" y="74" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">H</text>
+<rect x="515" y="60" width="120" height="44" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="575" y="88" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">faa88dfc</text>
+<text x="575" y="50" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">position 3</text>
+<text x="80" y="125" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.8">private start</text>
+<text x="575" y="125" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.8">public end</text>
+<text x="410" y="125" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">signature for digit 2</text>
+<path d="M 440 132 C 470 175, 560 175, 575 132" stroke-width="1.5" fill="none" stroke="currentColor"/>
+<line x1="572" y1="140" x2="573" y2="137.4" stroke-width="1.5" stroke="currentColor"/>
+<polygon points="576,130 569.7,136.1 576.4,138.8" fill="currentColor"/>
+<text x="510" y="182" font-size="12" text-anchor="middle" fill="currentColor">verifier: hash 3 − 2 = 1 more time</text>
+<path d="M 380 132 C 300 190, 140 190, 80 132" stroke-width="1.5" fill="none" stroke="currentColor" stroke-dasharray="5 4"/>
+<text x="230" y="196" font-size="12" text-anchor="middle" fill="currentColor">going back needs a preimage: impossible</text>
+</svg>
+<figcaption>Figure 22.3. One Winternitz chain with the chapter's values (SHA-256 cut to 8 hex digits). To sign the digit 2 the signer reveals 97eff218; the verifier hashes it once more and must reach the public end faa88dfc. Anyone can walk forward, nobody can walk back.</figcaption>
+</figure>
+
 **The catch, and the checksum.** Anyone who sees `97eff218` can hash it once
 more and present `faa88dfc` as a signature of the digit 3. Hashing forward is
 easy; only backward is hard. So the signer also signs a **checksum**, the sum of
@@ -147,6 +306,69 @@ $1 + 3 + 0 + 2 = 6$, written in base 4 as $(1, 2)$. A forger who wants
 $(3, 0, 3, 1)$ can produce the first chain value, but the checksum becomes 5,
 or $(1, 1)$, and the second checksum digit must go from 2 down to 1. That is a
 preimage of the hash.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 660 270" width="660" role="img" aria-label="Four message chains and two checksum chains, with the signed position marked on each">
+<text x="60" y="30" font-size="13" text-anchor="middle" class="acc-fill" font-weight="bold">m₁ = 2</text>
+<circle cx="60" cy="210" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="60" y1="202" x2="60" y2="176" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="60" cy="168" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="60" y1="160" x2="60" y2="134" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="60" cy="126" r="11" class="acc-fill"/>
+<line x1="60" y1="118" x2="60" y2="92" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="60" cy="84" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<circle cx="60" cy="84" r="14" fill="none" class="acc" stroke-width="2" fill="none"/>
+<text x="82" y="70" font-size="11" text-anchor="start" fill="currentColor">forger: 2 → 3</text>
+<text x="160" y="30" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">m₂ = 0</text>
+<circle cx="160" cy="210" r="11" class="acc-fill"/>
+<line x1="160" y1="202" x2="160" y2="176" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="160" cy="168" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="160" y1="160" x2="160" y2="134" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="160" cy="126" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="160" y1="118" x2="160" y2="92" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="160" cy="84" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="260" y="30" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">m₃ = 3</text>
+<circle cx="260" cy="210" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="260" y1="202" x2="260" y2="176" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="260" cy="168" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="260" y1="160" x2="260" y2="134" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="260" cy="126" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="260" y1="118" x2="260" y2="92" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="260" cy="84" r="11" class="acc-fill"/>
+<text x="360" y="30" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">m₄ = 1</text>
+<circle cx="360" cy="210" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="360" y1="202" x2="360" y2="176" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="360" cy="168" r="11" class="acc-fill"/>
+<line x1="360" y1="160" x2="360" y2="134" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="360" cy="126" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="360" y1="118" x2="360" y2="92" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="360" cy="84" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="480" y="30" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">c₁ = 1</text>
+<circle cx="480" cy="210" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="480" y1="202" x2="480" y2="176" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="480" cy="168" r="11" class="acc-fill"/>
+<line x1="480" y1="160" x2="480" y2="134" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="480" cy="126" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="480" y1="118" x2="480" y2="92" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="480" cy="84" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="580" y="30" font-size="13" text-anchor="middle" class="acc-fill" font-weight="bold">c₂ = 2</text>
+<circle cx="580" cy="210" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="580" y1="202" x2="580" y2="176" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="580" cy="168" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="580" y1="160" x2="580" y2="134" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="580" cy="126" r="11" class="acc-fill"/>
+<line x1="580" y1="118" x2="580" y2="92" stroke-width="1" stroke="currentColor" opacity="0.5"/>
+<circle cx="580" cy="84" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<circle cx="580" cy="168" r="14" fill="none" class="acc" stroke-width="2" fill="none"/>
+<text x="580" y="236" font-size="11" text-anchor="middle" class="acc-fill" font-weight="bold">needs 2 → 1: backward!</text>
+<line x1="430" y1="40" x2="430" y2="230" stroke-width="1" stroke="currentColor" stroke-dasharray="4 4" opacity="0.6"/>
+<text x="20" y="214" font-size="11" text-anchor="middle" fill="currentColor" opacity="0.7">0</text>
+<text x="20" y="88" font-size="11" text-anchor="middle" fill="currentColor" opacity="0.7">3</text>
+<text x="330" y="262" font-size="12" text-anchor="end" fill="currentColor" opacity="0.8">message digits</text>
+<text x="450" y="262" font-size="12" text-anchor="start" fill="currentColor" opacity="0.8">checksum 6 = (1, 2) in base 4</text>
+</svg>
+<figcaption>Figure 22.4. Why the checksum stops forgery. The message (2, 0, 3, 1) has checksum 1 + 3 + 0 + 2 = 6, written (1, 2). Raising the first digit from 2 to 3 is easy (hash forward), but it lowers the checksum to 5 = (1, 1), and the second checksum chain would have to move backward from 2 to 1.</figcaption>
+</figure>
 
 With base 16, as XMSS and SLH-DSA use, a 256-bit hash is 64 digits plus a
 3-digit checksum: 67 chains of 15 steps instead of Lamport's 512 values. The
@@ -180,8 +402,56 @@ hashes it with `dd1d1884` (on the left, since leaf 1 is a right child) to get
 `171968e6`, then with `094f95e5` to get `0720d477`. That is the root, so the
 one-time key belonged to this tree.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 290" width="640" role="img" aria-label="A Merkle tree over four one-time public keys with the authentication path for leaf 1">
+<line x1="320" y1="60" x2="170" y2="110" stroke-width="2.5" class="acc"/>
+<line x1="320" y1="60" x2="470" y2="110" stroke-width="1.2" stroke="currentColor"/>
+<line x1="170" y1="150" x2="95" y2="200" stroke-width="1.2" stroke="currentColor"/>
+<line x1="170" y1="150" x2="245" y2="200" stroke-width="2.5" class="acc"/>
+<line x1="470" y1="150" x2="395" y2="200" stroke-width="1.2" stroke="currentColor"/>
+<line x1="470" y1="150" x2="545" y2="200" stroke-width="1.2" stroke="currentColor"/>
+<rect x="265" y="20" width="110" height="40" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="320" y="45" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">0720d477</text>
+<text x="320" y="14" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.8">root</text>
+<rect x="115" y="110" width="110" height="40" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="170" y="135" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">171968e6</text>
+<text x="108" y="135" font-size="12" text-anchor="end" fill="currentColor" opacity="0.8">left parent</text>
+<rect x="415" y="110" width="110" height="40" rx="4" class="soft" stroke="currentColor" stroke-width="2.5" stroke-dasharray="5 3"/>
+<text x="470" y="135" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">094f95e5</text>
+<text x="532" y="135" font-size="12" text-anchor="start" fill="currentColor" opacity="0.8">right parent</text>
+<rect x="40" y="200" width="110" height="40" rx="4" class="soft" stroke="currentColor" stroke-width="2.5" stroke-dasharray="5 3"/>
+<text x="95" y="225" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">dd1d1884</text>
+<text x="95" y="256" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.8">leaf 0</text>
+<rect x="190" y="200" width="110" height="40" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="245" y="225" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">6e73bff1</text>
+<text x="245" y="256" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.8">leaf 1</text>
+<rect x="340" y="200" width="110" height="40" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="395" y="225" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">11e85b77</text>
+<text x="395" y="256" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.8">leaf 2</text>
+<rect x="490" y="200" width="110" height="40" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="545" y="225" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">f7f5f313</text>
+<text x="545" y="256" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.8">leaf 3</text>
+<text x="320" y="285" font-size="12" text-anchor="middle" fill="currentColor">accent: recomputed by the verifier · dashed: sent in the signature</text>
+</svg>
+<figcaption>Figure 22.5. The chapter's four-leaf tree. To sign with leaf 1 the signer sends the authentication path, leaf 0 and the right parent (dashed). The verifier rebuilds leaf 1 from the one-time signature, then 171968e6, then the root 0720d477, and compares it with the public key.</figcaption>
+</figure>
+
 A tree of height $h$ holds $2^h$ one-time keys, and each signature carries $h$
 sibling hashes. With $h = 20$, a million signatures cost 20 extra hashes each.
+
+**Merkle's story.** Ralph Merkle had already invented a form of public-key
+agreement as a Berkeley student in 1974 ("Merkle's puzzles"). In his 1979
+Stanford thesis, under Martin Hellman, he showed how a tree of hashes lets one
+short public key vouch for many one-time keys. His paper on the idea, "A
+Certified Digital Signature", was published only at CRYPTO '89. The tree outlived
+the signature it was built for: Merkle trees now check files in Git and
+BitTorrent, transactions in Bitcoin, and certificates in Certificate
+Transparency logs.
+
+!!! note "Life story: the Merkle tree"
+    **Born:** 1979, Ralph Merkle's Stanford thesis · **Purpose:** put many one-time signature
+    keys under one public key · **Helped:** XMSS, LMS and SLH-DSA; also Git, Bitcoin, Certificate Transparency
+    and countless integrity checks · **Status:** current, everywhere
 
 ## 22.5 Code it: a stateful hash-based signature
 
@@ -269,6 +539,40 @@ Ordinary operations make the state go backward:
 - a crash after the signature leaves but before the new counter reaches disk
   (which is why the program updates `state` first).
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 230" width="640" role="img" aria-label="How a restored backup makes a stateful signer reuse a one-time key">
+<line x1="30" y1="110" x2="610" y2="110" stroke-width="1.5" stroke="currentColor"/>
+<circle cx="60" cy="110" r="7" fill="currentColor"/>
+<text x="60" y="95" font-size="12" text-anchor="middle" fill="currentColor">leaf 5</text>
+<circle cx="130" cy="110" r="7" fill="currentColor"/>
+<text x="130" y="95" font-size="12" text-anchor="middle" fill="currentColor">leaf 6</text>
+<circle cx="200" cy="110" r="7" fill="currentColor"/>
+<text x="200" y="95" font-size="12" text-anchor="middle" fill="currentColor">leaf 7</text>
+<circle cx="300" cy="110" r="7" fill="currentColor"/>
+<text x="300" y="95" font-size="12" text-anchor="middle" fill="currentColor">leaf 8</text>
+<circle cx="370" cy="110" r="7" fill="currentColor"/>
+<text x="370" y="95" font-size="12" text-anchor="middle" fill="currentColor">leaf 9</text>
+<circle cx="520" cy="110" r="7" class="acc-fill"/>
+<text x="520" y="95" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">leaf 7</text>
+<circle cx="590" cy="110" r="7" class="acc-fill"/>
+<text x="590" y="95" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">leaf 8</text>
+<rect x="170" y="128" width="60" height="26" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="200" y="146" font-size="12" text-anchor="middle" fill="currentColor">backup</text>
+<line x1="200" y1="154" x2="200" y2="182" stroke-width="1.5" stroke="currentColor"/>
+<polygon points="200,190 203.6,182 196.4,182" fill="currentColor"/>
+<text x="200" y="205" font-size="12" text-anchor="middle" fill="currentColor">state = 7 saved</text>
+<path d="M 230 205 C 330 225, 430 225, 470 150" stroke-width="1.5" fill="none" stroke="currentColor" stroke-dasharray="5 4"/>
+<line x1="466" y1="158" x2="467" y2="155.4" stroke-width="1.5" stroke="currentColor"/>
+<polygon points="470,148 463.7,154.1 470.4,156.8" fill="currentColor"/>
+<text x="470" y="140" font-size="12" text-anchor="end" fill="currentColor">crash: restore</text>
+<line x1="450" y1="50" x2="450" y2="125" stroke-width="2" class="acc"/>
+<text x="530" y="30" font-size="13" text-anchor="middle" class="acc-fill" font-weight="bold">leaf 7 signs twice:</text>
+<text x="530" y="48" font-size="13" text-anchor="middle" class="acc-fill">forgeries become possible</text>
+<text x="30" y="40" font-size="12" text-anchor="start" fill="currentColor" opacity="0.7">time →</text>
+</svg>
+<figcaption>Figure 22.6. The state problem. A backup taken when the counter said 7 is restored after leaves 7 to 9 were used, so the signer hands out leaf 7 again. With Winternitz keys two signatures on one leaf leave essentially no security.</figcaption>
+</figure>
+
 The standardized schemes are refinements of section 22.5:
 
 - **LMS** (Leighton-Micali Signatures), from a 1995 patent by Frank Leighton and
@@ -295,6 +599,13 @@ devices verify them for decades.
 Public keys are under 70 bytes. Full details:
 [Stateful hash-based signatures](../02-signatures/Stateful-Hash-Signatures.md).
 
+!!! note "Life story: LMS and XMSS"
+    **Born:** LMS from Frank Leighton and Silvio Micali's 1995 patent (RFC 8554, 2019); XMSS
+    from Johannes Buchmann, Erik Dahmen and Andreas Hülsing, 2011 (RFC 8391, 2018) · **Purpose:** practical
+    hash-based signatures with small keys · **Helped:** the first post-quantum signatures NIST approved
+    (SP 800-208, 2020); firmware and boot signing under CNSA 2.0 · **Status:** current, for careful signers
+    that can keep state in an HSM
+
 ## 22.7 SLH-DSA: dropping the state
 
 *Level: intermediate to advanced.* Can you have a hash-based signature with no
@@ -318,6 +629,49 @@ Three changes make that work.
 3. **The leaf comes from the message.** The signer computes a randomizer $R$
    from its secret and the message, hashes $R$ with the message, and uses part of
    the result to choose the hypertree leaf and the rest as the FORS digest.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 340" width="640" role="img" aria-label="SLH-DSA&#x27;s structure: a hypertree of small Merkle trees, with a FORS few-time signature at the bottom">
+<text x="320" y="22" font-size="12" text-anchor="middle" fill="currentColor" font-weight="bold">public key = root of the top tree</text>
+<polygon points="320,30 275,85 365,85" stroke-width="1.5" class="acc soft-acc" fill="none"/>
+<text x="320" y="77" font-size="11" text-anchor="middle" fill="currentColor">layer d−1</text>
+<polygon points="140,105 100,155 180,155" stroke-width="1" class="soft" fill="none"/>
+<polygon points="140,105 100,155 180,155" stroke-width="1" stroke="currentColor" fill="none"/>
+<polygon points="260,105 220,155 300,155" stroke-width="1.5" class="acc soft-acc" fill="none"/>
+<polygon points="380,105 340,155 420,155" stroke-width="1" class="soft" fill="none"/>
+<polygon points="380,105 340,155 420,155" stroke-width="1" stroke="currentColor" fill="none"/>
+<polygon points="500,105 460,155 540,155" stroke-width="1" class="soft" fill="none"/>
+<polygon points="500,105 460,155 540,155" stroke-width="1" stroke="currentColor" fill="none"/>
+<line x1="320" y1="85" x2="260" y2="105" stroke-width="2" class="acc"/>
+<polygon points="80,180 52,225 108,225" stroke-width="1" class="soft" fill="none"/>
+<polygon points="80,180 52,225 108,225" stroke-width="1" stroke="currentColor" fill="none"/>
+<polygon points="150,180 122,225 178,225" stroke-width="1" class="soft" fill="none"/>
+<polygon points="150,180 122,225 178,225" stroke-width="1" stroke="currentColor" fill="none"/>
+<polygon points="220,180 192,225 248,225" stroke-width="1.5" class="acc soft-acc" fill="none"/>
+<polygon points="290,180 262,225 318,225" stroke-width="1" class="soft" fill="none"/>
+<polygon points="290,180 262,225 318,225" stroke-width="1" stroke="currentColor" fill="none"/>
+<polygon points="360,180 332,225 388,225" stroke-width="1" class="soft" fill="none"/>
+<polygon points="360,180 332,225 388,225" stroke-width="1" stroke="currentColor" fill="none"/>
+<polygon points="430,180 402,225 458,225" stroke-width="1" class="soft" fill="none"/>
+<polygon points="430,180 402,225 458,225" stroke-width="1" stroke="currentColor" fill="none"/>
+<polygon points="500,180 472,225 528,225" stroke-width="1" class="soft" fill="none"/>
+<polygon points="500,180 472,225 528,225" stroke-width="1" stroke="currentColor" fill="none"/>
+<line x1="260" y1="155" x2="220" y2="180" stroke-width="2" class="acc"/>
+<text x="600" y="135" font-size="13" text-anchor="end" fill="currentColor">⋮  d layers</text>
+<text x="600" y="215" font-size="12" text-anchor="end" fill="currentColor">XMSS trees,</text>
+<text x="600" y="230" font-size="12" text-anchor="end" fill="currentColor">height h′ each</text>
+<polygon points="140,255 121,287 159,287" stroke-width="1.5" class="acc soft-acc" fill="none"/>
+<polygon points="190,255 171,287 209,287" stroke-width="1.5" class="acc soft-acc" fill="none"/>
+<polygon points="240,255 221,287 259,287" stroke-width="1.5" class="acc soft-acc" fill="none"/>
+<polygon points="290,255 271,287 309,287" stroke-width="1.5" class="acc soft-acc" fill="none"/>
+<polygon points="340,255 321,287 359,287" stroke-width="1.5" class="acc soft-acc" fill="none"/>
+<line x1="220" y1="225" x2="240" y2="255" stroke-width="2" class="acc"/>
+<text x="450" y="275" font-size="13" text-anchor="start" fill="currentColor" font-weight="bold">FORS: k small trees</text>
+<text x="450" y="293" font-size="12" text-anchor="start" fill="currentColor">sign the message digest</text>
+<text x="320" y="325" font-size="12" text-anchor="middle" fill="currentColor">each tree's WOTS+ keys sign the root of one tree below; only the accented path is computed</text>
+</svg>
+<figcaption>Figure 22.7. SLH-DSA in one picture. The message hash picks one bottom tree (a leaf among 2⁶³ for the 128s sets); a FORS key there signs the digest; each layer's one-time key signs the root of the layer below, up to the public key. The signer builds only the accented path, from its secret seed.</figcaption>
+</figure>
 
 **The size, by formula.** A signature is the randomizer, the FORS signature
 (for each of $k$ trees, one secret plus $a$ path hashes), and for each of $d$
@@ -355,6 +709,63 @@ August 2024. Use it for things signed rarely and trusted for decades: root
 certificates, firmware, boot loaders, and as a second kind of mathematics next
 to ML-DSA. Full details: [SLH-DSA reference](../02-signatures/SLH-DSA.md).
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 360" width="640" role="img" aria-label="Signature sizes in bytes on a log scale, from Ed25519 to SLH-DSA-256f">
+<line x1="170" y1="15" x2="170" y2="320" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="170" y="338" font-size="12" text-anchor="middle" fill="currentColor">10</text>
+<line x1="280" y1="15" x2="280" y2="320" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="280" y="338" font-size="12" text-anchor="middle" fill="currentColor">100</text>
+<line x1="390" y1="15" x2="390" y2="320" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="390" y="338" font-size="12" text-anchor="middle" fill="currentColor">1,000</text>
+<line x1="500" y1="15" x2="500" y2="320" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="500" y="338" font-size="12" text-anchor="middle" fill="currentColor">10,000</text>
+<line x1="610" y1="15" x2="610" y2="320" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="610" y="338" font-size="12" text-anchor="middle" fill="currentColor">100,000</text>
+<text x="162" y="33" font-size="13" text-anchor="end" fill="currentColor">Ed25519</text>
+<rect x="170" y="21" width="88.7" height="18" fill="currentColor" fill-opacity="0.4"/>
+<text x="264.7" y="35" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">64</text>
+<text x="162" y="66" font-size="13" text-anchor="end" fill="currentColor">toy XMSS (22.5)</text>
+<rect x="170" y="54" width="197.8" height="18" class="acc-fill"/>
+<text x="373.8" y="68" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">628</text>
+<text x="162" y="99" font-size="13" text-anchor="end" fill="currentColor">LMS h=10, w=8</text>
+<rect x="170" y="87" width="237.8" height="18" class="acc-fill"/>
+<text x="413.8" y="101" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">1,452</text>
+<text x="162" y="132" font-size="13" text-anchor="end" fill="currentColor">ML-DSA-44</text>
+<rect x="170" y="120" width="262.2" height="18" fill="currentColor" fill-opacity="0.4"/>
+<text x="438.2" y="134" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">2,420</text>
+<text x="162" y="165" font-size="13" text-anchor="end" fill="currentColor">XMSS-SHA2_20_256</text>
+<rect x="170" y="153" width="269.5" height="18" class="acc-fill"/>
+<text x="445.5" y="167" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">2,820</text>
+<text x="162" y="198" font-size="13" text-anchor="end" fill="currentColor">SLH-DSA-128s</text>
+<rect x="170" y="186" width="318.5" height="18" class="acc-fill"/>
+<text x="494.5" y="200" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">7,856</text>
+<text x="162" y="231" font-size="13" text-anchor="end" fill="currentColor">Lamport</text>
+<rect x="170" y="219" width="320.5" height="18" class="acc-fill"/>
+<text x="496.5" y="233" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">8,192</text>
+<text x="162" y="264" font-size="13" text-anchor="end" fill="currentColor">SLH-DSA-128f</text>
+<rect x="170" y="252" width="355.6" height="18" class="acc-fill"/>
+<text x="531.6" y="266" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">17,088</text>
+<text x="162" y="297" font-size="13" text-anchor="end" fill="currentColor">SLH-DSA-256f</text>
+<rect x="170" y="285" width="406.7" height="18" class="acc-fill"/>
+<text x="582.7" y="299" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">49,856</text>
+<text x="170" y="356" font-size="12" text-anchor="start" fill="currentColor">accent: hash-based (stateful and stateless); gray: other families for comparison</text>
+</svg>
+<figcaption>Figure 22.8. What hash-based signatures cost. Stateful LMS and XMSS stay under 3 KB; stateless SLH-DSA pays 8 to 50 KB for not keeping a counter. Lamport's original is 8 KB for a single message.</figcaption>
+</figure>
+
+**SPHINCS's story.** The stateless design came from a European team around Daniel
+Bernstein, Andreas Hülsing, Tanja Lange and Peter Schwabe, who presented SPHINCS at
+EUROCRYPT 2015 to show that hash-based signatures could be used like ordinary
+ones. Its successor SPHINCS+, with FORS and tweakable hashes, was submitted to
+NIST in 2017. NIST picked it in 2022 precisely because it was different: if
+lattices ever fall, a signature resting only on hashes is already standardized.
+
+!!! note "Life story: SPHINCS+ / SLH-DSA"
+    **Born:** 2015 (SPHINCS) and 2017 (SPHINCS+), a team led by Daniel Bernstein and Andreas
+    Hülsing · **Purpose:** hash-based signatures without a counter · **Helped:** NIST's conservative second
+    signature; root certificates and firmware where size matters less than trust · **Status:** current;
+    FIPS 205 (2024)
+
 ## 22.8 Error-correcting codes
 
 *Level: intermediate.* Now the second family. An **error-correcting code** adds
@@ -387,6 +798,75 @@ which is the third column of $H$. So bit 3 is wrong; flip it back. In general,
 if $y = c + e$, then $Hy = Hc + He = He$: the syndrome depends **only on the
 error**, and for the Hamming code it names the error's position directly.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 620 270" width="620" role="img" aria-label="The Hamming parity-check matrix, the received word 1001010, and its syndrome, which equals column 3">
+<text x="140" y="48" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">1</text>
+<text x="180" y="48" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">2</text>
+<text x="220" y="48" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">3</text>
+<rect x="202" y="56" width="36" height="128" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="260" y="48" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">4</text>
+<text x="300" y="48" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">5</text>
+<text x="340" y="48" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">6</text>
+<text x="380" y="48" font-size="12" text-anchor="middle" fill="currentColor" opacity="0.75">7</text>
+<text x="140" y="86" font-size="16" text-anchor="middle" fill="currentColor">1</text>
+<text x="180" y="86" font-size="16" text-anchor="middle" fill="currentColor">1</text>
+<text x="220" y="86" font-size="16" text-anchor="middle" fill="currentColor" font-weight="bold">0</text>
+<text x="260" y="86" font-size="16" text-anchor="middle" fill="currentColor">1</text>
+<text x="300" y="86" font-size="16" text-anchor="middle" fill="currentColor">1</text>
+<text x="340" y="86" font-size="16" text-anchor="middle" fill="currentColor">0</text>
+<text x="380" y="86" font-size="16" text-anchor="middle" fill="currentColor">0</text>
+<text x="140" y="126" font-size="16" text-anchor="middle" fill="currentColor">1</text>
+<text x="180" y="126" font-size="16" text-anchor="middle" fill="currentColor">0</text>
+<text x="220" y="126" font-size="16" text-anchor="middle" fill="currentColor" font-weight="bold">1</text>
+<text x="260" y="126" font-size="16" text-anchor="middle" fill="currentColor">1</text>
+<text x="300" y="126" font-size="16" text-anchor="middle" fill="currentColor">0</text>
+<text x="340" y="126" font-size="16" text-anchor="middle" fill="currentColor">1</text>
+<text x="380" y="126" font-size="16" text-anchor="middle" fill="currentColor">0</text>
+<text x="140" y="166" font-size="16" text-anchor="middle" fill="currentColor">0</text>
+<text x="180" y="166" font-size="16" text-anchor="middle" fill="currentColor">1</text>
+<text x="220" y="166" font-size="16" text-anchor="middle" fill="currentColor" font-weight="bold">1</text>
+<text x="260" y="166" font-size="16" text-anchor="middle" fill="currentColor">1</text>
+<text x="300" y="166" font-size="16" text-anchor="middle" fill="currentColor">0</text>
+<text x="340" y="166" font-size="16" text-anchor="middle" fill="currentColor">0</text>
+<text x="380" y="166" font-size="16" text-anchor="middle" fill="currentColor">1</text>
+<text x="104" y="126" font-size="16" text-anchor="end" fill="currentColor" font-weight="bold">H =</text>
+<text x="104" y="246" font-size="13" text-anchor="end" fill="currentColor">received:</text>
+<text x="140" y="246" font-size="16" text-anchor="middle" fill="currentColor" font-weight="bold">1</text>
+<text x="180" y="246" font-size="16" text-anchor="middle" fill="currentColor" font-weight="bold">0</text>
+<text x="220" y="246" font-size="16" text-anchor="middle" class="acc-fill" font-weight="bold">0</text>
+<text x="260" y="246" font-size="16" text-anchor="middle" fill="currentColor" font-weight="bold">1</text>
+<text x="300" y="246" font-size="16" text-anchor="middle" fill="currentColor" font-weight="bold">0</text>
+<text x="340" y="246" font-size="16" text-anchor="middle" fill="currentColor" font-weight="bold">1</text>
+<text x="380" y="246" font-size="16" text-anchor="middle" fill="currentColor" font-weight="bold">0</text>
+<text x="220" y="266" font-size="11" text-anchor="middle" class="acc-fill">flipped</text>
+<text x="470" y="48" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">syndrome H·y</text>
+<rect x="450" y="64" width="40" height="32" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="470" y="86" font-size="16" text-anchor="middle" fill="currentColor" font-weight="bold">0</text>
+<rect x="450" y="104" width="40" height="32" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="470" y="126" font-size="16" text-anchor="middle" fill="currentColor" font-weight="bold">1</text>
+<rect x="450" y="144" width="40" height="32" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="470" y="166" font-size="16" text-anchor="middle" fill="currentColor" font-weight="bold">1</text>
+<text x="510" y="126" font-size="13" text-anchor="start" class="acc-fill" font-weight="bold">= column 3</text>
+<text x="470" y="246" font-size="12" text-anchor="middle" fill="currentColor">so flip bit 3 back:</text>
+<text x="470" y="264" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">1011010</text>
+</svg>
+<figcaption>Figure 22.9. Decoding the Hamming code by hand. The codeword 1011010 arrives as 1001010. The syndrome counts, mod 2, the 1s each row of H shares with the received word: (0, 1, 1). That is column 3 of H, so bit 3 is the one that flipped.</figcaption>
+</figure>
+
+**Hamming's story.** Richard Hamming worked at Bell Labs in the late 1940s and
+could use the company's relay computer only on weekends, when nobody watched it.
+When the machine detected an error it simply stopped, and his job was lost until
+Monday. Frustrated, he asked why a machine that could detect an error could not
+also find and fix it, and the answer was the code above, published in 1950.
+Error-correcting codes then went everywhere: memory chips, CDs, QR codes, mobile
+phones, and the deep-space links on which McEliece would later work.
+
+!!! note "Life story: the Hamming code"
+    **Born:** 1950, Richard Hamming at Bell Labs · **Purpose:** let computers fix single bit errors
+    by themselves · **Helped:** started coding theory; ECC memory still uses Hamming-style codes · **Status:**
+    current in hardware; in cryptography it is only the teaching example, since its structure is far too
+    visible
+
 **Why decoding is hard in general.** For a code with a nice structure
 (Hamming, Reed-Solomon, Goppa) there are fast decoders. For a **random** code,
 finding the low-weight $e$ with a given syndrome $He$ is NP-hard in general
@@ -411,6 +891,39 @@ simplest to show:
   syndrome $c = H' e$. In a KEM the shared key is a hash of $e$ and $c$.
 - **Decrypt:** $S^{-1} c = H (P e)$ is a syndrome for the real code, so the fast
   decoder finds $Pe$; undo the permutation to get $e$.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 660 250" width="660" role="img" aria-label="Niederreiter encryption: the public matrix hides the code; the ciphertext is a syndrome">
+<rect x="10" y="20" width="190" height="70" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="105" y="51.2" font-size="12" text-anchor="middle" fill="currentColor">private: H (fast decoder),</text>
+<text x="105" y="67.2" font-size="12" text-anchor="middle" fill="currentColor">scrambler S, shuffle P</text>
+<line x1="200" y1="55" x2="242" y2="55" stroke-width="1.5" stroke="currentColor"/>
+<polygon points="250,55 242,51.4 242,58.6" fill="currentColor"/>
+<rect x="252" y="30" width="150" height="50" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="327" y="59.5" font-size="13" text-anchor="middle" fill="currentColor">public: H′ = S·H·P</text>
+<rect x="10" y="150" width="190" height="60" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="105" y="176.2" font-size="12" text-anchor="middle" fill="currentColor">sender picks a secret</text>
+<text x="105" y="192.2" font-size="12" text-anchor="middle" fill="currentColor">error e with t ones</text>
+<line x1="200" y1="180" x2="242" y2="180" stroke-width="1.5" stroke="currentColor"/>
+<polygon points="250,180 242,176.4 242,183.6" fill="currentColor"/>
+<rect x="252" y="155" width="150" height="50" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="327" y="176.2" font-size="12" text-anchor="middle" fill="currentColor">c = H′·e</text>
+<text x="327" y="192.2" font-size="12" text-anchor="middle" fill="currentColor">(a syndrome)</text>
+<line x1="327" y1="82" x2="327" y2="144" stroke-width="1.5" stroke="currentColor"/>
+<polygon points="327,152 330.6,144 323.4,144" fill="currentColor"/>
+<line x1="402" y1="180" x2="444" y2="180" stroke-width="1.5" stroke="currentColor"/>
+<polygon points="452,180 444,176.4 444,183.6" fill="currentColor"/>
+<rect x="454" y="130" width="196" height="100" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="552" y="160.2" font-size="12" text-anchor="middle" fill="currentColor">receiver:</text>
+<text x="552" y="176.2" font-size="12" text-anchor="middle" fill="currentColor">S⁻¹·c = H·(P·e)</text>
+<text x="552" y="192.2" font-size="12" text-anchor="middle" fill="currentColor">fast decoder → P·e</text>
+<text x="552" y="208.2" font-size="12" text-anchor="middle" fill="currentColor">unshuffle → e</text>
+<text x="560" y="50" font-size="12" text-anchor="middle" fill="currentColor">everyone else sees a</text>
+<text x="560" y="66" font-size="12" text-anchor="middle" fill="currentColor">random-looking code:</text>
+<text x="560" y="82" font-size="12" text-anchor="middle" fill="currentColor" font-weight="bold">decoding is hard</text>
+</svg>
+<figcaption>Figure 22.10. McEliece in Niederreiter's form, as Classic McEliece uses it. The secret is a code with a fast decoder; the public key is a scrambled, shuffled copy that looks random. Only the key holder can strip the disguise and find the error pattern e.</figcaption>
+</figure>
 
 **Code it,** with the Hamming code ($t = 1$). The message is the position of the
 single error:
@@ -484,6 +997,62 @@ such as a VPN peer's static key (the WireGuard add-on Rosenpass uses it this
 way), and rules out sending a fresh key in every TLS handshake. Full details:
 [code-based KEMs](../01-key-exchange/Code-Based-KEMs.md).
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 360" width="640" role="img" aria-label="Public key size against ciphertext size, both on log scales, for Classic McEliece, ML-KEM and HQC">
+<line x1="80" y1="30" x2="80" y2="300" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="80" y="318" font-size="12" text-anchor="middle" fill="currentColor">100 B</text>
+<line x1="186" y1="30" x2="186" y2="300" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="186" y="318" font-size="12" text-anchor="middle" fill="currentColor">1 KB</text>
+<line x1="292" y1="30" x2="292" y2="300" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="292" y="318" font-size="12" text-anchor="middle" fill="currentColor">10 KB</text>
+<line x1="398" y1="30" x2="398" y2="300" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="398" y="318" font-size="12" text-anchor="middle" fill="currentColor">100 KB</text>
+<line x1="504" y1="30" x2="504" y2="300" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="504" y="318" font-size="12" text-anchor="middle" fill="currentColor">1 MB</text>
+<line x1="610" y1="30" x2="610" y2="300" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="610" y="318" font-size="12" text-anchor="middle" fill="currentColor">10 MB</text>
+<line x1="80" y1="300" x2="610" y2="300" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="72" y="304" font-size="12" text-anchor="end" fill="currentColor">10 B</text>
+<line x1="80" y1="210" x2="610" y2="210" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="72" y="214" font-size="12" text-anchor="end" fill="currentColor">100 B</text>
+<line x1="80" y1="120" x2="610" y2="120" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="72" y="124" font-size="12" text-anchor="end" fill="currentColor">1 KB</text>
+<line x1="80" y1="30" x2="610" y2="30" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="72" y="34" font-size="12" text-anchor="end" fill="currentColor">10 KB</text>
+<text x="345" y="340" font-size="13" text-anchor="middle" fill="currentColor">public key</text>
+<text x="10" y="18" font-size="13" text-anchor="start" fill="currentColor">ciphertext</text>
+<circle cx="442.2" cy="211.6" r="6" class="acc-fill"/>
+<circle cx="474.3" cy="192.6" r="6" class="acc-fill"/>
+<circle cx="506" cy="181.4" r="6" class="acc-fill"/>
+<circle cx="518.1" cy="181.4" r="6" class="acc-fill"/>
+<circle cx="175.7" cy="130.3" r="6" fill="currentColor"/>
+<circle cx="193.8" cy="116.7" r="6" fill="currentColor"/>
+<circle cx="206.7" cy="102.4" r="6" fill="currentColor"/>
+<circle cx="222.3" cy="62.1" r="6" fill="currentColor"/>
+<text x="434.2" y="215.6" font-size="12" text-anchor="end" class="acc-fill" font-weight="bold">Classic McEliece (4 sets)</text>
+<text x="203.8" y="134.7" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">ML-KEM 512 / 768 / 1024</text>
+<text x="232.3" y="60.1" font-size="12" text-anchor="start" fill="currentColor">HQC-128 (≈2.2 KB, 4.4 KB)</text>
+</svg>
+<figcaption>Figure 22.11. Two opposite trade-offs. Classic McEliece's ciphertexts are under 210 bytes but its public keys are 0.26 to 1.36 MB; ML-KEM keeps both near 1 KB; HQC's quasi-cyclic codes land close to ML-KEM, with larger ciphertexts.</figcaption>
+</figure>
+
+**McEliece's story.** Robert McEliece was a coding theorist at Caltech and NASA's
+Jet Propulsion Laboratory, where codes carried pictures home from planetary
+probes. In 1978, two years after Diffie and Hellman asked for public-key systems,
+he published his in a JPL progress report: the first public-key scheme built on
+codes, and, it turned out, one of the very few early ones that has never been
+broken at sensible sizes. Its keys of hundreds of kilobytes, unthinkable in
+1978, kept it a curiosity until the quantum threat made its long record valuable.
+McEliece received the Shannon Award, the top honor in information theory, in
+2004, and died in 2019. Classic McEliece, the modern version, was submitted to
+NIST in 2017 by a team including Daniel Bernstein and Tanja Lange.
+
+!!! note "Life story: McEliece"
+    **Born:** 1978, Robert McEliece at JPL · **Purpose:** public-key encryption from the hardness of
+    decoding · **Helped:** the oldest unbroken post-quantum encryption; Classic McEliece for static keys (for
+    example Rosenpass for WireGuard) · **Status:** unbroken at proper sizes; a NIST fourth-round candidate not
+    selected in 2025, being standardized at ISO; Germany's BSI advised caution in 2026
+
 ## 22.10 HQC and BIKE: smaller keys from structure
 
 *Level: intermediate to advanced.* The way to shrink a code-based key repeats the
@@ -511,6 +1080,12 @@ On 11 March 2025 NIST chose HQC over BIKE as its backup KEM, in case a
 breakthrough ever hurts ML-KEM. Its standard was still being drafted in 2026.
 Classic McEliece went to ISO instead of NIST.
 
+!!! note "Life story: HQC"
+    **Born:** 2017, a French team around Carlos Aguilar Melchor and Philippe Gaborit ·
+    **Purpose:** code-based key encapsulation with small keys, using quasi-cyclic codes · **Helped:** a backup
+    from a different family in case lattices fail · **Status:** chosen by NIST on 11 March 2025; standard
+    being drafted in 2026
+
 ## 22.11 Break it: SIKE and Rainbow
 
 *Level: intermediate to advanced.* The hash-based and code-based families earned
@@ -532,6 +1107,84 @@ published "Breaking Rainbow Takes a Weekend on a Laptop", recovering a level-1
 key in about 53 hours. The extra layer that made Rainbow efficient gave the
 attacker a foothold that plain UOV doesn't have.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 520 340" width="520" role="img" aria-label="Which products of variables appear in an Oil and Vinegar equation: oil times oil never does">
+<text x="165" y="42" font-size="12" text-anchor="middle" fill="currentColor" font-weight="bold">v₁</text>
+<text x="142" y="70" font-size="12" text-anchor="end" fill="currentColor" font-weight="bold">v₁</text>
+<text x="195" y="42" font-size="12" text-anchor="middle" fill="currentColor" font-weight="bold">v₂</text>
+<text x="142" y="100" font-size="12" text-anchor="end" fill="currentColor" font-weight="bold">v₂</text>
+<text x="225" y="42" font-size="12" text-anchor="middle" fill="currentColor" font-weight="bold">v₃</text>
+<text x="142" y="130" font-size="12" text-anchor="end" fill="currentColor" font-weight="bold">v₃</text>
+<text x="255" y="42" font-size="12" text-anchor="middle" fill="currentColor" font-weight="bold">v₄</text>
+<text x="142" y="160" font-size="12" text-anchor="end" fill="currentColor" font-weight="bold">v₄</text>
+<text x="285" y="42" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">o₁</text>
+<text x="142" y="190" font-size="12" text-anchor="end" class="acc-fill" font-weight="bold">o₁</text>
+<text x="315" y="42" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">o₂</text>
+<text x="142" y="220" font-size="12" text-anchor="end" class="acc-fill" font-weight="bold">o₂</text>
+<text x="345" y="42" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">o₃</text>
+<text x="142" y="250" font-size="12" text-anchor="end" class="acc-fill" font-weight="bold">o₃</text>
+<rect x="150" y="50" width="28" height="28" rx="2" class="soft" stroke="currentColor" stroke-width="0.6"/>
+<rect x="180" y="50" width="28" height="28" rx="2" class="soft" stroke="currentColor" stroke-width="0.6"/>
+<rect x="210" y="50" width="28" height="28" rx="2" class="soft" stroke="currentColor" stroke-width="0.6"/>
+<rect x="240" y="50" width="28" height="28" rx="2" class="soft" stroke="currentColor" stroke-width="0.6"/>
+<rect x="270" y="50" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="300" y="50" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="330" y="50" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="150" y="80" width="28" height="28" rx="2" class="soft" stroke="currentColor" stroke-width="0.6"/>
+<rect x="180" y="80" width="28" height="28" rx="2" class="soft" stroke="currentColor" stroke-width="0.6"/>
+<rect x="210" y="80" width="28" height="28" rx="2" class="soft" stroke="currentColor" stroke-width="0.6"/>
+<rect x="240" y="80" width="28" height="28" rx="2" class="soft" stroke="currentColor" stroke-width="0.6"/>
+<rect x="270" y="80" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="300" y="80" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="330" y="80" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="150" y="110" width="28" height="28" rx="2" class="soft" stroke="currentColor" stroke-width="0.6"/>
+<rect x="180" y="110" width="28" height="28" rx="2" class="soft" stroke="currentColor" stroke-width="0.6"/>
+<rect x="210" y="110" width="28" height="28" rx="2" class="soft" stroke="currentColor" stroke-width="0.6"/>
+<rect x="240" y="110" width="28" height="28" rx="2" class="soft" stroke="currentColor" stroke-width="0.6"/>
+<rect x="270" y="110" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="300" y="110" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="330" y="110" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="150" y="140" width="28" height="28" rx="2" class="soft" stroke="currentColor" stroke-width="0.6"/>
+<rect x="180" y="140" width="28" height="28" rx="2" class="soft" stroke="currentColor" stroke-width="0.6"/>
+<rect x="210" y="140" width="28" height="28" rx="2" class="soft" stroke="currentColor" stroke-width="0.6"/>
+<rect x="240" y="140" width="28" height="28" rx="2" class="soft" stroke="currentColor" stroke-width="0.6"/>
+<rect x="270" y="140" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="300" y="140" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="330" y="140" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="150" y="170" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="180" y="170" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="210" y="170" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="240" y="170" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="270" y="170" width="28" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3"/>
+<rect x="300" y="170" width="28" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3"/>
+<rect x="330" y="170" width="28" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3"/>
+<rect x="150" y="200" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="180" y="200" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="210" y="200" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="240" y="200" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="270" y="200" width="28" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3"/>
+<rect x="300" y="200" width="28" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3"/>
+<rect x="330" y="200" width="28" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3"/>
+<rect x="150" y="230" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="180" y="230" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="210" y="230" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="240" y="230" width="28" height="28" rx="2" class="soft-acc" stroke="currentColor" stroke-width="0.6"/>
+<rect x="270" y="230" width="28" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3"/>
+<rect x="300" y="230" width="28" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3"/>
+<rect x="330" y="230" width="28" height="28" rx="2" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="315" y="219" font-size="22" text-anchor="middle" fill="currentColor" font-weight="bold">0</text>
+<text x="255" y="286" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">oil × oil terms are missing</text>
+<text x="255" y="304" font-size="13" text-anchor="middle" fill="currentColor">fix the vinegar → linear in the oil</text>
+</svg>
+<figcaption>Figure 22.12. Patarin's trapdoor. In the private equations, every product of two variables may appear except oil times oil (the empty corner). Once the signer picks values for the vinegar variables, the equations become linear in the oil ones and are easy to solve.</figcaption>
+</figure>
+
+!!! note "Life story: Rainbow"
+    **Born:** 2005, Jintai Ding and Dieter Schmidt, from Patarin's 1997 Oil and Vinegar ·
+    **Purpose:** fast signatures from multivariate quadratic equations · **Helped:** a NIST finalist in 2020 ·
+    **Broken:** February 2022 by Ward Beullens: a level-1 key in about 53 hours on a laptop · **Replaced by:**
+    ML-DSA; plain UOV and MAYO are still being studied
+
 **SIKE (isogenies, broken July 2022).** An isogeny is a map between elliptic
 curves that respects their addition. SIDH (David Jao and Luca De Feo, 2011)
 built a key exchange from secret walks between supersingular curves, with the
@@ -543,6 +1196,13 @@ Ernst Kani about curves of genus two, together with those published points, to
 recover a SIKEp434 key in about an hour on one core. Follow-up papers made the
 attack work in polynomial time for every parameter set. No quantum computer was
 involved.
+
+!!! note "Life story: SIKE"
+    **Born:** 2011 (SIDH, David Jao and Luca De Feo), submitted as SIKE in 2017 · **Purpose:**
+    post-quantum key exchange with the smallest keys · **Helped:** a fourth-round NIST candidate and the subject
+    of large industry experiments · **Broken:** July 2022, by Wouter Castryck and Thomas Decru, classically, in
+    about an hour, using a 1997 theorem of Ernst Kani · **Replaced by:** ML-KEM; isogeny research moved to
+    CSIDH and SQIsign
 
 **What the breaks teach.**
 
@@ -559,6 +1219,38 @@ involved.
   SLH-DSA beside ML-DSA, HQC beside ML-KEM. Isogenies are not dead either:
   CSIDH and the signature SQIsign publish no extra points and are unaffected;
   UOV and its relative MAYO remain in NIST's search for additional signatures.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 260" width="640" role="img" aria-label="How long each assumption has survived: SIDH 11 years and Rainbow 17 before breaking, the others still standing">
+<line x1="228.8" y1="15" x2="228.8" y2="210" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="228.8" y="228" font-size="12" text-anchor="middle" fill="currentColor">1980</text>
+<line x1="286.5" y1="15" x2="286.5" y2="210" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="286.5" y="228" font-size="12" text-anchor="middle" fill="currentColor">1990</text>
+<line x1="344.2" y1="15" x2="344.2" y2="210" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="344.2" y="228" font-size="12" text-anchor="middle" fill="currentColor">2000</text>
+<line x1="401.9" y1="15" x2="401.9" y2="210" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="401.9" y="228" font-size="12" text-anchor="middle" fill="currentColor">2010</text>
+<line x1="459.6" y1="15" x2="459.6" y2="210" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="459.6" y="228" font-size="12" text-anchor="middle" fill="currentColor">2020</text>
+<text x="192" y="38" font-size="13" text-anchor="end" fill="currentColor">SIDH / SIKE</text>
+<rect x="407.7" y="26" width="63.5" height="18" class="acc-fill"/>
+<text x="477.2" y="39" font-size="12" text-anchor="start" class="acc-fill" font-weight="bold">broken 2022 (11 years)</text>
+<text x="192" y="76" font-size="13" text-anchor="end" fill="currentColor">Rainbow</text>
+<rect x="373.1" y="64" width="98.1" height="18" class="acc-fill"/>
+<text x="477.2" y="77" font-size="12" text-anchor="start" class="acc-fill" font-weight="bold">broken 2022 (17 years)</text>
+<text x="192" y="114" font-size="13" text-anchor="end" fill="currentColor">NTRU (lattices)</text>
+<rect x="321.2" y="102" width="173.1" height="18" fill="currentColor" fill-opacity="0.4"/>
+<text x="498.2" y="115" font-size="14" text-anchor="start" fill="currentColor" font-weight="bold">→</text>
+<text x="192" y="152" font-size="13" text-anchor="end" fill="currentColor">Lamport / Merkle (hashes)</text>
+<rect x="223.1" y="140" width="271.2" height="18" fill="currentColor" fill-opacity="0.4"/>
+<text x="498.2" y="153" font-size="14" text-anchor="start" fill="currentColor" font-weight="bold">→</text>
+<text x="192" y="190" font-size="13" text-anchor="end" fill="currentColor">McEliece (Goppa codes)</text>
+<rect x="217.3" y="178" width="276.9" height="18" fill="currentColor" fill-opacity="0.4"/>
+<text x="498.2" y="191" font-size="14" text-anchor="start" fill="currentColor" font-weight="bold">→</text>
+<text x="200" y="252" font-size="12" text-anchor="start" fill="currentColor" opacity="0.8">gray bars: still standing in 2026</text>
+</svg>
+<figcaption>Figure 22.13. Trust is earned by surviving. The two schemes broken in 2022 were 11 and 17 years old; the hash and code assumptions behind SLH-DSA and Classic McEliece have survived for over 45.</figcaption>
+</figure>
 
 **Breaks of the old families, for balance.** Hash-based and code-based schemes
 have been attacked too, mostly in parameters and code. McEliece's original 1978

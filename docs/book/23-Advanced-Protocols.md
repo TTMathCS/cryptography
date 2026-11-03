@@ -53,6 +53,61 @@ prime order $q$ with a generator $g$, so exponents count mod $q$. By hand we use
 $p = 23$, $q = 11$, $g = 2$, or $p = 107$, $q = 53$; the programs use a 255-bit
 safe prime, which shows the structure but is far too small for real use.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 600 472" width="600" role="img" aria-label="Timeline of advanced protocols from 1978 to 2024">
+<line x1="84" y1="12" x2="84" y2="460" stroke-width="2" stroke="currentColor" opacity="0.6"/>
+<circle cx="84" cy="22" r="5" fill="currentColor"/>
+<text x="70" y="27" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">1978</text>
+<text x="98" y="27" font-size="14" text-anchor="start" fill="currentColor">Rivest, Adleman, Dertouzos: privacy homomorphisms</text>
+<circle cx="84" cy="50" r="5" class="acc-fill"/>
+<text x="70" y="55" font-size="14" text-anchor="end" class="acc-fill" font-weight="bold">1979</text>
+<text x="98" y="55" font-size="14" text-anchor="start" fill="currentColor">Shamir and Blakley: secret sharing</text>
+<circle cx="84" cy="78" r="5" fill="currentColor"/>
+<text x="70" y="83" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">1981</text>
+<text x="98" y="83" font-size="14" text-anchor="start" fill="currentColor">Blum: coin flipping by telephone; Rabin: OT</text>
+<circle cx="84" cy="106" r="5" fill="currentColor"/>
+<text x="70" y="111" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">1982</text>
+<text x="98" y="111" font-size="14" text-anchor="start" fill="currentColor">Yao: the millionaires' problem</text>
+<circle cx="84" cy="134" r="5" class="acc-fill"/>
+<text x="70" y="139" font-size="14" text-anchor="end" class="acc-fill" font-weight="bold">1985</text>
+<text x="98" y="139" font-size="14" text-anchor="start" fill="currentColor">Goldwasser, Micali, Rackoff: zero knowledge</text>
+<circle cx="84" cy="162" r="5" fill="currentColor"/>
+<text x="70" y="167" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">1986</text>
+<text x="98" y="167" font-size="14" text-anchor="start" fill="currentColor">Fiat-Shamir; Yao's garbled circuits; GMW</text>
+<circle cx="84" cy="190" r="5" fill="currentColor"/>
+<text x="70" y="195" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">1989</text>
+<text x="98" y="195" font-size="14" text-anchor="start" fill="currentColor">Schnorr's protocol; the cave for children</text>
+<circle cx="84" cy="218" r="5" fill="currentColor"/>
+<text x="70" y="223" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">1991</text>
+<text x="98" y="223" font-size="14" text-anchor="start" fill="currentColor">Pedersen commitments; Beaver triples</text>
+<circle cx="84" cy="246" r="5" fill="currentColor"/>
+<text x="70" y="251" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">1999</text>
+<text x="98" y="251" font-size="14" text-anchor="start" fill="currentColor">Paillier; verifiable random functions</text>
+<circle cx="84" cy="274" r="5" fill="currentColor"/>
+<text x="70" y="279" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">2005</text>
+<text x="98" y="279" font-size="14" text-anchor="start" fill="currentColor">Oblivious PRFs</text>
+<circle cx="84" cy="302" r="5" fill="currentColor"/>
+<text x="70" y="307" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">2008</text>
+<text x="98" y="307" font-size="14" text-anchor="start" fill="currentColor">Danish sugar beet auction: first MPC in use</text>
+<circle cx="84" cy="330" r="5" class="acc-fill"/>
+<text x="70" y="335" font-size="14" text-anchor="end" class="acc-fill" font-weight="bold">2009</text>
+<text x="98" y="335" font-size="14" text-anchor="start" fill="currentColor">Gentry: fully homomorphic encryption</text>
+<circle cx="84" cy="358" r="5" fill="currentColor"/>
+<text x="70" y="363" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">2016</text>
+<text x="98" y="363" font-size="14" text-anchor="start" fill="currentColor">Groth16 SNARKs; Zcash launches</text>
+<circle cx="84" cy="386" r="5" fill="currentColor"/>
+<text x="70" y="391" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">2020</text>
+<text x="98" y="391" font-size="14" text-anchor="start" fill="currentColor">FROST threshold signatures</text>
+<circle cx="84" cy="414" r="5" fill="currentColor"/>
+<text x="70" y="419" font-size="14" text-anchor="end" fill="currentColor" font-weight="bold">2023</text>
+<text x="98" y="419" font-size="14" text-anchor="start" fill="currentColor">RFC 9497 (OPRF) and RFC 9381 (VRF)</text>
+<circle cx="84" cy="442" r="5" class="acc-fill"/>
+<text x="70" y="447" font-size="14" text-anchor="end" class="acc-fill" font-weight="bold">2024</text>
+<text x="98" y="447" font-size="14" text-anchor="start" fill="currentColor">RFC 9591 (FROST); FHE in Apple's iOS 18</text>
+</svg>
+<figcaption>Figure 23.1. Puzzles from the late 1970s and 1980s that became infrastructure decades later. Accented dots mark the turning points.</figcaption>
+</figure>
+
 ## 23.2 Secret sharing
 
 *Level: intermediate.* **The problem.** A company's root signing key must
@@ -93,10 +148,74 @@ $\lambda_3 = -9 \equiv 8$. Then $s = 6 \cdot 10 + 9 \cdot 8 = 132 \equiv 13$. Th
 other pairs work too: shares 1 and 2 use weights 2 and 16, shares 2 and 3 use 3
 and 15, and both give 13.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 460 400" width="460" role="img" aria-label="The 2-of-3 Shamir example: points of f(x) = 13 + 10x mod 17 for x from 0 to 3">
+<line x1="70" y1="350" x2="410" y2="350" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="60" y="354" font-size="12" text-anchor="end" fill="currentColor">0</text>
+<line x1="70" y1="274" x2="410" y2="274" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="60" y="278" font-size="12" text-anchor="end" fill="currentColor">4</text>
+<line x1="70" y1="198" x2="410" y2="198" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="60" y="202" font-size="12" text-anchor="end" fill="currentColor">8</text>
+<line x1="70" y1="122" x2="410" y2="122" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="60" y="126" font-size="12" text-anchor="end" fill="currentColor">12</text>
+<line x1="70" y1="46" x2="410" y2="46" stroke-width="0.6" stroke="currentColor" opacity="0.3"/>
+<text x="60" y="50" font-size="12" text-anchor="end" fill="currentColor">16</text>
+<line x1="70" y1="46" x2="70" y2="350" stroke-width="1.2" stroke="currentColor"/>
+<line x1="70" y1="350" x2="410" y2="350" stroke-width="1.2" stroke="currentColor"/>
+<text x="70" y="370" font-size="12" text-anchor="middle" fill="currentColor">0</text>
+<text x="170" y="370" font-size="12" text-anchor="middle" fill="currentColor">1</text>
+<text x="270" y="370" font-size="12" text-anchor="middle" fill="currentColor">2</text>
+<text x="370" y="370" font-size="12" text-anchor="middle" fill="currentColor">3</text>
+<line x1="70" y1="36.5" x2="410" y2="36.5" stroke-width="1" stroke="currentColor" stroke-dasharray="3 3" opacity="0.6"/>
+<text x="410" y="30.5" font-size="11" text-anchor="end" fill="currentColor" opacity="0.8">17 wraps to 0</text>
+<line x1="70" y1="103" x2="110" y2="27" stroke-width="1.5" class="acc" opacity="0.7"/>
+<line x1="110" y1="350" x2="280" y2="27" stroke-width="1.5" class="acc" opacity="0.7"/>
+<line x1="280" y1="350" x2="370" y2="179" stroke-width="1.5" class="acc" opacity="0.7"/>
+<circle cx="170" cy="236" r="7" fill="currentColor"/>
+<text x="182" y="241" font-size="13" text-anchor="start" fill="currentColor" font-weight="bold">share 1: (1, 6)</text>
+<circle cx="270" cy="46" r="7" fill="currentColor"/>
+<text x="282" y="51" font-size="13" text-anchor="start" fill="currentColor" font-weight="bold">share 2: (2, 16)</text>
+<circle cx="370" cy="179" r="7" fill="currentColor"/>
+<text x="358" y="184" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">share 3: (3, 9)</text>
+<circle cx="70" cy="103" r="8" class="acc-fill"/>
+<text x="82" y="95" font-size="13" text-anchor="start" class="acc-fill" font-weight="bold">secret f(0) = 13</text>
+</svg>
+<figcaption>Figure 23.2. The chapter's 2-of-3 example. The secret is the value at x = 0 of the line 13 + 10x, reduced mod 17 (the accented segments wrap around at 17). Any two shares fix the line and so the secret; one share alone fixes nothing.</figcaption>
+</figure>
+
 **Why one share says nothing.** Holder 1 knows the point (1, 6). For every
 possible secret $s'$ there is exactly one line through $(0, s')$ and $(1, 6)$,
 and since the slope was random, every $s'$ is equally likely. This is perfect
 secrecy: it holds against unlimited computing power, quantum computers included.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 460 300" width="460" role="img" aria-label="Picture over the real numbers: through one share pass lines for every possible secret">
+<line x1="70" y1="270" x2="415" y2="270" stroke-width="1.2" stroke="currentColor"/>
+<line x1="70" y1="270" x2="70" y2="23" stroke-width="1.2" stroke="currentColor"/>
+<line x1="70" y1="270" x2="400" y2="98.4" stroke-width="1.2" stroke="currentColor" opacity="0.6"/>
+<circle cx="70" cy="270" r="4" fill="currentColor"/>
+<text x="62" y="274" font-size="12" text-anchor="end" fill="currentColor">0</text>
+<line x1="70" y1="231" x2="400" y2="145.2" stroke-width="1.2" stroke="currentColor" opacity="0.6"/>
+<circle cx="70" cy="231" r="4" fill="currentColor"/>
+<text x="62" y="235" font-size="12" text-anchor="end" fill="currentColor">3</text>
+<line x1="70" y1="192" x2="400" y2="192" stroke-width="1.2" stroke="currentColor" opacity="0.6"/>
+<circle cx="70" cy="192" r="4" fill="currentColor"/>
+<text x="62" y="196" font-size="12" text-anchor="end" fill="currentColor">6</text>
+<line x1="70" y1="153" x2="400" y2="238.8" stroke-width="1.2" stroke="currentColor" opacity="0.6"/>
+<circle cx="70" cy="153" r="4" fill="currentColor"/>
+<text x="62" y="157" font-size="12" text-anchor="end" fill="currentColor">9</text>
+<line x1="70" y1="101" x2="348.6" y2="270" stroke-width="2.2" class="acc"/>
+<circle cx="70" cy="101" r="4" class="acc-fill"/>
+<text x="62" y="105" font-size="12" text-anchor="end" fill="currentColor">13</text>
+<line x1="70" y1="62" x2="310" y2="270" stroke-width="1.2" stroke="currentColor" opacity="0.6"/>
+<circle cx="70" cy="62" r="4" fill="currentColor"/>
+<text x="62" y="66" font-size="12" text-anchor="end" fill="currentColor">16</text>
+<circle cx="220" cy="192" r="7" fill="currentColor"/>
+<text x="232" y="212" font-size="13" text-anchor="start" fill="currentColor" font-weight="bold">holder 1's share (1, 6)</text>
+<text x="78" y="27" font-size="12" text-anchor="start" fill="currentColor" opacity="0.8">possible secrets at x = 0</text>
+</svg>
+<figcaption>Figure 23.3. Why one share says nothing, drawn over the real numbers for intuition. Through the single point (1, 6) passes one line for every possible secret, and since the slope was random every secret is equally likely. Mod 17 the same holds exactly: 17 lines, 17 secrets.</figcaption>
+</figure>
 
 ```python
 import secrets
@@ -151,6 +270,22 @@ shares with a threshold of three by default. Two cautions: rebuilding puts the
 whole secret back on one machine, and a changed share gives a wrong secret with
 no error. Full details: [Secret sharing reference](../11-advanced/Secret-Sharing.md).
 
+**Two inventors in one year.** Adi Shamir, two years after co-inventing RSA at
+MIT, published "How to Share a Secret" in *Communications of the ACM* in November
+1979: two pages, one idea, polynomials. George Blakley, a mathematician then at
+Texas A&M, presented the same goal the same year at the National Computer
+Conference with geometry instead: the secret is a point, and each share is a
+plane through it. Shamir's version won because its shares are as small as the
+secret and the arithmetic is the same as everywhere else in cryptography. Both
+were thinking about the same worry of the era: a master key whose loss, or theft
+by one insider, would be a disaster.
+
+!!! note "Life story: Shamir secret sharing"
+    **Born:** 1979, Adi Shamir at MIT (and independently George Blakley) · **Purpose:** split a key
+    so any t of n holders can rebuild it and fewer learn nothing · **Helped:** DNS root key backups, SLIP-39
+    wallet seeds, Vault unseal keys, and the base of threshold cryptography · **Status:** current; secure
+    against any amount of computing, quantum included
+
 ## 23.3 Threshold signatures
 
 *Level: intermediate.* **The problem.** Secret sharing protects a key at rest,
@@ -191,6 +326,41 @@ factor** $\rho_i$, a hash of the message and everyone's commitments, so each
 nonce is tied to one message and one set of signers. It is RFC 9591 (2024), with
 versions for Ed25519, Ed448, P-256, ristretto255 and secp256k1 whose signatures
 any normal verifier accepts.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 660 518" width="660" role="img" aria-label="FROST signing in two rounds between signers 1 and 3 and a coordinator">
+<rect x="10" y="8" width="140" height="30" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="80" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Signer 1</text>
+<line x1="80" y1="38" x2="80" y2="510" stroke-width="1" stroke="currentColor" stroke-dasharray="4 4" opacity="0.7"/>
+<rect x="260" y="8" width="140" height="30" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="330" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Coordinator</text>
+<line x1="330" y1="38" x2="330" y2="510" stroke-width="1" stroke="currentColor" stroke-dasharray="4 4" opacity="0.7"/>
+<rect x="510" y="8" width="140" height="30" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="580" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Signer 3</text>
+<line x1="580" y1="38" x2="580" y2="510" stroke-width="1" stroke="currentColor" stroke-dasharray="4 4" opacity="0.7"/>
+<line x1="80" y1="74" x2="322" y2="74" stroke-width="2" stroke="currentColor"/>
+<polygon points="330,74 322,70.4 322,77.6" fill="currentColor"/>
+<text x="205" y="66" font-size="13" text-anchor="middle" fill="currentColor">round 1: commitments D₁, E₁</text>
+<line x1="580" y1="130" x2="338" y2="130" stroke-width="2" stroke="currentColor"/>
+<polygon points="330,130 338,133.6 338,126.4" fill="currentColor"/>
+<text x="455" y="122" font-size="13" text-anchor="middle" fill="currentColor">commitments D₃, E₃</text>
+<text x="330" y="182" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">ρᵢ = H(P, m, all commitments, i)</text>
+<line x1="330" y1="216" x2="88" y2="216" stroke-width="2" stroke="currentColor"/>
+<polygon points="80,216 88,219.6 88,212.4" fill="currentColor"/>
+<text x="205" y="208" font-size="13" text-anchor="middle" fill="currentColor">message m and all commitments</text>
+<line x1="330" y1="272" x2="572" y2="272" stroke-width="2" stroke="currentColor"/>
+<polygon points="580,272 572,268.4 572,275.6" fill="currentColor"/>
+<text x="455" y="264" font-size="13" text-anchor="middle" fill="currentColor">message m and all commitments</text>
+<line x1="80" y1="328" x2="322" y2="328" stroke-width="2" class="acc"/>
+<polygon points="330,328 322,324.4 322,331.6" class="acc-fill"/>
+<text x="205" y="320" font-size="13" text-anchor="middle" fill="currentColor">round 2: z₁</text>
+<line x1="580" y1="384" x2="338" y2="384" stroke-width="2" class="acc"/>
+<polygon points="330,384 338,387.6 338,380.4" class="acc-fill"/>
+<text x="455" y="376" font-size="13" text-anchor="middle" fill="currentColor">z₃</text>
+<text x="330" y="436" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">s = z₁ + z₃: an ordinary Schnorr signature (R, s)</text>
+</svg>
+<figcaption>Figure 23.4. FROST's two rounds. Each signer commits to two nonces in advance; the binding factors ρᵢ tie them to this message and this set of signers; each answer zᵢ uses a Lagrange-weighted key share. The key x never exists anywhere.</figcaption>
+</figure>
 
 ```python
 import hashlib, secrets
@@ -244,6 +414,20 @@ are deterministic and linear, so threshold BLS needs no extra rounds; Ethereum's
 consensus aggregates thousands of them. Full details:
 [Threshold signatures reference](../11-advanced/Threshold-Signatures.md).
 
+**FROST's story.** Threshold signatures were studied from the late 1980s, but
+Schnorr's patent (until 2008) and ECDSA's awkward algebra kept them out of
+practice. When Bitcoin adopted Schnorr signatures in 2021 and custodians wanted
+keys that never exist in one place, the old attacks on two-round protocols had
+to be avoided. Chelsea Komlo, a PhD student at the University of Waterloo, and
+her advisor Ian Goldberg designed FROST in 2020 with exactly two rounds and the
+binding factor that defeats them; the IETF published it as RFC 9591 in 2024.
+
+!!! note "Life story: threshold signatures and FROST"
+    **Born:** threshold signatures from the late 1980s (Desmedt and Frankel); FROST 2020, Chelsea
+    Komlo and Ian Goldberg · **Purpose:** sign with key shares, never rebuilding the key · **Helped:**
+    cryptocurrency custody, validator keys, certificate authority keys · **Status:** current; RFC 9591 (2024).
+    Threshold ECDSA is in use too, but has had serious bugs (TSSHOCK, BitForge)
+
 ## 23.4 Commitments
 
 *Level: intermediate.* **The problem.** Alice and Bob, on the phone, want to flip
@@ -253,6 +437,29 @@ Alice **opens** the envelope. Bob wins if he guessed right. Neither can steer
 the result: Alice can't change her bit after hearing Bob's guess, and Bob
 learns nothing about it before guessing. Sealed-bid auctions and many
 protocols in this chapter need the same envelope.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 600 350" width="600" role="img" aria-label="Blum&#x27;s coin flip over the phone using a commitment">
+<rect x="10" y="8" width="140" height="30" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="80" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Alice</text>
+<line x1="80" y1="38" x2="80" y2="342" stroke-width="1" stroke="currentColor" stroke-dasharray="4 4" opacity="0.7"/>
+<rect x="450" y="8" width="140" height="30" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="520" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Bob</text>
+<line x1="520" y1="38" x2="520" y2="342" stroke-width="1" stroke="currentColor" stroke-dasharray="4 4" opacity="0.7"/>
+<text x="88" y="70" font-size="12" text-anchor="start" fill="currentColor" font-style="italic">picks random bit b = 1 and nonce r</text>
+<line x1="80" y1="104" x2="512" y2="104" stroke-width="2" stroke="currentColor"/>
+<polygon points="520,104 512,100.4 512,107.6" fill="currentColor"/>
+<text x="300" y="96" font-size="13" text-anchor="middle" fill="currentColor">commit: C = H(r ‖ b), a sealed envelope</text>
+<line x1="520" y1="160" x2="88" y2="160" stroke-width="2" stroke="currentColor"/>
+<polygon points="80,160 88,163.6 88,156.4" fill="currentColor"/>
+<text x="300" y="152" font-size="13" text-anchor="middle" fill="currentColor">guess: "heads" (0)</text>
+<line x1="80" y1="216" x2="512" y2="216" stroke-width="2" class="acc"/>
+<polygon points="520,216 512,212.4 512,219.6" class="acc-fill"/>
+<text x="300" y="208" font-size="13" text-anchor="middle" fill="currentColor">open: r and b = 1</text>
+<text x="512" y="268" font-size="12" text-anchor="end" fill="currentColor" font-style="italic">checks H(r ‖ b) = C; the guess was wrong</text>
+</svg>
+<figcaption>Figure 23.5. Flipping a coin with someone you don't trust. Alice can't change her bit after Bob's guess (binding), and Bob learns nothing about it before guessing (hiding). The outcome is the XOR of her bit and his guess, random if either of them is honest.</figcaption>
+</figure>
 
 A commitment scheme needs two properties:
 
@@ -288,6 +495,27 @@ then $r' = 10 + (7 - 3) \cdot 17^{-1} \bmod 53 = 4$ opens 36 as $m = 3$:
 $4^3 \cdot 9^4 \bmod 107 = 36$. In general, if $C$ fits every value, unlimited
 power can reopen it; if $C$ fits only one value, unlimited power can find it by
 trying them all. Every scheme picks which side rests on a hard problem.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 230" width="640" role="img" aria-label="Hiding and binding: one of the two must rest on a hard problem">
+<rect x="20" y="30" width="290" height="150" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="165" y="67" font-size="13" text-anchor="middle" fill="currentColor">Pedersen: C = gᵐ·hʳ</text>
+<text x="165" y="84" font-size="13" text-anchor="middle" fill="currentColor"></text>
+<text x="165" y="101" font-size="13" text-anchor="middle" fill="currentColor">hiding: perfect</text>
+<text x="165" y="118" font-size="13" text-anchor="middle" fill="currentColor">(every m fits C)</text>
+<text x="165" y="135.1" font-size="13" text-anchor="middle" fill="currentColor">binding: needs discrete logs</text>
+<text x="165" y="152.1" font-size="13" text-anchor="middle" fill="currentColor">(unlimited power reopens C)</text>
+<rect x="330" y="30" width="290" height="150" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="475" y="67" font-size="13" text-anchor="middle" fill="currentColor">Hash: C = H(r ‖ m)</text>
+<text x="475" y="84" font-size="13" text-anchor="middle" fill="currentColor"></text>
+<text x="475" y="101" font-size="13" text-anchor="middle" fill="currentColor">binding: as strong as</text>
+<text x="475" y="118" font-size="13" text-anchor="middle" fill="currentColor">collision resistance</text>
+<text x="475" y="135.1" font-size="13" text-anchor="middle" fill="currentColor">hiding: needs a hash that</text>
+<text x="475" y="152.1" font-size="13" text-anchor="middle" fill="currentColor">leaks nothing about m</text>
+<text x="320" y="215" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">if C fits every value, power can reopen it; if it fits one, power can find it</text>
+</svg>
+<figcaption>Figure 23.6. The two kinds of commitment. Pedersen's hides perfectly: even 36 = 4⁷·9¹⁰ mod 107 also opens as m = 3 with r = 4, for someone who can compute log₄ 9. Hash commitments bind as well as the hash resists collisions. No scheme is perfect at both.</figcaption>
+</figure>
 
 ```python
 import hashlib, secrets
@@ -334,6 +562,20 @@ range proof (section 23.5) so no amount can be negative. Commitments are also
 the first move of every zero-knowledge proof below. Full details:
 [Commitments reference](../11-advanced/Commitments.md).
 
+**Where envelopes came from.** Manuel Blum, at Berkeley, posed coin flipping by
+telephone in 1981 with a story attached: a divorced couple in different cities
+deciding by phone who gets the car. The commitment he needed became one of the basic tools of the field;
+Blum received the Turing Award in 1995, partly for this line of work. Torben
+Pedersen, at Aarhus University, published his additive commitment at CRYPTO '91
+as a building block for verifiable secret sharing. Twenty-four years later it
+became the way Confidential Transactions and Monero hide amounts.
+
+!!! note "Life story: commitments"
+    **Born:** 1981 (Blum's coin flip), 1991 (Pedersen) · **Purpose:** seal a value now, open it
+    later, without either side cheating · **Helped:** fair coin flips and auctions, confidential amounts in
+    Monero, the first move of every zero-knowledge proof · **Status:** current; Pedersen's binding falls to a
+    quantum computer, hash commitments do not
+
 ## 23.5 Zero-knowledge proofs
 
 *Level: advanced.* **The problem.** You want to log in by proving you know the
@@ -361,6 +603,29 @@ million chance of bluffing. And a video of the twenty rounds proves nothing to
 anyone else, because Victor and Peggy could have agreed the shouts in advance
 and edited out the failures. That is simulation.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 520 380" width="520" role="img" aria-label="Quisquater&#x27;s cave: a ring-shaped cave with passages A and B joined by a locked door">
+<path d="M 240 285 A 120 120 0 1 1 280 284" stroke-width="2" fill="none" stroke="currentColor"/>
+<path d="M 240 245 A 80 80 0 1 1 280 244" stroke-width="2" fill="none" stroke="currentColor"/>
+<rect x="252" y="43" width="16" height="44" rx="2" class="soft-acc" stroke="currentColor" stroke-width="1.5"/>
+<rect x="252" y="43" width="16" height="44" rx="2" stroke-width="2" class="acc" fill="none"/>
+<text x="260" y="33" font-size="13" text-anchor="middle" class="acc-fill" font-weight="bold">door with a secret word</text>
+<text x="160" y="165" font-size="18" text-anchor="middle" fill="currentColor" font-weight="bold">A</text>
+<text x="360" y="165" font-size="18" text-anchor="middle" fill="currentColor" font-weight="bold">B</text>
+<line x1="240" y1="245" x2="240" y2="325" stroke-width="2" stroke="currentColor"/>
+<line x1="280" y1="245" x2="280" y2="325" stroke-width="2" stroke="currentColor"/>
+<text x="260" y="315" font-size="12" text-anchor="middle" fill="currentColor">entrance</text>
+<circle cx="200" cy="240" r="7" class="acc-fill"/>
+<text x="185" y="235" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">Peggy</text>
+<circle cx="260" cy="337" r="7" fill="currentColor"/>
+<text x="274" y="342" font-size="13" text-anchor="start" fill="currentColor" font-weight="bold">Victor: "come out of B!"</text>
+<text x="260" y="170" font-size="12" text-anchor="middle" fill="currentColor">one round: a bluffer</text>
+<text x="260" y="187" font-size="12" text-anchor="middle" fill="currentColor">survives with 1/2;</text>
+<text x="260" y="204" font-size="12" text-anchor="middle" fill="currentColor">20 rounds: 1 in a million</text>
+</svg>
+<figcaption>Figure 23.7. The cave of "How to Explain Zero-Knowledge Protocols to Your Children" (1989). Peggy walks into A or B unseen; Victor shouts which side to come out of. Knowing the word, she can always obey. Without it she must guess, and each round halves her chance of bluffing.</figcaption>
+</figure>
+
 **Schnorr's protocol** (Claus-Peter Schnorr, 1989) is the cave in algebra. Alice
 knows $a$ with $A = g^a$.
 
@@ -369,6 +634,32 @@ knows $a$ with $A = g^a$.
 3. **Respond:** Alice sends $r = v - a c \bmod q$. Bob checks $V = g^r A^c$.
 
 It checks because $g^{v - ac} g^{ac} = g^v$.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 620 350" width="620" role="img" aria-label="Schnorr&#x27;s identification protocol mod 23 with the chapter&#x27;s numbers">
+<rect x="10" y="8" width="140" height="30" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="80" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Alice (a = 9)</text>
+<line x1="80" y1="38" x2="80" y2="342" stroke-width="1" stroke="currentColor" stroke-dasharray="4 4" opacity="0.7"/>
+<rect x="470" y="8" width="140" height="30" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="540" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Bob (knows A = 6)</text>
+<line x1="540" y1="38" x2="540" y2="342" stroke-width="1" stroke="currentColor" stroke-dasharray="4 4" opacity="0.7"/>
+<text x="88" y="70" font-size="12" text-anchor="start" fill="currentColor" font-style="italic">picks v = 8</text>
+<line x1="80" y1="104" x2="532" y2="104" stroke-width="2" stroke="currentColor"/>
+<polygon points="540,104 532,100.4 532,107.6" fill="currentColor"/>
+<text x="310" y="96" font-size="13" text-anchor="middle" fill="currentColor">commit V = 2⁸ mod 23</text>
+<text x="310" y="122" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">V = 3</text>
+<line x1="540" y1="160" x2="88" y2="160" stroke-width="2" stroke="currentColor"/>
+<polygon points="80,160 88,163.6 88,156.4" fill="currentColor"/>
+<text x="310" y="152" font-size="13" text-anchor="middle" fill="currentColor">random challenge</text>
+<text x="310" y="178" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">c = 3</text>
+<line x1="80" y1="216" x2="532" y2="216" stroke-width="2" class="acc"/>
+<polygon points="540,216 532,212.4 532,219.6" class="acc-fill"/>
+<text x="310" y="208" font-size="13" text-anchor="middle" fill="currentColor">response r = v − a·c mod 11</text>
+<text x="310" y="234" font-size="13" text-anchor="middle" class="acc-fill" font-weight="bold">r = 3</text>
+<text x="532" y="268" font-size="12" text-anchor="end" fill="currentColor" font-style="italic">checks 2³ · 6³ = 72 ≡ 3 = V  ✓</text>
+</svg>
+<figcaption>Figure 23.8. Schnorr's protocol with the numbers worked by hand above (order 11, g = 2). Commit, challenge, respond: three messages. A simulator can produce the same transcript backwards, choosing r and c first, which is why it teaches Bob nothing.</figcaption>
+</figure>
 
 **By hand, mod 23.** Order $q = 11$, $g = 2$. Alice's secret is $a = 9$, so
 $A = 2^9 \bmod 23 = 6$.
@@ -443,6 +734,23 @@ Zcash uses SNARKs to hide payments; zk-rollups post a proof to Ethereum that a
 whole batch of transactions was processed correctly. Full details:
 [Zero-knowledge reference](../11-advanced/Zero-Knowledge.md).
 
+**The paper that was rejected.** Shafi Goldwasser, Silvio Micali and Charles
+Rackoff, at MIT and Toronto, wrote the first version of their paper on
+"knowledge complexity" in the early 1980s. Program committees did not see the
+point, and it was rejected several times before STOC accepted it in 1985. It won
+the first Gödel Prize in 1993, and Goldwasser and Micali later received the
+Turing Award (2012). The next year Fiat and Shamir, at the Weizmann Institute,
+showed how to remove the verifier with a hash; Schnorr's 1989 protocol made the
+idea efficient for discrete logs. Practical proofs of whole computations had to
+wait for the 2010s: Zcash, launched in 2016, was the first large system built on
+SNARKs.
+
+!!! note "Life story: zero-knowledge proofs"
+    **Born:** 1985, Shafi Goldwasser, Silvio Micali and Charles Rackoff; Fiat-Shamir 1986 ·
+    **Purpose:** convince without revealing why · **Helped:** Schnorr signatures, password-free logins,
+    Zcash, zk-rollups, anonymous credentials · **Status:** current and growing fast; pairing-based SNARKs fall
+    to quantum computers, hash-based STARKs are believed not to
+
 ## 23.6 Multi-party computation
 
 *Level: advanced.* **The problem.** Yao's millionaires want to know who is richer.
@@ -489,6 +797,55 @@ label under each pair of input labels and shuffles the four rows. She sends the
 tables and the labels for her own input bits; Bob gets the labels for his bits by
 **oblivious transfer** (below). Bob can open exactly one row per gate, and
 labels look random, so he learns nothing but the final output.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 660 260" width="660" role="img" aria-label="A garbled AND gate: two labels per wire and four encrypted rows, shuffled">
+<text x="110" y="24" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">truth table</text>
+<rect x="40" y="44" width="44" height="28" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="62" y="63" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">0</text>
+<rect x="90" y="44" width="44" height="28" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="112" y="63" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">0</text>
+<rect x="140" y="44" width="44" height="28" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="162" y="63" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">0</text>
+<rect x="40" y="78" width="44" height="28" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="62" y="97" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">0</text>
+<rect x="90" y="78" width="44" height="28" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="112" y="97" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">1</text>
+<rect x="140" y="78" width="44" height="28" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="162" y="97" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">0</text>
+<rect x="40" y="112" width="44" height="28" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="62" y="131" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">1</text>
+<rect x="90" y="112" width="44" height="28" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="112" y="131" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">0</text>
+<rect x="140" y="112" width="44" height="28" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="162" y="131" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">0</text>
+<rect x="40" y="146" width="44" height="28" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="62" y="165" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">1</text>
+<rect x="90" y="146" width="44" height="28" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="112" y="165" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">1</text>
+<rect x="140" y="146" width="44" height="28" rx="4" class="soft-acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="162" y="165" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">1</text>
+<text x="62" y="196" font-size="13" text-anchor="middle" fill="currentColor" font-style="italic">x</text>
+<text x="112" y="196" font-size="13" text-anchor="middle" fill="currentColor" font-style="italic">y</text>
+<text x="162" y="196" font-size="13" text-anchor="middle" fill="currentColor" font-style="italic">x∧y</text>
+<line x1="205" y1="110" x2="247" y2="110" stroke-width="1.5" stroke="currentColor"/>
+<polygon points="255,110 247,106.4 247,113.6" fill="currentColor"/>
+<text x="230" y="100" font-size="12" text-anchor="middle" fill="currentColor">garble</text>
+<text x="450" y="24" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">garbled table (rows shuffled)</text>
+<rect x="270" y="44" width="360" height="28" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="450" y="63" font-size="13" text-anchor="middle" fill="currentColor">Enc(A₁, B₀) of C₀</text>
+<rect x="270" y="78" width="360" height="28" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="450" y="97" font-size="13" text-anchor="middle" fill="currentColor">Enc(A₀, B₁) of C₀</text>
+<rect x="270" y="112" width="360" height="28" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="450" y="131" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">Enc(A₁, B₁) of C₁</text>
+<rect x="270" y="146" width="360" height="28" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="450" y="165" font-size="13" text-anchor="middle" fill="currentColor">Enc(A₀, B₀) of C₀</text>
+<text x="450" y="200" font-size="12" text-anchor="middle" fill="currentColor">wire labels A₀, A₁, B₀, B₁, C₀, C₁: random 16-byte strings</text>
+<text x="450" y="220" font-size="12" text-anchor="middle" fill="currentColor">Bob holds one label per input wire, so exactly one row opens</text>
+<text x="450" y="240" font-size="12" text-anchor="middle" fill="currentColor">and he learns a label for the output, not what it means</text>
+</svg>
+<figcaption>Figure 23.9. Yao's garbled AND gate, as in the program above. Each wire gets two random labels, one for 0 and one for 1; each row encrypts the right output label under a pair of input labels. Shuffled, the rows reveal nothing; only Alice knows which output label means 1.</figcaption>
+</figure>
 
 ```python
 import hashlib, secrets
@@ -537,6 +894,29 @@ encrypts $m_0$ under a hash of $B^\alpha$ and $m_1$ under a hash of $(B/A)^\alph
 compute only $A^\beta$, the key for the one he chose. Joe Kilian proved in 1988 that
 oblivious transfer alone is enough to compute any function securely.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 350" width="640" role="img" aria-label="Chou-Orlandi oblivious transfer: Bob gets one of Alice&#x27;s two messages and Alice learns nothing about which">
+<rect x="10" y="8" width="140" height="30" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="80" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Alice (m₀, m₁)</text>
+<line x1="80" y1="38" x2="80" y2="342" stroke-width="1" stroke="currentColor" stroke-dasharray="4 4" opacity="0.7"/>
+<rect x="490" y="8" width="140" height="30" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="560" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Bob (choice b)</text>
+<line x1="560" y1="38" x2="560" y2="342" stroke-width="1" stroke="currentColor" stroke-dasharray="4 4" opacity="0.7"/>
+<line x1="80" y1="74" x2="552" y2="74" stroke-width="2" stroke="currentColor"/>
+<polygon points="560,74 552,70.4 552,77.6" fill="currentColor"/>
+<text x="320" y="66" font-size="13" text-anchor="middle" fill="currentColor">A = g^α</text>
+<line x1="560" y1="130" x2="88" y2="130" stroke-width="2" stroke="currentColor"/>
+<polygon points="80,130 88,133.6 88,126.4" fill="currentColor"/>
+<text x="320" y="122" font-size="13" text-anchor="middle" fill="currentColor">B = g^β if b = 0, or A·g^β if b = 1</text>
+<text x="88" y="182" font-size="12" text-anchor="start" fill="currentColor" font-style="italic">k₀ = H(B^α), k₁ = H((B/A)^α)</text>
+<line x1="80" y1="216" x2="552" y2="216" stroke-width="2" class="acc"/>
+<polygon points="560,216 552,212.4 552,219.6" class="acc-fill"/>
+<text x="320" y="208" font-size="13" text-anchor="middle" fill="currentColor">Enc(k₀, m₀), Enc(k₁, m₁)</text>
+<text x="552" y="268" font-size="12" text-anchor="end" fill="currentColor" font-style="italic">Bob can compute only A^β = k_b</text>
+</svg>
+<figcaption>Figure 23.10. Oblivious transfer in three moves. B looks random whichever bit Bob chose, so Alice learns nothing; Bob knows the discrete log of only one of B and B/A, so he can open only one message. OT is enough, by Kilian's theorem, to compute any function securely.</figcaption>
+</figure>
+
 **What MPC protects, and what not.** MPC hides inputs, not what the output
 reveals: if two people compute the average of their two salaries, each can work
 out the other's. Protocols also differ in what cheating they survive:
@@ -550,6 +930,20 @@ contracts to grow sugar beets in an auction cleared by MPC: three servers, run b
 the buyer Danisco, the growers' association and a research project, held shares
 of the bids and found the market price without anyone seeing an individual bid.
 Full details: [MPC reference](../11-advanced/MPC.md).
+
+**The millionaires and the farmers.** Andrew Yao posed the millionaires' problem in
+1982 and outlined garbled circuits in talks around 1986, though he never wrote
+the construction out in full; others did, and it carries his name. Goldreich,
+Micali and Wigderson extended secure computation to any number of parties in
+1987. For twenty years it stayed theory, thought too slow for anything real.
+Then, in January 2008, a team from Aarhus University ran the Danish sugar beet
+auction on it. Yao received the Turing Award in 2000.
+
+!!! note "Life story: secure multi-party computation"
+    **Born:** 1982 (Yao's problem), 1986 to 1987 (garbled circuits, GMW), 1981 (Rabin's oblivious
+    transfer) · **Purpose:** compute on private inputs with no trusted party · **Helped:** the 2008 Danish
+    auction, private statistics, threshold wallets, private set intersection · **Status:** current; ISO/IEC
+    4922 standardizes parts of it
 
 ## 23.7 Oblivious PRFs
 
@@ -584,6 +978,29 @@ unblinding with $20^{-1} = 8$ gives 69 again. The server saw 39 and then 62, two
 unrelated elements, and can't even tell the two requests carried the same input.
 In a prime-order group $H'(x)^r$ for random $r$ is uniformly random, so the
 server learns nothing even with unlimited computing power.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 620 350" width="620" role="img" aria-label="The oblivious PRF with the chapter&#x27;s numbers mod 107: blind, evaluate, unblind">
+<rect x="10" y="8" width="140" height="30" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="80" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Client (input x)</text>
+<line x1="80" y1="38" x2="80" y2="342" stroke-width="1" stroke="currentColor" stroke-dasharray="4 4" opacity="0.7"/>
+<rect x="470" y="8" width="140" height="30" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="540" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Server (key k = 11)</text>
+<line x1="540" y1="38" x2="540" y2="342" stroke-width="1" stroke="currentColor" stroke-dasharray="4 4" opacity="0.7"/>
+<text x="88" y="70" font-size="12" text-anchor="start" fill="currentColor" font-style="italic">H′(x) = 30, random r = 7</text>
+<line x1="80" y1="104" x2="532" y2="104" stroke-width="2" stroke="currentColor"/>
+<polygon points="540,104 532,100.4 532,107.6" fill="currentColor"/>
+<text x="310" y="96" font-size="13" text-anchor="middle" fill="currentColor">blind: B = 30⁷ mod 107</text>
+<text x="310" y="122" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">B = 39</text>
+<line x1="540" y1="160" x2="88" y2="160" stroke-width="2" stroke="currentColor"/>
+<polygon points="80,160 88,163.6 88,156.4" fill="currentColor"/>
+<text x="310" y="152" font-size="13" text-anchor="middle" fill="currentColor">evaluate: Z = 39¹¹ mod 107</text>
+<text x="310" y="178" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">Z = 85</text>
+<text x="88" y="212" font-size="12" text-anchor="start" fill="currentColor" font-style="italic">unblind: 85^(7⁻¹ mod 53) = 85³⁸ = 69</text>
+<text x="88" y="242" font-size="12" text-anchor="start" fill="currentColor" font-style="italic">= 30¹¹ mod 107 = F(k, x), and the server saw only 39</text>
+</svg>
+<figcaption>Figure 23.11. The OPRF worked above. The server applies its key to a blinded element it can't relate to the input; the client strips the blinding. With r = 20 the server would have seen 62 instead of 39, and the client would still end at 69.</figcaption>
+</figure>
 
 ```python
 import hashlib, secrets
@@ -626,6 +1043,12 @@ it. **Privacy Pass** (RFC 9578) issues anonymous tokens with a VOPRF so a site
 can skip a CAPTCHA without tracking you. Apple's and Microsoft's password breach
 checks use the same blind-evaluate-unblind step. Full details:
 [OPRF reference](../11-advanced/OPRF.md).
+
+!!! note "Life story: oblivious PRFs and OPAQUE"
+    **Born:** 2005 (Freedman, Ishai, Pinkas and Reingold); 2HashDH 2014; OPAQUE 2018 (Jarecki,
+    Krawczyk and Xu) · **Purpose:** apply a server's key to an input the server never sees · **Helped:**
+    password breach checks, Privacy Pass, WhatsApp's encrypted backups · **Status:** current; RFC 9497 (2023)
+    and RFC 9807 (OPAQUE)
 
 ## 23.8 Verifiable random functions
 
@@ -672,6 +1095,11 @@ the tree can be audited without listing everyone's name. One rule: the input mus
 come from something the key holder can't influence, or it can still try many
 inputs. Full details: [VRF reference](../11-advanced/VRF.md).
 
+!!! note "Life story: verifiable random functions"
+    **Born:** 1999, Silvio Micali, Michael Rabin and Salil Vadhan · **Purpose:** randomness that only
+    the key holder can compute, anyone can check, and nobody can choose · **Helped:** Algorand (founded by
+    Micali in 2017), Cardano, key transparency · **Status:** current; RFC 9381 (2023)
+
 ## 23.9 Homomorphic encryption
 
 *Level: advanced.* **The problem.** You want a server to compute on your data, a
@@ -711,6 +1139,32 @@ $13 = 5 + 8$, and the server that multiplied 718 by 292 never saw 5, 8 or 13.
 Notice $36^5 = 176 = 1 + 5 \cdot 35$ and $36^8 = 281 = 1 + 8 \cdot 35$: the message
 sits in the exponent, exactly as the formula said.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 230" width="640" role="img" aria-label="Paillier with n = 35: encrypt 5 and 8, multiply the ciphertexts on the server, decrypt 13">
+<rect x="20" y="30" width="150" height="50" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="95" y="51" font-size="13" text-anchor="middle" fill="currentColor">5 → 718</text>
+<text x="95" y="68" font-size="13" text-anchor="middle" fill="currentColor">(r = 2)</text>
+<rect x="20" y="130" width="150" height="50" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="95" y="151.1" font-size="13" text-anchor="middle" fill="currentColor">8 → 292</text>
+<text x="95" y="168.1" font-size="13" text-anchor="middle" fill="currentColor">(r = 3)</text>
+<line x1="172" y1="55" x2="238" y2="91.2" stroke-width="1.5" stroke="currentColor"/>
+<polygon points="245,95 239.7,88 236.3,94.3" fill="currentColor"/>
+<line x1="172" y1="155" x2="238" y2="118.8" stroke-width="1.5" stroke="currentColor"/>
+<polygon points="245,115 236.3,115.7 239.7,122" fill="currentColor"/>
+<rect x="248" y="75" width="160" height="60" rx="4" stroke-width="2" class="acc soft-acc"/>
+<text x="328" y="101" font-size="13" text-anchor="middle" fill="currentColor">server: 718 · 292</text>
+<text x="328" y="118" font-size="13" text-anchor="middle" fill="currentColor">mod 1225 = 181</text>
+<line x1="410" y1="105" x2="462" y2="105" stroke-width="1.5" stroke="currentColor"/>
+<polygon points="470,105 462,101.4 462,108.6" fill="currentColor"/>
+<rect x="472" y="75" width="150" height="60" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="547" y="101" font-size="13" text-anchor="middle" fill="currentColor">decrypt 181</text>
+<text x="547" y="118" font-size="13" text-anchor="middle" fill="currentColor">→ 13 = 5 + 8</text>
+<text x="95" y="215" font-size="12" text-anchor="middle" fill="currentColor">client (holds λ = 12, μ = 3)</text>
+<text x="328" y="165" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">sees only ciphertexts</text>
+</svg>
+<figcaption>Figure 23.12. Adding under encryption, with the hand-worked Paillier numbers. Multiplying ciphertexts mod n² adds the hidden messages, because each message sits in an exponent of n + 1 = 36. The server computes the sum without ever seeing 5, 8 or 13.</figcaption>
+</figure>
+
 ```python
 import secrets
 from math import gcd
@@ -745,6 +1199,12 @@ Output:
 Multiplying ciphertexts adds (42), a power multiplies by a known number (60), and
 the same message encrypts differently each time. The vote tally is the classic use.
 
+!!! note "Life story: Paillier encryption"
+    **Born:** 1999, Pascal Paillier, presented at EUROCRYPT in Prague · **Purpose:** public-key
+    encryption that adds under encryption · **Helped:** electronic voting tallies, private statistics, and the
+    inner workings of threshold ECDSA · **Status:** current, but rests on factoring, so a quantum computer
+    would break it
+
 **Adding and multiplying: fully homomorphic encryption.** With both addition and
 multiplication you can evaluate any circuit. For thirty years nobody knew how.
 In 2009 Craig Gentry, then a Stanford PhD student, built the first scheme, from
@@ -765,6 +1225,22 @@ ciphertext), **CKKS** (Cheon, Kim, Kim and Song, 2017: approximate arithmetic on
 real numbers, for statistics and machine learning) and **TFHE** (2016: one bit
 or small number per ciphertext, bootstrapped after every gate).
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 260" width="640" role="img" aria-label="Illustration of noise growth in fully homomorphic encryption, reset by bootstrapping">
+<line x1="60" y1="210" x2="620" y2="210" stroke-width="1.2" stroke="currentColor"/>
+<line x1="60" y1="210" x2="60" y2="30" stroke-width="1.2" stroke="currentColor"/>
+<line x1="60" y1="55" x2="620" y2="55" stroke-width="1.5" class="acc" stroke-dasharray="5 4"/>
+<text x="620" y="47" font-size="12" text-anchor="end" class="acc-fill" font-weight="bold">decryption fails above this line</text>
+<text x="219" y="202" font-size="11" text-anchor="middle" fill="currentColor" opacity="0.8">bootstrap</text>
+<text x="385" y="202" font-size="11" text-anchor="middle" fill="currentColor" opacity="0.8">bootstrap</text>
+<text x="551" y="202" font-size="11" text-anchor="middle" fill="currentColor" opacity="0.8">bootstrap</text>
+<polyline points="60,195.6 98,181.2 136,152.4 174,94.8 212,80.4 226,177.6 226,177.6 264,145.2 302,80.4 340,80.4 378,80.4 392,177.6 392,177.6 430,145.2 468,80.4 506,80.4 544,80.4 558,177.6" stroke-width="2.2" stroke="currentColor" fill="none"/>
+<text x="64" y="22" font-size="12" text-anchor="start" fill="currentColor">noise in the ciphertext (not to scale)</text>
+<text x="340" y="232" font-size="12" text-anchor="middle" fill="currentColor">homomorphic multiplications →</text>
+</svg>
+<figcaption>Figure 23.13. A sketch, not measured data: each multiplication roughly squares the noise relative to the modulus, and after a few the ciphertext would no longer decrypt. Gentry's bootstrapping evaluates decryption homomorphically and returns a fresh ciphertext with small noise, so the computation can go on.</figcaption>
+</figure>
+
 **The cost.** Gentry and Halevi's 2011 implementation took 30 minutes per
 bootstrap with a 2.3 GB public key. TFHE brought a bootstrapped gate to around
 13 ms on one core by 2019: millions of times slower than an unencrypted gate, but
@@ -777,6 +1253,22 @@ was asked; Enhanced Visual Search in Photos scores an encrypted image embedding
 the same way. Microsoft Edge's Password Monitor combines an OPRF with
 homomorphic lookup. Full details:
 [Homomorphic encryption reference](../11-advanced/Homomorphic-Encryption.md).
+
+**Gentry's story.** For thirty years after Rivest, Adleman and Dertouzos asked for
+it, fully homomorphic encryption was an open problem many suspected was
+impossible. Craig Gentry had trained and worked as a lawyer before turning to
+computer science; as a PhD student of Dan Boneh at Stanford, he found the first
+construction in 2009, built on ideal lattices, with bootstrapping as the key
+idea. The first implementations were absurdly slow, but within a decade the
+LWE-based schemes BGV, BFV, CKKS and TFHE had cut the cost by many orders of
+magnitude, and in 2024 Apple built it into features of iOS 18. Gentry
+received a MacArthur Fellowship in 2014.
+
+!!! note "Life story: fully homomorphic encryption"
+    **Born:** 2009, Craig Gentry (asked for in 1978 by Rivest, Adleman and Dertouzos) · **Purpose:**
+    compute anything on encrypted data · **Helped:** Apple's Live Caller ID Lookup and Enhanced Visual Search,
+    Microsoft Edge's Password Monitor, private machine learning · **Status:** current and improving; still
+    thousands to millions of times slower than computing on plaintext
 
 ## 23.10 Break it
 
