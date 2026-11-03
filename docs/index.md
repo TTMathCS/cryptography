@@ -5,34 +5,29 @@ title: Cryptography
 
 # Learn cryptography
 
-This site is a course in nine parts, from no background at all to the
-algorithms being standardized now. [Start here](learn/index.md) explains the
-path; the **Next** link at the foot of every page takes you through it.
+This site is a book in 23 chapters, from no background at all to the
+algorithms being standardized now. [Start here](book/index.md) shows the
+contents and how to use them; the **Next** link at the foot of every page
+takes you through in order.
 
-1. [The story](history/index.md): four thousand years of secret writing,
-   across the whole world.
-2. [First steps](learn/What-Cryptography-Does.md): what cryptography is for,
-   [the old ciphers and how they were broken](learn/Classical-Ciphers.md),
-   [the one-time pad](learn/One-Time-Pad.md).
-3. [The math toolkit](learn/Modular-Arithmetic.md): modular arithmetic,
-   [groups and fields](learn/Groups-and-Fields.md),
-   [probability](learn/Probability-and-Security-Levels.md), primes.
-4. [Secret-key cryptography](learn/Block-Cipher-Design.md): block ciphers, AES,
-   ChaCha, modes, hashes, MACs, password hashing, random numbers.
-5. [Public-key cryptography](10-math-foundations/Hard-Problems.md): hard
-   problems, elliptic curves, Diffie-Hellman, RSA, signatures.
-6. [Thinking like a cryptographer](learn/Security-Definitions.md): definitions,
-   proofs and [side channels](learn/Side-Channels.md).
-7. [Post-quantum](learn/Quantum-Computing.md): what quantum computers break,
-   [lattices](learn/Lattices-and-LWE.md), ML-KEM, ML-DSA and the rest.
-8. [Advanced primitives](11-advanced/Commitments.md): secret sharing,
-   zero-knowledge, MPC, homomorphic encryption.
-9. [Real systems](protocols/index.md): TLS, SSH, Signal, Wi-Fi and the formats
-   and tools around them.
+1. [Foundations](book/01-What-Cryptography-Is-For.md): what cryptography is
+   for, the old ciphers and how they were broken, the arithmetic of secrets,
+   randomness and the one-time pad.
+2. [Secret-key cryptography](book/05-Stream-Ciphers.md): stream ciphers,
+   block ciphers, AES, modes, hash functions, MACs and authenticated
+   encryption, passwords and key derivation.
+3. [Public-key cryptography](book/12-Diffie-Hellman.md): Diffie-Hellman,
+   RSA, discrete-log systems, elliptic curves, certificates and key
+   establishment.
+4. [Cryptography in practice](book/17-Defining-Security.md): defining
+   security, side channels, and real protocols (TLS, SSH, Signal, Wi-Fi).
+5. [The frontier](book/20-Quantum-Computers.md): quantum computers, lattices,
+   hash-based and code-based schemes, and advanced protocols.
 
-Every algorithm page tells its story (who made it, what for, what it fixed, why
-it was retired and what went wrong along the way), then how it works, with the
-math and a short program.
+Every chapter starts from a problem, works the answer by hand, codes it,
+breaks it and ends with exercises. The tables below are the reference
+appendix: every algorithm with its size, standard, release year and status,
+each linked to its own page.
 
 ## Algorithms by the job they do
 

@@ -5,7 +5,7 @@ write a real 2048-bit version in Python, break the naive version three ways, and
 find out how real systems fix it. The last part goes to expert level: the
 attacks on badly made keys, the history of factoring and what the proofs say.*
 
-**Before this:** [Modular arithmetic](../learn/Modular-Arithmetic.md) (inverses,
+**Before this:** [Modular arithmetic](../book/03-The-Arithmetic-of-Secrets.md) (inverses,
 fast powers, Euler's theorem). **Levels:** sections 1 to 3 need only school
 arithmetic, 4 to 7 the modular arithmetic lesson, and 8 is for experts.
 
@@ -97,7 +97,7 @@ one: $588^{17} \bmod 3233 = 65$, which matches, so the signature is good.
 
 Decrypting raises to $e$ and then to $d$, so it computes $m^{ed}$. We chose
 $e d = 1 + k \, \varphi(n)$ for some whole number $k$ (in the example,
-$k = 15$). [Euler's theorem](../learn/Modular-Arithmetic.md#fermats-little-theorem-and-eulers-theorem)
+$k = 15$). [Euler's theorem](../book/03-The-Arithmetic-of-Secrets.md#37-fermats-little-theorem-and-eulers-theorem)
 says $m^{\varphi(n)} \equiv 1 \pmod n$. So
 
 $$
@@ -282,7 +282,7 @@ worldwide.
   cloud machines.
 
 **Its future.** A large quantum computer running [Shor's
-algorithm](../learn/Quantum-Computing.md) would factor $n$ quickly at any size.
+algorithm](../book/20-Quantum-Computers.md) would factor $n$ quickly at any size.
 NIST IR 8547 deprecates RSA after 2030 and disallows it after 2035; its
 replacements are [ML-DSA](ML-DSA.md) for signatures and
 [ML-KEM](../01-key-exchange/ML-KEM.md) for key exchange.
@@ -355,7 +355,7 @@ Boneh and Durfee (1999) pushed the bound to $d < n^{0.292}$ with lattice methods
 
 With $e = 3$ and no padding, send one message $m$ to three people with moduli
 $n_1, n_2, n_3$. The attacker has $m^3 \bmod n_i$ for each. The
-[Chinese remainder theorem](../learn/Modular-Arithmetic.md#the-chinese-remainder-theorem)
+[Chinese remainder theorem](../book/03-The-Arithmetic-of-Secrets.md#38-the-chinese-remainder-theorem)
 joins them into $m^3 \bmod n_1 n_2 n_3$, and since $m < n_i$, $m^3$ is smaller
 than the product: the "mod" disappears and a cube root gives $m$. Johan Håstad
 published the general form in 1985.
@@ -476,7 +476,7 @@ discrete logarithms instead of factoring.
 
     Two half-size exponentiations cost about a quarter of one full-size one. The catch: if a fault corrupts
     one half, the faulty signature reveals a prime factor (the Boneh–DeMillo–Lipton attack, 1997), so
-    libraries check every signature before releasing it. See [Side channels](../learn/Side-Channels.md).
+    libraries check every signature before releasing it. See [Side channels](../book/18-Side-Channels.md).
 
 ??? info "Standards, sizes and status"
 

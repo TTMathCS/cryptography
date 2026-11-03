@@ -55,7 +55,7 @@ with exercises.*
 size, standard, year and status; one reference page per algorithm; the
 [protocols](../protocols/index.md); [formats](../formats/Encoding.md);
 [tools](../tools/openssl.md); the full
-[world history of cryptography](../history/index.md); and the [FAQ](../FAQ.md).
+[world history of cryptography](../history/index.md); the [glossary](Glossary.md); and the [FAQ](../FAQ.md).
 
 ## Three ways in
 

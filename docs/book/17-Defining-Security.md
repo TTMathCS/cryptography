@@ -634,7 +634,6 @@ ask the four questions this chapter has taught:
 4. How **tight** is the reduction, and do the parameters account for the loss?
 
 Full details on the definitions and the material on this site:
-[Security definitions lesson](../learn/Security-Definitions.md),
 [AEAD reference](../05-modes-aead/AEAD.md), [RSA reference](../02-signatures/RSA.md).
 
 ## 17.11 Going deeper

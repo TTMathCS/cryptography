@@ -835,8 +835,7 @@ constant-time implementation in mind. ML-KEM's implicit rejection exists so the
 decapsulation step returns no error to leak. Browsers changed their timers and
 process model after Spectre.
 
-Full details and more incidents: [Side channels lesson](../learn/Side-Channels.md),
-[RSA reference](../02-signatures/RSA.md), [AES reference](../04-symmetric-ciphers/AES.md),
+Full details and more incidents: [RSA reference](../02-signatures/RSA.md), [AES reference](../04-symmetric-ciphers/AES.md),
 [Classic modes reference](../05-modes-aead/Classic-Modes.md).
 
 ## 18.11 Going deeper

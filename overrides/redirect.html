@@ -1,0 +1,15 @@
+<!doctype html>
+{# A page that moved: front matter "template: redirect.html" and "redirect: <new path relative to site root>" #}
+{% set target = page.meta.redirect | url %}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Moved: {{ page.title }}</title>
+  <link rel="canonical" href="{{ target }}">
+  <meta name="robots" content="noindex">
+  <meta http-equiv="refresh" content="0; url={{ target }}">
+</head>
+<body>
+  <p>This lesson is now part of the book: <a href="{{ target }}">{{ page.meta.redirect_title }}</a>.</p>
+</body>
+</html>

@@ -79,14 +79,148 @@ validation:
   unrecognized_links: warn
   anchors: warn
 
-# Chapters of the book are added to the nav part by part as they are finished
+# The book first, then the appendices. The old lessons in learn/ forward to their chapters.
 not_in_nav: |
-  /book/
+  /learn/
 
 nav:
   - Home: index.md
-  - Start here: learn/index.md
-  - 1. The story:
+  - Start here: book/index.md
+  - I. Foundations:
+      - book/01-What-Cryptography-Is-For.md
+      - book/02-Classical-Ciphers.md
+      - book/03-The-Arithmetic-of-Secrets.md
+      - book/04-Randomness-and-Perfect-Secrecy.md
+  - II. Secret-key cryptography:
+      - book/05-Stream-Ciphers.md
+      - book/06-Block-Ciphers.md
+      - book/07-AES.md
+      - book/08-Modes-of-Operation.md
+      - book/09-Hash-Functions.md
+      - book/10-Message-Authentication.md
+      - book/11-Passwords-and-Key-Derivation.md
+  - III. Public-key cryptography:
+      - book/12-Diffie-Hellman.md
+      - book/13-RSA.md
+      - book/14-Discrete-Log-Systems.md
+      - book/15-Elliptic-Curves.md
+      - book/16-PKI-and-Key-Establishment.md
+  - IV. Cryptography in practice:
+      - book/17-Defining-Security.md
+      - book/18-Side-Channels.md
+      - book/19-Protocols.md
+  - V. The frontier:
+      - book/20-Quantum-Computers.md
+      - book/21-Lattice-Cryptography.md
+      - book/22-Hash-and-Code-Based.md
+      - book/23-Advanced-Protocols.md
+  - "A. Algorithm reference":
+      - Key exchange:
+          - 01-key-exchange/Diffie-Hellman.md
+          - 01-key-exchange/ECDH.md
+          - 01-key-exchange/ML-KEM.md
+          - 01-key-exchange/NTRU-Prime.md
+          - 01-key-exchange/Code-Based-KEMs.md
+          - 01-key-exchange/PAKE.md
+      - Signatures:
+          - 02-signatures/RSA.md
+          - 02-signatures/DSA.md
+          - 02-signatures/ECDSA.md
+          - 02-signatures/Schnorr.md
+          - 02-signatures/EdDSA.md
+          - 02-signatures/ML-DSA.md
+          - 02-signatures/FN-DSA.md
+          - 02-signatures/SLH-DSA.md
+          - 02-signatures/Stateful-Hash-Signatures.md
+          - 02-signatures/Blind-Signatures.md
+      - Public-key encryption:
+          - 03-public-key-encryption/ElGamal.md
+          - 03-public-key-encryption/ECIES.md
+          - 03-public-key-encryption/HPKE.md
+      - Symmetric ciphers:
+          - 04-symmetric-ciphers/AES.md
+          - 04-symmetric-ciphers/ChaCha.md
+          - 04-symmetric-ciphers/National-Ciphers.md
+          - 04-symmetric-ciphers/Retired.md
+      - Modes and AEAD:
+          - 05-modes-aead/AEAD.md
+          - 05-modes-aead/Classic-Modes.md
+          - 05-modes-aead/Disk-Encryption.md
+          - 05-modes-aead/Key-Wrap.md
+          - 05-modes-aead/Format-Preserving.md
+      - MACs:
+          - 06-mac/HMAC.md
+          - 06-mac/Block-Cipher-MACs.md
+          - 06-mac/Universal-Hash-MACs.md
+          - 06-mac/KMAC.md
+          - 06-mac/SipHash.md
+      - Hash functions:
+          - 07-hash/SHA-2.md
+          - 07-hash/SHA-3.md
+          - 07-hash/BLAKE.md
+          - 07-hash/Retired.md
+      - KDF and password hashing:
+          - 08-kdf-password-hashing/HKDF.md
+          - 08-kdf-password-hashing/NIST-KDFs.md
+          - 08-kdf-password-hashing/Argon2.md
+          - 08-kdf-password-hashing/scrypt.md
+          - 08-kdf-password-hashing/bcrypt.md
+          - 08-kdf-password-hashing/PBKDF2.md
+          - 08-kdf-password-hashing/Retired.md
+      - Random numbers:
+          - 09-random/OS-RNG.md
+          - 09-random/NIST-DRBG.md
+          - 09-random/Retired.md
+      - Math foundations:
+          - 10-math-foundations/Sieve-of-Eratosthenes.md
+          - 10-math-foundations/Miller-Rabin-Primality-Test.md
+          - 10-math-foundations/Baillie-PSW-Primality-Test.md
+          - 10-math-foundations/Pocklington-Primality-Test.md
+          - 10-math-foundations/Mersenne-Primes.md
+          - 10-math-foundations/Fermat-Primes.md
+          - 10-math-foundations/Hard-Problems.md
+          - 10-math-foundations/Elliptic-Curves.md
+      - Advanced primitives:
+          - 11-advanced/Secret-Sharing.md
+          - 11-advanced/Threshold-Signatures.md
+          - 11-advanced/Zero-Knowledge.md
+          - 11-advanced/Homomorphic-Encryption.md
+          - 11-advanced/MPC.md
+          - 11-advanced/OPRF.md
+          - 11-advanced/VRF.md
+          - 11-advanced/Commitments.md
+  - "B. Protocols":
+      - protocols/index.md
+      - protocols/TLS-1.3.md
+      - protocols/SSH.md
+      - protocols/PKI.md
+      - protocols/Signal.md
+      - protocols/MLS.md
+      - protocols/WireGuard.md
+      - protocols/IPsec.md
+      - protocols/Wi-Fi.md
+      - protocols/OpenPGP.md
+      - protocols/S-MIME.md
+      - protocols/age.md
+      - protocols/JWT.md
+      - protocols/Kerberos.md
+      - protocols/FIDO2.md
+      - protocols/TOTP.md
+      - protocols/DNSSEC.md
+      - protocols/Disk-Encryption.md
+      - protocols/Bitcoin.md
+  - "C. Formats":
+      - formats/Encoding.md
+      - formats/ASN.1-DER.md
+      - formats/X.509.md
+      - formats/File-Formats.md
+  - "D. Tools":
+      - tools/openssl.md
+      - tools/ssh-keygen.md
+      - tools/gpg.md
+      - tools/age.md
+      - tools/keytool.md
+  - "E. World history":
       - history/index.md
       - history/01-Ancient.md
       - history/02-Arab-Cryptanalysis.md
@@ -98,129 +232,5 @@ nav:
       - history/08-Internet-Era.md
       - history/09-Hardware-and-Engineering.md
       - history/10-Quantum-and-Post-Quantum.md
-  - 2. First steps:
-      - learn/What-Cryptography-Does.md
-      - learn/Classical-Ciphers.md
-      - learn/One-Time-Pad.md
-  - 3. The math toolkit:
-      - learn/Modular-Arithmetic.md
-      - learn/Groups-and-Fields.md
-      - learn/Probability-and-Security-Levels.md
-      - Primes:
-          - 10-math-foundations/Sieve-of-Eratosthenes.md
-          - 10-math-foundations/Fermat-Primes.md
-          - 10-math-foundations/Mersenne-Primes.md
-          - 10-math-foundations/Miller-Rabin-Primality-Test.md
-          - 10-math-foundations/Baillie-PSW-Primality-Test.md
-          - 10-math-foundations/Pocklington-Primality-Test.md
-  - 4. Secret-key cryptography:
-      - learn/Block-Cipher-Design.md
-      - Ciphers:
-          - 04-symmetric-ciphers/AES.md
-          - 04-symmetric-ciphers/ChaCha.md
-          - 04-symmetric-ciphers/National-Ciphers.md
-          - 04-symmetric-ciphers/Retired.md
-      - Modes and AEAD:
-          - 05-modes-aead/Classic-Modes.md
-          - 05-modes-aead/AEAD.md
-          - 05-modes-aead/Disk-Encryption.md
-          - 05-modes-aead/Key-Wrap.md
-          - 05-modes-aead/Format-Preserving.md
-      - Hash functions:
-          - 07-hash/SHA-2.md
-          - 07-hash/SHA-3.md
-          - 07-hash/BLAKE.md
-          - 07-hash/Retired.md
-      - MACs:
-          - 06-mac/HMAC.md
-          - 06-mac/Block-Cipher-MACs.md
-          - 06-mac/Universal-Hash-MACs.md
-          - 06-mac/KMAC.md
-          - 06-mac/SipHash.md
-      - Keys from secrets and passwords:
-          - 08-kdf-password-hashing/HKDF.md
-          - 08-kdf-password-hashing/NIST-KDFs.md
-          - 08-kdf-password-hashing/PBKDF2.md
-          - 08-kdf-password-hashing/bcrypt.md
-          - 08-kdf-password-hashing/scrypt.md
-          - 08-kdf-password-hashing/Argon2.md
-          - 08-kdf-password-hashing/Retired.md
-      - Random numbers:
-          - 09-random/OS-RNG.md
-          - 09-random/NIST-DRBG.md
-          - 09-random/Retired.md
-  - 5. Public-key cryptography:
-      - 10-math-foundations/Hard-Problems.md
-      - 10-math-foundations/Elliptic-Curves.md
-      - Key exchange:
-          - 01-key-exchange/Diffie-Hellman.md
-          - 01-key-exchange/ECDH.md
-          - 01-key-exchange/PAKE.md
-      - Signatures:
-          - 02-signatures/RSA.md
-          - 02-signatures/DSA.md
-          - 02-signatures/ECDSA.md
-          - 02-signatures/Schnorr.md
-          - 02-signatures/EdDSA.md
-          - 02-signatures/Blind-Signatures.md
-      - Public-key encryption:
-          - 03-public-key-encryption/ElGamal.md
-          - 03-public-key-encryption/ECIES.md
-          - 03-public-key-encryption/HPKE.md
-  - 6. Thinking like a cryptographer:
-      - learn/Security-Definitions.md
-      - learn/Side-Channels.md
-  - 7. Post-quantum:
-      - learn/Quantum-Computing.md
-      - learn/Lattices-and-LWE.md
-      - Key exchange:
-          - 01-key-exchange/ML-KEM.md
-          - 01-key-exchange/NTRU-Prime.md
-          - 01-key-exchange/Code-Based-KEMs.md
-      - Signatures:
-          - 02-signatures/ML-DSA.md
-          - 02-signatures/FN-DSA.md
-          - 02-signatures/SLH-DSA.md
-          - 02-signatures/Stateful-Hash-Signatures.md
-  - 8. Advanced primitives:
-      - 11-advanced/Commitments.md
-      - 11-advanced/Secret-Sharing.md
-      - 11-advanced/Zero-Knowledge.md
-      - 11-advanced/Threshold-Signatures.md
-      - 11-advanced/MPC.md
-      - 11-advanced/OPRF.md
-      - 11-advanced/VRF.md
-      - 11-advanced/Homomorphic-Encryption.md
-  - 9. Real systems:
-      - Protocols:
-          - protocols/index.md
-          - protocols/TLS-1.3.md
-          - protocols/SSH.md
-          - protocols/PKI.md
-          - protocols/Signal.md
-          - protocols/MLS.md
-          - protocols/WireGuard.md
-          - protocols/IPsec.md
-          - protocols/Wi-Fi.md
-          - protocols/OpenPGP.md
-          - protocols/S-MIME.md
-          - protocols/age.md
-          - protocols/JWT.md
-          - protocols/Kerberos.md
-          - protocols/FIDO2.md
-          - protocols/TOTP.md
-          - protocols/DNSSEC.md
-          - protocols/Disk-Encryption.md
-          - protocols/Bitcoin.md
-      - Formats:
-          - formats/Encoding.md
-          - formats/ASN.1-DER.md
-          - formats/X.509.md
-          - formats/File-Formats.md
-      - Tools:
-          - tools/openssl.md
-          - tools/ssh-keygen.md
-          - tools/gpg.md
-          - tools/age.md
-          - tools/keytool.md
+  - "F. Glossary": book/Glossary.md
   - FAQ: FAQ.md

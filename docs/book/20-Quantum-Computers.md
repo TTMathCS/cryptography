@@ -870,5 +870,4 @@ ML-KEM and ML-DSA.
 - NIST IR 8105 (2016), NIST IR 8413 (round 3 report, 2022), NIST IR 8547
   (transition), and the [NIST post-quantum project](https://csrc.nist.gov/projects/post-quantum-cryptography).
 - The appendix chapter [Quantum and post-quantum](../history/10-Quantum-and-Post-Quantum.md)
-  for the full timeline, and the earlier lesson
-  [What quantum computers break](../learn/Quantum-Computing.md).
+  for the full timeline.

@@ -50,6 +50,27 @@ In the last commit of this handoff:
 
 Not done: everything in the plan below.
 
+## Status, 3 November 2026 (later the same day)
+
+The book is written and live. All 23 chapters are in `docs/book/` with the
+layout below (opening box, numbered sections with level tags, by hand, code,
+break it, real world, going deeper, exercises with folded answers, what you
+learned, further reading), plus `docs/book/index.md` (Start here, the
+contents) and `docs/book/Glossary.md`. Decisions taken and told to Jim:
+
+- History option B: each chapter opens with its own history; `docs/history/`
+  is Appendix E.
+- The 63 algorithm pages stay at their URLs as Appendix A (algorithm
+  reference), so no redirects were needed for them. Protocols, formats and
+  tools are Appendices B to D, the glossary F.
+- The `docs/learn/` lessons were folded into the chapters; each old lesson
+  URL now forwards to its chapter through `overrides/redirect.html`
+  (front matter `template: redirect.html`, `redirect: book/...`), so no
+  plugin was added.
+
+Next: Jim's review of the chapters; fact spot-checks flagged by the writers
+are in the website lane thread.
+
 ## The agreed plan: a book in five parts
 
 Jim said "ok" to this outline.

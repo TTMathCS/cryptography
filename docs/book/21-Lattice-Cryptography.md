@@ -927,5 +927,4 @@ two newer families were broken.
 - The reference pages: [ML-KEM](../01-key-exchange/ML-KEM.md),
   [ML-DSA](../02-signatures/ML-DSA.md), [FN-DSA](../02-signatures/FN-DSA.md),
   [NTRU Prime](../01-key-exchange/NTRU-Prime.md),
-  [Hard problems](../10-math-foundations/Hard-Problems.md), and the earlier
-  lesson [Lattices and LWE](../learn/Lattices-and-LWE.md).
+  and [Hard problems](../10-math-foundations/Hard-Problems.md).

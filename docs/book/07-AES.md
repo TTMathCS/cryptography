@@ -816,6 +816,5 @@ use it for a whole file, a disk, or a credit card number?
 - Dag Arne Osvik, Adi Shamir and Eran Tromer, "Cache Attacks and
   Countermeasures: the Case of AES" (CT-RSA 2006).
 - Reference pages: [AES](../04-symmetric-ciphers/AES.md),
-  [National ciphers](../04-symmetric-ciphers/National-Ciphers.md), the
-  [Groups and fields](../learn/Groups-and-Fields.md) lesson, and the history
+  [National ciphers](../04-symmetric-ciphers/National-Ciphers.md), and the history
   appendix [The Internet era](../history/08-Internet-Era.md).
