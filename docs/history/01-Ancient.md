@@ -1,8 +1,9 @@
 # The ancient world
 
-*From about 1900 BC to AD 500: scribes who bent their scripts, Greeks who hid
-messages under wax and hair, a Spartan rod, a Greek signal grid and
-Caesar's shift of three.*
+*From about 1900 BC to the 700s AD: scribes who bent their scripts,
+Greeks who hid messages under wax and hair, a Spartan rod, a Greek signal
+grid, Caesar's shift of three, and secret scripts in India, Persia and
+Egypt.*
 
 People in the ancient world kept secrets in three ways, and all three are
 still in use:
@@ -33,6 +34,8 @@ matters is that each of these ideas appears here first.
 | 50s BC | Rome | Caesar's shift of three | substitution |
 | 400s–200s BC | China | secret tallies and split letters | codes |
 | c. AD 300 | India | secret writing among the Kama Sutra's 64 arts | substitution |
+| AD 224–651 (reported later) | Sasanian Persia | a secret script for the kings' letters | secret alphabet |
+| 300s–700s | Egypt | Coptic and Greek letter-swap and number ciphers | substitution |
 
 ## Egypt: the scribe who changed the signs
 
@@ -551,6 +554,34 @@ Kahn also notes that the *Arthashastra*, the old Indian manual of
 statecraft attributed to Kautilya, describes a spy service whose agents
 received their instructions in secret writing.
 
+## Persia: the kings' secret script
+
+Arabic writers of the 10th century, drawing on older Persian sources,
+describe the scripts of the Sasanian kings (AD 224–651).
+Ibn al-Nadim's *Fihrist* (987) counts seven Persian scripts, and one of
+them, *raz* ("secret"), was by these accounts the script the kings used
+for their secret letters to one another. Hamza al-Isfahani gives a
+similar description. That is about all that is known. The names come
+almost entirely from these later Arabic sources, and the *Encyclopaedia
+Iranica* warns that their descriptions of the scripts are vague and often
+imaginative, so it is hard to say what the secret script really was.
+
+## Egypt after the pharaohs: Coptic ciphers
+
+In late antique and early Islamic Egypt, roughly the 300s to the 700s,
+Christian scribes writing Coptic and Greek used several small ciphers.
+Alain Delattre's survey of them centres on one called *αθβη*
+("athbē"), a fixed swapping of letters that, like Atbash, is named after
+its first letters. Scribes also used codes built on the number values of
+letters, Caesar-style shifts, and deliberately distorted letter shapes.
+They turn up in manuscripts and on ostraca, the potsherds used as scrap
+paper. One
+ostracon from Djeme, near Thebes, dated between about 500 and 750, lists
+cipher alphabets, and Delattre has published another that combines two
+ciphers in one system. Like the European monks' tricks of a few centuries
+later, these hid a name or a note from a casual reader, not from a
+determined one.
+
 ## Can these be broken today?
 
 Yes, every one, most of them by hand in minutes. Here is each method on
@@ -561,6 +592,7 @@ programs above show two of the attacks running.
 |---|---|---|
 | Egyptian enigmatic writing | not a cipher | No key: a reader who knows the sign games reads it. The Esna crocodile hymn is still only partly read, because the stone is damaged, not because of a secret. |
 | The potter's recipe, and number signs for syllables | at once | Unusual spellings and a fixed number table. Anyone who knows the script, or has the table, reads them. |
+| Coptic letter swaps, shifts and number codes | instantly | Each is one fixed table. Try the few known ones, or count letters as for any substitution. |
 | Atbash and the Kama Sutra swaps | instantly | No key at all: the swap is the method. Know it and you read it. |
 | Hidden messages (shaved head, wax tablet, hare, arrows) | as soon as you look | Nothing is scrambled. Search the courier, scrape the wax, cut open the hare. Modern versions hide data in pictures or files, and statistical tests can often spot it. |
 | Aeneas's pricked letters | as soon as you look | Hold the page to the light and copy out the marked letters. |
@@ -612,7 +644,8 @@ letters under a small secret key.
 - Suetonius, *Life of Julius Caesar* 56 and *Life of Augustus* 88 / Caesar, *Gallic War* 5.48 / Cassius Dio, *Roman History* 40.9
 - Ralph D. Sawyer (trans.), *The Six Secret Teachings on the Way of Strategy* (Shambhala, 1997), "Secret Tallies" and "Secret Letters" / *Wujing Zongyao* (1044)
 - Vatsyayana, *Kama Sutra* 1.3 (the 64 arts), with Yashodhara's *Jayamangala* commentary
+- Alain Delattre, on cryptography in late antique Egypt, in S. Holvoet and R. Veymiers (eds.), *Les écritures orientales, inventées, cryptées, détournées, oubliées, redécouvertes...* (Festschrift for Christian Cannuyer, 2023), pp. 185–204 (from the library abstract) / Duke Collaboratory for Classics Computing, Digital Corpus of Literary Papyri, record 128462 (the Djeme ostracon of cipher alphabets)
 
-*Weaker sources:* search summaries of the British Museum and Science Museum catalogue entries for BM 120960 (date and findspot); the Esna hymns' dating and present state of decipherment from online commentaries (attalus.org and the Esna text editions on bookdown.org), not from Sauneron or Leitz directly; Wolfgang Behr's conference slides on the *Wujing Zongyao* poem code; G. C. Macaulay's translation note on doubts about Herodotus 7.239; the Hanoi tap code date (1965) from POW memoirs as retold in news features;
+*Weaker sources:* search summaries of the *Encyclopaedia Iranica* entries on the *Fihrist*'s Persian material and on Sasanian scripts (*dabire*), for the *raz* script, Ibn al-Nadim's count of seven scripts and Hamza al-Isfahani; search summaries of the British Museum and Science Museum catalogue entries for BM 120960 (date and findspot); the Esna hymns' dating and present state of decipherment from online commentaries (attalus.org and the Esna text editions on bookdown.org), not from Sauneron or Leitz directly; Wolfgang Behr's conference slides on the *Wujing Zongyao* poem code; G. C. Macaulay's translation note on doubts about Herodotus 7.239; the Hanoi tap code date (1965) from POW memoirs as retold in news features;
 the newspaper-pricking story, which rests on secondary retellings; the 1950s
 date for reading Cryptic A, from news reports of the 2017 scroll.

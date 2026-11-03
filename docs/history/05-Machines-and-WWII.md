@@ -3,7 +3,8 @@
 *From about 1915 to 1980: rotor machines that changed their alphabet with
 every key press, the Polish mathematicians who first read Enigma, the
 codebreaking factory at Bletchley Park, the first electronic computers,
-Japan's Purple machine, and the Soviet pads that were used twice.*
+China's black chamber, Japan's Purple machine, codebreakers in Delhi,
+Native American code talkers, and the Soviet pads that were used twice.*
 
 [Vernam's teleprinter](04-Telegraph-Age.md#vernam-and-the-one-time-pad)
 showed that a machine could encrypt faster than any clerk. The next step
@@ -17,14 +18,18 @@ reminder that even a perfect cipher fails when people cut corners.
 | When | Who | What |
 |---|---|---|
 | 1917–1919 | Hebern, Scherbius, Koch, Damm | rotor machines invented in four countries |
+| 1924 | Jan Kowalewski | a Polish officer teaches Japan's army and navy codebreaking |
 | 1926–1930 | German navy, army and air force | adopt Enigma; plugboard added |
 | 1932 | Marian Rejewski | reconstructs the wiring of the military Enigma |
 | 1938 | Polish Cipher Bureau | the *bomba* and the perforated sheets |
+| 1938–1940 | Herbert Yardley, Chongqing | breaks Japanese army codes for Chiang Kai-shek |
 | July 1939 | Pyry, near Warsaw | the Poles share everything with Britain and France |
 | 1940 | Turing, Welchman, Keen | the British bombe |
 | Sept 1940 | US Army Signal Intelligence Service | breaks Japan's Purple machine |
 | 1941–1942 | Tiltman, Tutte | work out the Lorenz teleprinter cipher unseen |
 | 1942 | Station HYPO, Pearl Harbor | Japanese naval code read before Midway |
+| 1942–1945 | Wireless Experimental Centre, Delhi | Japanese army codes |
+| 1944 | Comanche code talkers | at Normandy with the US 4th Infantry Division |
 | Feb 1944 | Tommy Flowers | Colossus, the first large electronic digital computer |
 | 1943–1980 | Venona, Arlington Hall | reads Soviet messages sent with reused pads |
 | 1974–2000 | British and US governments | the secrets are slowly released |
@@ -451,6 +456,19 @@ read the Allied convoy cipher (Naval Cypher No. 3) for much of 1942 and
 early 1943, and U-boats used it to find convoys until the cipher was
 replaced in June 1943.
 
+## China: a black chamber in Chongqing
+
+China fought Japan from 1937, and its Nationalist government needed to
+read Japanese army traffic. In 1938 Chiang Kai-shek hired Herbert Yardley,
+the American who had run the [Black Chamber](04-Telegraph-Age.md#the-american-black-chamber)
+in New York and then exposed it in a book. Yardley worked in Chongqing,
+the wartime capital, until 1940, training Chinese staff and attacking
+Japanese army codes. Chinese accounts say
+the government then built up a much larger codebreaking bureau of its
+own. Yardley's memoir of those years, *The Chinese Black Chamber*, was
+published only in 1983, long after his death. The Chinese side of this
+work is still poorly covered in English.
+
 ## Japan: Purple and the Pacific
 
 ### Purple
@@ -500,6 +518,55 @@ carriers. It was the turning point of the Pacific war.
 In April 1943 the same codebreakers read the travel plans of Admiral
 Isoroku Yamamoto, who had planned the Pearl Harbor attack, and American
 fighters shot down his plane over Bougainville on 18 April.
+
+### Japan's own codebreakers
+
+Japan's services started late. After failing to read Soviet diplomatic
+messages during its intervention in Siberia (1918–1922), the Japanese
+army asked Poland for help, and a Polish officer, Captain Jan
+Kowalewski, arrived in Yokohama on 7 September 1924 to teach a
+three-month course to army and navy officers. In the war, Japan's foreign
+ministry had its own cryptanalytic section; American interrogations of
+its former members after the surrender say it worked on the diplomatic
+systems of the United States, Britain, China and France. How much it and
+the army and navy sections actually read is much less well documented in
+English than the Allied side of the story.
+
+### Delhi: the Wireless Experimental Centre
+
+Much of the work on Japanese army codes was done in India. When Japan
+overran Malaya and Singapore in early 1942, British codebreakers there
+moved to the Wireless Experimental Centre at Anand Parbat, outside Delhi,
+one of Bletchley Park's two overseas outposts. It grew to about a
+thousand people from the Intelligence Corps, the RAF, the Indian Army and
+West African units, with outstations at Abbottabad, Bangalore and
+Barrackpore. In 1943 the mountaineer Wilfrid Noyce, working there,
+spotted the patterns that helped break a Japanese army code. Delhi
+carried on the work that Bletchley Park's air section had begun on
+Japanese army and diplomatic codes.
+
+## More code talkers
+
+The Navajo were the largest group, but not the only one. Speakers of
+more than a dozen Native American languages served as code talkers in
+the two world wars, following the
+[Choctaw of 1918](04-Telegraph-Age.md#the-choctaw-telephone-squads-1918).
+
+- **Comanche.** Seventeen Comanche men were recruited into the US Army's
+  4th Signal Company. Fourteen took part in the Normandy invasion, and
+  thirteen landed on Utah Beach on 6 June 1944. They made up their own
+  words for things their language had no name for: a tank was a
+  "turtle", and Hitler "the crazy white man".
+- **Meskwaki.** Twenty-seven Meskwaki men from Iowa enlisted together in
+  January 1941, about a sixth of the tribe's population. Eight of them
+  were trained to pass messages in their language and served with the
+  army in North Africa; the eight were awarded the Congressional Gold
+  Medal in 2013.
+
+These systems worked because the languages were unwritten or little
+studied outside their communities, not because of any mathematics. That
+is also why they couldn't be used everywhere: there were only so many
+speakers.
 
 ## Venona
 
@@ -554,6 +621,7 @@ all that's left, and these keys are small by modern standards.
 | M-209 | yes, by computer | Short pin-wheels repeat. Published programs (Lasry, Kopal and Wacker, 2016) recover the key from ciphertext alone. |
 | Typex and SIGABA | not easily | Neither was broken in its day. SIGABA's irregular stepping removed the patterns that sank Enigma. Later academic studies describe attacks that need known plaintext and a great deal of computing. |
 | Codebooks with additives (JN-25, Naval Cypher No. 3) | yes, with enough traffic | Messages that used the same stretch of the additive book line up; subtract them and the additive drops out, then rebuild the code meanings one group at a time from context. |
+| Comanche and Meskwaki code talkers | not by codebreaking | Like the Navajo: a spoken language with code words added. Only a speaker could follow it. |
 | Navajo code talkers | not by codebreaking | A language and code words, not a cipher. Only a fluent speaker who learned the code words could read it. |
 | Venona one-time pads, printed twice | yes | Matching pages cancel out when subtracted, as on the [telegraph page](04-Telegraph-Age.md#why-it-cant-be-broken). |
 
@@ -625,5 +693,7 @@ links the crib makes there.
 - Robert L. Benson, *The Venona Story* (NSA Center for Cryptologic History, 2001; reprinted 2019) / John Earl Haynes and Harvey Klehr, *Venona: Decoding Soviet Espionage in America* (Yale University Press, 1999)
 - F. W. Winterbotham, *The Ultra Secret* (Weidenfeld & Nicolson, 1974)
 - George Lasry, Nils Kopal and Arno Wacker, "Ciphertext-only cryptanalysis of Hagelin M-209 pins and lugs", *Cryptologia* 40, no. 2 (2016)
+- Herbert O. Yardley, *The Chinese Black Chamber: An Adventure in Espionage* (Houghton Mifflin, 1983) / *Encyclopaedia Britannica*, "Herbert Osborne Yardley"
+- US Army, "Charles Chibitty: Comanche code-talker" (army.mil) / William C. Meadows, *The Comanche Code Talkers of World War II* (University of Texas Press, 2002)
 
-*Weaker sources:* search summaries of the National Museum of Computing and bombe.org.uk pages (the March and August 1940 bombe dates, 211 British bombes), of Colossus histories (delivery in January, working on 5 February 1944, valve counts of 1,500–1,600 and 2,400–2,500), of the GCHQ page on the Pyry meeting, and of Wikipedia's Venona article (about 2,200–3,000 messages; the 349 names, as counted by Haynes and Klehr); the US Navy bombe count, which secondary sources give variously; news reports of the M4 Message Breaking Project (Stefan Krah, 2006) and of Joachim Schüth's 46-second laptop break at the 2007 Cipher Event; for Typex and SIGABA, the general shape of later academic attacks (Mark Stamp and colleagues), not checked in detail.
+*Weaker sources:* the Wikipedia article "Japanese cryptology from the 1500s to Meiji" (flagged by its editors) for Kowalewski's 1924 course; a declassified December 1945 US Army report on interrogations of Japanese Foreign Office cryptanalysts (archive.org, TICOM collection), as a search summary; the *South China Morning Post*'s article on Chinese codebreakers in Chongqing; the Wikipedia articles on the Wireless Experimental Centre and on Japanese army and diplomatic codes (Noyce, staff numbers, outstations); news and museum summaries on the Meskwaki code talkers (27 enlisted, 8 trained, the 2013 medals), whose numbers differ between sources; search summaries of the National Museum of Computing and bombe.org.uk pages (the March and August 1940 bombe dates, 211 British bombes), of Colossus histories (delivery in January, working on 5 February 1944, valve counts of 1,500–1,600 and 2,400–2,500), of the GCHQ page on the Pyry meeting, and of Wikipedia's Venona article (about 2,200–3,000 messages; the 349 names, as counted by Haynes and Klehr); the US Navy bombe count, which secondary sources give variously; news reports of the M4 Message Breaking Project (Stefan Krah, 2006) and of Joachim Schüth's 46-second laptop break at the 2007 Cipher Event; for Typex and SIGABA, the general shape of later academic attacks (Mark Stamp and colleagues), not checked in detail.

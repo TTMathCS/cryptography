@@ -1,9 +1,10 @@
 # From Shannon to DES
 
 *From 1945 to the late 1990s: a mathematical theory of secrecy, the secret
-agencies that grew out of the war, a German émigré's cipher at IBM, and
-the first public standard cipher, with a twenty-year argument about its
-key.*
+agencies that grew out of the war, a Swiss company that sold rigged
+machines to the world, the Warsaw Pact's Fialka, a German émigré's cipher
+at IBM, and the first public standard cipher, with a twenty-year argument
+about its key.*
 
 After the war, cryptography split in two. Governments kept their
 codebreakers, gave them new agencies and huge budgets, and classified
@@ -123,11 +124,24 @@ countries that bought them, in an operation the BND called *Rubikon*. The
 BND sold its share in the early 1990s; the CIA stayed until 2018. The
 story came out in February 2020, through a joint investigation by the
 *Washington Post* and the German and Swiss broadcasters ZDF and SRF, based
-on the CIA's own internal history.
+on the CIA's own internal history. Among the customers were Iran, military
+governments in Latin America, India and Pakistan, and the Vatican.
 
 It is the strongest argument there is for Kerckhoffs's principle and for
 open algorithms: a customer who couldn't inspect the design had no way to
 know it had been weakened.
+
+### The Soviet side: Fialka
+
+The Soviet Union and its allies built their own machines. The best known
+is *Fialka* ("violet"), the M-125, introduced around 1956. Like Enigma it
+used rotors, but ten of them, each with 30 contacts for the Cyrillic
+alphabet, and with pins that controlled how they stepped; its design drew
+on Enigma, the Swiss NEMA and the American KL-7. Every Warsaw Pact country got the same base
+machine with its own rotor wiring, and there were Polish, East German,
+Hungarian and Czechoslovak versions. An improved model, the M-125-3M,
+followed in 1965, and Fialka stayed in service until the early 1990s.
+Almost nothing was known about it in the West until about 2005.
 
 ## Feistel and Lucifer
 
@@ -375,6 +389,7 @@ counting; these fall, if at all, to a key too short or a block too small.
 
 | Cipher | Broken today? | The attack in plain words |
 |---|---|---|
+| Fialka | yes, by computer | Ten rotors with irregular stepping is far harder than Enigma by hand, but it is still a small key by modern standards, and rotor machines leak patterns a computer can climb on. |
 | Crypto AG's rigged machines | yes, by design | The weakness was built in for the CIA and BND to use. Without the design, a customer couldn't know. |
 | Lucifer | yes, in its published forms | Biham and Shamir's differential cryptanalysis breaks the Lucifer variants faster than trying every key. |
 | DES | yes, in hours | Try every one of the $2^{56}$ keys against one known block. Deep Crack did it in 56 hours in 1998; a rack of FPGA chips, like the public crack.sh service of 2012, takes about a day. |
@@ -472,4 +487,4 @@ key is out of reach for any machine that could be built.
 - Karthikeyan Bhargavan and Gaëtan Leurent, "On the Practical (In-)Security of 64-bit Block Ciphers: Collision Attacks on HTTP over TLS and OpenVPN" (Sweet32), ACM CCS 2016 / [RFC 7465: Prohibiting RC4 Cipher Suites](https://www.rfc-editor.org/rfc/rfc7465) (2015)
 - Eli Biham, Alex Biryukov and Adi Shamir, "Cryptanalysis of Skipjack Reduced to 31 Rounds Using Impossible Differentials", EUROCRYPT 1999
 
-*Weaker sources:* search summaries of the Washington Post / ZDF / SRF reporting of February 2020 and of the Crypto Museum's "Operation Rubicon" pages (the 1970 purchase, the BND's exit in the early 1990s, the CIA's in 2018, the country counts); Wikipedia's DES article for Konheim's S-box remark and the quoted wording of the Johnson history, whose declassified text I could not open; the second NBS solicitation (August 1974; NIST's own history gives 17 August, other sources 27 August). Also the crack.sh service's own description (about a day per DES key, 2012).
+*Weaker sources:* the Crypto Museum's Fialka pages, the Science Museum Group's catalogue entry for a ten-rotor Fialka, and the Wikipedia article on Fialka (dates, rotors, national versions); the Washington Post's February 2020 report as reprinted by the *Anchorage Daily News*, for the list of customers; search summaries of the Washington Post / ZDF / SRF reporting of February 2020 and of the Crypto Museum's "Operation Rubicon" pages (the 1970 purchase, the BND's exit in the early 1990s, the CIA's in 2018, the country counts); Wikipedia's DES article for Konheim's S-box remark and the quoted wording of the Johnson history, whose declassified text I could not open; the second NBS solicitation (August 1974; NIST's own history gives 17 August, other sources 27 August). Also the crack.sh service's own description (about a day per DES key, 2012).

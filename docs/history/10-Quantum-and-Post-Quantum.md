@@ -416,9 +416,21 @@ some extra algorithms such as FrodoKEM and Classic McEliece. ISO published
 Classic McEliece in June 2026, and in October 2026 Germany's BSI advised
 against it for new systems, because new cryptanalysis put the cost of
 recovering its keys below the claimed security levels, though no
-practical attack exists. South Korea
-ran its own competition and chose four algorithms in 2025, and China
-announced its own call in 2025.
+practical attack exists.
+
+South Korea ran its own competition, KpqC, from 2022 (some accounts say
+2021). In January 2025 it
+chose four algorithms: the signatures HAETAE (lattice-based, built by
+Korean, French and German researchers) and AIMer (built on a symmetric
+cipher instead of a lattice), and the key-establishment schemes SMAUG-T
+and NTRU+. China has long set its own standards, the SM2, SM3 and SM4
+[national algorithms](../04-symmetric-ciphers/National-Ciphers.md), and
+its Cryptography Law, in force since 1 January 2020, divides cryptography
+into core and common cryptography for state secrets and commercial
+cryptography for everything else. In February 2025 the Institute of
+Commercial Cryptography Standards opened a worldwide call for new
+algorithms, post-quantum public-key schemes among them, meant to become
+Chinese national standards.
 
 ## The move: hybrids
 
@@ -612,5 +624,7 @@ mathematics, to be where things go wrong.
 - Joppe Bos et al., "CRYSTALS-Kyber: A CCA-Secure Module-Lattice-Based KEM" (EuroS&P 2018) / Daniel J. Bernstein et al., "KyberSlash: Exploiting Secret-Dependent Division Timings in Kyber Implementations" (2024) / Yilei Chen, "Quantum Algorithms for Lattice Problems" (IACR ePrint 2024/555, withdrawn claim)
 - [OpenSSH release notes](https://www.openssh.com/releasenotes.html) (9.0, 9.9, 10.0, 10.1) and [OpenSSH post-quantum page](https://www.openssh.com/pq.html) / Signal, *The PQXDH Key Agreement Protocol* (2023) and "Signal Protocol and Post-Quantum Ratchets" (October 2025) / Apple Security Research, "iMessage with PQ3" (February 2024) / Apple, "Prepare your network for quantum-secure encryption in TLS" (2025)
 - NSA, *Announcing the Commercial National Security Algorithm Suite 2.0* (September 2022) / White House, National Security Memorandum 10 (May 2022) / NCSC, *Timelines for Migration to Post-Quantum Cryptography* (March 2025) / *A Coordinated Implementation Roadmap for the Transition to Post-Quantum Cryptography* (EU NIS Cooperation Group, June 2025)
+- ANSSI, "L'algorithme HAETAE lauréat de la compétition coréenne de cryptographie post-quantique" (cyber.gouv.fr, 2025)
+- Cryptography Law of the People's Republic of China (adopted 26 October 2019, in force 1 January 2020), English text published by *China Daily* for the National People's Congress
 
-*Weaker sources:* the October 2026 final version of NIST IR 8547 (NIST's news release of 27 October 2026) and its change from the draft, known from secondary reports and this site's main table because nist.gov was unreachable from here; Executive Order 14412 and its 2030 and 2031 dates, from search summaries of the White House and Federal Register texts; the status of FIPS 206 and FIPS 207, from this site's FN-DSA and code-based KEM pages and from news reports; the May 2026 third-round list and HAWK's July 2026 withdrawal, from news summaries of NIST IR 8610 and the pqc-forum; the details of Babbush et al., Cain et al. and Iceberg Quantum's 2026 preprints, from news coverage and search summaries; the Global Risk Institute's March 2026 survey figure; Google's 2029 migration target (Google blog, March 2026); Cloudflare's adoption figures, from its blog as summarized in the press; the 2025–2026 logical-qubit counts, which come from company announcements; the Korean and Chinese processes; the browser and Apple release dates for hybrid ML-KEM, from vendor documentation summarized by search.
+*Weaker sources:* PQShield's and postquantum.com's reports on the KpqC winners (the start year is given as 2021 or 2022); *The Quantum Insider*'s report of 18 February 2025 on the ICCS call; the October 2026 final version of NIST IR 8547 (NIST's news release of 27 October 2026) and its change from the draft, known from secondary reports and this site's main table because nist.gov was unreachable from here; Executive Order 14412 and its 2030 and 2031 dates, from search summaries of the White House and Federal Register texts; the status of FIPS 206 and FIPS 207, from this site's FN-DSA and code-based KEM pages and from news reports; the May 2026 third-round list and HAWK's July 2026 withdrawal, from news summaries of NIST IR 8610 and the pqc-forum; the details of Babbush et al., Cain et al. and Iceberg Quantum's 2026 preprints, from news coverage and search summaries; the Global Risk Institute's March 2026 survey figure; Google's 2029 migration target (Google blog, March 2026); Cloudflare's adoption figures, from its blog as summarized in the press; the 2025–2026 logical-qubit counts, which come from company announcements; the Korean and Chinese processes; the browser and Apple release dates for hybrid ML-KEM, from vendor documentation summarized by search.

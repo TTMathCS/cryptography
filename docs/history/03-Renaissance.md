@@ -1,9 +1,9 @@
 # The Renaissance
 
-*From monks' vowel games in the 700s to the 1700s: diplomats with cipher
-secretaries, the invention of the polyalphabetic cipher, a queen undone by
-her own letters, and the "black chambers" that quietly read the mail of
-Europe.*
+*From the 700s to about 1800: monks' vowel games, diplomats with cipher
+secretaries, the polyalphabetic cipher, a queen undone by her own letters,
+the "black chambers" from Paris to Saint Petersburg, Ottoman ciphers, Inca
+knotted records and the codes of the American Revolution.*
 
 When Italian city-states began keeping ambassadors at each other's courts,
 secret letters became a daily need, and so did reading other people's.
@@ -26,8 +26,10 @@ to open, copy and decipher foreign letters.
 | 1401 | a Mantuan secretary | several substitutes for each vowel: homophones |
 | c. 1467 | Leon Battista Alberti | the cipher disk, the first polyalphabetic cipher |
 | 1474 | Cicco Simonetta, Milan | rules for solving ciphers without the key |
+| 1400s–1532 | the Inca state, Andes | knotted-cord records, khipu |
 | 1506 | Giovanni Soro, Venice | the first known full-time state codebreaker |
 | 1518 | Johannes Trithemius (d. 1516) | the first printed book on cryptography, the tabula recta |
+| 1500s (attributed) | Uesugi Kenshin, Japan | an iroha cipher square |
 | 1553 | Giovan Battista Bellaso | the keyword: the cipher later called "Vigenère" |
 | 1563 | Giambattista della Porta | ciphers for pairs of letters; a manual of codebreaking |
 | 1586 | Blaise de Vigenère | the autokey cipher, stronger than the one named after him |
@@ -35,6 +37,11 @@ to open, copy and decipher foreign letters.
 | 1590 | François Viète | reads Philip II's cipher for Henri IV |
 | 1628 | Antoine Rossignol | breaks a Huguenot cipher; France's cipher office begins |
 | 1600s–1800s | France, England, Austria | the black chambers |
+| 1744 | Alexei Bestuzhev-Ryumin, Russia | a French envoy's letters read; he is expelled |
+| 1778–1783 | Benjamin Tallmadge, New York | the Culper Ring's code book and invisible ink |
+| 1779–1780 | Benedict Arnold and John André | a book code for treason |
+| 1796–1800 | King Jeongjo, Korea | secret letters, sometimes in code |
+| 1797 | Selim III's embassies | Ottoman diplomatic ciphers begin |
 | 1893 | Étienne Bazeries | finally reads Louis XIV's Great Cipher |
 
 ## Medieval Europe: a quiet start
@@ -74,8 +81,8 @@ copy (Munich, Bayerische Staatsbibliothek, Clm 1086, from about 800) has a
 line of odd letters in which each vowel is written as a short Latin number
 word for its place among the vowels: *secd*, for *secundum*, "second",
 stands for *e*. Bernhard Bischoff solved it in 1931. It reads, roughly,
-"I, a Saxon woman named Hugeburc, wrote this", and that is the only reason
-we know who the author was.
+"I, a Saxon woman named Hugeburc, wrote this", and it is the only place
+the author's name is recorded.
 
 ### Runes in cipher
 
@@ -554,6 +561,49 @@ Bibliothèque nationale de France, filed as Italian documents of the early
 1500s. The team broke the cipher with computer search plus a great deal
 of hand work and published the results in *Cryptologia*.
 
+## The Andes: knotted records
+
+The Inca state, which ruled much of western South America in the 1400s
+and early 1500s, ran an empire without writing. Its records were kept on
+*khipu* (also spelled *quipu*): a main cord with many cotton or
+camelid-fibre cords hanging from it, and knots tied along them. From 1912
+the American historian Leland Locke showed that most khipu record numbers
+in base ten. Clusters of knots at set positions give the units, tens and
+hundreds, an empty position means zero, and a top cord can hold the total
+of the cords beside it.
+
+About a third of the surviving khipu don't follow that pattern, and
+whether they record words as well as numbers is still argued over. The
+anthropologist Gary Urton has argued that colour, knot type and the
+direction of the knots could carry far more than numbers, and he has
+also said plainly that even where the numbers can be read, nobody knows
+what they refer to. Khipu were not a cipher. They are in this story
+because they were how the Andes stored information, and because reading
+the non-numerical ones is still an unsolved decipherment problem.
+
+## Japan: a cipher square, if it was used
+
+The 16th-century warlord Uesugi Kenshin, or his adviser Usami Sadayuki,
+is said to have used a cipher square: the syllables of the *iroha* poem
+(which uses each kana once) written into a 7 × 7 grid, and each syllable
+sent as its row and column number. It is the same idea as Polybius's
+square. Whether Uesugi ever used it is not known, and one survey of
+Japanese cryptology finds no sign of codebreaking in Japan before the
+late 1800s. The real start came with the telegraph, on the
+[next page](04-Telegraph-Age.md#japan-ciphers-for-the-new-telegraph).
+
+## Korea: a king's secret letters
+
+King Jeongjo of Joseon (reigned 1776–1800) ran part of his politics
+through private letters. About three hundred of them, written between
+1796 and 1800 to Sim Hwan-ji, the leader of a rival faction, came to
+light and were published by Sungkyunkwan University in 2009. The king
+asked for them to be destroyed, and according to Korean press accounts
+he sometimes used secret codes in them. No study in English that
+describes those codes, or any other Joseon cipher, turned up in the
+research for this page, so Korea before the 20th century is one of the
+thinnest parts of this history.
+
 ## The black chambers
 
 ### France: the Rossignols and the Great Cipher
@@ -628,6 +678,59 @@ resealed them with forged seals and had them back in the post by 9:30. Codebreak
 bonuses for each solved key. Austria could read the diplomatic traffic of
 most of Europe and sometimes sold the results to friendly courts.
 
+### Russia: an envoy's letters, 1744
+
+In Saint Petersburg the chancellor, Alexei Bestuzhev-Ryumin, had the
+letters of the French envoy, the marquis de La Chétardie, intercepted,
+deciphered and copied. La Chétardie was plotting to bring Bestuzhev down
+and wrote scornfully about Empress Elizabeth. Bestuzhev waited until he
+had about fifty of the letters before he showed them to her, and on
+6 June 1744 La Chétardie was ordered to leave Russia within twenty-four
+hours. Some popular accounts say the mathematician Christian Goldbach,
+who joined the Russian foreign ministry in 1742, was one of the
+decipherers, but no reliable source for it turned up.
+
+### Istanbul: the Ottomans, from 1797
+
+The Ottoman Empire came to cryptography late, and through diplomacy.
+Sedat Bingöl's work in the Ottoman archives traces it to 1797, under
+Selim III, when the empire's new permanent embassies in Europe began
+sending ciphered reports home. The effort mostly stopped after 1811, when
+the ambassadors were recalled and lower-ranking chargés d'affaires
+carried on, and it picked up again after 1834, when ambassadors returned
+to the European capitals. For about half a century the Ottomans used
+simple one-alphabet substitution ciphers. Later, codes became the basis
+of official communication both abroad and inside the empire.
+
+## The American Revolution
+
+### The Culper Ring
+
+From 1778 George Washington ran a ring of spies in British-held New York,
+known by the cover names its members used, Samuel Culper senior and
+junior. Major Benjamin Tallmadge, who managed it, made a code book of 763
+numbered entries for common words, names and places, so that a letter
+could be written mostly in numbers. Messages were also written in a
+"sympathetic stain" made by James Jay, a physician and brother of John
+Jay: an invisible ink that showed only when brushed with a second
+chemical. Washington was writing to Tallmadge about using the ink by
+July 1779.
+
+### Arnold and André
+
+Benedict Arnold, an American general, offered in 1779 to change sides,
+and his letters to the British officer John André went in a *book code*.
+Each word was written as three numbers: page, line and word in a book
+both men owned. The Clements Library at the University of Michigan, which
+holds the letters, names the book as either Blackstone's *Commentaries*
+or Nathan Bailey's *Dictionary*. A word missing from the book had to be
+spelled out or patched with endings. André was caught in September 1780
+with papers from Arnold, and the plot to hand over West Point collapsed.
+
+A book code is strong while the book stays secret, because the same word
+can be found on many pages. But it is slow, and once the enemy guesses
+the book, every message falls at once.
+
 ## Can these be broken today?
 
 Yes, all of them, and a laptop does it in seconds. Each one hides the
@@ -639,6 +742,9 @@ of guesses a second against that shape.
 | Monks' vowel codes, Hildegard's letters, rune and ogham ciphers | instantly | Each sign still stands for one letter, and the tricks are few. Count the signs, or just try the known swaps. |
 | Simple nomenclator | at once | Count the symbols, as [al-Kindi](02-Arab-Cryptanalysis.md) did, and guess the code words from context ("the king" turns up in every letter). |
 | Homophones and nulls | easily, by computer | Single-letter counts go flat, but letter pairs don't. A program swaps symbol meanings at random and keeps any swap that makes the text look more like the language, until it reads. That search, plus a lot of hand work, is how Lasry, Biermann and Tomokiyo read Mary Stuart's 57 lost letters in 2023. |
+| The Culper code book and Ottoman substitutions | at once | A fixed list of numbers for words, or one mixed alphabet. Common words repeat, so counting and context read them, and a captured copy of the book ends it. |
+| Arnold's book code | instantly with the book; slowly without | Find the book and every message reads. Without it, the numbers still show which words repeat and roughly where in the book they sit (page numbers rise with the alphabet in a dictionary), which is a start. |
+| The iroha square | instantly | It is Polybius's square with kana: count the number pairs. |
 | Louis XIV's Great Cipher | with work | A big nomenclator of 587 numbers, mostly for syllables, with trap numbers. Bazeries needed about three years by hand. A computer now does the counting and the climbing search fast, but the code words for names still need a person reading in context. |
 | Alberti's disk | easily | The key letters that turn the disk show where the alphabet changes. Between them, each stretch is a simple substitution, solved by counting. |
 | Trithemius's table, with no keyword | instantly | The shift moves on by one each letter, and there is no secret at all: anyone who knows the method reads it. |
@@ -730,5 +836,8 @@ about to change what ciphers had to do.
 - Benjamin A. Saltzman, "Vt hkskdkxt: Early Medieval Cryptography, Textual Errors, and Scribal Agency", *Speculum* 93, no. 4 (2018), pp. 975–1009 (from the abstract), on how little the general histories say about the period
 - Kari Anne Rand, "The Authorship of *The Equatorie of the Planetis* Revisited", *Studia Neophilologica* 87 (2015)
 - Étienne Bazeries, *Les chiffres secrets dévoilés* (Paris, 1901)
+- Sedat Bingöl, "Methods for encryption in early 19th-century Ottoman diplomatic correspondence", *Cryptologia* 46, no. 6 (2022), pp. 498–524, and "The changes in Ottoman diplomatic cryptography and its methods during the 19th century (1811–1877)", *Cryptologia* (2023), no. 6, pp. 541–569 (from the abstracts)
+- Leland L. Locke, *The Ancient Quipu or Peruvian Knot Record* (American Museum of Natural History, 1923)
+- Sujith Ravi and Kevin Knight, "Probabilistic Methods for a Japanese Syllable Cipher" (2009), on the Uesugi square
 
-*Weaker sources:* Thijs Porck's blog post "Anglo-Saxon cryptography" (2017) for the dot and next-consonant examples and the wording of Hygeburg's cipher; the Wikipedia article on Hygeburg (dates, Clm 1086, Bischoff's 1931 solution, citing Carolyne Larrington's entry in the *Oxford Dictionary of National Biography*) and the *Deutsche Biographie* entry listing Bischoff's article "Wer ist die Nonne von Heidenheim?"; Uppsala University's news item on Henrik Williams's book about the Rök stone (January 2022) and the Wikipedia article on the stone (date, 760 runes, the shift cipher); Garry J. Shaw, "Hildegard of Bingen's Unknown Language and Unknown Letters", *World History Encyclopedia* (2025); the Wikipedia article on *In Lebor Ogaim* (manuscripts, the 100 and 92 forms, Ogam Bricrenn, final ogham); search summaries of the Wikipedia articles on Giovanni Soro (his 1506 appointment and the papal test ciphers), Gabriele de Lavinde, the Great Cipher (the 587 numbers) and the Equatorie (Price, Westwyk); MacTutor's biography of Viète for the 15 March 1590 date; news coverage of the 2023 Mary Stuart letters (57 letters, Castelnau, BnF misfiling); the Bellaso article on Wikipedia for his patrons; the gallows sketch on Phelippes's copy and Porta's egg trick, which rest on retellings.
+*Weaker sources:* the 1911 *Encyclopaedia Britannica* article on Bestuzhev-Ryumin (the La Chétardie letters and the 6 June 1744 order); Mount Vernon's pages on the Culper Ring and its code book (763 entries, James Jay's stain), seen as search summaries; the University of Michigan Clements Library's "Spy Letters of the American Revolution" pages on the Arnold–André code (as search summaries); the Wikipedia article on the quipu and *American Scientist*'s "String Theory" (Urton, the share of non-decimal khipu; Locke is dated 1912 in some accounts and 1923 in others); the Wikipedia article "Japanese cryptology from the 1500s to Meiji" (flagged by its editors as needing better sources) for doubts about the Uesugi square; *Korea JoongAng Daily* and *Korea Times* reports on King Jeongjo's letters; Bingöl's Turkish article on special-purpose Ottoman codes, *Vakanüvis* (2022), from its abstract; Thijs Porck's blog post "Anglo-Saxon cryptography" (2017) for the dot and next-consonant examples and the wording of Hygeburg's cipher; the Wikipedia article on Hygeburg (dates, Clm 1086, Bischoff's 1931 solution, citing Carolyne Larrington's entry in the *Oxford Dictionary of National Biography*) and the *Deutsche Biographie* entry listing Bischoff's article "Wer ist die Nonne von Heidenheim?"; Uppsala University's news item on Henrik Williams's book about the Rök stone (January 2022) and the Wikipedia article on the stone (date, 760 runes, the shift cipher); Garry J. Shaw, "Hildegard of Bingen's Unknown Language and Unknown Letters", *World History Encyclopedia* (2025); the Wikipedia article on *In Lebor Ogaim* (manuscripts, the 100 and 92 forms, Ogam Bricrenn, final ogham); search summaries of the Wikipedia articles on Giovanni Soro (his 1506 appointment and the papal test ciphers), Gabriele de Lavinde, the Great Cipher (the 587 numbers) and the Equatorie (Price, Westwyk); MacTutor's biography of Viète for the 15 March 1590 date; news coverage of the 2023 Mary Stuart letters (57 letters, Castelnau, BnF misfiling); the Bellaso article on Wikipedia for his patrons; the gallows sketch on Phelippes's copy and Porta's egg trick, which rest on retellings.

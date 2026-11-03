@@ -281,6 +281,17 @@ Arab Academy of Damascus began searching manuscript libraries, from
 around 1979; the published series, *Arabic Origins of Cryptology*, now
 covers al-Kindi, Ibn 'Adlan, Ibn ad-Durayhim, Ibn Dunaynir and others.
 
+## Byzantium: a gap in the record
+
+The Greek-speaking Byzantine Empire was Baghdad's neighbour and rival for
+the whole of this period, and al-Khalil's story above starts with a Greek
+cryptogram. But Byzantine cryptography has hardly been studied: a recent
+paper on how the Byzantines protected documents and secret
+communications, from the 4th to the 15th century, begins by saying that
+its origin and development have not yet been looked at. Greek manuscripts
+of the period are said to contain simple letter substitutions. Until the
+specialists have done more, this page can't say much.
+
 ## Did Europe learn it from the Arabs?
 
 Europe's own codebreaking appears in the Italian city-states around 1400,
@@ -350,4 +361,4 @@ was a response to frequency analysis:
 - al-Qalqashandi, *Subh al-a'sha fi sina'at al-insha* (1412; printed Cairo, 1913–1919)
 - Ibn Wahshiyya (attrib.), trans. Joseph Hammer, *Ancient Alphabets and Hieroglyphic Characters Explained* (London, 1806) / Okasha El-Daly, *Egyptology: The Missing Millennium: Ancient Egypt in Medieval Arabic Writings* (UCL Press, 2005) / Jaakko Hämeen-Anttila, *The Last Pagans of Iraq: Ibn Wahshiyya and His Nabatean Agriculture* (Brill, 2006) / Elliott Colla, *Conflicted Antiquities* (Duke University Press, 2007)
 
-*Weaker sources:* search summaries of the Wikipedia articles on Ibn 'Adlan and Ibn al-Durayhim (the 90-letter rule, no-space cryptograms, dates) and of the Muslim Heritage article "Arab Origins of Cryptology" (the 1979 manuscript search, the Süleymaniye find); the attribution of the first arithmetical cipher to Ibn Dunaynir, which rests on the series' editors as summarized in secondary papers; Simon Singh, *The Code Book* (1999), for the wording of the al-Kindi passage paraphrased above.
+*Weaker sources:* the CORE repository record for "Protection of Documents, Cryptography and Secret Communications in Byzantium (the 4th—15th centuries)" (abstract only; author and journal not shown), and a note citing V. Gardthausen, *Griechische Palaeographie* (1913), for letter substitutions in Byzantine Greek manuscripts; search summaries of the Wikipedia articles on Ibn 'Adlan and Ibn al-Durayhim (the 90-letter rule, no-space cryptograms, dates) and of the Muslim Heritage article "Arab Origins of Cryptology" (the 1979 manuscript search, the Süleymaniye find); the attribution of the first arithmetical cipher to Ibn Dunaynir, which rests on the series' editors as summarized in secondary papers; Simon Singh, *The Code Book* (1999), for the wording of the al-Kindi passage paraphrased above.

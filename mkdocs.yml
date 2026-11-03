@@ -48,6 +48,7 @@ extra_javascript:
   - javascripts/ask.js
   - javascripts/modexp.js
   - javascripts/steps.js
+  - javascripts/timeline-sort.js
   - katex/katex.min.js
   - katex/auto-render.min.js
   - javascripts/math.js

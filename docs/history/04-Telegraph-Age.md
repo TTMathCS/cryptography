@@ -1,8 +1,10 @@
 # The telegraph age
 
 *From the 1840s to 1920: messages that travel by wire and radio, the fall
-of the "indecipherable" cipher, Kerckhoffs's rules, a telegram that helped
-pull America into a world war, and the one cipher that can't be broken.*
+of the "indecipherable" cipher, Africa's talking drums, telegraph codes
+for Chinese and Japanese, Kerckhoffs's rules, the Okhrana's mail readers,
+a telegram that helped pull America into a world war, the first code
+talkers, and the one cipher that can't be broken.*
 
 The electric telegraph made it possible to send a message across a
 continent in minutes, but every message passed through the hands of
@@ -21,6 +23,10 @@ mathematically unbreakable, if you can live with its rules.
 | 1854 | Charles Babbage | breaks the keyword cipher, but doesn't publish |
 | 1854 | Charles Wheatstone | the Playfair cipher |
 | 1861–1865 | US Civil War | the first war to lean heavily on telegraph ciphers |
+| 1800s–1900s (described) | Central and West Africa | drum and gong languages carry messages for miles |
+| 1869–1879 | Japan | the telegraph arrives; government code charts, then a cipher wheel |
+| 1871–1872 | Schjellerup, Viguier | the Chinese telegraph code: four digits per character |
+| 1881–1917 | the Okhrana | black chambers in Russian post offices |
 | 1863 | Friedrich Kasiski | publishes the general attack on keyword ciphers |
 | 1883 | Auguste Kerckhoffs | *La cryptographie militaire*: only the key is secret |
 | 1882 | Frank Miller | a one-time pad in a banker's telegraph code |
@@ -29,6 +35,7 @@ mathematically unbreakable, if you can live with its rules.
 | 1917 | Nigel de Grey and William Montgomery | read the Zimmermann telegram |
 | 1917–1919 | Gilbert Vernam, Joseph Mauborgne | the teleprinter cipher and the one-time tape |
 | 1918 | Georges Painvin | breaks Germany's ADFGVX field cipher |
+| 1918 | Choctaw soldiers, 142nd Infantry | the first code talkers |
 
 ## Wires change everything
 
@@ -291,6 +298,84 @@ Washington solved their messages regularly. One of them, David Homer
 Bates, later described the work, and Lincoln's frequent visits to the
 telegraph office, in *Lincoln in the Telegraph Office* (1907).
 
+### China: a number for every character, 1871–1872
+
+Morse code was built for alphabets, and Chinese is written with thousands
+of characters. When the Great Northern Telegraph Company, a Danish firm,
+opened a cable between Shanghai and Hong Kong in 1871, it needed a way
+round that. The Danish astronomer Hans Schjellerup drew up a first list,
+and in 1872 Septime Auguste Viguier published the codebook that replaced
+it, *Dianbao xinshu* (電報新書, "New book for the telegraph"). It gave a
+selection of common characters four-digit numbers from 0001 to 9999, and
+the clerk sent the digits. Telegraph clerks soon knew the commonest
+numbers by heart. Zheng Guanying brought out an expanded, reorganised
+edition in 1881. The code's descendants are still in use; police forces,
+for example, use the numbers to record Chinese names.
+
+The codebook itself hid nothing, since anyone could buy it. But numbers
+make secrecy easy to add. The NSA's short history of the code gives
+米 (rice) as 4149: add a secret 5555 digit by digit, dropping the carries,
+and 9694 goes on the wire, and the receiver subtracts the same key. That
+is the same additive trick the Japanese navy later used on top of its
+[JN-25](05-Machines-and-WWII.md#jn-25-and-midway) code book.
+
+### Japan: ciphers for the new telegraph
+
+Japan's first telegraph line, from Tokyo to Yokohama, opened in 1869, and
+by the early 1880s the network reached every major part of the country.
+Messages went in *Wabun* code, a Morse code for the kana syllables. The
+worry, as a National Diet Library essay puts it, was that the telegraph
+operator could read everything, and coded telegrams were allowed soon
+after the service began.
+
+Government offices used code charts from about 1875. The papers of the
+official Mishima Michitsune include charts for messages between the Home
+Ministry, the Finance Ministry and the prefectural governors. They were
+simple substitutions, such as running the iroha syllabary from its last
+syllable instead of its first. From March 1879 the tables were scrambled
+irregularly, and in November 1879 the government adopted a cipher wheel:
+a small disk on a larger one, with a window that picked one of five code
+charts. The notice about the change, from the finance minister Ōkuma
+Shigenobu to the prefectures, survives in the same papers. It is the same
+kind of device as [Alberti's disk](03-Renaissance.md#albertis-cipher-disk)
+of four centuries earlier, but each setting was still one simple
+substitution.
+
+### Russia: the Okhrana's black chambers
+
+Tsarist Russia read mail on a large scale. Under the Okhrana, the
+political police set up in 1881, black chambers in post offices across
+the empire opened letters, and ciphered ones went to decipherers. The
+revolutionary Victor Serge, who saw the Okhrana's files after 1917, wrote
+that its best decipherer, a man named Zybin, had such a reputation that
+he was kept on after the revolution of March 1917. Serge's account is
+partisan, and little else is known about Zybin. The Okhrana read foreign
+traffic too: one of its officers, Ivan Manasevich-Manuilov, described
+intercepting and decoding the messages of the Japanese military attaché.
+Russia's own military ciphers were another matter, as
+[Tannenberg](#everyone-is-listening) showed in 1914.
+
+### Africa: drums that talk
+
+In Central and West Africa, people sent messages over miles by drum. In tonal languages, where a word's
+meaning depends on the pitch of its syllables, a drum or a hollowed log
+"slit-gong" with two or more tones can copy the tune and rhythm of a
+sentence. The missionary John Carrington, who lived among the Kele people
+of the Congo, described the system in *The Talking Drums of Africa*
+(1949) and reckoned the messages carried three to seven miles.
+
+The trouble is that many words share the same tones. In Kele, "manioc",
+"plantain", "above" and "forest" all sound alike on the drum, so each is
+drummed inside a longer stock phrase: manioc is "the manioc which remains
+in the fallow ground". The extra words make the message longer but
+remove the ambiguity, the same trade-off between length and reliability
+that later engineers would call redundancy. Drum language was not
+secret: anyone who knew the language and the phrases could follow the
+simpler messages, though the full art belonged to trained drummers. But
+it could be used to hide things. Ruth Finnegan notes that during the
+Nigerian civil war (1967–1970) drum language went out over the radio to
+reach some listeners and not others.
+
 ## Kerckhoffs's rules
 
 In 1883 Auguste Kerckhoffs (1835–1903), a Dutch-born professor of
@@ -409,6 +494,18 @@ hurried forward, which pointed to where the next German attack would
 fall. It became known in France as the *radiogramme de la victoire*. How
 much it changed the battle that followed is still debated, but the French
 were ready.
+
+### The Choctaw telephone squads, 1918
+
+In October 1918, during the Meuse-Argonne offensive, American field
+telephone messages were being intercepted by the Germans. An officer of
+the 142nd Infantry, in the US 36th Division, overheard two Choctaw
+soldiers talking in their own language and saw the answer. The regiment
+put Choctaw speakers on the telephones, and their first messages, on 26
+to 28 October 1918, went by in a language no German listener knew. The
+group grew to about twenty men. They were the first *code talkers*, and
+the idea came back on a larger scale in the
+[Second World War](05-Machines-and-WWII.md#more-code-talkers).
 
 ### The American Black Chamber
 
@@ -537,6 +634,9 @@ exception is the one-time pad, used correctly.
 | Keyword ("Vigenère") cipher | in a fraction of a second | Kasiski's repeats give the key length; then each column is a Caesar shift. The program above does it. |
 | Playfair | in seconds | The same pair always gives the same pair. A computer climbs: change the $5 \times 5$ square a little, keep the change if the text looks more like English. A few hundred letters are enough. |
 | Wheel cipher (Jefferson, Bazeries, M-94) | easily, with a guessed word | The disk order is the key, and the disks themselves are often captured. Guess a likely word: each plain letter and its cipher letter must sit the same distance apart on their disk, which rules out almost every order. The Marquis de Viaris broke Bazeries's cylinder this way in 1893. |
+| The Chinese telegraph code with an added key | easily, with enough traffic | The book is public, so only the added digits are secret. If the key is reused, subtracting two messages cancels it, and the common characters' numbers show through. |
+| Meiji code charts and the cipher wheel | instantly | One substitution per setting, and only five settings. |
+| Choctaw on the telephone | not by codebreaking | A language, not a cipher. Only a speaker could follow it. |
 | Route transposition (Union army) | easily | Letters and words are only moved, so they are all still there. Try the likely grids and paths until sentences appear; the code words for names need context. |
 | ADFGVX | easily, by computer | Painvin needed weeks of work and messages with matching beginnings. Today a program tries column orders and checks whether the resulting pairs behave like letters of a substitution. |
 | One-time pad, used once with a truly random pad | never | No attack exists: every message of that length fits. Shannon proved it. |
@@ -582,5 +682,10 @@ the enemy will.
 - Gilbert S. Vernam, "Secret Signaling System", US Patent 1,310,719 (1919) / Vernam, "Cipher Printing Telegraph Systems for Secret Wire and Radio Telegraphic Communications", *Journal of the AIEE* 45 (1926), pp. 109–115
 - Steven M. Bellovin, "Frank Miller: Inventor of the One-Time Pad", *Cryptologia* 35, no. 3 (2011), pp. 203–222 / Bellovin, "Vernam, Mauborgne, and Friedman: The One-Time Pad and the Index of Coincidence", in *The New Codebreakers* (Springer LNCS 9100, 2016)
 - William F. Friedman, *The Index of Coincidence and Its Applications in Cryptography* (Riverbank Publication 22, 1922)
+- Ruth Finnegan, *Oral Literature in Africa* (Open Book Publishers, 2012), chapter 17, "Drum Language and Literature" / John F. Carrington, *The Talking Drums of Africa* (Carey Kingsgate Press, 1949)
+- Septime Auguste Viguier, *Dianbao xinshu* (電報新書) (Shanghai, 1872) / Thomas S. Mullaney, *The Chinese Computer: A Global History of the Information Age* (MIT Press, 2024), on the 1871–1872 code
+- National Diet Library (Japan), "Cipher Wheel of the Meiji Era", Modern Japan in Archives, column 2, with Ōkuma Shigenobu's notice of 12 November 1879 (Papers of Mishima Michitsune, #474-10)
+- Victor Serge, *What Everyone Should Know About State Repression* (1926), on Zybin / Ivan Manasevich-Manuilov's notes in the Okhrana files, Hoover Institution, as described in a CIA *Studies in Intelligence* review of works on the Okhrana
+- William C. Meadows, *The First Code Talkers: Native American Communicators in World War I* (University of Oklahoma Press, 2021), as summarized by RealClearDefense
 
-*Weaker sources:* search summaries of the Wikipedia articles on the Vigenère cipher (Thwaites, *The Tempest*, the keys "two" and "combined", the 1854 date) and Simon Singh's *The Code Book* (1999) for the Tennyson and EMILY story, Georges Painvin and the ADFGVX cipher (1 March and 2 June 1918, the V added around the start of June); Wemyss Reid's *Memoirs of Lyon Playfair* (1899) for the Foreign Office anecdote, known to me through retellings; the "BAFUZ" code word, a made-up example of the style rather than a quotation from a real code book.
+*Weaker sources:* a search summary of the NSA's "History Today" article on the Chinese telegraph code (15 February 2018), for the 4149 and 5555 example; the Wikipedia articles on the Chinese telegraph code and on Wabun code; a search summary of the NSA-hosted *Cryptologic Quarterly* article "Before Bourbon", for the Okhrana's black chambers in post offices; the National Cryptologic Foundation's "World War I: The Original Code Talkers" (2014), for the overheard conversation; search summaries of the Wikipedia articles on the Vigenère cipher (Thwaites, *The Tempest*, the keys "two" and "combined", the 1854 date) and Simon Singh's *The Code Book* (1999) for the Tennyson and EMILY story, Georges Painvin and the ADFGVX cipher (1 March and 2 June 1918, the V added around the start of June); Wemyss Reid's *Memoirs of Lyon Playfair* (1899) for the Foreign Office anecdote, known to me through retellings; the "BAFUZ" code word, a made-up example of the style rather than a quotation from a real code book.

@@ -2,8 +2,8 @@
 
 *From 1970 to 2000: how strangers learned to agree on a secret in public,
 the same discovery made earlier behind GCHQ's fence, the mathematics of
-signatures and elliptic curves, and the "crypto wars" over who was
-allowed to use any of it.*
+signatures and elliptic curves, the "crypto wars" over who was allowed
+to use any of it, and the laptops that carried the ANC's secret messages.*
 
 Every cipher on the earlier pages had the same problem. Before two people
 could talk secretly, they had to share a key, and to share a key they
@@ -28,6 +28,7 @@ history of the subject.
 | 1993–1996 | the White House | the Clipper chip and key escrow |
 | 1994 | Atkins, Graff, Lenstra, Leyland | RSA-129 factored: "squeamish ossifrage" |
 | 1996–2000 | Bernstein, Junger; the US government | court rulings on code as speech; export rules relaxed |
+| late 1980s | Tim Jenkin and Ronnie Press, ANC | Operation Vula's encrypted messages |
 | 1997 | GCHQ | reveals Ellis, Cocks and Williamson's work |
 
 ## The key distribution problem
@@ -447,6 +448,28 @@ anywhere. The argument about lawful access did not end; it returned in
 the 2010s over encrypted phones and messaging, as the
 [internet era](08-Internet-Era.md#the-second-crypto-war) page tells.
 
+## South Africa: Operation Vula
+
+Strong encryption also served people with no state behind them. In the
+late 1980s the African National Congress, banned in South Africa, ran
+*Operation Vula*, which put senior members back into the country in
+secret. Its leaders in Lusaka, Zambia, had been waiting about a month for
+each message to get through. Tim Jenkin, an ANC member who had escaped
+from Pretoria's prison in 1979, and Ronnie Press built a system of their
+own instead of buying a commercial one, which they didn't trust.
+
+An activist in Durban typed a message on a Toshiba laptop and encrypted
+it with a key from a floppy disk. The laptop turned the ciphertext into
+sound through an acoustic modem, and the sound was recorded on a tape.
+From a public phone, the tape was played into the mouthpiece to an
+answering machine in London, the hub, and from there the message went on
+to Lusaka. A pager confirmed that it had arrived. Nelson Mandela, still
+in prison, sent long messages through the system without the government
+knowing. It is a small, late echo of the
+[one-time pad](04-Telegraph-Age.md#vernam-and-the-one-time-pad): a long
+random key carried by hand, used to protect messages sent over a network
+the enemy controlled.
+
 ## Can these be broken today?
 
 Not the ideas, only the sizes. Every public-key method on this page is
@@ -460,6 +483,7 @@ computer, which is the story of the [last page](10-Quantum-and-Post-Quantum.md).
 | Merkle's puzzles | yes, for any practical size | The attacker's work is only the square of the users'. Buy a million times more computers than the users have and you keep up with puzzles a thousand times harder. |
 | Diffie–Hellman, 2048 bits and up | no | Taking discrete logarithms modulo a 2048-bit prime is out of reach. The 512-bit "export" size fell in 2015 (Logjam): one big precomputation per prime, then each connection in minutes. |
 | RSA, 2048 bits and up | no | Factoring is the known way in, and the record is 829 bits (RSA-250, 2020, about 2,700 core-years). A 512-bit key cost under four hours and about \$75 of rented cloud computing in 2015. |
+| Operation Vula's laptop system | not known to have been broken | It used long random keys carried on floppy disks. Like any one-time pad, it was as safe as the handling of those disks. |
 | Cocks's and Williamson's GCHQ versions | the same as RSA and Diffie–Hellman | They are the same mathematics. |
 | Elliptic curves, 256 bits | no | The best attack, Pollard's rho, needs about $2^{128}$ steps. Records stop near 117 bits. |
 | BassOmatic (PGP 1.0) | yes | Biham soon showed it weak, and PGP 2.0 replaced it with IDEA. |
@@ -548,5 +572,6 @@ on.
 - John M. Pollard, "A Monte Carlo Method for Factorization", *BIT* 15 (1975), pp. 331–334
 - *Bernstein v. United States Department of Justice*, 176 F.3d 1132 (9th Cir. 1999), rehearing en banc granted and opinion withdrawn, 192 F.3d 1308 (9th Cir. 1999) / *Junger v. Daley*, 209 F.3d 481 (6th Cir. 2000)
 - Steven Levy, *Crypto: How the Code Rebels Beat the Government, Saving Privacy in the Digital Age* (Viking, 2001) / Whitfield Diffie and Susan Landau, *Privacy on the Line: The Politics of Wiretapping and Encryption* (MIT Press, 1998; updated 2007)
+- Niémah Davids, "The secret communications network that helped end apartheid", *UCT News*, University of Cape Town (22 January 2024), with Tim Jenkin's account
 
-*Weaker sources:* search summaries for the date and place of Cocks's December 1997 talk and the wording of Ellis's report title; Merkle's account on his own website of the 1974 course proposal and its rejection; Levy's *Crypto* for the Passover night, NSA's reaction to the Gardner column and Doligez's 1995 break; Zimmermann's own statements about the June 1991 release and the January 1996 end of the investigation; Inman's claim about NSA in the 1960s, which rests on interviews.
+*Weaker sources:* the hackcur.io and vula.codeberg.page accounts of Operation Vula (the floppy-disk keys, the reasons for not using commercial systems, Ronnie Press) and the Wikipedia article on the operation; search summaries for the date and place of Cocks's December 1997 talk and the wording of Ellis's report title; Merkle's account on his own website of the 1974 course proposal and its rejection; Levy's *Crypto* for the Passover night, NSA's reaction to the Gardner column and Doligez's 1995 break; Zimmermann's own statements about the June 1991 release and the January 1996 end of the investigation; Inman's claim about NSA in the 1960s, which rests on interviews.
