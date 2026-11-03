@@ -5,7 +5,8 @@
 (function () {
   function render() {
     if (!window.renderMathInElement) return;
-    document.querySelectorAll(".arithmatex:not([data-ready])").forEach(function (el) {
+    // the "On this page" list repeats heading text as plain \(...\), so it is typeset too
+    document.querySelectorAll(".arithmatex:not([data-ready]), .md-nav--secondary:not([data-ready])").forEach(function (el) {
       el.dataset.ready = "1";
       window.renderMathInElement(el, {
         delimiters: [

@@ -264,7 +264,7 @@
   letter-spacing: 0.03em;
 }
 
-/* wider page; the right-hand contents panel lives in the left one (toc.integrate) */
+/* wider page: section menu on the left, "On this page" on the right */
 .md-grid {
   max-width: 80rem;
 }
@@ -430,3 +430,9 @@
 .md-typeset .arithmatex { max-width: 100%; }
 /* KaTeX's hidden screen-reader copy is absolutely placed; anchor it so it cannot widen the page on phones */
 .md-typeset .katex, .md-typeset .md-typeset__scrollwrap { position: relative; }
+
+/* top tabs: Home · Book · Algorithms · Protocols · History · FAQ; the open one is underlined in Mars orange */
+.md-tabs__link { font-family: var(--mars-display); font-size: .78rem; letter-spacing: .03em; opacity: .8; }
+.md-tabs__item--active .md-tabs__link { opacity: 1; color: #eea66f; }
+.md-tabs__item--active { box-shadow: inset 0 -3px 0 #eea66f; }
+.md-tabs__link:hover { color: #eea66f; opacity: 1; }

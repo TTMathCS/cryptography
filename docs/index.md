@@ -1,5 +1,7 @@
 ---
 template: home.html
+hide:
+  - navigation
 title: Cryptography
 ---
 

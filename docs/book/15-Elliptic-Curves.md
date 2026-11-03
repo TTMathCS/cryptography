@@ -1242,7 +1242,7 @@ appeared to confirm the Dual_EC backdoor; the NSA has not acknowledged it. NIST
 withdrew Dual_EC_DRBG in 2014. Reuters reported that RSA Security had made it the
 default in its BSAFE library under a \$10 million contract, and in 2015 Juniper
 Networks found that intruders had replaced the $Q$ in its firewalls' Dual_EC with
-their own. The full story is in [Appendix E](../history/08-Internet-Era.md), and
+their own. The full story is in [the History section](../history/08-Internet-Era.md), and
 [Chapter 4](04-Randomness-and-Perfect-Secrecy.md) covers random generators. The
 lesson for curves: unexplained constants are a liability even when no attack is
 known.

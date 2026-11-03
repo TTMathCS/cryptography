@@ -131,7 +131,7 @@ GCHQ, James Ellis had shown in a classified paper of January 1970 that
 "non-secret encryption" was possible in principle, and Malcolm Williamson found
 what is essentially the Diffie-Hellman exchange in 1974. That work stayed
 secret until 1997. In the open, the first person to solve the problem at all
-was a student. (The full story is in [Appendix E, Public-key
+was a student. (The full story is in [the History chapter on public key
 cryptography](../history/07-Public-Key.md).)
 
 <figure class="mars-fig">

@@ -19,9 +19,10 @@ with exercises.*
 - **Run the code.** Every example is short Python 3.8 or later, using only the
   standard library unless it says otherwise. These are toy versions to show
   the math, never to protect real data.
-- **The appendices are the reference.** Every algorithm still has its own page
-  with sizes, standards, status and closed "Going deeper" boxes; the chapters
-  link to them.
+- **The other tabs are the reference.** *Algorithms* has one page per
+  algorithm with sizes, standards, status and closed "Going deeper" boxes;
+  *Protocols* covers protocols, formats and tools; *History* tells the whole
+  story. The chapters link to them.
 
 ## Contents
 
@@ -51,10 +52,10 @@ with exercises.*
 | | [22. Hash-based and code-based schemes](22-Hash-and-Code-Based.md) | advanced to expert |
 | | [23. Advanced protocols](23-Advanced-Protocols.md) | expert |
 
-**Appendices:** the [algorithm table](../index.md) with every algorithm's
-size, standard, year and status; one reference page per algorithm; the
-[protocols](../protocols/index.md); [formats](../formats/Encoding.md);
-[tools](../tools/openssl.md); the full
+**Look things up:** the [algorithm table](../index.md) with every algorithm's
+size, standard, year and status; the [algorithm reference](../algorithms/index.md),
+one page per algorithm; the [protocols](../protocols/index.md),
+[formats](../formats/Encoding.md) and [tools](../tools/openssl.md); the full
 [world history of cryptography](../history/index.md); the [glossary](Glossary.md); and the [FAQ](../FAQ.md).
 
 ## Three ways in
