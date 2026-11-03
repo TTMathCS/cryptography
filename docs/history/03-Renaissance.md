@@ -1,8 +1,9 @@
 # The Renaissance
 
-*From the 1300s to the 1700s: diplomats with cipher secretaries, the
-invention of the polyalphabetic cipher, a queen undone by her own letters,
-and the "black chambers" that quietly read the mail of Europe.*
+*From monks' vowel games in the 700s to the 1700s: diplomats with cipher
+secretaries, the invention of the polyalphabetic cipher, a queen undone by
+her own letters, and the "black chambers" that quietly read the mail of
+Europe.*
 
 When Italian city-states began keeping ambassadors at each other's courts,
 secret letters became a daily need, and so did reading other people's.
@@ -16,7 +17,12 @@ to open, copy and decipher foreign letters.
 
 | When | Who | What |
 |---|---|---|
+| c. 780 | Hygeburg, a nun at Heidenheim | her name hidden in a vowel cipher |
+| 800s, probably early | the Rök runestone, Sweden | runes in four ciphers, by one count |
+| 900s–1000s | English scribes | dots or the next consonant in place of vowels |
+| 1153–1154 | Hildegard of Bingen | her "unknown letters", a private alphabet |
 | 1379 | Gabriele de Lavinde, for the Avignon pope Clement VII | the oldest surviving European set of cipher keys |
+| c. 1390 | the Book of Ballymote, Ireland | some 100 secret forms of ogham |
 | 1401 | a Mantuan secretary | several substitutes for each vowel: homophones |
 | c. 1467 | Leon Battista Alberti | the cipher disk, the first polyalphabetic cipher |
 | 1474 | Cicco Simonetta, Milan | rules for solving ciphers without the key |
@@ -33,12 +39,83 @@ to open, copy and decipher foreign letters.
 
 ## Medieval Europe: a quiet start
 
-For most of the Middle Ages, European cryptography was a minor curiosity.
-Scribes in monasteries sometimes swapped vowels for dots or for the next
-consonant, wrote words backwards, or used foreign alphabets to hide a name,
-much as the ancient world had done.
+For most of the Middle Ages, European cryptography was a minor curiosity,
+and the general histories, Kahn's among them, give it only a few lines.
+Nobody in Europe yet wrote about breaking ciphers. What survives is small
+and scattered: scribes playing games with letters, a few private
+alphabets, a runestone and some short passages in cipher. It is worth
+knowing anyway, because it fills the centuries between Rome and the
+Italian courts.
 
-A few writers took more interest. The English friar Roger Bacon (c.
+### Monks' and nuns' ciphers
+
+Scribes in monasteries sometimes wrote words backwards, used Greek letters
+or runes to hide a name, or swapped the vowels for something else, much as
+the ancient world had done. Two vowel tricks turn up in English
+manuscripts of the 10th and 11th centuries:
+
+- **Dots for vowels.** One dot for *a*, two for *e*, three for *i*, and so
+  on. A 10th-century English copy of Aldhelm's *De Virginitate* has a
+  short blessing written this way.
+- **The next consonant.** Each vowel is replaced by the consonant after it
+  in the alphabet: *a* by *b*, *e* by *f*, *i* by *k*, *o* by *p*. An
+  11th-century copy of Augustine's *Confessions*, now at Trinity College,
+  Cambridge, ends with the scribe's thanks to Christ for finishing the
+  book, written in this code.
+
+Only the vowels change, so the consonants stay where they were and a
+reader who knows Latin can often guess the words. These were puzzles for a
+fellow reader more than real secrets.
+
+The best-known example is older, and has a name in it. Hygeburg, an
+English nun at the monastery of Heidenheim, in what is now Bavaria, wrote
+the lives of the brothers Willibald and Wynnebald by about 780. The oldest
+copy (Munich, Bayerische Staatsbibliothek, Clm 1086, from about 800) has a
+line of odd letters in which each vowel is written as a short Latin number
+word for its place among the vowels: *secd*, for *secundum*, "second",
+stands for *e*. Bernhard Bischoff solved it in 1931. It reads, roughly,
+"I, a Saxon woman named Hugeburc, wrote this", and that is the only reason
+we know who the author was.
+
+### Runes in cipher
+
+The Rök runestone, near Lake Tåkern in Östergötland, Sweden, was carved in
+the 800s, probably early in the century. Its roughly 760 runes cover five
+sides of the stone, and parts of the text are in cipher: some runes are
+replaced by others further along the rune row (a shift, like Caesar's),
+and others are written in special cipher runes. Henrik Williams, the
+Uppsala runologist, counts four different ciphers on the stone. Scholars
+agree on how most of the runes read but still argue over what the text
+means.
+
+### Hildegard's unknown letters
+
+Hildegard of Bingen (1098–1179), the German abbess, made up an alphabet of
+23 *litterae ignotae* ("unknown letters"), one for each letter of the
+Latin alphabet except *j*, *v* and *w*, plus two signs for *et* and *est*
+taken from Roman shorthand. With it went the *Lingua ignota*, a glossary
+of about a thousand invented words. Her earliest known use of the letters
+is in a letter to the monks of Zwiefalten written in 1153 or 1154, where
+she spelled out who it was addressed to in them, perhaps because the
+letter criticizes them. Why she made the language and the alphabet is
+still debated. As a cipher it is a simple substitution under new shapes.
+
+### Irish ogham ciphers
+
+Ogham is the early Irish alphabet of short strokes cut along the edge of a
+stone. A treatise on it, *In Lebor Ogaim* ("The Book of Ogams", also called
+the Ogam Tract), survives in the Book of Ballymote, copied around 1390,
+and in later manuscripts. It lists some 100 variant or secret ways of
+writing ogham, 92 of them in the Book of Ballymote. Two examples:
+
+- **Ogam Bricrenn** turns letters into counts of dots: one dot for B, two
+  for L, three for F, and so on up to twenty for I.
+- **"Final" ogham** writes each letter as the last letter of its own name,
+  apparently meant for use as a code.
+
+### Friars and astronomers
+
+A few writers took a more serious interest. The English friar Roger Bacon (c.
 1220–1292) listed seven ways of concealing secrets in writing in his
 *Letter on the Secret Works of Art and Nature*. A 1390s English treatise on
 an astronomical instrument, *The Equatorie of the Planetis*, has short
@@ -47,6 +124,10 @@ Chaucer wrote it, which would make Chaucer an amateur cryptographer. Later
 work by Kari Anne Rand disputed that, and in 2014 she identified the
 handwriting as that of John Westwyk, a Benedictine monk of St Albans. The
 Chaucer attribution is now generally doubted.
+
+All of this hid letters; none of it was about reading someone else's
+secrets. In Europe that began in the Italian courts of the 1400s, five
+centuries after al-Kindi.
 
 ## Italy: diplomats and their ciphers
 
@@ -555,6 +636,7 @@ of guesses a second against that shape.
 
 | Cipher | Broken today? | The attack in plain words |
 |---|---|---|
+| Monks' vowel codes, Hildegard's letters, rune and ogham ciphers | instantly | Each sign still stands for one letter, and the tricks are few. Count the signs, or just try the known swaps. |
 | Simple nomenclator | at once | Count the symbols, as [al-Kindi](02-Arab-Cryptanalysis.md) did, and guess the code words from context ("the king" turns up in every letter). |
 | Homophones and nulls | easily, by computer | Single-letter counts go flat, but letter pairs don't. A program swaps symbol meanings at random and keeps any swap that makes the text look more like the language, until it reads. That search, plus a lot of hand work, is how Lasry, Biermann and Tomokiyo read Mary Stuart's 57 lost letters in 2023. |
 | Louis XIV's Great Cipher | with work | A big nomenclator of 587 numbers, mostly for syllables, with trap numbers. Bazeries needed about three years by hand. A computer now does the counting and the climbing search fast, but the code words for names still need a person reading in context. |
@@ -645,7 +727,8 @@ about to change what ciphers had to do.
 - Paul-M. Perret, "Les règles de Cicco Simonetta pour le déchiffrement des écritures secrètes", *Bibliothèque de l'École des chartes* 51 (1890) / Augusto Buonafalce, "Cicco Simonetta's Cipher-Breaking Rules", *Cryptologia* 32, no. 1 (2008)
 - George Lasry, Norbert Biermann and Satoshi Tomokiyo, "Deciphering Mary Stuart's Lost Letters from 1578–1584", *Cryptologia* 47, no. 2 (2023) / The National Archives, SP 53/18/53 (the copy of Mary's letter of 17 July 1586), described in the British Library's "The gallows letter"
 - John Guy, *My Heart Is My Own: The Life of Mary Queen of Scots* (Fourth Estate, 2004), on Chartley, Gifford, Phelippes and the trial
+- Benjamin A. Saltzman, "Vt hkskdkxt: Early Medieval Cryptography, Textual Errors, and Scribal Agency", *Speculum* 93, no. 4 (2018), pp. 975–1009 (from the abstract), on how little the general histories say about the period
 - Kari Anne Rand, "The Authorship of *The Equatorie of the Planetis* Revisited", *Studia Neophilologica* 87 (2015)
 - Étienne Bazeries, *Les chiffres secrets dévoilés* (Paris, 1901)
 
-*Weaker sources:* search summaries of the Wikipedia articles on Giovanni Soro (his 1506 appointment and the papal test ciphers), Gabriele de Lavinde, the Great Cipher (the 587 numbers) and the Equatorie (Price, Westwyk); MacTutor's biography of Viète for the 15 March 1590 date; news coverage of the 2023 Mary Stuart letters (57 letters, Castelnau, BnF misfiling); the Bellaso article on Wikipedia for his patrons; the gallows sketch on Phelippes's copy and Porta's egg trick, which rest on retellings.
+*Weaker sources:* Thijs Porck's blog post "Anglo-Saxon cryptography" (2017) for the dot and next-consonant examples and the wording of Hygeburg's cipher; the Wikipedia article on Hygeburg (dates, Clm 1086, Bischoff's 1931 solution, citing Carolyne Larrington's entry in the *Oxford Dictionary of National Biography*) and the *Deutsche Biographie* entry listing Bischoff's article "Wer ist die Nonne von Heidenheim?"; Uppsala University's news item on Henrik Williams's book about the Rök stone (January 2022) and the Wikipedia article on the stone (date, 760 runes, the shift cipher); Garry J. Shaw, "Hildegard of Bingen's Unknown Language and Unknown Letters", *World History Encyclopedia* (2025); the Wikipedia article on *In Lebor Ogaim* (manuscripts, the 100 and 92 forms, Ogam Bricrenn, final ogham); search summaries of the Wikipedia articles on Giovanni Soro (his 1506 appointment and the papal test ciphers), Gabriele de Lavinde, the Great Cipher (the 587 numbers) and the Equatorie (Price, Westwyk); MacTutor's biography of Viète for the 15 March 1590 date; news coverage of the 2023 Mary Stuart letters (57 letters, Castelnau, BnF misfiling); the Bellaso article on Wikipedia for his patrons; the gallows sketch on Phelippes's copy and Porta's egg trick, which rest on retellings.
