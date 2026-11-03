@@ -56,9 +56,120 @@ that factoring such a number would take 40 quadrillion years. The formal paper,
 appeared in *Communications of the ACM* in February 1978, with "Alice" and
 "Bob" as its sender and receiver.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 600 605" width="600" role="img" aria-label="Timeline of RSA from Cocks's secret note in 1973 to its planned retirement in 2035">
+<line x1="100" y1="10" x2="100" y2="597" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.5"/>
+<text x="86" y="22.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1973</text>
+<circle cx="100" cy="18" r="4" fill="currentColor"/>
+<text x="114" y="22.5" font-size="13" text-anchor="start" fill="currentColor">Clifford Cocks at GCHQ describes the scheme in a secret</text>
+<text x="114" y="41.5" font-size="13" text-anchor="start" fill="currentColor">note (November)</text>
+<text x="86" y="69.5" font-size="13" text-anchor="end" class="acc-fill" font-weight="bold">1977</text>
+<circle cx="100" cy="65" r="5" class="acc-fill"/>
+<text x="114" y="69.5" font-size="13" text-anchor="start" fill="currentColor">Rivest, Shamir and Adleman find RSA at MIT (April);</text>
+<text x="114" y="88.5" font-size="13" text-anchor="start" fill="currentColor">Gardner's column (August)</text>
+<text x="86" y="116.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1978</text>
+<circle cx="100" cy="112" r="4" fill="currentColor"/>
+<text x="114" y="116.5" font-size="13" text-anchor="start" fill="currentColor">The paper appears in Communications of the ACM</text>
+<text x="114" y="135.5" font-size="13" text-anchor="start" fill="currentColor">(February)</text>
+<text x="86" y="163.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1983</text>
+<circle cx="100" cy="159" r="4" fill="currentColor"/>
+<text x="114" y="163.5" font-size="13" text-anchor="start" fill="currentColor">MIT's US patent is granted; RSA Data Security licenses</text>
+<text x="114" y="182.5" font-size="13" text-anchor="start" fill="currentColor">it</text>
+<text x="86" y="210.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1991</text>
+<circle cx="100" cy="206" r="4" fill="currentColor"/>
+<text x="114" y="210.5" font-size="13" text-anchor="start" fill="currentColor">PGP spreads RSA to the public; PKCS #1 published</text>
+<text x="86" y="238.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1994</text>
+<circle cx="100" cy="234" r="4" fill="currentColor"/>
+<text x="114" y="238.5" font-size="13" text-anchor="start" fill="currentColor">RSA-129 factored; OAEP proposed</text>
+<text x="86" y="266.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1996</text>
+<circle cx="100" cy="262" r="4" fill="currentColor"/>
+<text x="114" y="266.5" font-size="13" text-anchor="start" fill="currentColor">PSS proposed; Bellcore fault attack on RSA-CRT</text>
+<text x="86" y="294.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1997</text>
+<circle cx="100" cy="290" r="4" fill="currentColor"/>
+<text x="114" y="294.5" font-size="13" text-anchor="start" fill="currentColor">GCHQ reveals Cocks's 1973 note</text>
+<text x="86" y="322.5" font-size="13" text-anchor="end" class="acc-fill" font-weight="bold">1998</text>
+<circle cx="100" cy="318" r="5" class="acc-fill"/>
+<text x="114" y="322.5" font-size="13" text-anchor="start" fill="currentColor">Bleichenbacher's million-message attack; PKCS #1 v2.0</text>
+<text x="114" y="341.5" font-size="13" text-anchor="start" fill="currentColor">adds OAEP</text>
+<text x="86" y="369.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">2000</text>
+<circle cx="100" cy="365" r="4" fill="currentColor"/>
+<text x="114" y="369.5" font-size="13" text-anchor="start" fill="currentColor">Patent expires (September)</text>
+<text x="86" y="397.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">2002</text>
+<circle cx="100" cy="393" r="4" fill="currentColor"/>
+<text x="114" y="397.5" font-size="13" text-anchor="start" fill="currentColor">Rivest, Shamir and Adleman receive the Turing Award</text>
+<text x="86" y="425.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">2008-17</text>
+<circle cx="100" cy="421" r="4" fill="currentColor"/>
+<text x="114" y="425.5" font-size="13" text-anchor="start" fill="currentColor">Debian keys, shared primes, FREAK, ROCA, ROBOT: key</text>
+<text x="114" y="444.5" font-size="13" text-anchor="start" fill="currentColor">generation and padding fail</text>
+<text x="86" y="472.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">2018</text>
+<circle cx="100" cy="468" r="4" fill="currentColor"/>
+<text x="114" y="472.5" font-size="13" text-anchor="start" fill="currentColor">TLS 1.3 removes RSA key transport</text>
+<text x="86" y="500.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">2020</text>
+<circle cx="100" cy="496" r="4" fill="currentColor"/>
+<text x="114" y="500.5" font-size="13" text-anchor="start" fill="currentColor">RSA-250 (829 bits) factored</text>
+<text x="86" y="528.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">2023</text>
+<circle cx="100" cy="524" r="4" fill="currentColor"/>
+<text x="114" y="528.5" font-size="13" text-anchor="start" fill="currentColor">Marvin timing attack on RSA decryption</text>
+<text x="86" y="556.5" font-size="13" text-anchor="end" class="acc-fill" font-weight="bold">2030-35</text>
+<circle cx="100" cy="552" r="5" class="acc-fill"/>
+<text x="114" y="556.5" font-size="13" text-anchor="start" fill="currentColor">NIST IR 8547: deprecated after 2030, disallowed after</text>
+<text x="114" y="575.5" font-size="13" text-anchor="start" fill="currentColor">2035</text>
+</svg>
+<figcaption>Figure 13.1. RSA's life at a glance. The scheme itself has held for fifty years; the dates mark padding, key generation and size limits being learned the hard way.</figcaption>
+</figure>
+
+The three were an unusual team. Rivest, born in 1947, was a young professor
+of computer science; Shamir, born in Tel Aviv in 1952, was visiting MIT; and
+Adleman, born in San Francisco in 1945, was a number theorist who at first
+thought he had contributed too little to be named and asked to be listed last.
+Readers of Gardner's column were offered the full technical memo by mail, and
+thousands wrote in. The scheme made public-key cryptography practical rather than
+theoretical, and its inventors received the Turing Award in 2002.
+
 ## 13.2 The idea in one picture
 
-![RSA visualization](../02-signatures/img/RSA_Algorithm.png)
+<figure class="mars-fig">
+<svg viewBox="0 0 660 300" width="660" role="img" aria-label="RSA as a trapdoor: two secret primes make the public modulus n; anyone can raise m to e mod n, only the owner of d can go back">
+<rect x="20" y="20" width="110" height="40" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="20" y="20" width="110" height="40" rx="6" class="soft" stroke="currentColor" stroke-width="1.3" stroke-dasharray="5 4"/>
+<text x="75" y="44.9" font-size="14" text-anchor="middle" fill="currentColor">secret p</text>
+<rect x="20" y="80" width="110" height="40" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="20" y="80" width="110" height="40" rx="6" class="soft" stroke="currentColor" stroke-width="1.3" stroke-dasharray="5 4"/>
+<text x="75" y="104.9" font-size="14" text-anchor="middle" fill="currentColor">secret q</text>
+<line x1="130" y1="40" x2="202.4" y2="63.5" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="210,66 201.3,67 203.5,60.1" fill="currentColor"/>
+<line x1="130" y1="100" x2="202.3" y2="80.1" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="210,78 203.2,83.6 201.3,76.7" fill="currentColor"/>
+<rect x="212" y="50" width="150" height="44" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="212" y="50" width="150" height="44" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="287" y="76.9" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">n = p · q  (public)</text>
+<text x="287" y="120" font-size="12" text-anchor="middle" fill="currentColor">easy: multiply</text>
+<line x1="212" y1="102" x2="139.9" y2="114.6" class="acc" stroke-width="1.5" stroke-dasharray="5 4"/>
+<polygon points="132,116 139.3,111.1 140.5,118.2" class="acc-fill"/>
+<text x="150" y="148" font-size="12" text-anchor="middle" class="acc-fill">hard: factor</text>
+<rect x="430" y="30" width="210" height="44" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="430" y="30" width="210" height="44" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="535" y="56.9" font-size="14" text-anchor="middle" fill="currentColor">public key (n, e)</text>
+<rect x="430" y="84" width="210" height="44" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="430" y="84" width="210" height="44" rx="6" class="soft-acc acc" stroke-width="1.3" stroke-dasharray="5 4"/>
+<text x="535" y="110.9" font-size="14" text-anchor="middle" fill="currentColor">private key d</text>
+<text x="535" y="150" font-size="12" text-anchor="middle" fill="currentColor">d needs (p - 1)(q - 1)</text>
+<rect x="40" y="200" width="120" height="46" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="40" y="200" width="120" height="46" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="100" y="227.9" font-size="14" text-anchor="middle" fill="currentColor">message m</text>
+<rect x="500" y="200" width="120" height="46" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="500" y="200" width="120" height="46" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="560" y="227.9" font-size="14" text-anchor="middle" fill="currentColor">ciphertext c</text>
+<line x1="160" y1="212" x2="490" y2="212" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="498,212 490,215.6 490,208.4" fill="currentColor"/>
+<text x="330" y="204" font-size="13" text-anchor="middle" fill="currentColor">anyone: c = mᵉ mod n</text>
+<line x1="498" y1="236" x2="170" y2="236" class="acc" stroke-width="1.5"/>
+<polygon points="162,236 170,232.4 170,239.6" class="acc-fill"/>
+<text x="330" y="258" font-size="13" text-anchor="middle" fill="currentColor">only the owner: m = cᵈ mod n</text>
+<text x="330" y="286" font-size="13" text-anchor="middle" fill="currentColor" font-style="italic">the trapdoor: knowing p and q turns the hard direction easy</text>
+</svg>
+<figcaption>Figure 13.2. The idea in one picture. Multiplying is easy and factoring is hard; the private exponent d can only be computed by someone who knows the factors.</figcaption>
+</figure>
 
 - Pick two secret primes $p$ and $q$ and publish their product $n$.
 - Encrypting is raising to a power $e$, mod $n$. Decrypting is raising to
@@ -101,6 +212,58 @@ and working back up, $1 = 2 \cdot 3120 - 367 \cdot 17$. So $-367 \cdot 17 \equiv
 and $d = -367 + 3120 = 2753$. Check: $17 \times 2753 = 46801 = 15 \times 3120 + 1$.
 The **private key** is $d = 2753$.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 660 250" width="660" role="img" aria-label="Key generation by hand: p 61 and q 53 give n 3233 and phi 3120; e 17 is chosen and d 2753 is its inverse; public key 3233, 17 and private key 2753">
+<rect x="20" y="20" width="90" height="40" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="20" y="20" width="90" height="40" rx="6" class="soft" stroke="currentColor" stroke-width="1.3" stroke-dasharray="5 4"/>
+<text x="65" y="44.5" font-size="13" text-anchor="middle" fill="currentColor">p = 61</text>
+<rect x="20" y="80" width="90" height="40" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="20" y="80" width="90" height="40" rx="6" class="soft" stroke="currentColor" stroke-width="1.3" stroke-dasharray="5 4"/>
+<text x="65" y="104.5" font-size="13" text-anchor="middle" fill="currentColor">q = 53</text>
+<line x1="110" y1="40" x2="170" y2="40" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="178,40 170,43.6 170,36.4" fill="currentColor"/>
+<line x1="110" y1="100" x2="170" y2="100" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="178,100 170,103.6 170,96.4" fill="currentColor"/>
+<line x1="110" y1="50" x2="171.2" y2="87.8" stroke="currentColor" stroke-width="1"/>
+<polygon points="178,92 169.3,90.9 173.1,84.7" fill="currentColor"/>
+<line x1="110" y1="90" x2="171.2" y2="52.2" stroke="currentColor" stroke-width="1"/>
+<polygon points="178,48 173.1,55.3 169.3,49.1" fill="currentColor"/>
+<rect x="180" y="20" width="170" height="40" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="180" y="20" width="170" height="40" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="265" y="44.5" font-size="13" text-anchor="middle" fill="currentColor">n = 61 · 53 = 3233</text>
+<rect x="180" y="80" width="170" height="40" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="180" y="80" width="170" height="40" rx="6" class="soft" stroke="currentColor" stroke-width="1.3" stroke-dasharray="5 4"/>
+<text x="265" y="104.5" font-size="13" text-anchor="middle" fill="currentColor">φ = 60 · 52 = 3120</text>
+<rect x="400" y="80" width="110" height="40" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="400" y="80" width="110" height="40" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="455" y="104.5" font-size="13" text-anchor="middle" fill="currentColor">pick e = 17</text>
+<line x1="350" y1="100" x2="390" y2="100" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="398,100 390,103.6 390,96.4" fill="currentColor"/>
+<line x1="455" y1="120" x2="455" y2="150" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="455,158 451.4,150 458.6,150" fill="currentColor"/>
+<rect x="380" y="160" width="150" height="46" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="380" y="160" width="150" height="46" rx="6" class="soft-acc acc" stroke-width="1.3" stroke-dasharray="5 4"/>
+<text x="455" y="179.1" font-size="13" text-anchor="middle" fill="currentColor">d = 17⁻¹ mod 3120</text>
+<text x="455" y="196" font-size="13" text-anchor="middle" fill="currentColor">= 2753</text>
+<rect x="530" y="14" width="120" height="52" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="530" y="14" width="120" height="52" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="590" y="36.1" font-size="13" text-anchor="middle" fill="currentColor">public key</text>
+<text x="590" y="53" font-size="13" text-anchor="middle" fill="currentColor">(3233, 17)</text>
+<line x1="350" y1="40" x2="520" y2="40" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="528,40 520,43.6 520,36.4" fill="currentColor"/>
+<line x1="510" y1="90" x2="552.7" y2="71.2" stroke="currentColor" stroke-width="1"/>
+<polygon points="560,68 554.1,74.5 551.2,67.9" fill="currentColor"/>
+<rect x="545" y="160" width="105" height="46" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="545" y="160" width="105" height="46" rx="6" class="soft-acc acc" stroke-width="1.3" stroke-dasharray="5 4"/>
+<text x="597.5" y="179.1" font-size="13" text-anchor="middle" fill="currentColor">private key</text>
+<text x="597.5" y="196" font-size="13" text-anchor="middle" fill="currentColor">2753</text>
+<line x1="530" y1="183" x2="535" y2="183" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="543,183 535,186.6 535,179.4" fill="currentColor"/>
+<text x="330" y="240" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">dashed boxes stay secret; the others are published</text>
+</svg>
+<figcaption>Figure 13.3. Steps 1 to 5 in one picture. Everything that needs p and q stays on the owner's side.</figcaption>
+</figure>
+
 **Step 6: encrypt.** A message is a number below $n$. Take $m = 65$:
 
 $$
@@ -117,6 +280,44 @@ is back.
 **Step 8: sign and verify.** Swap the roles. To sign $m = 65$, use the private
 exponent: $s = 65^{2753} \bmod 3233 = 588$. Anyone can verify with the public
 one: $588^{17} \bmod 3233 = 65$, which matches, so the signature is good.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 250" width="640" role="img" aria-label="Two loops with the toy key: 65 encrypts to 2790 and decrypts to 65; 65 signs to 588 and verifies back to 65">
+<text x="320" y="22" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">encrypt with the public e, decrypt with the private d</text>
+<rect x="30" y="62" width="110" height="44" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="30" y="62" width="110" height="44" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="85" y="89.2" font-size="15" text-anchor="middle" fill="currentColor" font-weight="bold">m = 65</text>
+<rect x="265" y="62" width="110" height="44" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="265" y="62" width="110" height="44" rx="6" class="soft-acc acc" stroke-width="1.3"/>
+<text x="320" y="89.2" font-size="15" text-anchor="middle" fill="currentColor" font-weight="bold">c = 2790</text>
+<rect x="500" y="62" width="110" height="44" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="500" y="62" width="110" height="44" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="555" y="89.2" font-size="15" text-anchor="middle" fill="currentColor" font-weight="bold">65</text>
+<line x1="140" y1="84" x2="255" y2="84" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="263,84 255,87.6 255,80.4" fill="currentColor"/>
+<line x1="375" y1="84" x2="490" y2="84" class="acc" stroke-width="1.5"/>
+<polygon points="498,84 490,87.6 490,80.4" class="acc-fill"/>
+<text x="202" y="56" font-size="13" text-anchor="middle" fill="currentColor">^17 mod 3233</text>
+<text x="437" y="56" font-size="13" text-anchor="middle" fill="currentColor">^2753 mod 3233</text>
+<text x="320" y="152" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">sign with the private d, verify with the public e</text>
+<rect x="30" y="192" width="110" height="44" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="30" y="192" width="110" height="44" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="85" y="219.2" font-size="15" text-anchor="middle" fill="currentColor" font-weight="bold">m = 65</text>
+<rect x="265" y="192" width="110" height="44" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="265" y="192" width="110" height="44" rx="6" class="soft-acc acc" stroke-width="1.3"/>
+<text x="320" y="219.2" font-size="15" text-anchor="middle" fill="currentColor" font-weight="bold">s = 588</text>
+<rect x="500" y="192" width="110" height="44" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="500" y="192" width="110" height="44" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="555" y="219.2" font-size="15" text-anchor="middle" fill="currentColor" font-weight="bold">65</text>
+<line x1="140" y1="214" x2="255" y2="214" class="acc" stroke-width="1.5"/>
+<polygon points="263,214 255,217.6 255,210.4" class="acc-fill"/>
+<line x1="375" y1="214" x2="490" y2="214" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="498,214 490,217.6 490,210.4" fill="currentColor"/>
+<text x="202" y="186" font-size="13" text-anchor="middle" fill="currentColor">^2753 mod 3233</text>
+<text x="437" y="186" font-size="13" text-anchor="middle" fill="currentColor">^17 mod 3233</text>
+</svg>
+<figcaption>Figure 13.4. The two directions of the toy key. Highlighted arrows use the private exponent; the same pair of powers undoes itself in either order.</figcaption>
+</figure>
 
 ## 13.4 Why it works, and why it is hard to break
 
@@ -263,6 +464,29 @@ without reading it. Worse, a server that decrypts tampered ciphertexts and says
 anything at all about the result (even "error") can be used to decrypt, as
 §13.7 shows.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 150" width="640" role="img" aria-label="Malleability: an attacker multiplies a ciphertext by 2 to the e and the receiver decrypts twice the message">
+<rect x="20" y="50" width="120" height="46" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="20" y="50" width="120" height="46" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="80" y="77.9" font-size="14" text-anchor="middle" fill="currentColor">c = mᵉ</text>
+<line x1="140" y1="73" x2="220" y2="73" class="acc" stroke-width="1.5"/>
+<polygon points="228,73 220,76.6 220,69.4" class="acc-fill"/>
+<text x="184" y="64" font-size="13" text-anchor="middle" class="acc-fill">× 2ᵉ</text>
+<rect x="230" y="50" width="160" height="46" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="230" y="50" width="160" height="46" rx="6" class="soft-acc acc" stroke-width="1.3"/>
+<text x="310" y="77.9" font-size="14" text-anchor="middle" fill="currentColor">(2m)ᵉ</text>
+<line x1="390" y1="73" x2="470" y2="73" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="478,73 470,76.6 470,69.4" fill="currentColor"/>
+<text x="434" y="64" font-size="13" text-anchor="middle" fill="currentColor">decrypt</text>
+<rect x="480" y="50" width="140" height="46" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="480" y="50" width="140" height="46" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="550" y="77.9" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">2m</text>
+<text x="320" y="26" font-size="13" text-anchor="middle" fill="currentColor" font-style="italic">no key needed to change what the receiver reads</text>
+<text x="320" y="128" font-size="13" text-anchor="middle" fill="currentColor">a server that answers anything about 2m becomes an oracle</text>
+</svg>
+<figcaption>Figure 13.5. Attack 3 in one line. Textbook RSA is multiplicative, so ciphertexts can be edited blind.</figcaption>
+</figure>
+
 The fix for all three is the same: **never encrypt the message directly**. Mix it
 with fresh random bytes in a fixed, checkable format first. That is padding.
 
@@ -282,6 +506,29 @@ $$
 The random bytes stop the guess-and-check attack, and the full-length block stops
 the cube root. SSL used it to send the session key from browser to server.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 680 130" width="680" role="img" aria-label="Byte layout of a PKCS #1 v1.5 encryption block for a 256-byte modulus carrying a 32-byte key: 00, 02, 221 random nonzero bytes, 00, then the 32-byte message">
+<rect x="20" y="30" width="29" height="46" rx="2" style="fill:var(--md-default-bg-color)"/>
+<rect x="20" y="30" width="29" height="46" rx="2" class="soft-acc acc" stroke-width="1.3"/>
+<text x="34.5" y="57.5" font-size="13" text-anchor="middle" fill="currentColor">00</text>
+<rect x="49" y="30" width="29" height="46" rx="2" style="fill:var(--md-default-bg-color)"/>
+<rect x="49" y="30" width="29" height="46" rx="2" class="soft-acc acc" stroke-width="1.3"/>
+<text x="63.5" y="57.5" font-size="13" text-anchor="middle" fill="currentColor">02</text>
+<rect x="78" y="30" width="471.2" height="46" rx="2" style="fill:var(--md-default-bg-color)"/>
+<rect x="78" y="30" width="471.2" height="46" rx="2" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="313.6" y="57.5" font-size="13" text-anchor="middle" fill="currentColor">random nonzero padding, 221 bytes</text>
+<rect x="549.1" y="30" width="29" height="46" rx="2" style="fill:var(--md-default-bg-color)"/>
+<rect x="549.1" y="30" width="29" height="46" rx="2" class="soft-acc acc" stroke-width="1.3"/>
+<text x="563.6" y="57.5" font-size="13" text-anchor="middle" fill="currentColor">00</text>
+<rect x="578.1" y="30" width="81.9" height="46" rx="2" style="fill:var(--md-default-bg-color)"/>
+<rect x="578.1" y="30" width="81.9" height="46" rx="2" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="619.1" y="57.5" font-size="13" text-anchor="middle" fill="currentColor">M, 32 bytes</text>
+<text x="340" y="20" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">256 bytes = the size of n</text>
+<text x="340" y="104" font-size="13" text-anchor="middle" fill="currentColor">highlighted bytes are what a padding oracle checks: does it start 00 02?</text>
+</svg>
+<figcaption>Figure 13.6. PKCS #1 v1.5 encryption padding for a 2048-bit key. The fixed start 00 02 is exactly the property Bleichenbacher's oracle reveals.</figcaption>
+</figure>
+
 In 1998 Daniel Bleichenbacher, then at Bell Labs, showed that it was still
 malleable in a deadly way. A server that tells the client whether a decrypted
 block started with `00 02` (by an error message, or just by timing) is a
@@ -293,11 +540,51 @@ narrows down $m$, and after about a million queries (the "million message
 attack") only one value is left. The attacker never touches the private key; the
 server decrypts for them, one bit of information at a time.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 680 230" width="680" role="img" aria-label="Bleichenbacher's attack as narrowing intervals: plaintexts that pass the check lie between 2B and 3B; each yes answer shrinks the set of possible m until one value is left">
+<line x1="30" y1="50" x2="650" y2="50" stroke="currentColor" stroke-width="1.5"/>
+<text x="30" y="38" font-size="12" text-anchor="middle" fill="currentColor">0</text>
+<text x="650" y="38" font-size="12" text-anchor="middle" fill="currentColor">n</text>
+<rect x="278" y="42" width="124" height="16" rx="2" class="soft-acc acc" stroke-width="1.3"/>
+<text x="278" y="76" font-size="12" text-anchor="middle" fill="currentColor">2B</text>
+<text x="402" y="76" font-size="12" text-anchor="middle" fill="currentColor">3B</text>
+<text x="526" y="38" font-size="12" text-anchor="middle" fill="currentColor">B = 2^(8(k-2))</text>
+<line x1="278" y1="100" x2="402" y2="100" stroke="currentColor" stroke-width="1" stroke-opacity="0.35"/>
+<rect x="278" y="93" width="124" height="14" rx="2" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="414.4" y="104.5" font-size="13" text-anchor="start" fill="currentColor">start: m is somewhere in [2B, 3B)</text>
+<line x1="278" y1="132" x2="402" y2="132" stroke="currentColor" stroke-width="1" stroke-opacity="0.35"/>
+<rect x="302.8" y="125" width="55.8" height="14" rx="2" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="414.4" y="136.5" font-size="13" text-anchor="start" fill="currentColor">after the first 'padding OK' answers</text>
+<line x1="278" y1="164" x2="402" y2="164" stroke="currentColor" stroke-width="1" stroke-opacity="0.35"/>
+<rect x="321.4" y="157" width="12.4" height="14" rx="2" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="414.4" y="168.5" font-size="13" text-anchor="start" fill="currentColor">after more answers</text>
+<line x1="278" y1="196" x2="402" y2="196" stroke="currentColor" stroke-width="1" stroke-opacity="0.35"/>
+<rect x="325.7" y="189" width="3" height="14" rx="2" class="soft-acc acc" stroke-width="1.3"/>
+<text x="414.4" y="200.5" font-size="13" text-anchor="start" fill="currentColor">finally a single value: m</text>
+<text x="154" y="196" font-size="12" text-anchor="middle" fill="currentColor">each query: send c · sᵉ,</text>
+<text x="154" y="212" font-size="12" text-anchor="middle" fill="currentColor">learn if s·m mod n is in the band</text>
+</svg>
+<figcaption>Figure 13.7. How a padding oracle decrypts. Each answer is one bit about a multiple of m; the attacker keeps a shrinking interval of candidates until only m is left (drawing not to scale).</figcaption>
+</figure>
+
 Patching it meant making every error path look identical, which turned out to
 be very hard. It came back in 2017 as **ROBOT** (Hanno Böck, Juraj Somorovsky and
 Craig Young), against servers from many vendors and sites including Facebook and
 PayPal, and again in 2023 as the **Marvin** attack (Hubert Kario), which used
 tiny timing differences. TLS 1.3 removed RSA encryption altogether.
+
+Bleichenbacher, who had earned his doctorate at ETH Zurich, found the
+attack while thinking about how SSL servers reported errors. His paper is one of
+the most reused in practice: the same idea has been re-aimed at XML encryption,
+smart cards and hardware security modules, each time against an error message or a
+timing difference that someone thought was harmless.
+
+!!! note "Life story: PKCS #1 v1.5 encryption padding"
+    **Born:** early 1990s, RSA Laboratories (PKCS #1) · **Purpose:** randomize RSA encryption so the same key
+    never encrypts the same way twice · **Helped:** carried the session key of nearly every SSL and TLS connection
+    for twenty years · **Broken:** 1998 by Bleichenbacher's padding oracle, again by ROBOT (2017) and Marvin (2023)
+    · **Retired:** removed from TLS 1.3 (2018); NIST disallowed it for key transport after 2023 · **Replaced by:**
+    OAEP, and better still by Diffie-Hellman or KEMs
 
 ### OAEP
 
@@ -323,6 +610,58 @@ masks in reverse order, and checks that the first byte is 0, that $DB$ starts
 with $H(L)$ and that the zeros end in a `01`. A tampered ciphertext decrypts to a
 block whose seed and $DB$ are scrambled, and the checks fail with overwhelming
 probability.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 330" width="640" role="img" aria-label="OAEP as a two-round Feistel network: a random seed is expanded by MGF and XORed into the data block, then the masked data block is expanded and XORed into the seed">
+<rect x="70" y="20" width="150" height="44" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="70" y="20" width="150" height="44" rx="6" class="soft-acc acc" stroke-width="1.3"/>
+<text x="145" y="38.1" font-size="13" text-anchor="middle" fill="currentColor">seed</text>
+<text x="145" y="55" font-size="13" text-anchor="middle" fill="currentColor">32 random bytes</text>
+<rect x="290" y="20" width="320" height="44" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="290" y="20" width="320" height="44" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="450" y="38.1" font-size="13" text-anchor="middle" fill="currentColor">DB = H(L) ‖ 00…00 ‖ 01 ‖ M</text>
+<text x="450" y="55" font-size="13" text-anchor="middle" fill="currentColor">k - 33 bytes</text>
+<line x1="145" y1="64" x2="145" y2="242" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="145,250 141.4,242 148.6,242" fill="currentColor"/>
+<rect x="210" y="100" width="70" height="34" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="210" y="100" width="70" height="34" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="245" y="121.5" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">MGF</text>
+<line x1="145" y1="117" x2="200" y2="117" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="208,117 200,120.6 200,113.4" fill="currentColor"/>
+<line x1="280" y1="117" x2="426" y2="117" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="434,117 426,120.6 426,113.4" fill="currentColor"/>
+<circle cx="450" cy="117" r="13" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="450" y="122" font-size="16" text-anchor="middle" fill="currentColor">⊕</text>
+<line x1="450" y1="64" x2="450" y2="94" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="450,102 446.4,94 453.6,94" fill="currentColor"/>
+<line x1="450" y1="130" x2="450" y2="160" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="450,168 446.4,160 453.6,160" fill="currentColor"/>
+<rect x="375" y="170" width="150" height="34" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="375" y="170" width="150" height="34" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="450" y="191.6" font-size="13" text-anchor="middle" fill="currentColor">maskedDB</text>
+<rect x="210" y="196" width="70" height="34" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="210" y="196" width="70" height="34" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="245" y="217.6" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">MGF</text>
+<line x1="450" y1="204" x2="450" y2="228" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="450,236 446.4,228 453.6,228" fill="currentColor"/>
+<path d="M450,213 L350,213" stroke="currentColor" fill="none" stroke-width="1.5"/>
+<line x1="350" y1="213" x2="290" y2="213" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="282,213 290,209.4 290,216.6" fill="currentColor"/>
+<circle cx="145" cy="213" r="13" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="145" y="218" font-size="16" text-anchor="middle" fill="currentColor">⊕</text>
+<line x1="208" y1="213" x2="168" y2="213" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="160,213 168,209.4 168,216.6" fill="currentColor"/>
+<rect x="70" y="250" width="150" height="34" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="70" y="250" width="150" height="34" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="145" y="271.6" font-size="13" text-anchor="middle" fill="currentColor">maskedSeed</text>
+<rect x="375" y="250" width="150" height="34" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="375" y="250" width="150" height="34" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="450" y="271.6" font-size="13" text-anchor="middle" fill="currentColor">maskedDB</text>
+<line x1="450" y1="236" x2="450" y2="248" stroke="currentColor" stroke-width="1.5"/>
+<text x="320" y="316" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">EM = 00 ‖ maskedSeed ‖ maskedDB, then c = EMᵉ mod n</text>
+</svg>
+<figcaption>Figure 13.8. OAEP's two Feistel rounds. Every output bit depends on the random seed and on every message bit, so a tampered ciphertext decrypts to garbage that fails the checks.</figcaption>
+</figure>
 
 Here it is with SHA-256 and MGF1, continuing the code of §13.5:
 
@@ -372,6 +711,12 @@ OAEP is not immune to oracles either. James Manger showed in 2001 that an
 implementation which reveals whether the first byte was zero, separately from
 the other checks, can be attacked much like Bleichenbacher's. The comment in
 `oaep_unpad` is the rule: one error, same time, whatever went wrong.
+
+!!! note "Life story: OAEP"
+    **Born:** 1994, Mihir Bellare and Phillip Rogaway · **Purpose:** RSA encryption with a security
+    proof against chosen-ciphertext attacks · **Helped:** became PKCS #1 v2.0 (1998), used for key wrapping, in
+    S/MIME, JOSE and hardware modules · **Setbacks:** a gap in the proof (found 2001, repaired the same year) and
+    Manger's oracle on careless code · **Status:** current, the only RSA encryption padding to use
 
 ## 13.8 Signatures
 
@@ -434,6 +779,59 @@ $$
 and the signature is $EM^d \bmod n$. Continuing the code of §13.7, with the
 2048-bit key:
 
+<figure class="mars-fig">
+<svg viewBox="0 0 660 300" width="660" role="img" aria-label="PSS encoding: the message hash and a random salt are hashed into h; h is expanded by MGF to mask a block holding the salt; the encoding is maskedDB, h and the byte BC">
+<rect x="20" y="20" width="130" height="40" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="20" y="20" width="130" height="40" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="85" y="44.5" font-size="13" text-anchor="middle" fill="currentColor">message M</text>
+<line x1="150" y1="40" x2="190" y2="40" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="198,40 190,43.6 190,36.4" fill="currentColor"/>
+<text x="174" y="32" font-size="12" text-anchor="middle" fill="currentColor">H</text>
+<rect x="200" y="18" width="440" height="44" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="200" y="18" width="440" height="44" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="420" y="44.5" font-size="13" text-anchor="middle" fill="currentColor">M′ = 00×8 ‖ H(M) ‖ salt</text>
+<rect x="560" y="80" width="80" height="34" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="560" y="80" width="80" height="34" rx="6" class="soft-acc acc" stroke-width="1.3"/>
+<text x="600" y="101.5" font-size="13" text-anchor="middle" fill="currentColor">salt</text>
+<line x1="420" y1="62" x2="420" y2="90" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="420,98 416.4,90 423.6,90" fill="currentColor"/>
+<text x="432" y="86" font-size="12" text-anchor="start" fill="currentColor">H</text>
+<rect x="370" y="100" width="100" height="36" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="370" y="100" width="100" height="36" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="420" y="122.9" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">h</text>
+<rect x="20" y="170" width="300" height="36" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="20" y="170" width="300" height="36" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="170" y="192.6" font-size="13" text-anchor="middle" fill="currentColor">DB = 00…00 ‖ 01 ‖ salt</text>
+<path d="M600,114 L600,150 L250,150" stroke="currentColor" fill="none" stroke-width="1.3"/>
+<line x1="250" y1="150" x2="250" y2="160" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="250,168 246.4,160 253.6,160" fill="currentColor"/>
+<rect x="370" y="170" width="80" height="36" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="370" y="170" width="80" height="36" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="410" y="192.6" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">MGF</text>
+<line x1="420" y1="136" x2="420" y2="160" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="420,168 416.4,160 423.6,160" fill="currentColor"/>
+<circle cx="170" cy="236" r="13" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="170" y="241" font-size="16" text-anchor="middle" fill="currentColor">⊕</text>
+<line x1="170" y1="206" x2="170" y2="214" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="170,222 166.4,214 173.6,214" fill="currentColor"/>
+<path d="M410,206 L410,236 L186,236" stroke="currentColor" fill="none" stroke-width="1.3"/>
+<polygon points="184,236 191,232.8 191,239.2" fill="currentColor"/>
+<rect x="20" y="254" width="300" height="36" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="20" y="254" width="300" height="36" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="170" y="276.6" font-size="13" text-anchor="middle" fill="currentColor">maskedDB</text>
+<rect x="320" y="254" width="160" height="36" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="320" y="254" width="160" height="36" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="400" y="276.6" font-size="13" text-anchor="middle" fill="currentColor">h</text>
+<rect x="480" y="254" width="70" height="36" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="480" y="254" width="70" height="36" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="515" y="276.6" font-size="13" text-anchor="middle" fill="currentColor">BC</text>
+<line x1="470" y1="136" x2="470" y2="230" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<line x1="470" y1="230" x2="400" y2="252" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="600" y="276" font-size="13" text-anchor="start" fill="currentColor">= EM</text>
+</svg>
+<figcaption>Figure 13.9. PSS encoding. The salt makes every signature different, and the verifier can unmask it from h to recompute the same hash.</figcaption>
+</figure>
+
 ```python
 def pss_encode(msg, embits):               # EMSA-PSS, SHA-256, 32-byte salt (RFC 8017 9.1.1)
     emlen = (embits + 7) // 8
@@ -471,6 +869,12 @@ print(verify(b"pay Bob $10", s), verify(b"pay Bob $1000", s))   # True False
 The PyCA library verifies these signatures as
 `PSS(MGF1(SHA256), salt_length=32)`, and these functions verify the library's.
 
+!!! note "Life story: RSA signature padding (PKCS #1 v1.5 and PSS)"
+    **Born:** v1.5 signatures in the early 1990s (RSA Laboratories); PSS in 1996 (Bellare and Rogaway) ·
+    **Purpose:** turn a hash into a full-size number that cannot be forged by RSA's algebra · **Helped:** v1.5 signs
+    most of the web's certificates; PSS is required in TLS 1.3 handshakes · **Setbacks:** sloppy v1.5 verifiers
+    forged with $e = 3$ (2006, BERserk 2014) · **Status:** both current; PSS preferred for new designs
+
 A signature proves that the holder of the private key signed *these bytes*. It
 does not prove who the holder is; that is the job of certificates in
 [Chapter 16](16-PKI-and-Key-Establishment.md).
@@ -498,6 +902,41 @@ h &= q_{\mathrm{Inv}} \cdot (m_1 - m_2) \bmod p = 38 \times (4 - 12) \bmod 61 = 
 m &= m_2 + h \cdot q = 12 + 1 \times 53 = 65
 \end{aligned}
 $$
+
+<figure class="mars-fig">
+<svg viewBox="0 0 660 300" width="660" role="img" aria-label="CRT decryption with the toy key: 2790 mod 61 raised to 53 gives 4, mod 53 raised to 49 gives 12, Garner's step joins them into 65; a fault in the mod-p half makes the result right mod q only, which gcd exposes">
+<rect x="255" y="14" width="150" height="40" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="255" y="14" width="150" height="40" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="330" y="38.9" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">c = 2790</text>
+<line x1="300" y1="54" x2="157.8" y2="86.2" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="150,88 157,82.7 158.6,89.7" fill="currentColor"/>
+<line x1="360" y1="54" x2="502.2" y2="86.2" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="510,88 501.4,89.7 503,82.7" fill="currentColor"/>
+<rect x="40" y="90" width="220" height="50" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="40" y="90" width="220" height="50" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="150" y="111.1" font-size="13" text-anchor="middle" fill="currentColor">mod p = 61: c^53</text>
+<text x="150" y="128" font-size="13" text-anchor="middle" fill="currentColor">m₁ = 4</text>
+<rect x="400" y="90" width="220" height="50" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="400" y="90" width="220" height="50" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="510" y="111.1" font-size="13" text-anchor="middle" fill="currentColor">mod q = 53: c^49</text>
+<text x="510" y="128" font-size="13" text-anchor="middle" fill="currentColor">m₂ = 12</text>
+<line x1="150" y1="140" x2="292.2" y2="176" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="300,178 291.4,179.5 293.1,172.5" fill="currentColor"/>
+<line x1="510" y1="140" x2="367.8" y2="176" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="360,178 366.9,172.5 368.6,179.5" fill="currentColor"/>
+<rect x="200" y="180" width="260" height="50" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="200" y="180" width="260" height="50" rx="6" class="soft-acc acc" stroke-width="1.3"/>
+<text x="330" y="201.1" font-size="13" text-anchor="middle" fill="currentColor">h = 38 · (4 - 12) mod 61 = 1</text>
+<text x="330" y="218" font-size="13" text-anchor="middle" fill="currentColor">m = 12 + 1 · 53 = 65</text>
+<text x="150" y="262" font-size="13" text-anchor="middle" class="acc-fill">a glitch here ⇒ result wrong mod p,</text>
+<text x="150" y="280" font-size="13" text-anchor="middle" class="acc-fill">right mod q ⇒ gcd(s′ᵉ − m, n) = q</text>
+<line x1="150" y1="246" x2="150" y2="152" class="acc" stroke-width="1.5" stroke-dasharray="5 4"/>
+<polygon points="150,144 153.6,152 146.4,152" class="acc-fill"/>
+<text x="510" y="262" font-size="13" text-anchor="middle" fill="currentColor">two half-size powers:</text>
+<text x="510" y="280" font-size="13" text-anchor="middle" fill="currentColor">about 3 to 4 times faster</text>
+</svg>
+<figcaption>Figure 13.10. RSA-CRT with the toy numbers, and its weak spot. Each half is cheap; a fault in one half turns a single bad signature into the factorization of n.</figcaption>
+</figure>
 
 Modular exponentiation costs roughly the cube of the number's length, so each
 half-size power costs about an eighth of the full one, and two of them about a
@@ -545,6 +984,13 @@ private keys. The fix is cheap: **verify every signature before releasing it**
 (one public-exponent power, which is fast). OpenSSL and other libraries do this.
 [Chapter 18](18-Side-Channels.md) covers fault and timing attacks in general.
 
+!!! note "Life story: RSA-CRT and the Bellcore fault attack"
+    **Born:** the CRT speed-up was suggested by Jean-Jacques Quisquater and Chantal Couvreur in 1982; the fault
+    attack by Dan Boneh, Richard DeMillo and Richard Lipton at Bellcore in 1996 · **Purpose:** four times faster
+    private-key operations; the attack showed one wrong answer is enough to factor · **Impact:** every serious
+    library now verifies a signature before releasing it; smart cards added fault sensors · **Status:** CRT is
+    current everywhere, with the check
+
 ## 13.10 Use a library
 
 You should understand OAEP and PSS, and you should never ship your own. Real
@@ -591,6 +1037,30 @@ and many SSH keys. It used to carry the session key in TLS too, until TLS 1.3
 | 3072 | 128 | for data that must stay safe past 2030 |
 | 15360 | 256 | rarely used; elliptic curves or lattices are far smaller |
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 224" width="640" role="img" aria-label="Bar chart of RSA modulus sizes in bits and the security each gives, from 512 bits broken to 15360 bits for 256-bit security">
+<text x="62" y="35" font-size="13" text-anchor="end" fill="currentColor">512</text>
+<rect x="70" y="19" width="15" height="22" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="91" y="35" font-size="13" text-anchor="start" fill="currentColor">about 50 bits: broken</text>
+<text x="62" y="69" font-size="13" text-anchor="end" fill="currentColor">1024</text>
+<rect x="70" y="53" width="30" height="22" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="106" y="69" font-size="13" text-anchor="start" fill="currentColor">about 80: retired</text>
+<text x="62" y="103" font-size="13" text-anchor="end" fill="currentColor">2048</text>
+<rect x="70" y="87" width="60" height="22" rx="3" class="soft-acc acc" stroke-width="1.3"/>
+<text x="136" y="103" font-size="13" text-anchor="start" fill="currentColor">112: today's minimum</text>
+<text x="62" y="137" font-size="13" text-anchor="end" fill="currentColor">3072</text>
+<rect x="70" y="121" width="90" height="22" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="166" y="137" font-size="13" text-anchor="start" fill="currentColor">128</text>
+<text x="62" y="171" font-size="13" text-anchor="end" fill="currentColor">7680</text>
+<rect x="70" y="155" width="225" height="22" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="301" y="171" font-size="13" text-anchor="start" fill="currentColor">192</text>
+<text x="62" y="205" font-size="13" text-anchor="end" fill="currentColor">15360</text>
+<rect x="70" y="189" width="450" height="22" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="526" y="205" font-size="13" text-anchor="start" fill="currentColor">256</text>
+</svg>
+<figcaption>Figure 13.11. Modulus size against security level. Because the number field sieve is subexponential, doubling security costs about five times the modulus.</figcaption>
+</figure>
+
 Elliptic-curve keys give the same strength far smaller: 256 bits for
 [Ed25519](15-Elliptic-Curves.md) against 3072 for RSA. Appendix tables:
 [RSA reference](../02-signatures/RSA.md).
@@ -636,7 +1106,53 @@ spread worldwide in 1991; the case was dropped in 1996.
   made by a library that picked $q$ as the next prime after $p$, which Fermat's
   method (§13.12) factors at once (CVE-2022-26320).
 
+<figure class="mars-fig">
+<svg viewBox="0 0 660 300" width="660" role="img" aria-label="Scatter chart of RSA factoring records by year: 426 bits in 1994, 512 in 1999, 663 in 2005, 768 in 2009, 795 in 2019 and 829 in 2020, far below the 2048-bit line">
+<line x1="70" y1="260" x2="630" y2="260" stroke="currentColor" stroke-width="1.3"/>
+<line x1="70" y1="260" x2="70" y2="20" stroke="currentColor" stroke-width="1.3"/>
+<text x="70" y="278" font-size="12" text-anchor="middle" fill="currentColor">1990</text>
+<text x="150" y="278" font-size="12" text-anchor="middle" fill="currentColor">1995</text>
+<text x="230" y="278" font-size="12" text-anchor="middle" fill="currentColor">2000</text>
+<text x="310" y="278" font-size="12" text-anchor="middle" fill="currentColor">2005</text>
+<text x="390" y="278" font-size="12" text-anchor="middle" fill="currentColor">2010</text>
+<text x="470" y="278" font-size="12" text-anchor="middle" fill="currentColor">2015</text>
+<text x="550" y="278" font-size="12" text-anchor="middle" fill="currentColor">2020</text>
+<text x="630" y="278" font-size="12" text-anchor="middle" fill="currentColor">2025</text>
+<text x="62" y="236.5" font-size="12" text-anchor="end" fill="currentColor">512</text>
+<text x="62" y="170.1" font-size="12" text-anchor="end" fill="currentColor">1024</text>
+<text x="62" y="103.7" font-size="12" text-anchor="end" fill="currentColor">1536</text>
+<text x="62" y="37.2" font-size="12" text-anchor="end" fill="currentColor">2048</text>
+<line x1="70" y1="33.2" x2="630" y2="33.2" class="acc" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="630" y="25.2" font-size="12" text-anchor="end" class="acc-fill">2048 bits: today's minimum</text>
+<line x1="70" y1="166.1" x2="630" y2="166.1" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 4" stroke-opacity="0.6"/>
+<text x="630" y="158.1" font-size="12" text-anchor="end" fill="currentColor">1024 bits</text>
+<circle cx="134" cy="243.7" r="5" fill="currentColor"/>
+<text x="134" y="231.7" font-size="12" text-anchor="middle" fill="currentColor">RSA-129</text>
+<circle cx="214" cy="232.5" r="5" fill="currentColor"/>
+<text x="214" y="254.5" font-size="12" text-anchor="middle" fill="currentColor">RSA-155</text>
+<circle cx="310" cy="212.9" r="5" fill="currentColor"/>
+<text x="310" y="200.9" font-size="12" text-anchor="middle" fill="currentColor">RSA-200</text>
+<circle cx="374" cy="199.3" r="5" fill="currentColor"/>
+<text x="374" y="221.3" font-size="12" text-anchor="middle" fill="currentColor">RSA-768</text>
+<circle cx="534" cy="195.8" r="5" fill="currentColor"/>
+<text x="534" y="183.8" font-size="12" text-anchor="middle" fill="currentColor">RSA-240</text>
+<circle cx="550" cy="191.4" r="5" fill="currentColor"/>
+<text x="550" y="213.4" font-size="12" text-anchor="middle" fill="currentColor">RSA-250</text>
+<text x="20" y="140" font-size="12" text-anchor="middle" fill="currentColor">bits</text>
+</svg>
+<figcaption>Figure 13.12. Public factoring records. Progress came from better algorithms as much as faster machines, yet the record is still far below 2048 bits.</figcaption>
+</figure>
+
 The pattern: RSA itself held; key generation, padding and implementations failed.
+
+!!! note "Life story: RSA"
+    **Born:** 1977, Ron Rivest, Adi Shamir and Leonard Adleman at MIT (found in secret by Clifford Cocks at GCHQ in
+    1973) · **Purpose:** public-key encryption and digital signatures from one trapdoor · **Helped:** SSL and the
+    first secure web shopping, PGP, code signing, most web certificates for two decades · **Weakened:** 512- and
+    1024-bit keys fell; RSA key transport was removed from TLS 1.3 (2018) because it lacks forward secrecy and
+    invites padding oracles · **Status:** current for signatures at 2048 bits and up; NIST deprecates it after 2030
+    and disallows it after 2035 because of quantum computers · **Replaced by:** ECDSA and Ed25519 now, ML-DSA and
+    ML-KEM next
 
 **Its future.** A large quantum computer running Shor's algorithm
 ([Chapter 20](20-Quantum-Computers.md)) would factor $n$ quickly at any size.
@@ -692,6 +1208,12 @@ print(fermat(p * q) == (p, q))           # True, after one step
 A 2048-bit key falls instantly. With independent random primes, $p - q$ is about
 $2^{1023}$ and the method is hopeless.
 
+!!! note "Life story: Fermat's factoring method"
+    **Born:** 1643, Pierre de Fermat, in a letter · **Purpose:** factor numbers by writing them as a difference of
+    two squares · **Afterlife:** useless against random RSA primes, but it broke printer keys from Canon and
+    Fujifilm in 2022 (CVE-2022-26320) whose primes were neighbors · **Status:** a check every key generator must
+    pass: $p$ and $q$ must be far apart
+
 ### Wiener's attack: when $d$ is small
 
 A small $d$ makes decryption fast, which tempted designers of smart cards.
@@ -728,6 +1250,12 @@ print(wiener(n, e))                      # 101
 Dan Boneh and Glenn Durfee (1999) pushed the bound to $d < n^{0.292}$ with
 lattice methods. Using CRT exponents (§13.9) gets the speed safely.
 
+!!! note "Life story: Wiener's attack"
+    **Born:** 1990, Michael Wiener, then at Bell-Northern Research in Canada · **Purpose:** show that a small
+    private exponent, chosen for fast decryption on weak devices, gives itself away through continued fractions ·
+    **Extended by:** Boneh and Durfee (1999) to $d < n^{0.292}$ · **Status:** current, as the reason $d$ is never
+    chosen small
+
 ### Håstad's broadcast attack: the same message to three people
 
 With $e = 3$ and no padding, send one message $m$ to three people with moduli
@@ -753,6 +1281,12 @@ it. Don Coppersmith's method (1996) generalizes all of this: it finds small root
 of polynomials mod $n$, and so breaks RSA whenever an attacker knows enough of the
 message, of $p$, or of $d$ (half the bits of $p$ are enough to factor $n$). It is
 also how ROCA was exploited.
+
+!!! note "Life story: Håstad's and Coppersmith's attacks"
+    **Born:** 1985, Johan Håstad (broadcast attack); 1996, Don Coppersmith of IBM (small roots of polynomials) ·
+    **Purpose:** show how low exponents and partly known secrets break unpadded RSA · **Impact:** ended the use of
+    $e = 3$ without padding; Coppersmith's method powered ROCA (2017) · **Status:** current tools of
+    cryptanalysis, harmless against OAEP and PSS with $e = 65537$
 
 ### The common modulus mistake
 

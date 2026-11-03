@@ -49,6 +49,73 @@ shares one key with the center, and the center hands out session keys; this is
 how [Kerberos](../protocols/Kerberos.md) works to this day), but the center now
 knows every key and every user must still meet it once.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 690 270" width="690" role="img" aria-label="Three panels with six users each: pairwise keys need 15 secret keys, a key distribution center needs 6 but knows them all, public-key methods need 6 public values and no secret delivery">
+<line x1="122.8" y1="54.5" x2="167.8" y2="80.5" stroke="currentColor" stroke-width="1.1" stroke-opacity="0.7"/>
+<line x1="119.5" y1="57.8" x2="171.1" y2="147.2" stroke="currentColor" stroke-width="1.1" stroke-opacity="0.7"/>
+<line x1="115" y1="59" x2="115" y2="181" stroke="currentColor" stroke-width="1.1" stroke-opacity="0.7"/>
+<line x1="110.5" y1="57.8" x2="58.9" y2="147.2" stroke="currentColor" stroke-width="1.1" stroke-opacity="0.7"/>
+<line x1="107.2" y1="54.5" x2="62.2" y2="80.5" stroke="currentColor" stroke-width="1.1" stroke-opacity="0.7"/>
+<line x1="175.6" y1="94" x2="175.6" y2="146" stroke="currentColor" stroke-width="1.1" stroke-opacity="0.7"/>
+<line x1="171.1" y1="92.8" x2="119.5" y2="182.2" stroke="currentColor" stroke-width="1.1" stroke-opacity="0.7"/>
+<line x1="167.8" y1="89.5" x2="62.2" y2="150.5" stroke="currentColor" stroke-width="1.1" stroke-opacity="0.7"/>
+<line x1="166.6" y1="85" x2="63.4" y2="85" stroke="currentColor" stroke-width="1.1" stroke-opacity="0.7"/>
+<line x1="167.8" y1="159.5" x2="122.8" y2="185.5" stroke="currentColor" stroke-width="1.1" stroke-opacity="0.7"/>
+<line x1="166.6" y1="155" x2="63.4" y2="155" stroke="currentColor" stroke-width="1.1" stroke-opacity="0.7"/>
+<line x1="167.8" y1="150.5" x2="62.2" y2="89.5" stroke="currentColor" stroke-width="1.1" stroke-opacity="0.7"/>
+<line x1="107.2" y1="185.5" x2="62.2" y2="159.5" stroke="currentColor" stroke-width="1.1" stroke-opacity="0.7"/>
+<line x1="110.5" y1="182.2" x2="58.9" y2="92.8" stroke="currentColor" stroke-width="1.1" stroke-opacity="0.7"/>
+<line x1="54.4" y1="146" x2="54.4" y2="94" stroke="currentColor" stroke-width="1.1" stroke-opacity="0.7"/>
+<circle cx="115" cy="50" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<circle cx="175.6" cy="85" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<circle cx="175.6" cy="155" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<circle cx="115" cy="190" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<circle cx="54.4" cy="155" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<circle cx="54.4" cy="85" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="115" y="225" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">pairwise keys</text>
+<text x="115" y="245" font-size="13" text-anchor="middle" fill="currentColor">15 secret keys to deliver</text>
+<line x1="345" y1="94" x2="345" y2="59" stroke="currentColor" stroke-width="1.3"/>
+<line x1="367.5" y1="107" x2="397.8" y2="89.5" stroke="currentColor" stroke-width="1.3"/>
+<line x1="367.5" y1="133" x2="397.8" y2="150.5" stroke="currentColor" stroke-width="1.3"/>
+<line x1="345" y1="146" x2="345" y2="181" stroke="currentColor" stroke-width="1.3"/>
+<line x1="322.5" y1="133" x2="292.2" y2="150.5" stroke="currentColor" stroke-width="1.3"/>
+<line x1="322.5" y1="107" x2="292.2" y2="89.5" stroke="currentColor" stroke-width="1.3"/>
+<rect x="323" y="106" width="44" height="28" rx="6" class="soft-acc acc" stroke-width="1.3"/>
+<text x="345" y="125" font-size="12" text-anchor="middle" fill="currentColor" font-weight="bold">KDC</text>
+<circle cx="345" cy="50" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<circle cx="405.6" cy="85" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<circle cx="405.6" cy="155" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<circle cx="345" cy="190" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<circle cx="284.4" cy="155" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<circle cx="284.4" cy="85" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="345" y="225" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">key distribution center</text>
+<text x="345" y="245" font-size="13" text-anchor="middle" fill="currentColor">6 keys, but the center knows all</text>
+<circle cx="575" cy="50" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<line x1="575" y1="50" x2="575" y2="93" stroke="currentColor" stroke-width="1.1" stroke-dasharray="5 4"/>
+<polygon points="575,99 572.3,93 577.7,93" fill="currentColor"/>
+<circle cx="635.6" cy="85" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<line x1="635.6" y1="85" x2="598.4" y2="106.5" stroke="currentColor" stroke-width="1.1" stroke-dasharray="5 4"/>
+<polygon points="593.2,109.5 597,104.2 599.7,108.8" fill="currentColor"/>
+<circle cx="635.6" cy="155" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<line x1="635.6" y1="155" x2="598.4" y2="133.5" stroke="currentColor" stroke-width="1.1" stroke-dasharray="5 4"/>
+<polygon points="593.2,130.5 599.7,131.2 597,135.8" fill="currentColor"/>
+<circle cx="575" cy="190" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<line x1="575" y1="190" x2="575" y2="147" stroke="currentColor" stroke-width="1.1" stroke-dasharray="5 4"/>
+<polygon points="575,141 577.7,147 572.3,147" fill="currentColor"/>
+<circle cx="514.4" cy="155" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<line x1="514.4" y1="155" x2="551.6" y2="133.5" stroke="currentColor" stroke-width="1.1" stroke-dasharray="5 4"/>
+<polygon points="556.8,130.5 553,135.8 550.3,131.2" fill="currentColor"/>
+<circle cx="514.4" cy="85" r="9" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<line x1="514.4" y1="85" x2="551.6" y2="106.5" stroke="currentColor" stroke-width="1.1" stroke-dasharray="5 4"/>
+<polygon points="556.8,109.5 550.3,108.8 553,104.2" fill="currentColor"/>
+<rect x="545" y="106" width="60" height="28" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="575" y="125" font-size="12" text-anchor="middle" fill="currentColor" font-weight="bold">public</text>
+<text x="575" y="225" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">public key</text>
+<text x="575" y="245" font-size="13" text-anchor="middle" fill="currentColor">6 public values, nothing secret</text>
+</svg>
+<figcaption>Figure 12.1. Six users three ways. With secret pairwise keys every line is a key someone must carry; a center cuts the count but must be trusted with everything; with public-key methods each user publishes one value and keeps one secret.</figcaption>
+</figure>
+
 In 1974 Whitfield Diffie, a young mathematician who had worked at MIT and in
 Stanford's artificial intelligence lab, was traveling the United States asking
 cryptographers two questions. Could two people who had never met set up a
@@ -66,6 +133,65 @@ what is essentially the Diffie-Hellman exchange in 1974. That work stayed
 secret until 1997. In the open, the first person to solve the problem at all
 was a student. (The full story is in [Appendix E, Public-key
 cryptography](../history/07-Public-Key.md).)
+
+<figure class="mars-fig">
+<svg viewBox="0 0 600 606" width="600" role="img" aria-label="Timeline of the key distribution problem and Diffie-Hellman from 1963 to 2035">
+<line x1="100" y1="10" x2="100" y2="598" stroke="currentColor" stroke-width="1.5" stroke-opacity="0.5"/>
+<text x="86" y="22.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1963</text>
+<circle cx="100" cy="18" r="4" fill="currentColor"/>
+<text x="114" y="22.5" font-size="13" text-anchor="start" fill="currentColor">Washington-Moscow hotline opens, keyed by one-time tapes</text>
+<text x="114" y="41.5" font-size="13" text-anchor="start" fill="currentColor">carried by hand</text>
+<text x="86" y="69.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1970</text>
+<circle cx="100" cy="65" r="4" fill="currentColor"/>
+<text x="114" y="69.5" font-size="13" text-anchor="start" fill="currentColor">James Ellis (GCHQ) shows 'non-secret encryption' is</text>
+<text x="114" y="88.5" font-size="13" text-anchor="start" fill="currentColor">possible, in secret</text>
+<text x="86" y="116.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1974</text>
+<circle cx="100" cy="112" r="4" fill="currentColor"/>
+<text x="114" y="116.5" font-size="13" text-anchor="start" fill="currentColor">Malcolm Williamson (GCHQ) finds the exchange in secret;</text>
+<text x="114" y="135.5" font-size="13" text-anchor="start" fill="currentColor">Ralph Merkle proposes puzzles at Berkeley; Diffie meets</text>
+<text x="114" y="154.5" font-size="13" text-anchor="start" fill="currentColor">Hellman</text>
+<text x="86" y="182.5" font-size="13" text-anchor="end" class="acc-fill" font-weight="bold">1976</text>
+<circle cx="100" cy="178" r="5" class="acc-fill"/>
+<text x="114" y="182.5" font-size="13" text-anchor="start" fill="currentColor">Diffie and Hellman, 'New Directions in Cryptography'</text>
+<text x="114" y="201.5" font-size="13" text-anchor="start" fill="currentColor">(November)</text>
+<text x="86" y="229.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1978</text>
+<circle cx="100" cy="225" r="4" fill="currentColor"/>
+<text x="114" y="229.5" font-size="13" text-anchor="start" fill="currentColor">Merkle's puzzles published; Pohlig-Hellman algorithm;</text>
+<text x="114" y="248.5" font-size="13" text-anchor="start" fill="currentColor">Pollard's rho for discrete logs</text>
+<text x="86" y="276.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1980</text>
+<circle cx="100" cy="272" r="4" fill="currentColor"/>
+<text x="114" y="276.5" font-size="13" text-anchor="start" fill="currentColor">US patent 4,200,770 granted to Hellman, Diffie and</text>
+<text x="114" y="295.5" font-size="13" text-anchor="start" fill="currentColor">Merkle</text>
+<text x="86" y="323.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1992</text>
+<circle cx="100" cy="319" r="4" fill="currentColor"/>
+<text x="114" y="323.5" font-size="13" text-anchor="start" fill="currentColor">Station-to-station protocol adds signatures (Diffie, van</text>
+<text x="114" y="342.5" font-size="13" text-anchor="start" fill="currentColor">Oorschot, Wiener)</text>
+<text x="86" y="370.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1996-98</text>
+<circle cx="100" cy="366" r="4" fill="currentColor"/>
+<text x="114" y="370.5" font-size="13" text-anchor="start" fill="currentColor">SSL 3.0, SSH 2 and IPsec adopt Diffie-Hellman key</text>
+<text x="114" y="389.5" font-size="13" text-anchor="start" fill="currentColor">exchange</text>
+<text x="86" y="417.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1997</text>
+<circle cx="100" cy="413" r="4" fill="currentColor"/>
+<text x="114" y="417.5" font-size="13" text-anchor="start" fill="currentColor">Patent expires; GCHQ reveals Ellis, Cocks and Williamson</text>
+<text x="86" y="445.5" font-size="13" text-anchor="end" class="acc-fill" font-weight="bold">2015</text>
+<circle cx="100" cy="441" r="5" class="acc-fill"/>
+<text x="114" y="445.5" font-size="13" text-anchor="start" fill="currentColor">Logjam: export-grade 512-bit groups broken in practice</text>
+<text x="86" y="473.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">2016</text>
+<circle cx="100" cy="469" r="4" fill="currentColor"/>
+<text x="114" y="473.5" font-size="13" text-anchor="start" fill="currentColor">Diffie and Hellman receive the Turing Award (for 2015)</text>
+<text x="86" y="501.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">2018</text>
+<circle cx="100" cy="497" r="4" fill="currentColor"/>
+<text x="114" y="501.5" font-size="13" text-anchor="start" fill="currentColor">TLS 1.3 keeps only key exchanges with forward secrecy</text>
+<text x="86" y="529.5" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">2019</text>
+<circle cx="100" cy="525" r="4" fill="currentColor"/>
+<text x="114" y="529.5" font-size="13" text-anchor="start" fill="currentColor">Record discrete log modulo a 795-bit prime</text>
+<text x="86" y="557.5" font-size="13" text-anchor="end" class="acc-fill" font-weight="bold">2030-35</text>
+<circle cx="100" cy="553" r="5" class="acc-fill"/>
+<text x="114" y="557.5" font-size="13" text-anchor="start" fill="currentColor">NIST IR 8547: deprecated after 2030, disallowed after</text>
+<text x="114" y="576.5" font-size="13" text-anchor="start" fill="currentColor">2035</text>
+</svg>
+<figcaption>Figure 12.2. The life of Diffie-Hellman at a glance. Highlighted: the open invention, the attack that retired weak groups, and the planned end because of quantum computers.</figcaption>
+</figure>
 
 ## 12.2 Merkle's puzzles: the first answer
 
@@ -138,6 +264,60 @@ Bob did about $W$ work; Eve did about $NW/2$. With $N = W$ that is a
 **quadratic** gap: Bob does $W$, Eve about $W^2/2$. Make $W$ a million and Bob
 does a million steps while Eve does half a trillion.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 660 300" width="660" role="img" aria-label="Alice sends many locked puzzles to Bob, Bob solves one and announces its ID, Eve must solve about half of them; a bar chart compares Bob's 1,752 tries with Eve's 1,654,764">
+<rect x="20" y="20" width="110" height="46" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="20" y="20" width="110" height="46" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="75" y="39.1" font-size="13" text-anchor="middle" fill="currentColor">Alice</text>
+<text x="75" y="56" font-size="13" text-anchor="middle" fill="currentColor">makes N puzzles</text>
+<rect x="530" y="20" width="110" height="46" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="530" y="20" width="110" height="46" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="585" y="39.1" font-size="13" text-anchor="middle" fill="currentColor">Bob</text>
+<text x="585" y="56" font-size="13" text-anchor="middle" fill="currentColor">solves one</text>
+<rect x="150" y="28" width="24" height="30" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="162" y="48" font-size="13" text-anchor="middle" fill="currentColor">?</text>
+<rect x="181" y="28" width="24" height="30" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="193" y="48" font-size="13" text-anchor="middle" fill="currentColor">?</text>
+<rect x="212" y="28" width="24" height="30" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="224" y="48" font-size="13" text-anchor="middle" fill="currentColor">?</text>
+<rect x="243" y="28" width="24" height="30" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="255" y="48" font-size="13" text-anchor="middle" fill="currentColor">?</text>
+<rect x="274" y="28" width="24" height="30" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="286" y="48" font-size="13" text-anchor="middle" fill="currentColor">?</text>
+<rect x="305" y="28" width="24" height="30" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="317" y="48" font-size="13" text-anchor="middle" fill="currentColor">?</text>
+<rect x="336" y="28" width="24" height="30" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="348" y="48" font-size="13" text-anchor="middle" fill="currentColor">?</text>
+<rect x="367" y="28" width="24" height="30" rx="3" class="soft-acc acc" stroke-width="1.3"/>
+<text x="379" y="48" font-size="13" text-anchor="middle" fill="currentColor">?</text>
+<rect x="398" y="28" width="24" height="30" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="410" y="48" font-size="13" text-anchor="middle" fill="currentColor">?</text>
+<rect x="429" y="28" width="24" height="30" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="441" y="48" font-size="13" text-anchor="middle" fill="currentColor">?</text>
+<rect x="460" y="28" width="24" height="30" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="472" y="48" font-size="13" text-anchor="middle" fill="currentColor">?</text>
+<rect x="491" y="28" width="24" height="30" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="503" y="48" font-size="13" text-anchor="middle" fill="currentColor">?</text>
+<line x1="140" y1="74" x2="512" y2="74" stroke="currentColor" stroke-width="1.4"/>
+<polygon points="520,74 512,77.6 512,70.4" fill="currentColor"/>
+<text x="330" y="92" font-size="13" text-anchor="middle" fill="currentColor">all N puzzles, in public</text>
+<line x1="520" y1="112" x2="148" y2="112" class="acc" stroke-width="1.5"/>
+<polygon points="140,112 148,108.4 148,115.6" class="acc-fill"/>
+<text x="330" y="130" font-size="13" text-anchor="middle" fill="currentColor">only the ID of the solved puzzle</text>
+<rect x="220" y="146" width="220" height="40" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="220" y="146" width="220" height="40" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="330" y="170.6" font-size="13" text-anchor="middle" fill="currentColor">Eve: which one was it?</text>
+<text x="330" y="206" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">Work done (from the run above)</text>
+<text x="110" y="236" font-size="13" text-anchor="end" fill="currentColor">Bob</text>
+<rect x="120" y="224" width="2" height="18" rx="2" class="soft-acc acc" stroke-width="1.3"/>
+<text x="130" y="238" font-size="13" text-anchor="start" fill="currentColor">1,752 tries</text>
+<text x="110" y="270" font-size="13" text-anchor="end" fill="currentColor">Eve</text>
+<rect x="120" y="258" width="500" height="18" rx="2" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="370" y="272" font-size="13" text-anchor="middle" fill="currentColor">1,654,764 tries</text>
+</svg>
+<figcaption>Figure 12.3. Merkle's puzzles. Bob opens one box; Eve, who does not know which, opens about half of them. The gap is real but only quadratic: here about 900 times Bob's work.</figcaption>
+</figure>
+
 It was a proof that the impossible-sounding thing could be done. It is not a
 practical scheme. A quadratic gap is too small: an attacker with a million
 times Bob's computing power keeps up with puzzles a thousand times harder, and
@@ -145,6 +325,20 @@ Alice has to send all $N$ puzzles. What was needed was a calculation with an
 **exponential** gap: easy one way, and hopeless the other way however much
 computing you buy. Merkle, Diffie and Hellman worked on the problem together
 through 1975 and 1976.
+
+Merkle's later work went far beyond the puzzles. He moved to Stanford as
+Hellman's PhD student, and in his 1979 thesis invented the **hash tree** that
+now carries his name: [Chapter 16](16-PKI-and-Key-Establishment.md) uses it for
+Certificate Transparency, and [Chapter 9](09-Hash-Functions.md) for the
+Merkle-Damgård construction behind SHA-2. The puzzles themselves were never
+deployed, but they settled an argument. Before them, many experts believed a
+secret could not be agreed in public at all.
+
+!!! note "Life story: Merkle's puzzles"
+    **Born:** 1974 as a Berkeley course proposal by Ralph Merkle; published 1978 · **Purpose:** agree on a key
+    over a channel everyone can hear · **Helped:** the first open proof that it can be done, and a direct
+    influence on Diffie and Hellman · **Retired:** never used in practice, because the attacker's work grows only
+    as the square of the user's · **Replaced by:** Diffie-Hellman (1976), with an exponential gap
 
 ## 12.3 A one-way street with a shortcut
 
@@ -155,6 +349,65 @@ They swap the mixtures in public. Each then adds their own secret color to what
 they received. Both end up with yellow + Alice's secret + Bob's secret, the
 same brown, while Eve holds only yellow, orange and green. Mixing is easy;
 un-mixing paint is not.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 660 330" width="660" role="img" aria-label="Paint analogy: Alice and Bob each mix a secret color into the public yellow, swap the mixtures, add their secret again and get the same final color; Eve sees only yellow and the two mixtures">
+<text x="110" y="22" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Alice</text>
+<text x="330" y="22" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">public (Eve sees)</text>
+<text x="550" y="22" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Bob</text>
+<rect x="30" y="40" width="160" height="42" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="30" y="40" width="160" height="42" rx="6" class="soft" stroke="currentColor" stroke-width="1.3" stroke-dasharray="5 4"/>
+<text x="110" y="65.5" font-size="13" text-anchor="middle" fill="currentColor">secret: red</text>
+<rect x="250" y="40" width="160" height="42" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="250" y="40" width="160" height="42" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="330" y="65.5" font-size="13" text-anchor="middle" fill="currentColor">yellow</text>
+<rect x="470" y="40" width="160" height="42" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="470" y="40" width="160" height="42" rx="6" class="soft" stroke="currentColor" stroke-width="1.3" stroke-dasharray="5 4"/>
+<text x="550" y="65.5" font-size="13" text-anchor="middle" fill="currentColor">secret: blue</text>
+<rect x="30" y="140" width="160" height="42" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="30" y="140" width="160" height="42" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="110" y="165.6" font-size="13" text-anchor="middle" fill="currentColor">yellow + red</text>
+<rect x="470" y="140" width="160" height="42" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="470" y="140" width="160" height="42" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="550" y="165.6" font-size="13" text-anchor="middle" fill="currentColor">yellow + blue</text>
+<line x1="110" y1="82" x2="110" y2="130" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="110,138 106.4,130 113.6,130" fill="currentColor"/>
+<line x1="550" y1="82" x2="550" y2="130" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="550,138 546.4,130 553.6,130" fill="currentColor"/>
+<line x1="290" y1="82" x2="182.2" y2="134.5" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="175,138 180.6,131.3 183.8,137.7" fill="currentColor"/>
+<line x1="370" y1="82" x2="477.8" y2="134.5" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="485,138 476.2,137.7 479.4,131.3" fill="currentColor"/>
+<rect x="250" y="140" width="160" height="42" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="250" y="140" width="160" height="42" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="330" y="165.6" font-size="13" text-anchor="middle" fill="currentColor">sees both mixtures</text>
+<line x1="190" y1="161" x2="240" y2="161" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="248,161 240,164.6 240,157.4" fill="currentColor"/>
+<line x1="470" y1="161" x2="420" y2="161" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="412,161 420,157.4 420,164.6" fill="currentColor"/>
+<line x1="150" y1="182" x2="150" y2="248" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="150,256 146.4,248 153.6,248" fill="currentColor"/>
+<line x1="510" y1="182" x2="510" y2="248" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="510,256 506.4,248 513.6,248" fill="currentColor"/>
+<text x="160" y="214" font-size="12" text-anchor="start" fill="currentColor">swap: Alice gets</text>
+<text x="160" y="230" font-size="12" text-anchor="start" fill="currentColor">Bob's, adds red</text>
+<text x="500" y="214" font-size="12" text-anchor="end" fill="currentColor">Bob gets Alice's,</text>
+<text x="500" y="230" font-size="12" text-anchor="end" fill="currentColor">adds blue</text>
+<rect x="30" y="258" width="160" height="42" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="30" y="258" width="160" height="42" rx="6" class="soft-acc acc" stroke-width="1.3"/>
+<text x="110" y="283.6" font-size="13" text-anchor="middle" fill="currentColor">yellow + blue + red</text>
+<rect x="470" y="258" width="160" height="42" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="470" y="258" width="160" height="42" rx="6" class="soft-acc acc" stroke-width="1.3"/>
+<text x="550" y="283.6" font-size="13" text-anchor="middle" fill="currentColor">yellow + red + blue</text>
+<text x="330" y="284" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">the same color</text>
+<line x1="270" y1="280" x2="204" y2="280" stroke="currentColor" stroke-width="1"/>
+<polygon points="196,280 204,276.4 204,283.6" fill="currentColor"/>
+<line x1="390" y1="280" x2="456" y2="280" stroke="currentColor" stroke-width="1"/>
+<polygon points="464,280 456,283.6 456,276.4" fill="currentColor"/>
+<text x="330" y="320" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">dashed = never leaves its owner</text>
+</svg>
+<figcaption>Figure 12.4. The paint picture of Diffie-Hellman. Mixing is easy and un-mixing is hard; because the order of mixing does not matter, both sides end with the same color.</figcaption>
+</figure>
 
 The analogy needs two things from mathematics:
 
@@ -251,6 +504,24 @@ Output:
 Every order is 1, 2, 11 or 22. Ten elements are generators; ten have order 11;
 $22 \equiv -1$ has order 2; and 1 has order 1.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 560 156" width="560" role="img" aria-label="Bar chart of how many elements of the group mod 23 have each order: 1, 1, 10 and 10">
+<text x="102" y="35" font-size="13" text-anchor="end" fill="currentColor">order 1</text>
+<rect x="110" y="19" width="33" height="22" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="149" y="35" font-size="13" text-anchor="start" fill="currentColor">1 element: 1</text>
+<text x="102" y="69" font-size="13" text-anchor="end" fill="currentColor">order 2</text>
+<rect x="110" y="53" width="33" height="22" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="149" y="69" font-size="13" text-anchor="start" fill="currentColor">1 element: 22</text>
+<text x="102" y="103" font-size="13" text-anchor="end" fill="currentColor">order 11</text>
+<rect x="110" y="87" width="330" height="22" rx="3" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="446" y="103" font-size="13" text-anchor="start" fill="currentColor">10 elements</text>
+<text x="102" y="137" font-size="13" text-anchor="end" fill="currentColor">order 22</text>
+<rect x="110" y="121" width="330" height="22" rx="3" class="soft-acc acc" stroke-width="1.3"/>
+<text x="446" y="137" font-size="13" text-anchor="start" fill="currentColor">10 generators</text>
+</svg>
+<figcaption>Figure 12.5. How the 22 elements mod 23 split by order. Only the divisors of 22 (1, 2, 11, 22) occur.</figcaption>
+</figure>
+
 ### Subgroups and Lagrange's theorem
 
 The powers of an element form a smaller group inside the big one, a
@@ -263,6 +534,126 @@ $$
 eleven elements, closed under multiplication. (They are exactly the squares
 mod 23.) Notice that 1, 2, 11 and 22 are the divisors of 22. That is no
 accident:
+
+<figure class="mars-fig">
+<svg viewBox="0 0 440 440" width="440" role="img" aria-label="The 22 powers of 5 modulo 23 arranged in a circle; every second one, the powers of 4, is highlighted">
+<line x1="235.8" y1="52.3" x2="246.1" y2="53.8" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="252.1,54.6 245.7,56.4 246.5,51.1" fill="currentColor"/>
+<line x1="282.4" y1="63.5" x2="291.9" y2="67.8" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="297.4,70.3 290.8,70.3 293,65.4" fill="currentColor"/>
+<line x1="324" y1="87.5" x2="331.9" y2="94.3" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="336.4,98.2 330.1,96.3 333.6,92.2" fill="currentColor"/>
+<line x1="357.1" y1="122.1" x2="362.7" y2="130.9" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="366,135.9 360.5,132.3 365,129.4" fill="currentColor"/>
+<line x1="379.1" y1="164.7" x2="382.1" y2="174.7" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="383.8,180.5 379.5,175.5 384.7,173.9" fill="currentColor"/>
+<line x1="388.3" y1="211.8" x2="388.3" y2="222.2" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="388.3,228.2 385.6,222.2 391,222.2" fill="currentColor"/>
+<line x1="383.8" y1="259.5" x2="380.8" y2="269.5" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="379.1,275.3 378.2,268.8 383.4,270.3" fill="currentColor"/>
+<line x1="366" y1="304.1" x2="360.4" y2="312.8" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="357.1,317.9 358.1,311.4 362.6,314.3" fill="currentColor"/>
+<line x1="336.4" y1="341.8" x2="328.5" y2="348.6" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="324,352.5 326.8,346.6 330.3,350.6" fill="currentColor"/>
+<line x1="297.4" y1="369.7" x2="287.9" y2="374" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="282.4,376.5 286.8,371.5 289,376.4" fill="currentColor"/>
+<line x1="252.1" y1="385.4" x2="241.8" y2="386.9" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="235.8,387.7 241.4,384.2 242.2,389.5" fill="currentColor"/>
+<line x1="204.2" y1="387.7" x2="193.9" y2="386.2" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="187.9,385.4 194.3,383.6 193.5,388.9" fill="currentColor"/>
+<line x1="157.6" y1="376.5" x2="148.1" y2="372.2" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="142.6,369.7 149.2,369.7 147,374.6" fill="currentColor"/>
+<line x1="116" y1="352.5" x2="108.1" y2="345.7" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="103.6,341.8 109.9,343.7 106.4,347.8" fill="currentColor"/>
+<line x1="82.9" y1="317.9" x2="77.3" y2="309.1" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="74,304.1 79.5,307.7 75,310.6" fill="currentColor"/>
+<line x1="60.9" y1="275.3" x2="57.9" y2="265.3" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="56.2,259.5 60.5,264.5 55.3,266.1" fill="currentColor"/>
+<line x1="51.7" y1="228.2" x2="51.7" y2="217.8" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="51.7,211.8 54.4,217.8 49,217.8" fill="currentColor"/>
+<line x1="56.2" y1="180.5" x2="59.2" y2="170.5" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="60.9,164.7 61.8,171.2 56.6,169.7" fill="currentColor"/>
+<line x1="74" y1="135.9" x2="79.6" y2="127.2" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="82.9,122.1 81.9,128.6 77.4,125.7" fill="currentColor"/>
+<line x1="103.6" y1="98.2" x2="111.5" y2="91.4" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="116,87.5 113.2,93.4 109.7,89.4" fill="currentColor"/>
+<line x1="142.6" y1="70.3" x2="152.1" y2="66" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="157.6,63.5 153.2,68.5 151,63.6" fill="currentColor"/>
+<line x1="187.9" y1="54.6" x2="198.2" y2="53.1" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="204.2,52.3 198.6,55.8 197.8,50.5" fill="currentColor"/>
+<circle cx="220" cy="50" r="15" class="soft-acc acc" stroke-width="1.3"/>
+<text x="220" y="54.5" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">1</text>
+<text x="220" y="24" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^0</text>
+<circle cx="267.9" cy="56.9" r="15" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="267.9" y="61.4" font-size="13" text-anchor="middle" fill="currentColor">5</text>
+<text x="276.3" y="32.1" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^1</text>
+<circle cx="311.9" cy="77" r="15" class="soft-acc acc" stroke-width="1.3"/>
+<text x="311.9" y="81.5" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">2</text>
+<text x="328.1" y="55.7" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^2</text>
+<circle cx="348.5" cy="108.7" r="15" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="348.5" y="113.2" font-size="13" text-anchor="middle" fill="currentColor">10</text>
+<text x="371.1" y="93" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^3</text>
+<circle cx="374.6" cy="149.4" r="15" class="soft-acc acc" stroke-width="1.3"/>
+<text x="374.6" y="153.9" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">4</text>
+<text x="401.9" y="140.9" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^4</text>
+<circle cx="388.3" cy="195.8" r="15" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="388.3" y="200.3" font-size="13" text-anchor="middle" fill="currentColor">20</text>
+<text x="418" y="195.5" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^5</text>
+<circle cx="388.3" cy="244.2" r="15" class="soft-acc acc" stroke-width="1.3"/>
+<text x="388.3" y="248.7" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">8</text>
+<text x="418" y="252.5" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^6</text>
+<circle cx="374.6" cy="290.6" r="15" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="374.6" y="295.1" font-size="13" text-anchor="middle" fill="currentColor">17</text>
+<text x="401.9" y="307.1" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^7</text>
+<circle cx="348.5" cy="331.3" r="15" class="soft-acc acc" stroke-width="1.3"/>
+<text x="348.5" y="335.8" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">16</text>
+<text x="371.1" y="355" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^8</text>
+<circle cx="311.9" cy="363" r="15" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="311.9" y="367.5" font-size="13" text-anchor="middle" fill="currentColor">11</text>
+<text x="328.1" y="392.3" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^9</text>
+<circle cx="267.9" cy="383.1" r="15" class="soft-acc acc" stroke-width="1.3"/>
+<text x="267.9" y="387.6" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">9</text>
+<text x="276.3" y="415.9" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^10</text>
+<circle cx="220" cy="390" r="15" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="220" y="394.5" font-size="13" text-anchor="middle" fill="currentColor">22</text>
+<text x="220" y="424" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^11</text>
+<circle cx="172.1" cy="383.1" r="15" class="soft-acc acc" stroke-width="1.3"/>
+<text x="172.1" y="387.6" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">18</text>
+<text x="163.7" y="415.9" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^12</text>
+<circle cx="128.1" cy="363" r="15" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="128.1" y="367.5" font-size="13" text-anchor="middle" fill="currentColor">21</text>
+<text x="111.9" y="392.3" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^13</text>
+<circle cx="91.5" cy="331.3" r="15" class="soft-acc acc" stroke-width="1.3"/>
+<text x="91.5" y="335.8" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">13</text>
+<text x="68.9" y="355" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^14</text>
+<circle cx="65.4" cy="290.6" r="15" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="65.4" y="295.1" font-size="13" text-anchor="middle" fill="currentColor">19</text>
+<text x="38.1" y="307.1" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^15</text>
+<circle cx="51.7" cy="244.2" r="15" class="soft-acc acc" stroke-width="1.3"/>
+<text x="51.7" y="248.7" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">3</text>
+<text x="22" y="252.5" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^16</text>
+<circle cx="51.7" cy="195.8" r="15" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="51.7" y="200.3" font-size="13" text-anchor="middle" fill="currentColor">15</text>
+<text x="22" y="195.5" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^17</text>
+<circle cx="65.4" cy="149.4" r="15" class="soft-acc acc" stroke-width="1.3"/>
+<text x="65.4" y="153.9" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">6</text>
+<text x="38.1" y="140.9" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^18</text>
+<circle cx="91.5" cy="108.7" r="15" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="91.5" y="113.2" font-size="13" text-anchor="middle" fill="currentColor">7</text>
+<text x="68.9" y="93" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^19</text>
+<circle cx="128.1" cy="77" r="15" class="soft-acc acc" stroke-width="1.3"/>
+<text x="128.1" y="81.5" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">12</text>
+<text x="111.9" y="55.7" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^20</text>
+<circle cx="172.1" cy="56.9" r="15" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="172.1" y="61.4" font-size="13" text-anchor="middle" fill="currentColor">14</text>
+<text x="163.7" y="32.1" font-size="11" text-anchor="middle" fill="currentColor" fill-opacity="0.7">5^21</text>
+<text x="220" y="206" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">multiply by 5</text>
+<text x="220" y="226" font-size="14" text-anchor="middle" fill="currentColor">each step</text>
+<text x="220" y="250" font-size="12" text-anchor="middle" fill="currentColor">highlighted: the 11 powers of 4</text>
+<text x="220" y="266" font-size="12" text-anchor="middle" fill="currentColor">(the squares mod 23)</text>
+</svg>
+<figcaption>Figure 12.6. The group of 22 elements mod 23 as one cycle generated by 5 (small labels are the exponents). Every second step lands in the subgroup generated by 4 = 5², which has 11 elements. 11 divides 22, as Lagrange's theorem demands.</figcaption>
+</figure>
 
 !!! note "Lagrange's theorem"
     In a finite group of $N$ elements, the size of every subgroup divides $N$.
@@ -300,6 +691,48 @@ Alice's first step, by square and multiply ($6 = 110_2$):
 | Sends | 8 to Bob | 19 to Alice |
 | Shared secret | $B^a = 19^6 \bmod 23 = 2$ | $A^b = 8^{15} \bmod 23 = 2$ |
 
+<figure class="mars-fig">
+<svg viewBox="0 0 600 316" width="600" role="img" aria-label="Message sequence chart of Diffie-Hellman with p 23 and g 5: Alice sends 8, Bob sends 19, both compute 2 while Eve only sees 8 and 19">
+<rect x="48" y="8" width="104" height="30" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="100" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Alice</text>
+<line x1="100" y1="38" x2="100" y2="310" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4" stroke-opacity="0.5"/>
+<rect x="248" y="8" width="104" height="30" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="300" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Eve</text>
+<line x1="300" y1="38" x2="300" y2="310" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4" stroke-opacity="0.5"/>
+<rect x="448" y="8" width="104" height="30" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="500" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Bob</text>
+<line x1="500" y1="38" x2="500" y2="310" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4" stroke-opacity="0.5"/>
+<rect x="50" y="74" width="500" height="26" rx="5" style="fill:var(--md-default-bg-color)"/>
+<rect x="50" y="74" width="500" height="26" rx="5" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="300" y="91" font-size="13" text-anchor="middle" fill="currentColor">public: p = 23, g = 5</text>
+<rect x="47.3" y="116" width="105.4" height="26" rx="5" style="fill:var(--md-default-bg-color)"/>
+<rect x="47.3" y="116" width="105.4" height="26" rx="5" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="100" y="133" font-size="13" text-anchor="middle" fill="currentColor">secret a = 6</text>
+<rect x="443.7" y="116" width="112.6" height="26" rx="5" style="fill:var(--md-default-bg-color)"/>
+<rect x="443.7" y="116" width="112.6" height="26" rx="5" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="500" y="133" font-size="13" text-anchor="middle" fill="currentColor">secret b = 15</text>
+<line x1="100" y1="184" x2="492" y2="184" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="500,184 492,187.6 492,180.4" fill="currentColor"/>
+<text x="300" y="177" font-size="13" text-anchor="middle" fill="currentColor">A = 5⁶ mod 23 = 8</text>
+<line x1="500" y1="228" x2="108" y2="228" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="100,228 108,224.4 108,231.6" fill="currentColor"/>
+<text x="300" y="221" font-size="13" text-anchor="middle" fill="currentColor">B = 5¹⁵ mod 23 = 19</text>
+<rect x="54.6" y="246" width="90.8" height="44" rx="5" style="fill:var(--md-default-bg-color)"/>
+<rect x="54.6" y="246" width="90.8" height="44" rx="5" class="soft-acc" stroke="currentColor" stroke-width="1.3"/>
+<text x="100" y="263" font-size="13" text-anchor="middle" fill="currentColor">19⁶ mod 23</text>
+<text x="100" y="281" font-size="13" text-anchor="middle" fill="currentColor">= 2</text>
+<rect x="247.3" y="246" width="105.4" height="44" rx="5" style="fill:var(--md-default-bg-color)"/>
+<rect x="247.3" y="246" width="105.4" height="44" rx="5" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="300" y="263" font-size="13" text-anchor="middle" fill="currentColor">knows 23, 5,</text>
+<text x="300" y="281" font-size="13" text-anchor="middle" fill="currentColor">8 and 19</text>
+<rect x="454.6" y="246" width="90.8" height="44" rx="5" style="fill:var(--md-default-bg-color)"/>
+<rect x="454.6" y="246" width="90.8" height="44" rx="5" class="soft-acc" stroke="currentColor" stroke-width="1.3"/>
+<text x="500" y="263" font-size="13" text-anchor="middle" fill="currentColor">8¹⁵ mod 23</text>
+<text x="500" y="281" font-size="13" text-anchor="middle" fill="currentColor">= 2</text>
+</svg>
+<figcaption>Figure 12.7. The exchange of this section as messages. Everything on the arrows is public; the highlighted results are computed privately and never sent.</figcaption>
+</figure>
+
 **Why both get the same number.** $B^a = (g^b)^a = g^{ab}$ and
 $A^b = (g^a)^b = g^{ab}$. Here $g^{ab} = 5^{90} \bmod 23 = 2$. Since 5 has order
 22, only $90 \bmod 22 = 2$ matters, and indeed $5^2 = 25 \equiv 2$.
@@ -309,7 +742,7 @@ seems to need $a$ from $5^a \equiv 8$, or $b$ from $5^b \equiv 19$. In a group o
 22 elements she just tries them all. In a group of $2^{2048}$ elements she
 cannot.
 
-Three problems, from strongest to weakest, describe Eve's position:
+Three problems, from hardest to easiest for Eve, describe her position:
 
 - **Discrete logarithm (DLP):** given $g$ and $g^a$, find $a$.
 - **Computational Diffie-Hellman (CDH):** given $g$, $g^a$ and $g^b$, find $g^{ab}$.
@@ -360,6 +793,67 @@ Baby steps, $2^j \bmod 101$ for $j = 0, \ldots, 9$: 1, 2, 4, 8, 16, 32, 64, 27,
 So $x = 7 \cdot 10 + 3 = 73$, and indeed $2^{73} \bmod 101 = 48$. Eighteen
 steps instead of up to a hundred.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 690 215" width="690" role="img" aria-label="Number line of exponents 0 to 99: the baby-step table covers 0 to 9; giant steps start at the unknown 73 and move down by 10 until they land on 3 inside the table">
+<line x1="40" y1="160" x2="643.9" y2="160" stroke="currentColor" stroke-width="1.5"/>
+<line x1="40" y1="155" x2="40" y2="165" stroke="currentColor" stroke-width="1"/>
+<text x="40" y="182" font-size="12" text-anchor="middle" fill="currentColor">0</text>
+<line x1="101" y1="155" x2="101" y2="165" stroke="currentColor" stroke-width="1"/>
+<text x="101" y="182" font-size="12" text-anchor="middle" fill="currentColor">10</text>
+<line x1="162" y1="155" x2="162" y2="165" stroke="currentColor" stroke-width="1"/>
+<text x="162" y="182" font-size="12" text-anchor="middle" fill="currentColor">20</text>
+<line x1="223" y1="155" x2="223" y2="165" stroke="currentColor" stroke-width="1"/>
+<text x="223" y="182" font-size="12" text-anchor="middle" fill="currentColor">30</text>
+<line x1="284" y1="155" x2="284" y2="165" stroke="currentColor" stroke-width="1"/>
+<text x="284" y="182" font-size="12" text-anchor="middle" fill="currentColor">40</text>
+<line x1="345" y1="155" x2="345" y2="165" stroke="currentColor" stroke-width="1"/>
+<text x="345" y="182" font-size="12" text-anchor="middle" fill="currentColor">50</text>
+<line x1="406" y1="155" x2="406" y2="165" stroke="currentColor" stroke-width="1"/>
+<text x="406" y="182" font-size="12" text-anchor="middle" fill="currentColor">60</text>
+<line x1="467" y1="155" x2="467" y2="165" stroke="currentColor" stroke-width="1"/>
+<text x="467" y="182" font-size="12" text-anchor="middle" fill="currentColor">70</text>
+<line x1="528" y1="155" x2="528" y2="165" stroke="currentColor" stroke-width="1"/>
+<text x="528" y="182" font-size="12" text-anchor="middle" fill="currentColor">80</text>
+<line x1="589" y1="155" x2="589" y2="165" stroke="currentColor" stroke-width="1"/>
+<text x="589" y="182" font-size="12" text-anchor="middle" fill="currentColor">90</text>
+<rect x="40" y="146" width="54.9" height="28" rx="3" class="soft-acc acc" stroke-width="1.3"/>
+<text x="67.5" y="204" font-size="13" text-anchor="middle" fill="currentColor">baby steps 2^0 … 2^9</text>
+<circle cx="485.3" cy="160" r="5" fill="currentColor"/>
+<text x="485.3" y="146" font-size="12" text-anchor="middle" fill="currentColor">i=0</text>
+<path d="M485.29999999999995,120 Q454.79999999999995,76 424.29999999999995,126" stroke="currentColor" fill="none" stroke-width="1.3"/>
+<polygon points="424.3,131 421.1,124 427.4,124" fill="currentColor"/>
+<circle cx="424.3" cy="160" r="5" fill="currentColor"/>
+<text x="424.3" y="146" font-size="12" text-anchor="middle" fill="currentColor">i=1</text>
+<path d="M424.29999999999995,120 Q393.79999999999995,76 363.29999999999995,126" stroke="currentColor" fill="none" stroke-width="1.3"/>
+<polygon points="363.3,131 360.1,124 366.4,124" fill="currentColor"/>
+<circle cx="363.3" cy="160" r="5" fill="currentColor"/>
+<text x="363.3" y="146" font-size="12" text-anchor="middle" fill="currentColor">i=2</text>
+<path d="M363.29999999999995,120 Q332.79999999999995,76 302.3,126" stroke="currentColor" fill="none" stroke-width="1.3"/>
+<polygon points="302.3,131 299.2,124 305.4,124" fill="currentColor"/>
+<circle cx="302.3" cy="160" r="5" fill="currentColor"/>
+<text x="302.3" y="146" font-size="12" text-anchor="middle" fill="currentColor">i=3</text>
+<path d="M302.3,120 Q271.79999999999995,76 241.29999999999998,126" stroke="currentColor" fill="none" stroke-width="1.3"/>
+<polygon points="241.3,131 238.1,124 244.4,124" fill="currentColor"/>
+<circle cx="241.3" cy="160" r="5" fill="currentColor"/>
+<text x="241.3" y="146" font-size="12" text-anchor="middle" fill="currentColor">i=4</text>
+<path d="M241.29999999999998,120 Q210.79999999999998,76 180.29999999999998,126" stroke="currentColor" fill="none" stroke-width="1.3"/>
+<polygon points="180.3,131 177.1,124 183.4,124" fill="currentColor"/>
+<circle cx="180.3" cy="160" r="5" fill="currentColor"/>
+<text x="180.3" y="146" font-size="12" text-anchor="middle" fill="currentColor">i=5</text>
+<path d="M180.29999999999998,120 Q149.8,76 119.3,126" stroke="currentColor" fill="none" stroke-width="1.3"/>
+<polygon points="119.3,131 116.1,124 122.5,124" fill="currentColor"/>
+<circle cx="119.3" cy="160" r="5" fill="currentColor"/>
+<text x="119.3" y="146" font-size="12" text-anchor="middle" fill="currentColor">i=6</text>
+<path d="M119.3,120 Q88.8,76 58.3,126" stroke="currentColor" fill="none" stroke-width="1.3"/>
+<polygon points="58.3,131 55.1,124 61.4,124" fill="currentColor"/>
+<circle cx="58.3" cy="160" r="5" class="acc-fill"/>
+<text x="58.3" y="140" font-size="12" text-anchor="middle" class="acc-fill" font-weight="bold">i=7</text>
+<text x="495.3" y="100" font-size="13" text-anchor="start" fill="currentColor">start: 48 = 2^x, x unknown (it is 73)</text>
+<text x="271.8" y="62" font-size="12" text-anchor="middle" fill="currentColor">each giant step: × 2^-10, x drops by 10</text>
+</svg>
+<figcaption>Figure 12.8. Baby-step giant-step for 2^x ≡ 48 (mod 101), drawn on the exponent line. Each giant step multiplies by 2^-10 = 65 and so moves the unknown exponent down by 10; after 7 steps it lands on 3, inside the table.</figcaption>
+</figure>
+
 ```python
 from math import isqrt
 
@@ -394,6 +888,21 @@ Pollard's rho method (1978) gets the same time with almost no memory. Victor
 Shoup proved in 1997 that any algorithm that treats the group as a black box
 needs about $\sqrt N$ steps. So in a group with no exploitable structure, a
 256-bit group order gives about 128-bit security.
+
+Daniel Shanks, an American number theorist who had spent years at the US Navy's
+research laboratories before becoming a professor at the University of Maryland,
+published the method in 1971 as a tool for computing class numbers, a question in
+pure number theory. It was cryptography's luck that it applies to any group. John
+Pollard, a British mathematician at British Telecom's research laboratories who had
+already given factoring his $p - 1$ method (1974) and his rho method (1975), added
+the low-memory rho method for discrete logs in 1978. These generic attacks never retired:
+they set the yardstick. Every group in this book is sized so that $\sqrt N$ is out
+of reach.
+
+!!! note "Life story: baby-step giant-step"
+    **Born:** 1971, Daniel Shanks · **Purpose:** class-number computations in number theory · **Helped:** became
+    the standard generic discrete-log attack, with Pollard's rho (1978) as its low-memory partner · **Status:**
+    current, as an attack; Shoup's 1997 bound says nothing generic does better, so it fixes group sizes
 
 The integers mod $p$ do have structure: numbers factor into primes. The
 **number field sieve** uses that, and solves discrete logs mod $p$ in roughly the
@@ -489,6 +998,48 @@ what Alice sends, reads or changes it, and re-encrypts it for Bob. Neither sees
 anything wrong. No choice of group helps; this is a hole in the protocol, not
 in the mathematics. §12.9 fixes it.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 600 362" width="600" role="img" aria-label="Sequence chart of the man in the middle: Mallory swaps both public values for her own and ends up with a key shared with each side">
+<rect x="48" y="8" width="104" height="30" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="100" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Alice</text>
+<line x1="100" y1="38" x2="100" y2="356" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4" stroke-opacity="0.5"/>
+<rect x="248" y="8" width="104" height="30" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="300" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Mallory</text>
+<line x1="300" y1="38" x2="300" y2="356" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4" stroke-opacity="0.5"/>
+<rect x="448" y="8" width="104" height="30" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="500" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Bob</text>
+<line x1="500" y1="38" x2="500" y2="356" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4" stroke-opacity="0.5"/>
+<line x1="100" y1="100" x2="292" y2="100" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="300,100 292,103.6 292,96.4" fill="currentColor"/>
+<text x="200" y="93" font-size="13" text-anchor="middle" fill="currentColor">A = gᵃ</text>
+<line x1="300" y1="144" x2="492" y2="144" class="acc" stroke-width="1.5"/>
+<polygon points="500,144 492,147.6 492,140.4" class="acc-fill"/>
+<text x="400" y="137" font-size="13" text-anchor="middle" fill="currentColor">M = gᵐ  (as 'Alice')</text>
+<line x1="500" y1="188" x2="308" y2="188" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="300,188 308,184.4 308,191.6" fill="currentColor"/>
+<text x="400" y="181" font-size="13" text-anchor="middle" fill="currentColor">B = gᵇ</text>
+<line x1="300" y1="232" x2="108" y2="232" class="acc" stroke-width="1.5"/>
+<polygon points="100,232 108,228.4 108,235.6" class="acc-fill"/>
+<text x="200" y="225" font-size="13" text-anchor="middle" fill="currentColor">M = gᵐ  (as 'Bob')</text>
+<rect x="69.2" y="250" width="61.7" height="44" rx="5" style="fill:var(--md-default-bg-color)"/>
+<rect x="69.2" y="250" width="61.7" height="44" rx="5" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="100" y="267" font-size="13" text-anchor="middle" fill="currentColor">key Mᵃ</text>
+<text x="100" y="285" font-size="13" text-anchor="middle" fill="currentColor">= gᵃᵐ</text>
+<rect x="265.5" y="250" width="69" height="44" rx="5" style="fill:var(--md-default-bg-color)"/>
+<rect x="265.5" y="250" width="69" height="44" rx="5" class="soft-acc" stroke="currentColor" stroke-width="1.3"/>
+<text x="300" y="267" font-size="13" text-anchor="middle" fill="currentColor">has gᵃᵐ</text>
+<text x="300" y="285" font-size="13" text-anchor="middle" fill="currentColor">and gᵇᵐ</text>
+<rect x="469.2" y="250" width="61.7" height="44" rx="5" style="fill:var(--md-default-bg-color)"/>
+<rect x="469.2" y="250" width="61.7" height="44" rx="5" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="500" y="267" font-size="13" text-anchor="middle" fill="currentColor">key Mᵇ</text>
+<text x="500" y="285" font-size="13" text-anchor="middle" fill="currentColor">= gᵇᵐ</text>
+<rect x="50" y="310" width="500" height="26" rx="5" style="fill:var(--md-default-bg-color)"/>
+<rect x="50" y="310" width="500" height="26" rx="5" class="soft-acc" stroke="currentColor" stroke-width="1.3"/>
+<text x="300" y="327" font-size="13" text-anchor="middle" fill="currentColor">Mallory decrypts, reads, changes, re-encrypts</text>
+</svg>
+<figcaption>Figure 12.9. The man in the middle. Each side completes a correct exchange, but with Mallory. Nothing in the numbers says who sent them.</figcaption>
+</figure>
+
 ### Attack 2: forced values
 
 If Mallory replaces $A$ with $1$, Bob's "shared secret" is $1^b = 1$. With
@@ -572,6 +1123,62 @@ True True
 Sixteen fake messages and about 800,000 MAC computations recover a 250-bit
 secret in a few seconds. Two defenses, used together:
 
+<figure class="mars-fig">
+<svg viewBox="0 0 680 300" width="680" role="img" aria-label="Small-subgroup attack: for each small prime r Mallory sends an element of order r, Bob answers with a MAC, Mallory tries r keys and learns b mod r; the Chinese remainder theorem joins sixteen residues into b">
+<rect x="20" y="20" width="150" height="52" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="20" y="20" width="150" height="52" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="95" y="42.1" font-size="13" text-anchor="middle" fill="currentColor">1. send h of</text>
+<text x="95" y="59" font-size="13" text-anchor="middle" fill="currentColor">small order r</text>
+<rect x="20" y="100" width="150" height="52" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="20" y="100" width="150" height="52" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="95" y="122.1" font-size="13" text-anchor="middle" fill="currentColor">2. Bob replies</text>
+<text x="95" y="139" font-size="13" text-anchor="middle" fill="currentColor">MAC under hᵇ</text>
+<rect x="20" y="180" width="150" height="52" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="20" y="180" width="150" height="52" rx="6" class="soft-acc acc" stroke-width="1.3"/>
+<text x="95" y="202.1" font-size="13" text-anchor="middle" fill="currentColor">3. try all r keys</text>
+<text x="95" y="219" font-size="13" text-anchor="middle" fill="currentColor">→ b mod r</text>
+<line x1="95" y1="72" x2="95" y2="90" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="95,98 91.4,90 98.6,90" fill="currentColor"/>
+<line x1="95" y1="152" x2="95" y2="170" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="95,178 91.4,170 98.6,170" fill="currentColor"/>
+<path d="M170,206 C 215,206 215,46 172,46" stroke="currentColor" fill="none" stroke-width="1.3"/>
+<polygon points="172,46 179,42.9 179,49.1" fill="currentColor"/>
+<text x="240" y="130" font-size="12" text-anchor="start" fill="currentColor">repeat for</text>
+<text x="240" y="146" font-size="12" text-anchor="start" fill="currentColor">16 primes</text>
+<rect x="330" y="30" width="140" height="34" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="330" y="30" width="140" height="34" rx="6" class="soft-acc" stroke="currentColor" stroke-width="1.3"/>
+<text x="400" y="51.5" font-size="13" text-anchor="middle" fill="currentColor">b mod 30631</text>
+<line x1="470" y1="47" x2="544.1" y2="135.4" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="548,140 542.1,137.1 546.2,133.7" fill="currentColor"/>
+<rect x="330" y="76" width="140" height="34" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="330" y="76" width="140" height="34" rx="6" class="soft-acc" stroke="currentColor" stroke-width="1.3"/>
+<text x="400" y="97.5" font-size="13" text-anchor="middle" fill="currentColor">b mod 31663</text>
+<line x1="470" y1="93" x2="542.9" y2="136.9" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="548,140 541.5,139.2 544.3,134.6" fill="currentColor"/>
+<rect x="330" y="122" width="140" height="34" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="330" y="122" width="140" height="34" rx="6" class="soft-acc" stroke="currentColor" stroke-width="1.3"/>
+<text x="400" y="143.6" font-size="13" text-anchor="middle" fill="currentColor">b mod 32869</text>
+<line x1="470" y1="139" x2="542" y2="139.9" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="548,140 542,142.6 542,137.2" fill="currentColor"/>
+<rect x="330" y="168" width="140" height="34" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="330" y="168" width="140" height="34" rx="6" fill="none" stroke="currentColor" stroke-width="1.3"/>
+<text x="400" y="189.6" font-size="13" text-anchor="middle" fill="currentColor">…</text>
+<line x1="470" y1="185" x2="542.8" y2="143" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="548,140 544.2,145.3 541.5,140.7" fill="currentColor"/>
+<rect x="330" y="214" width="140" height="34" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="330" y="214" width="140" height="34" rx="6" class="soft-acc" stroke="currentColor" stroke-width="1.3"/>
+<text x="400" y="235.6" font-size="13" text-anchor="middle" fill="currentColor">b mod r₁₆</text>
+<line x1="470" y1="231" x2="544.1" y2="144.6" stroke="currentColor" stroke-width="1.1"/>
+<polygon points="548,140 546.1,146.3 542,142.8" fill="currentColor"/>
+<rect x="550" y="115" width="110" height="50" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="550" y="115" width="110" height="50" rx="6" class="soft-acc acc" stroke-width="1.3"/>
+<text x="605" y="135.8" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">CRT</text>
+<text x="605" y="154" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">→ b</text>
+<text x="340" y="284" font-size="13" text-anchor="middle" fill="currentColor">each piece costs at most r &lt; 70,000 MAC trials</text>
+</svg>
+<figcaption>Figure 12.10. The small-subgroup attack of the code above. Each fake value pins down Bob's secret modulo one small prime; the Chinese remainder theorem glues the pieces back together.</figcaption>
+</figure>
+
 - **Use a group with no small subgroups to exploit.** With a safe prime
   $p = 2q + 1$, the only subgroups have sizes 1, 2, $q$ and $2q$. Or use a
   **Schnorr group**: a subgroup of large prime order $q$ inside $\mathbb{Z}_p^*$,
@@ -579,6 +1186,12 @@ secret in a few seconds. Two defenses, used together:
 - **Validate.** Check $Y^q \equiv 1 \pmod p$, so $Y$ lies in the prime-order
   subgroup. Or use a fresh $b$ for every exchange, so there is nothing to
   accumulate.
+
+!!! note "Life story: the small-subgroup attack"
+    **Born:** 1997, Chae Hoon Lim and Pil Joong Lee (building on Pohlig and Hellman, 1978) · **Purpose:** an
+    attack on protocols that reuse a secret exponent with unchecked inputs · **Impact:** made prime-order groups
+    and input validation standard practice; it returns in new clothes as the invalid-curve attack of
+    [Chapter 15](15-Elliptic-Curves.md) · **Status:** defeated by safe primes or Schnorr groups plus validation
 
 ### Attack 4: Logjam, weak and shared primes
 
@@ -595,6 +1208,46 @@ team could compute individual discrete logs in about a minute, fast enough to
 finish before the handshake timed out. Around 8% of the top million HTTPS sites
 supported export DH.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 398" width="640" role="img" aria-label="Sequence chart of the Logjam downgrade: the attacker rewrites the client's offer to export-grade Diffie-Hellman, the server signs a 512-bit group, the attacker solves the discrete log and completes the handshake">
+<rect x="38" y="8" width="104" height="30" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="90" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Client</text>
+<line x1="90" y1="38" x2="90" y2="392" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4" stroke-opacity="0.5"/>
+<rect x="268" y="8" width="104" height="30" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="320" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">MITM</text>
+<line x1="320" y1="38" x2="320" y2="392" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4" stroke-opacity="0.5"/>
+<rect x="498" y="8" width="104" height="30" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="550" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Server</text>
+<line x1="550" y1="38" x2="550" y2="392" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4" stroke-opacity="0.5"/>
+<line x1="90" y1="100" x2="312" y2="100" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="320,100 312,103.6 312,96.4" fill="currentColor"/>
+<text x="205" y="93" font-size="13" text-anchor="middle" fill="currentColor">ClientHello: normal DHE suites</text>
+<line x1="320" y1="144" x2="542" y2="144" class="acc" stroke-width="1.5"/>
+<polygon points="550,144 542,147.6 542,140.4" class="acc-fill"/>
+<text x="435" y="137" font-size="13" text-anchor="middle" fill="currentColor">ClientHello: DHE_EXPORT only</text>
+<line x1="550" y1="204" x2="328" y2="204" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="320,204 328,200.4 328,207.6" fill="currentColor"/>
+<text x="435" y="181" font-size="13" text-anchor="middle" fill="currentColor">512-bit p, g, gʸ</text>
+<text x="435" y="197" font-size="13" text-anchor="middle" fill="currentColor">+ signature (not over the suite)</text>
+<line x1="320" y1="248" x2="98" y2="248" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="90,248 98,244.4 98,251.6" fill="currentColor"/>
+<text x="205" y="241" font-size="13" text-anchor="middle" fill="currentColor">passed on unchanged</text>
+<rect x="33.7" y="266" width="112.6" height="44" rx="5" style="fill:var(--md-default-bg-color)"/>
+<rect x="33.7" y="266" width="112.6" height="44" rx="5" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="90" y="283" font-size="13" text-anchor="middle" fill="currentColor">accepts a</text>
+<text x="90" y="301" font-size="13" text-anchor="middle" fill="currentColor">512-bit group</text>
+<rect x="230.9" y="266" width="178.2" height="62" rx="5" style="fill:var(--md-default-bg-color)"/>
+<rect x="230.9" y="266" width="178.2" height="62" rx="5" class="soft-acc" stroke="currentColor" stroke-width="1.3"/>
+<text x="320" y="283" font-size="13" text-anchor="middle" fill="currentColor">log of gʸ in about</text>
+<text x="320" y="301" font-size="13" text-anchor="middle" fill="currentColor">a minute (after a week</text>
+<text x="320" y="319" font-size="13" text-anchor="middle" fill="currentColor">per prime, done once)</text>
+<line x1="320" y1="370" x2="98" y2="370" class="acc" stroke-width="1.5"/>
+<polygon points="90,370 98,366.4 98,373.6" class="acc-fill"/>
+<text x="205" y="363" font-size="13" text-anchor="middle" fill="currentColor">forged Finished: handshake completes</text>
+</svg>
+<figcaption>Figure 12.11. Logjam's downgrade. The server's signature covered the group but not the cipher suite, so the client could not tell that its request had been rewritten.</figcaption>
+</figure>
+
 The second was an observation about scale. Most servers used one of a handful
 of hard-coded 1024-bit primes. A 1024-bit precomputation is far beyond
 academics but, the authors estimated, within reach of a national agency's
@@ -606,6 +1259,17 @@ scanned.
 The fixes: remove export suites, use at least 2048-bit groups, and prefer the
 named groups of RFC 7919 (or elliptic curves) whose primes were generated in a
 verifiable way. Over the following years browsers stopped offering finite-field DH in TLS altogether.
+
+The Logjam team came from universities and research labs in the United States and
+France. Their internet-wide scans turned a known theoretical worry (the export
+suites had been obsolete since US export rules were relaxed in 2000) into a
+measured, fixable problem.
+
+!!! note "Life story: Logjam"
+    **Born:** May 2015, David Adrian and thirteen co-authors · **Purpose:** show how finite-field Diffie-Hellman
+    fails in practice: export-grade downgrade plus shared, precomputable primes · **Impact:** browsers rejected
+    groups under 1024 bits, then dropped finite-field DHE in TLS; export suites were removed everywhere · **Lesson:**
+    one shared prime is one shared target
 
 ## 12.9 Authentication: who is on the other end?
 
@@ -623,6 +1287,39 @@ Mallory can still replace $A$ with $M$, but then Bob signs $(M, B)$, and Alice,
 who sent $A$, rejects it. To forge a signature on the right pair she would need
 Bob's private signing key.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 520 350" width="520" role="img" aria-label="Sequence chart of signed Diffie-Hellman: each side signs both public values with a certified key">
+<rect x="78" y="8" width="104" height="30" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="130" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Alice</text>
+<line x1="130" y1="38" x2="130" y2="344" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4" stroke-opacity="0.5"/>
+<rect x="338" y="8" width="104" height="30" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="390" y="28" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Bob</text>
+<line x1="390" y1="38" x2="390" y2="344" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4" stroke-opacity="0.5"/>
+<line x1="130" y1="100" x2="382" y2="100" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="390,100 382,103.6 382,96.4" fill="currentColor"/>
+<text x="260" y="93" font-size="13" text-anchor="middle" fill="currentColor">A = gᵃ</text>
+<line x1="390" y1="160" x2="138" y2="160" class="acc" stroke-width="1.5"/>
+<polygon points="130,160 138,156.4 138,163.6" class="acc-fill"/>
+<text x="260" y="137" font-size="13" text-anchor="middle" fill="currentColor">B = gᵇ, cert_Bob,</text>
+<text x="260" y="153" font-size="13" text-anchor="middle" fill="currentColor">Sign_Bob(A, B)</text>
+<rect x="73.7" y="178" width="112.6" height="44" rx="5" style="fill:var(--md-default-bg-color)"/>
+<rect x="73.7" y="178" width="112.6" height="44" rx="5" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="130" y="195" font-size="13" text-anchor="middle" fill="currentColor">checks cert</text>
+<text x="130" y="213" font-size="13" text-anchor="middle" fill="currentColor">and signature</text>
+<line x1="130" y1="280" x2="382" y2="280" class="acc" stroke-width="1.5"/>
+<polygon points="390,280 382,283.6 382,276.4" class="acc-fill"/>
+<text x="260" y="257" font-size="13" text-anchor="middle" fill="currentColor">cert_Alice,</text>
+<text x="260" y="273" font-size="13" text-anchor="middle" fill="currentColor">Sign_Alice(A, B)</text>
+<rect x="77.3" y="298" width="105.4" height="26" rx="5" style="fill:var(--md-default-bg-color)"/>
+<rect x="77.3" y="298" width="105.4" height="26" rx="5" class="soft-acc" stroke="currentColor" stroke-width="1.3"/>
+<text x="130" y="315" font-size="13" text-anchor="middle" fill="currentColor">key from gᵃᵇ</text>
+<rect x="337.3" y="298" width="105.4" height="26" rx="5" style="fill:var(--md-default-bg-color)"/>
+<rect x="337.3" y="298" width="105.4" height="26" rx="5" class="soft-acc" stroke="currentColor" stroke-width="1.3"/>
+<text x="390" y="315" font-size="13" text-anchor="middle" fill="currentColor">key from gᵃᵇ</text>
+</svg>
+<figcaption>Figure 12.12. Signed Diffie-Hellman in the station-to-station shape. A swapped value no longer matches what the other side signed.</figcaption>
+</figure>
+
 This is the **station-to-station protocol** of Whitfield Diffie, Paul van
 Oorschot and Michael Wiener (1992), in simplified form. Hugo Krawczyk's SIGMA
 family (2003) refined it, and it is the shape of the TLS 1.3 handshake: the
@@ -630,6 +1327,11 @@ server signs a hash of the whole handshake transcript, including both key
 shares. [Chapter 16](16-PKI-and-Key-Establishment.md) explains how Alice knows
 the signing key really is Bob's, and [Chapter 19](19-Protocols.md) walks
 through TLS.
+
+!!! note "Life story: signed Diffie-Hellman (STS and SIGMA)"
+    **Born:** 1992, Whitfield Diffie, Paul van Oorschot and Michael Wiener (station-to-station); refined by Hugo Krawczyk's SIGMA in 2003 · **Purpose:** stop the man in the middle
+    by binding each exchange to certified identities · **Helped:** the design behind IKE in IPsec and the TLS 1.3
+    handshake · **Status:** current
 
 The signatures add **authentication**. The Diffie-Hellman part adds something a
 signature cannot: **forward secrecy**. If Alice and Bob throw away $a$ and $b$
@@ -644,6 +1346,12 @@ hashing it, so the hash runs slightly faster when the secret starts with a zero
 byte. A server that reused its secret exponent leaked, through timing, whether
 $g^{ab}$ for a victim's connection began with zeros. With enough related
 connections that was enough to recover the secret. TLS 1.3 keeps the zeros.
+
+!!! note "Life story: Raccoon"
+    **Born:** September 2020, Robert Merget, Marcus Brinkmann, Nimrod Aviram, Juraj Somorovsky, Johannes Mittmann
+    and Jörg Schwenk · **Purpose:** a timing attack on TLS 1.2 servers that reuse a Diffie-Hellman exponent ·
+    **Impact:** hard to exploit in practice, but it showed one more reason to use fresh exponents and fixed-length
+    secrets · **Fixed by:** TLS 1.3's key schedule, and libraries refusing to reuse DH secrets
 
 ## 12.10 In the real world
 
@@ -676,6 +1384,32 @@ first thing being moved to hybrids.
 Diffie and Merkle); it expired in 1997. Hellman has asked that the exchange be
 called Diffie-Hellman-Merkle. Diffie and Hellman received the Turing Award for
 2015.
+
+Diffie and Hellman's paper did more than describe one protocol. It named the
+problems (public-key encryption, digital signatures, one-way trapdoor functions)
+that the next two chapters solve, and it opened cryptography as an academic field
+in the United States. The NSA did not welcome that: in 1977 a letter to the IEEE
+from one of its employees, Joseph Meyer, warned that publishing such work might
+break arms-export law. Stanford's lawyers told Hellman that his students could be
+at risk if they presented their papers, so at a symposium at Cornell that October
+he presented them himself. Nothing came of the threat, and open research went on.
+
+The exchange then spread into almost everything: SSL 3.0's ephemeral "DHE"
+suites (1996), version 2 of SSH (designed from 1996), IPsec's key exchange (1998), and through its elliptic-curve
+form into TLS 1.3, Signal and WireGuard. Its finite-field form is now mostly
+retired from the web in favor of X25519, but the idea has not aged at all: every
+modern key exchange, including the post-quantum KEMs of
+[Chapter 21](21-Lattice-Cryptography.md), still answers the question Diffie was
+asking in 1974.
+
+!!! note "Life story: Diffie-Hellman key exchange"
+    **Born:** 1976, Whitfield Diffie and Martin Hellman at Stanford, with Ralph Merkle (found in secret at GCHQ by
+    Malcolm Williamson in 1974) · **Purpose:** let two strangers agree on a secret key over a public line ·
+    **Helped:** made key distribution automatic for SSH, SSL/TLS, IPsec and messaging; gave forward secrecy ·
+    **Weakened:** 512-bit export groups broken by Logjam (2015); 1024-bit groups now considered within a nation's
+    reach · **Status:** current at 2048 bits and up, mostly replaced on the web by X25519
+    ([Chapter 15](15-Elliptic-Curves.md)); deprecated by NIST after 2030 because of quantum computers, with
+    hybrid ML-KEM as the successor
 
 Full details: [Diffie-Hellman reference](../01-key-exchange/Diffie-Hellman.md),
 [Hard problems](../10-math-foundations/Hard-Problems.md).
@@ -713,6 +1447,63 @@ The only $x$ below 30 with those three remainders is $x = 5$, and
 $3^5 = 243 = 7 \cdot 31 + 26$. Each piece needed a search through at most five
 values.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 270" width="640" role="img" aria-label="Pohlig-Hellman tree: the equation 3^x = 26 mod 31 splits into equations mod 2, 3 and 5 with answers 1, 2 and 0, which the Chinese remainder theorem joins into x = 5">
+<rect x="200" y="14" width="240" height="44" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="200" y="14" width="240" height="44" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="320" y="40.5" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">3^x ≡ 26 (mod 31), order 30</text>
+<line x1="320" y1="58" x2="117.9" y2="90.7" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="110,92 117.3,87.2 118.5,94.3" fill="currentColor"/>
+<rect x="25" y="94" width="170" height="48" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="25" y="94" width="170" height="48" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="110" y="114.1" font-size="13" text-anchor="middle" fill="currentColor">raise to 15</text>
+<text x="110" y="131" font-size="13" text-anchor="middle" fill="currentColor">30^x = 30</text>
+<line x1="110" y1="142" x2="110" y2="160" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="110,168 106.4,160 113.6,160" fill="currentColor"/>
+<rect x="40" y="170" width="140" height="32" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="40" y="170" width="140" height="32" rx="6" class="soft-acc acc" stroke-width="1.3"/>
+<text x="110" y="190.6" font-size="13" text-anchor="middle" fill="currentColor">x ≡ 1 (mod 2)</text>
+<line x1="110" y1="202" x2="312.1" y2="225.1" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="320,226 311.6,228.7 312.5,221.5" fill="currentColor"/>
+<line x1="320" y1="58" x2="320" y2="84" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="320,92 316.4,84 323.6,84" fill="currentColor"/>
+<rect x="235" y="94" width="170" height="48" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="235" y="94" width="170" height="48" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="320" y="114.1" font-size="13" text-anchor="middle" fill="currentColor">raise to 10</text>
+<text x="320" y="131" font-size="13" text-anchor="middle" fill="currentColor">25^x = 5</text>
+<line x1="320" y1="142" x2="320" y2="160" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="320,168 316.4,160 323.6,160" fill="currentColor"/>
+<rect x="250" y="170" width="140" height="32" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="250" y="170" width="140" height="32" rx="6" class="soft-acc acc" stroke-width="1.3"/>
+<text x="320" y="190.6" font-size="13" text-anchor="middle" fill="currentColor">x ≡ 2 (mod 3)</text>
+<line x1="320" y1="202" x2="320" y2="218" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="320,226 316.4,218 323.6,218" fill="currentColor"/>
+<line x1="320" y1="58" x2="522.1" y2="90.7" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="530,92 521.5,94.3 522.7,87.2" fill="currentColor"/>
+<rect x="445" y="94" width="170" height="48" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="445" y="94" width="170" height="48" rx="6" class="soft" stroke="currentColor" stroke-width="1.3"/>
+<text x="530" y="114.1" font-size="13" text-anchor="middle" fill="currentColor">raise to 6</text>
+<text x="530" y="131" font-size="13" text-anchor="middle" fill="currentColor">16^x = 1</text>
+<line x1="530" y1="142" x2="530" y2="160" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="530,168 526.4,160 533.6,160" fill="currentColor"/>
+<rect x="460" y="170" width="140" height="32" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="460" y="170" width="140" height="32" rx="6" class="soft-acc acc" stroke-width="1.3"/>
+<text x="530" y="190.6" font-size="13" text-anchor="middle" fill="currentColor">x ≡ 0 (mod 5)</text>
+<line x1="530" y1="202" x2="327.9" y2="225.1" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="320,226 327.5,221.5 328.4,228.7" fill="currentColor"/>
+<rect x="250" y="228" width="140" height="34" rx="6" style="fill:var(--md-default-bg-color)"/>
+<rect x="250" y="228" width="140" height="34" rx="6" class="soft-acc acc" stroke-width="1.3"/>
+<text x="320" y="249.9" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">CRT: x = 5</text>
+</svg>
+<figcaption>Figure 12.13. Pohlig-Hellman on the example: one search in a group of 30 becomes three searches in groups of 2, 3 and 5. The cost is set by the largest prime factor of the order.</figcaption>
+</figure>
+
+!!! note "Life story: the Pohlig-Hellman algorithm"
+    **Born:** 1978, Stephen Pohlig (Hellman's student) and Martin Hellman, Stanford · **Purpose:** solve discrete
+    logs fast whenever the group order has only small prime factors · **Impact:** explains why every standard group
+    has a large prime-order subgroup (safe primes, DSA parameters, prime-order curves) · **Status:** current, as
+    the reason group orders are chosen with care
+
 This is why every standard group has a prime-order subgroup of at least 224 or
 256 bits: a safe prime makes $q = (p-1)/2$ prime, and DSA-style parameters pick
 $p$ so that $p - 1$ has a chosen prime factor $q$.
@@ -748,6 +1539,12 @@ even one precomputation is out of reach. Special primes, such as those close to 
 power of 2, can admit a faster "special" number field sieve; that is one
 reason standard groups take their bits from $\pi$ or $e$, which have no known
 relation to such shortcuts.
+
+!!! note "Life story: the number field sieve for discrete logs"
+    **Born:** 1993, Daniel Gordon, adapting the factoring sieve of John Pollard and others (1988 to 1990) ·
+    **Purpose:** the fastest known way to take discrete logs modulo a large prime · **Impact:** sets the size of
+    finite-field groups (2048 bits and up), powered the Logjam precomputation and every record, most recently
+    795 bits (2019) · **Status:** current, the attack every finite-field parameter is measured against
 
 ### Trapdoored primes
 
