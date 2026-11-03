@@ -412,3 +412,15 @@
 .timeline-sort { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; text-decoration: underline dotted; }
 .timeline-sort:hover, .timeline-sort:focus-visible { color: var(--md-accent-fg-color); }
 .timeline-hint { font-size: .85em; opacity: .8; }
+
+/* Book figures (Jim, 3 Nov 2026: "put images diagrams etc to illustrate as much as possible").
+   <figure class="mars-fig"><svg ...>...</svg><figcaption>...</figcaption></figure>
+   Lines and text use currentColor so they follow the light and dark themes; highlights use the accent. */
+.md-typeset figure.mars-fig { margin: 1.6em auto; text-align: center; max-width: 100%; }
+.md-typeset figure.mars-fig svg { display: block; margin: 0 auto; max-width: 100%; height: auto; overflow: visible; }
+.md-typeset figure.mars-fig svg text { font-family: var(--md-text-font-family, inherit); }
+.md-typeset figure.mars-fig figcaption { margin-top: .7em; font-size: .78rem; font-style: italic; opacity: .85; max-width: 46rem; margin-left: auto; margin-right: auto; }
+.md-typeset figure.mars-fig .acc { stroke: var(--md-accent-fg-color); }
+.md-typeset figure.mars-fig .acc-fill { fill: var(--md-accent-fg-color); }
+.md-typeset figure.mars-fig .soft { fill: currentColor; fill-opacity: .08; }
+.md-typeset figure.mars-fig .soft-acc { fill: var(--md-accent-fg-color); fill-opacity: .18; }
