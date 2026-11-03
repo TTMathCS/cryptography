@@ -30,6 +30,14 @@ for NIST-specified primitives (Class N) and others such as zero-knowledge
 proofs and FHE (Class S). Teams presented previews through 2026; no
 standard has come out of it yet.
 
+## The story
+
+- **Who made it:** Yvo Desmedt (1987) and Desmedt and Frankel (1989) first; Gennaro, Jarecki, Krawczyk and Rabin for DSS (1996); Gennaro and Goldfeder for ECDSA (2018); Komlo and Goldberg's FROST (2020).
+- **What for:** Signing with a key that is never in one place.
+- **What it solved:** No single stolen server or device can sign.
+- **Where it stands:** Used heavily by crypto-currency custodians and for some certificate authority keys; FROST is RFC 9591 (2024).
+- **Incidents:** **2023:** Verichains (TSSHOCK) and Fireblocks (BitForge) found flaws in widely used threshold ECDSA libraries that let one participant steal the whole key from the others.
+
 ## How it works
 
 ### FROST

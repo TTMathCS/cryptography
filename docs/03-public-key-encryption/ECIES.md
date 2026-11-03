@@ -25,6 +25,14 @@ It was standardized several times, each with its own menu:
 | IEEE 1363a | 2004 | amendment to IEEE 1363-2000 |
 | ISO/IEC 18033-2 | 2006 | split into ECIES-KEM plus a separate DEM (cipher and MAC) |
 
+## The story
+
+- **Who made it:** Michel Abdalla, Mihir Bellare and Phillip Rogaway (DHAES, 1999); Victor Shoup's work shaped the ISO version.
+- **What for:** Encrypting a message of any length to someone's elliptic-curve public key, safely.
+- **What it solved:** ElGamal's limits: it handles only short messages and can be tampered with. ECIES hashes the shared secret into keys for a cipher and a MAC, so it handles any length and rejects modified ciphertexts.
+- **Where it stands:** Still used (Ethereum's network layer, many apps and smart cards), but each standard picked different parts, so versions rarely work together. New designs use [HPKE](HPKE.md).
+- **Incidents:** Implementations that skipped point validation were open to invalid-curve attacks, as with ECDH. The many incompatible choices are the main reason HPKE was written.
+
 ## How it works
 
 The recipient has a key pair $(d, Q = d \cdot G)$. To encrypt $M$ (SEC 1 form):

@@ -11,6 +11,14 @@ proof. Pocklington's theorem (1914) gives a definitive proof, provided you can
 factor a large enough part of $n - 1$. It's the classic tool for proving the
 primality of numbers with special structure, where $n - 1$ factors easily.
 
+## The story
+
+- **Who made it:** Henry Cabourn Pocklington, an English physicist and mathematician, 1914; extended by Derrick Lehmer in 1927.
+- **What for:** Proving, not just testing, that a number is prime.
+- **What it solved:** Probabilistic tests leave a tiny doubt; Pocklington gives a certificate anyone can check.
+- **Where it stands:** Used to make provable primes, for example in FIPS 186's Shawe-Taylor method.
+- **Incidents:** Not applicable.
+
 ## How it works
 
 Write $n - 1 = F \cdot R$ where $F$ is the part you've fully factored. Pocklington's

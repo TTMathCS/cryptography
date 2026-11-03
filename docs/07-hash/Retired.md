@@ -12,6 +12,37 @@ digest back to an input) hold out much longer, which is why HMAC built on
 these hashes lasted. For new work use [SHA-256](SHA-2.md), [SHA-3](SHA-3.md)
 or [BLAKE2](BLAKE.md).
 
+## The story
+
+### MD4 {#story-md4}
+
+- **Who made it:** Ron Rivest at MIT, 1990.
+- **What for:** A fast hash for 32-bit computers.
+- **What it solved:** It set the pattern that MD5, SHA-1 and SHA-2 followed.
+- **Why it was retired:** Hans Dobbertin found collisions in 1996; Wang Xiaoyun's team in 2004 found them by hand.
+- **Incidents:** It lives on in NTLM password hashes in Windows, which is one reason they are cracked so easily.
+### MD5 {#story-md5}
+
+- **Who made it:** Ron Rivest, 1991; RFC 1321 (1992).
+- **What for:** A stronger MD4.
+- **What it solved:** For a decade it was the hash for file checks, passwords and certificates.
+- **Why it was retired:** Collisions. Wang Xiaoyun, Feng Dengguo, Lai Xuejia and Yu Hongbo of Shandong University announced them at CRYPTO 2004.
+- **Incidents:** **Rogue CA (2008):** Sotirov, Stevens and others used 200 PlayStation 3s to forge a certificate authority. **Flame (2012):** state-made malware used a new MD5 collision to forge a Microsoft signature and spread through Windows Update.
+### SHA-1 {#story-sha-1}
+
+- **Who made it:** The NSA; SHA-0 in 1993, then SHA-1 in 1995 with one change the NSA did not explain.
+- **What for:** The US federal hash, for DSA.
+- **What it solved:** It became the hash of the internet for 20 years: certificates, Git, PGP.
+- **Why it was retired:** Wang's team showed attacks in 2005. SHAttered (Google and CWI, February 2017) gave the first real collision. NIST will stop allowing it after 2030.
+- **Incidents:** **SHAttered (2017):** two different PDFs with the same SHA-1. **"SHA-1 is a Shambles" (2020):** Leurent and Peyrin made a chosen-prefix collision for about $45,000 and forged a PGP key. Browsers stopped accepting SHA-1 certificates in 2017.
+### RIPEMD-160 {#story-ripemd-160}
+
+- **Who made it:** Hans Dobbertin, Antoon Bosselaers and Bart Preneel, 1996, from the European RIPE project.
+- **What for:** An open European alternative to SHA-1.
+- **What it solved:** It fixed the original RIPEMD (1992), which Wang's team broke in 2004.
+- **Why it was retired:** Not broken, but its 160 bits are small now.
+- **Incidents:** It is in every Bitcoin address, so it will be around a long time.
+
 ## SHA-1
 
 **What it was.** The NSA's 160-bit hash, published by NIST as FIPS 180-1 in

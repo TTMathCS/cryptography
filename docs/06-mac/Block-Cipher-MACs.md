@@ -16,6 +16,14 @@ radio chip in a phone.
 - **GMAC** is GCM with nothing to encrypt: a polynomial hash over
   $\mathrm{GF}(2^{128})$, masked with AES of a nonce.
 
+## The story
+
+- **Who made it:** CBC-MAC came from banking (ANSI X9.9, 1986, and FIPS 113, 1985). Black and Rogaway's XCBC (2000) and Iwata and Kurosawa's OMAC (2003) fixed it, and NIST standardized OMAC as CMAC (SP 800-38B, 2005). GMAC is McGrew and Viega's GCM without the encryption.
+- **What for:** MACs for hardware that has a block cipher and nothing else.
+- **What it solved:** Plain CBC-MAC is forgeable when messages vary in length; CMAC is safe for any length.
+- **Where it stands:** CMAC is recommended in payment systems, smart cards and 5G; GMAC where GCM hardware exists.
+- **Incidents:** Systems that used plain CBC-MAC with variable lengths, or the same key for encrypting and MACing, could be forged; that is why CMAC exists.
+
 ## How it works
 
 ### CBC-MAC, and why it fails

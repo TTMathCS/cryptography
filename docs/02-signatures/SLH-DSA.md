@@ -40,6 +40,14 @@ Signing is slow. In the SPHINCS+ round-3 benchmarks (AVX2 desktop) it took
 about 650 million cycles with SHA2-128s, a fifth of a second at 3 GHz, and 34
 million with SHA2-128f. Verifying took 1 to 2 million.
 
+## The story
+
+- **Who made it:** Andreas Hülsing and a large team (SPHINCS+, 2017), building on SPHINCS (Bernstein and others, 2015), which builds on Ralph Merkle's hash trees (1979) and Leslie Lamport's one-time signatures (1979).
+- **What for:** A quantum-safe signature that relies on nothing but a hash function.
+- **What it solved:** If lattices ever fall, SLH-DSA still stands: a hash function is the most studied tool in the field. It also needs no counter to keep, unlike LMS and XMSS.
+- **Where it stands:** Approved as FIPS 205 (August 2024). Its large signatures (8 to 50 KB) and slow signing make it a backup or for things signed rarely, such as root certificates and firmware.
+- **Incidents:** During the competition, Perlner, Kelsey and Cooper (2022) found that the SHA-256 versions fell short at the higher security levels, because SHA-256's internal state is only 256 bits. FIPS 205 switched those levels to SHA-512.
+
 ## How it works
 
 Three hash-based parts, all regenerated from a secret seed when needed:

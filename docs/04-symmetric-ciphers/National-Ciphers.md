@@ -16,6 +16,37 @@ Korea, China and Russia each have one. All four have a 128-bit block, so
 they fit the usual modes (GCM, CCM, CBC, CTR) without the birthday-bound
 trouble of the [old 64-bit ciphers](Retired.md#64-bit-block-ciphers).
 
+## The story
+
+### Camellia {#story-camellia}
+
+- **Who made it:** NTT and Mitsubishi Electric, Japan, 2000.
+- **What for:** A Japanese cipher of AES quality, listed by Japan's CRYPTREC and the EU's NESSIE project.
+- **What it solved:** It gave Japanese government and industry a choice evaluated at home, and is in TLS and IPsec as an alternative.
+- **Where it stands:** Acceptable and unbroken; little used outside Japan.
+- **Incidents:** None known.
+### ARIA and SEED {#story-aria-and-seed}
+
+- **Who made it:** Korean researchers led by the National Security Research Institute, 2003; Korea's earlier cipher SEED came from KISA in 1998.
+- **What for:** A national cipher for Korea's government and banks.
+- **What it solved:** In the late 1990s US export rules limited the browsers Koreans could get to weak 40-bit encryption, so Korea wrote SEED and required it for online banking.
+- **Where it stands:** ARIA is the Korean standard (KS X 1213) and in TLS. The SEED requirement came at a cost: for years Korean banking needed Internet Explorer and ActiveX plug-ins, until the rules eased after 2014.
+- **Incidents:** None in the ciphers. The plug-ins required to run SEED in browsers were themselves a long-running security problem.
+### SM4 {#story-sm4}
+
+- **Who made it:** China's State Cryptography Administration; published in 2006 for WAPI, standardized as GB/T 32907-2016 and ISO/IEC 18033-3 in 2021.
+- **What for:** A national block cipher for Chinese wireless networks and, later, all commercial use in China.
+- **What it solved:** It gave China a cipher under its own standards. China proposed WAPI to ISO as a rival to Wi-Fi's security, but ISO chose the IEEE design in 2006.
+- **Where it stands:** Required in China alongside SM2 (signatures) and SM3 (hash); supported by OpenSSL, Linux and Arm and Intel chips.
+- **Incidents:** None known in the cipher.
+### Kuznyechik {#story-kuznyechik}
+
+- **Who made it:** Russia's FSB and the Technical Committee for Standardization; GOST R 34.12-2015. Its 64-bit predecessor Magma goes back to the Soviet GOST 28147-89.
+- **What for:** A Russian national cipher for government and banking.
+- **What it solved:** It replaced the old 64-bit GOST cipher with a modern 128-bit design.
+- **Where it stands:** Used in Russia; not adopted widely elsewhere.
+- **Incidents:** In 2016 Biryukov, Perrin and Udovenko found that its S-box, said to be random, has a hidden mathematical structure; Léo Perrin later described it in full. No attack follows from it, but nobody has explained why it is there.
+
 ## How it works
 
 | Cipher | Country | Public since | Key (bits) | Structure | Rounds |

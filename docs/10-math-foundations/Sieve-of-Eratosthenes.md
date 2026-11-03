@@ -11,6 +11,14 @@ each prime as composite and collects what remains. It's the right tool when you
 want *many* small primes at once; for testing a single huge number, use
 [Miller-Rabin](Miller-Rabin-Primality-Test.md) instead.
 
+## The story
+
+- **Who made it:** Eratosthenes of Cyrene (about 276 to 194 BC), head of the Library of Alexandria, who also measured the size of the Earth. Our earliest written account is in Nicomachus of Gerasa's *Introduction to Arithmetic* (about AD 100).
+- **What for:** Listing all primes up to a limit.
+- **What it solved:** Testing numbers one by one is slow; the sieve crosses out multiples so each composite is handled by its smallest primes.
+- **Where it stands:** Still the way to list small primes. Key generators use a sieve to throw away candidates with small factors before running Miller-Rabin.
+- **Incidents:** Not applicable.
+
 ## How it works
 
 Start with every number from 2 to $n$ assumed prime, then:

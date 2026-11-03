@@ -24,6 +24,14 @@ secret key and a 64-bit output. Without the key nobody can predict which
 inputs collide, and it's still quick on short strings: 141 cycles for 16
 bytes in the paper, against 600 for MD5 and 82 for CityHash.
 
+## The story
+
+- **Who made it:** Jean-Philippe Aumasson and Daniel J. Bernstein, 2012.
+- **What for:** A keyed hash for hash tables, fast on short inputs.
+- **What it solved:** Hash flooding: with a secret key the attacker can't choose colliding keys.
+- **Where it stands:** The default table hash in Python (since 3.4), Rust, Ruby and Perl, and used in the Linux kernel.
+- **Incidents:** The December 2011 talk at 28C3 by Klink and Wälde took down web servers in PHP, Java, ASP.NET, Python and Ruby with a single crafted request, and is why SipHash spread so fast.
+
 ## How it works
 
 SipHash-c-d does $c$ rounds per message word and $d$ rounds at the end:

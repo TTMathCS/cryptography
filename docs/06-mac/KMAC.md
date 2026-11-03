@@ -21,6 +21,14 @@ as needed, then SQUEEZE for output), for when the full input or output
 length isn't known in advance. Called in one go, every function gives the
 same result as in the 2016 version.
 
+## The story
+
+- **Who made it:** The Keccak team (Guido Bertoni, Joan Daemen, Michaël Peeters and Gilles Van Assche); NIST SP 800-185 (2016).
+- **What for:** A MAC native to SHA-3.
+- **What it solved:** SHA-3 has no length extension, so a MAC needs only one pass with the key in front, no HMAC nesting.
+- **Where it stands:** Approved and used in post-quantum and NIST designs; less common than HMAC.
+- **Incidents:** None.
+
 ## How it works
 
 cSHAKE is SHAKE with two extra inputs: a function name $N$, which only NIST

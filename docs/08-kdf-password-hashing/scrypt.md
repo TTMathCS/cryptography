@@ -19,6 +19,14 @@ Two relatives:
   many Linux distributions.
 - **Litecoin and others:** use scrypt with small settings as proof-of-work.
 
+## The story
+
+- **Who made it:** Colin Percival, 2009, for his Tarsnap backup service; RFC 7914 (2016).
+- **What for:** The first password hash meant to need lots of memory.
+- **What it solved:** It made cracking hardware cost memory, not just cores, years before Argon2.
+- **Where it stands:** Still fine; yescrypt, its descendant, is the default in many Linux distributions.
+- **Incidents:** Litecoin used scrypt with tiny memory settings for mining, and custom chips for it appeared in 2014. That shows how much the settings matter.
+
 ## How it works
 
 - Stretch the password and salt with [PBKDF2](PBKDF2.md)-HMAC-SHA-256 into a

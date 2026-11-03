@@ -15,6 +15,14 @@ protocols and keys, so it's worth recognizing, but don't choose it for anything
 new. [ECDSA](ECDSA.md) is the elliptic-curve version of the same idea with much
 smaller keys, and [Ed25519](EdDSA.md) improves on both.
 
+## The story
+
+- **Who made it:** The NSA designed it, David Kravitz holding the patent on behalf of the US government; NIST proposed it in August 1991 and published FIPS 186 in 1994. It builds on ElGamal's signature and borrows Schnorr's idea of working in a small subgroup.
+- **What for:** A royalty-free signature standard for the US government that could not also be used to encrypt.
+- **What it solved:** RSA was patented, and encryption exports were controlled, so NIST wanted a signature-only scheme anyone could use for free.
+- **Why it was retired:** FIPS 186-5 (2023) withdrew DSA for new signatures. OpenSSH turned off ssh-dss by default in 7.0 (2015) and removed it in 10.0 (2025).
+- **Incidents:** It was controversial from the start: the first version allowed only 512-bit keys, and RSA's supporters and Schnorr (who said it infringed his patent) protested. Its weak point is the per-signature nonce $k$: if it repeats or is guessable, the private key falls. Any DSA key used even once on a Debian machine with the 2008 random number bug was exposed this way.
+
 ## How it works
 
 Everyone shares three domain parameters: a large prime $p$, a prime $q$ dividing

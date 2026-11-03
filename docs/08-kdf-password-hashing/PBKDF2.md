@@ -22,6 +22,14 @@ well and add more guidance on using PBKDF2. No draft had been posted as of
 - **Encrypted key files:** PKCS#8 and PKCS#12, Django's default password
   hasher, and many FIPS-bound systems.
 
+## The story
+
+- **Who made it:** Burt Kaliski at RSA Laboratories, PKCS #5 v2.0 (1999); RFC 2898 (2000).
+- **What for:** Turning a password into a key by repeating a hash many times.
+- **What it solved:** PBKDF1 could only output a hash-length key; PBKDF2 gives any length and lets the iteration count grow.
+- **Where it stands:** Still approved by NIST and everywhere (WPA2, iOS backups, 1Password, BIP-39), but it needs no memory, so GPUs crack it fast. OWASP asks for 600,000 iterations of HMAC-SHA256.
+- **Incidents:** **LastPass (2022):** stolen vaults were protected with PBKDF2, but older accounts had iteration counts as low as 1 or 5,000, leaving them easy to crack. **Wi-Fi:** WPA2-Personal's 4,096 iterations are why a captured handshake can be cracked offline.
+
 ## How it works
 
 For each output block $i$:

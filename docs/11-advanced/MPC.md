@@ -31,6 +31,14 @@ ISO/IEC 4922-2 (2024) specifies MPC on the secret sharing of ISO/IEC
 19592-2. Part 3, on garbled circuits, is a draft; its DIS vote closed in
 June 2026.
 
+## The story
+
+- **Who made it:** Andrew Yao (1982, 1986), then Goldreich, Micali and Wigderson (1987), and Ben-Or, Goldwasser and Wigderson (1988).
+- **What for:** Computing a result from several people's secret inputs without anyone revealing their own.
+- **What it solved:** Joint calculations without a trusted middleman.
+- **Where it stands:** First real use: Denmark's sugar beet auction (2008), where farmers' bids were cleared by MPC. Today it guards crypto-currency keys and runs privacy-preserving statistics, such as Boston's pay-gap study (2017).
+- **Incidents:** The 2023 threshold ECDSA flaws (see [Threshold signatures](Threshold-Signatures.md)) were MPC bugs.
+
 ## How it works
 
 ### Oblivious transfer

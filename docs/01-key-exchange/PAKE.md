@@ -28,6 +28,14 @@ and rate limiting stops that. The idea dates to EKE (Bellovin and Merritt,
 | OPAQUE | augmented | RFC 9807 (2025) | CFRG's augmented pick (2020) |
 | SRP | augmented | RFC 2945 (2000), RFC 5054 (2007) | Apple's iCloud Keychain escrow, old TLS-SRP |
 
+## The story
+
+- **Who made it:** Steven Bellovin and Michael Merritt at AT&T Bell Labs, with EKE in 1992. Then Tom Wu's SRP (Stanford, 1998), Dan Harkins' Dragonfly (2008, the SAE of WPA3), Abdalla and Pointcheval's SPAKE2 (2005), OPAQUE by Jarecki, Krawczyk and Xu (2018) and CPace by Haase and Labrique (2019).
+- **What for:** Logging in with a password without giving anyone a way to test guesses offline.
+- **What it solved:** With an ordinary handshake, a recorded exchange or a stolen password hash can be attacked at home at billions of guesses a second. A PAKE makes every guess cost one live conversation with the real server.
+- **Where it stands:** EKE's patent (until 2011) kept PAKEs out of use for two decades. Today SAE secures WPA3 Wi-Fi, SRP runs in Apple's iCloud Keychain and in 1Password, and in 2020 the IRTF's CFRG chose CPace and OPAQUE as its recommended designs.
+- **Incidents:** **Dragonblood (2019):** Mathy Vanhoef and Eyal Ronen showed that WPA3's SAE leaked password information through timing and cache side channels, and that WPA3 networks could be downgraded to WPA2. The Wi-Fi Alliance tightened the rules. WhatsApp's end-to-end encrypted backups (2021) use OPAQUE.
+
 ## How it works
 
 **SPAKE2** is Diffie-Hellman with the password as a mask. $w$ is a slow hash of

@@ -29,6 +29,14 @@ smallest proofs but rest on pairings and a trusted setup. zk-STARKs (2018)
 and Bulletproofs (2017) need no setup, and STARKs use only hashes, which
 should hold up against quantum computers.
 
+## The story
+
+- **Who made it:** Shafi Goldwasser, Silvio Micali and Charles Rackoff, 1985. Fiat and Shamir (1986) removed the need for a live verifier. Practical SNARKs came with Pinocchio (2013) and Groth16 (2016).
+- **What for:** Proving a statement is true without revealing why.
+- **What it solved:** Privacy and scale: proving a payment is valid without showing it, or proving a computation was done right with a tiny proof.
+- **Where it stands:** In Zcash, Ethereum rollups and some identity systems; Goldwasser and Micali got the Turing Award in 2012.
+- **Incidents:** **Zcash (2018):** Ariel Gabizon found a flaw in the proof system's parameters that would have let anyone mint coins without being seen; it was fixed quietly in October 2018 and disclosed in 2019. **Frozen Heart (2022):** Trail of Bits found that many implementations hashed too little into the Fiat-Shamir challenge, letting proofs be forged.
+
 ## How it works
 
 ### Schnorr's protocol

@@ -26,6 +26,14 @@ A cipher suite is three 16-bit ids:
 The usual suite, and the one ECH requires, is X25519 + HKDF-SHA256 +
 AES-128-GCM (`0x0020`, `0x0001`, `0x0001`).
 
+## The story
+
+- **Who made it:** Richard Barnes, Karthikeyan Bhargavan, Benjamin Lipp and Christopher Wood, through the IRTF's Crypto Forum Research Group; RFC 9180 (2022).
+- **What for:** One well-specified way to encrypt to a public key, for new protocols.
+- **What it solved:** Every protocol had rolled its own ECIES. HPKE fixes one design, gives it test vectors and a security analysis, and lets a post-quantum KEM slot in later.
+- **Where it stands:** Recommended. It sits inside TLS Encrypted Client Hello, MLS group messaging and Oblivious HTTP, and post-quantum versions with ML-KEM are being standardized.
+- **Incidents:** None so far. It was analyzed formally before it was finished.
+
 ## How it works
 
 DHKEM is ECDH wrapped as a KEM:

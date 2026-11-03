@@ -9,6 +9,14 @@ A Fermat number is $F_n = 2^{2^n} + 1$, named after Pierre de Fermat
 (1601–1665). Fermat conjectured all of them were prime; he was wrong. Only five
 Fermat primes are known, and it's conjectured there are no others.
 
+## The story
+
+- **Who made it:** Pierre de Fermat, in a 1640 letter, claimed all $2^{2^n} + 1$ were prime. Euler showed in 1732 that $F_5 = 641 \times 6700417$.
+- **What for:** A conjecture about primes, later tied to geometry.
+- **What it solved:** Gauss showed in 1796 that a regular polygon can be drawn with ruler and compass when its number of sides is a Fermat prime, which is how he constructed the 17-gon.
+- **Where it stands:** $F_4 = 65537$ is the public exponent of almost every RSA key.
+- **Incidents:** Not applicable.
+
 ## The known Fermat primes
 
 | $n$ | $F_n = 2^{2^n} + 1$ | Value | Status |

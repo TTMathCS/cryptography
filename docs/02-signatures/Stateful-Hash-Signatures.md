@@ -32,6 +32,14 @@ hard to manage.
 Public keys are under 70 bytes. SLH-DSA needs no counter, but its smallest
 signature is 7,856 bytes and it signs far more slowly.
 
+## The story
+
+- **Who made it:** Leslie Lamport's one-time signature (1979) and Ralph Merkle's tree (1979, in his Stanford thesis and patent). Frank Leighton and Silvio Micali patented LMS in 1995; Johannes Buchmann, Erik Dahmen and Andreas Hülsing designed XMSS in 2011.
+- **What for:** Signatures whose only assumption is a hash function, already standardized and usable now.
+- **What it solved:** Before the NIST competition finished, they offered a quantum-safe signature for firmware and code signing, where the signer is one carefully run machine.
+- **Where it stands:** Approved in NIST SP 800-208 (2020). The NSA's CNSA 2.0 suite requires LMS or XMSS for signing software and firmware. Not for general use, because the counter must never go backwards.
+- **Incidents:** No public break, but the danger is real: restoring a backup or cloning a virtual machine rolls the counter back, and signing twice with the same one-time key can let others forge signatures.
+
 ## How it works
 
 - **Lamport one-time signature** (1979): the secret key is 256 pairs of

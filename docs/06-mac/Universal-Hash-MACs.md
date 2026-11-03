@@ -25,6 +25,14 @@ $$
 The pad must be one-time. Use one pad on two messages and the two tags
 are enough to solve for the hash key.
 
+## The story
+
+- **Who made it:** Mark Wegman and Larry Carter (IBM), 1981. Poly1305 is Bernstein's (2005); UMAC is from Black, Halevi, Krawczyk, Krovetz and Rogaway (1999).
+- **What for:** The fastest MACs, with security proven by counting rather than assumed.
+- **What it solved:** One multiplication per block instead of a hash or cipher call made authentication almost free.
+- **Where it stands:** Poly1305 is recommended inside ChaCha20-Poly1305; GHASH is the MAC in GCM; UMAC is in SSH.
+- **Incidents:** They are one-time: reusing the key or nonce lets an attacker solve for the key and forge, as in the GCM nonce-reuse cases.
+
 ## How it works
 
 ### Poly1305

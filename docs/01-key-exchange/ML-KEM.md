@@ -29,6 +29,14 @@ computers arrive.
 For comparison, an X25519 public key is 32 bytes. ML-KEM-768 is the common
 choice; NSA's CNSA 2.0 asks for ML-KEM-1024.
 
+## The story
+
+- **Who made it:** The CRYSTALS team (Joppe Bos, Léo Ducas, Eike Kiltz, Tancrède Lepoint, Vadim Lyubashevsky, John Schanck, Peter Schwabe, Gregor Seiler and Damien Stehlé) submitted Kyber to NIST in 2017. It rests on Oded Regev's Learning With Errors (2005) and on the module version of Langlois and Stehlé (2015).
+- **What for:** A key exchange that a quantum computer can't break, small and fast enough to replace X25519 in everyday protocols.
+- **What it solved:** "Harvest now, decrypt later": traffic recorded today could be read once a large quantum computer exists. NIST ran an open competition from 2016, picked Kyber in July 2022 and published FIPS 203 in August 2024.
+- **Where it stands:** Recommended. Chrome turned on a Kyber hybrid in 2024 and switched to X25519MLKEM768 that November; OpenSSH 10.0 (2025) made the ML-KEM hybrid its default. It is deployed next to X25519, not instead of it, in case lattices hide a surprise.
+- **Incidents:** **KyberSlash (2023 to 2024):** several implementations, the reference code among them, divided by a secret value, and division time depends on the value. Researchers recovered keys from the timing, and the code was patched. **April 2024:** Yilei Chen posted a quantum algorithm for LWE problems that would have threatened lattice schemes; within ten days a bug was found in it and the claim was withdrawn. No break of ML-KEM itself is known.
+
 ## How it works
 
 A KEM (key encapsulation mechanism) works differently from a Diffie-Hellman

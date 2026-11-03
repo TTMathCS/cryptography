@@ -37,6 +37,14 @@ With the X25519 half added, SSH sends 1,190 bytes one way and 1,071 back.
 | 9.9 (Sep 2024) | IANA name `sntrup761x25519-sha512`; ML-KEM hybrid added |
 | 10.0 (Apr 2025) | `mlkem768x25519-sha256` takes over; sntrup761 is second |
 
+## The story
+
+- **Who made it:** NTRU itself came from Jeffrey Hoffstein, Jill Pipher and Joseph Silverman at Brown University (first shown in 1996, published in 1998), and was patented until 2017. NTRU Prime is the 2016 redesign by Bernstein, Chuengsatiansup, Lange and van Vredendaal.
+- **What for:** A lattice key exchange that leaves attackers as little structure as possible.
+- **What it solved:** From 2014, attacks on lattices with a lot of algebraic structure (the cyclotomic rings many schemes use) kept getting better. NTRU Prime moved to a ring with fewer such shortcuts, giving up a little speed.
+- **Where it stands:** Not a NIST standard: it stopped as an alternate in round 3 (2022). Its home is SSH. OpenSSH added sntrup761x25519 in 8.5 (2021) and made it the default in 9.0 (2022), the first post-quantum default in a major protocol. It is now being replaced there by the ML-KEM hybrid.
+- **Incidents:** No break. Its designers argued publicly with NIST about how lattice security was being estimated during the competition, which pushed NIST to explain its numbers in more detail.
+
 ## How it works
 
 Everything is a polynomial modulo $x^{761} - x - 1$ with coefficients modulo

@@ -15,6 +15,14 @@ The classic version below works over integers mod a prime. The modern, faster
 version is the elliptic-curve form — see [X25519](ECDH.md), which has largely
 replaced it.
 
+## The story
+
+- **Who made it:** Whitfield Diffie and Martin Hellman at Stanford, in "New Directions in Cryptography" (IEEE Transactions on Information Theory, November 1976). Ralph Merkle, then a Berkeley student, had the idea of a public key agreement first (his "puzzles", written in 1974 and published in 1978), and Hellman later asked that the method be called Diffie-Hellman-Merkle. At GCHQ in Britain, Malcolm Williamson had found the same exchange around 1974, but it stayed secret until 1997.
+- **What for:** Letting two strangers agree on a key over a line that anyone can listen to.
+- **What it solved:** Key distribution. Before 1976 every pair of users needed a key carried in advance by courier or sealed bag; banks and armies spent fortunes on it. After it, a key can be made on the spot.
+- **Where it stands:** Still sound at 2048 bits and up, but slow and large next to [X25519](ECDH.md). TLS 1.3 kept only the named groups of RFC 7919. NIST IR 8547 deprecates it after 2030 and disallows it after 2035, because Shor's algorithm breaks it, and [ML-KEM](ML-KEM.md) takes its place.
+- **Incidents:** **Logjam (2015):** Adrian and 13 others showed that TLS servers could be pushed down to 512-bit "export" groups and broken in minutes, and that a few fixed 1024-bit primes were shared by millions of servers, so one big precomputation (within reach of a nation) would break them all. **Raccoon (2020):** a timing leak from how TLS 1.2 stripped leading zero bytes off the shared secret. Both led browsers to drop finite-field DH in TLS.
+
 ## How it works
 
 Both sides agree on public parameters: a large prime $p$ and a generator $g$.

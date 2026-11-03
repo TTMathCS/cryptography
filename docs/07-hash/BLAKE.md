@@ -32,6 +32,14 @@ BLAKE2s's compression function, cuts it to 7 rounds and runs it over a
 tree. It has no variants and no RFC: an Internet-Draft (2024) expired, and
 the C2SP project hosts its spec.
 
+## The story
+
+- **Who made it:** Jean-Philippe Aumasson, Luca Henzen, Willi Meier and Raphael Phan (BLAKE, 2008); BLAKE2 by Aumasson, Samuel Neves, Zooko Wilcox-O'Hearn and Christian Winnerlein (2012); BLAKE3 by Jack O'Connor, Aumasson, Neves and Wilcox-O'Hearn (2020).
+- **What for:** A hash as safe as SHA-3 and faster than MD5.
+- **What it solved:** Hashing that is fast in software, and BLAKE3 splits work across all cores.
+- **Where it stands:** BLAKE2 and BLAKE3 are recommended. They run in Argon2, WireGuard, the Linux random generator and many file-sync tools.
+- **Incidents:** None.
+
 ## How it works
 
 ### BLAKE2

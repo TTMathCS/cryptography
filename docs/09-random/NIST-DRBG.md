@@ -28,6 +28,14 @@ Dual_EC_DRBG. SP 800-90C took 13 years: drafts in 2012, 2016, 2022 and
 Windows' `BCryptGenRandom` is a CTR_DRBG, and OpenSSL 3's default generator
 is an SP 800-90A DRBG.
 
+## The story
+
+- **Who made it:** NIST's Elaine Barker and John Kelsey, SP 800-90 (2006). Dual_EC_DRBG came from the NSA.
+- **What for:** Standard, testable random generators for certified products.
+- **What it solved:** It gave labs something exact to test, instead of each vendor's home-made generator.
+- **Where it stands:** Hash_DRBG, HMAC_DRBG and CTR_DRBG are approved. NIST told everyone to stop using Dual_EC in September 2013 and removed it in the 2015 revision.
+- **Incidents:** **Dual_EC:** Shumow and Ferguson warned in 2007 that whoever chose its constants could predict its output. The Snowden documents (2013) indicated that the NSA had pushed it, and Reuters reported that RSA was paid $10 million to make it the default in BSAFE. **Juniper (2015):** someone changed the Dual_EC constant in Juniper's firewalls, letting them read VPN traffic. **CTR_DRBG (2019):** Cohney and others recovered keys from AES table leaks in some implementations.
+
 ## How it works
 
 All three have the same calls: **instantiate** (entropy input, a nonce and

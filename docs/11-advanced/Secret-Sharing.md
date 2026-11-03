@@ -30,6 +30,14 @@ own share:
 Both are the base of distributed key generation, where every participant
 deals a share of its own random secret and no one ever holds the whole key.
 
+## The story
+
+- **Who made it:** Adi Shamir and George Blakley, independently, in 1979.
+- **What for:** Splitting a secret so that any $t$ of $n$ people can rebuild it and fewer learn nothing.
+- **What it solved:** Backing up a key without trusting any single person or place with it.
+- **Where it stands:** In use: DNSSEC's root key has seven Recovery Key Share Holders around the world, any five of whom can help rebuild it; hardware wallets offer Shamir backups (SLIP-39).
+- **Incidents:** None in the scheme; failures come from bad randomness or a dishonest dealer.
+
 ## How it works
 
 Work mod a prime $p$ that is larger than both the secret and $n$.

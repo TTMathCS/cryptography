@@ -31,6 +31,14 @@ out of the NSEC5 work (Papadopoulos et al., 2017). Its suites hash the
 input onto the curve either by try-and-increment (TAI) or with the
 RFC 9380 maps (SSWU for P-256, ELL2 for edwards25519).
 
+## The story
+
+- **Who made it:** Silvio Micali, Michael Rabin and Salil Vadhan, 1999; RFC 9381 (2023).
+- **What for:** A random value that only the key holder can make but anyone can check.
+- **What it solved:** Fair lotteries without a trusted party: who leads the next block, who sits on a committee.
+- **Where it stands:** Used in Algorand, Cardano and Chainlink, and proposed for DNSSEC (NSEC5).
+- **Incidents:** None known.
+
 ## How it works
 
 ### RSA-FDH-VRF

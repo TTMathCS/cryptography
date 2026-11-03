@@ -32,6 +32,14 @@ and age.
 Weierstrass public keys are counted uncompressed (0x04, $x$, $y$), the form
 TLS 1.3 uses.
 
+## The story
+
+- **Who made it:** Neal Koblitz (University of Washington) and Victor Miller (IBM) proposed elliptic-curve cryptography independently in 1985. Daniel J. Bernstein designed Curve25519 and the X25519 function in 2006; Mike Hamburg designed the Goldilocks curve behind X448 in 2015. The NIST curves P-256, P-384 and P-521 came from the NSA and were published in FIPS 186-2 (2000).
+- **What for:** Diffie-Hellman with far smaller keys and faster maths.
+- **What it solved:** Finite-field DH needs 3072-bit numbers for 128-bit security; a curve needs 256 bits. That made key exchange cheap enough for phones, smart cards and every TLS connection. X25519 also removed traps: every 32-byte string is a valid public key, so there is nothing to check and nothing to forget to check.
+- **Where it stands:** X25519 is the default key exchange in TLS 1.3, SSH, WireGuard and Signal, now usually paired with ML-KEM in a hybrid. The NIST curves are deprecated by NIST IR 8547 after 2030 and disallowed after 2035, because of quantum computers, not because of any flaw.
+- **Incidents:** **Invalid-curve attacks:** a library that doesn't check that a received point is on the curve can be fed points on a weak curve and leak its private key piece by piece. Jager, Schwenk and Somorovsky found this in Java TLS libraries in 2015, and Biham and Neumann found it in Bluetooth pairing in 2018 (CVE-2018-5383), where the y-coordinate went unchecked. After the 2013 Snowden papers many people stopped trusting the NIST curves' unexplained seeds (see [Elliptic curves](../10-math-foundations/Elliptic-Curves.md)), which helped X25519 spread.
+
 ## How it works
 
 Every member does the same thing. Each side has a private scalar $d$ and a

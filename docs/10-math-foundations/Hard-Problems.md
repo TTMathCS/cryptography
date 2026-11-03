@@ -26,6 +26,14 @@ and Grover's only speeds up search.
 | SIDH isogenies | SIKE | Castryck–Decru (2022): minutes | broken classically |
 | Multivariate (Rainbow) | Rainbow | Beullens (2022): a weekend on a laptop | broken classically |
 
+## The story
+
+- **Who made it:** Many hands across centuries: Fermat and Gauss on factoring; Diffie and Hellman (1976) on discrete logs as a basis for keys; Koblitz and Miller (1985) on curves; Ajtai (1996) and Regev (2005) on lattices; McEliece (1978) on codes. Peter Shor (1994) and Lov Grover (1996) gave the quantum algorithms.
+- **What for:** Problems believed hard enough to build keys on.
+- **What it solved:** Public-key cryptography needs a one-way trapdoor; each of these provides one.
+- **Where it stands:** Factoring and discrete logs fall to Shor's algorithm, so the world is moving to lattices, hashes and codes.
+- **Incidents:** Key sizes have followed the attacks: the number field sieve (Pollard, 1988 and after) made 512-bit RSA breakable by 1999. **2022:** SIKE, a NIST finalist based on isogenies, was broken by Castryck and Decru in about an hour on a laptop, and Ward Beullens broke Rainbow with a weekend's computing. Both showed new problems need years of study.
+
 ## How it works
 
 ### Factoring

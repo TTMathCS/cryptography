@@ -22,6 +22,14 @@ AES. FF1 is FFX[Radix] by Bellare, Rogaway and Spies (2010). FF3 is the
 core of BPS by Brier, Peyrin and Stern (2010). A third, FF2, was dropped
 from the draft after the NSA said it fell short of 128-bit security.
 
+## The story
+
+- **Who made it:** Black and Rogaway set out the problem in 2002. FF1 is FFX by Bellare, Rogaway and Spies (2010); FF3 comes from BPS by Brier, Peyrin and Stern (2010).
+- **What for:** Encrypting card numbers and ID numbers so they still fit their database columns.
+- **What it solved:** Banks could protect old databases without changing every system that reads a 16-digit card number.
+- **Where it stands:** FF1 is the one to use. FF3 is broken, and FF3-1 is broken too.
+- **Incidents:** Durak and Vaudenay broke FF3 in 2017; NIST patched it as FF3-1, and Beyne broke that in 2021. Small domains, such as a four-digit PIN, turned out to be weak in general, so NIST set a minimum of one million values.
+
 ## How it works
 
 FF1, for a string of $n$ digits in base $\mathit{radix}$:

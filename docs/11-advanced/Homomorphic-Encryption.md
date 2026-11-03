@@ -38,6 +38,14 @@ is still in draft: Parts 1 (general) and 2 (BGV, BFV) have been through DIS
 ballots, and Parts 3 (CKKS) and 4 (CGGI, the TFHE scheme) went to the final
 FDIS ballot in September 2026.
 
+## The story
+
+- **Who made it:** Rivest, Adleman and Dertouzos asked for it in 1978. Pascal Paillier gave a practical additive scheme in 1999. Craig Gentry, then a Stanford PhD student, built the first fully homomorphic scheme in 2009. BGV (2011), BFV (2012), CKKS (Cheon, Kim, Kim and Song of Seoul National University, 2017) and TFHE (2016) followed.
+- **What for:** Computing on data that stays encrypted.
+- **What it solved:** A server can work on data it can't read, such as medical records or a phone's photos.
+- **Where it stands:** Real products use it: Microsoft Edge's password monitor and Apple's Live Caller ID Lookup and Enhanced Visual Search. Standards work is under way at ISO.
+- **Incidents:** **2021:** Li and Micciancio showed that CKKS results, when shared after decryption, can leak the secret key; libraries changed how they decrypt.
+
 ## How it works
 
 ### Paillier

@@ -19,6 +19,14 @@ Argon2 won the Password Hashing Competition in 2015 and became RFC 9106 in
 | Argon2i | data-independent | side-channel-resistant, weaker against GPUs |
 | Argon2d | data-dependent | strongest against GPUs, leaks timing; crypto-currency, not logins |
 
+## The story
+
+- **Who made it:** Alex Biryukov, Daniel Dinu and Dmitry Khovratovich at the University of Luxembourg. It won the Password Hashing Competition (2013 to 2015), organized by Jean-Philippe Aumasson; RFC 9106 (2021).
+- **What for:** Password hashing that is expensive on GPUs and custom chips, not just CPUs.
+- **What it solved:** Crackers use thousands of cheap GPU cores. Argon2 needs a lot of memory per guess, and memory doesn't get cheaper in parallel.
+- **Where it stands:** Recommended (Argon2id) by OWASP and RFC 9106.
+- **Incidents:** In 2016 Alwen and Blocki found that Argon2i could be computed with less memory than claimed, which led to version 1.3 and to the hybrid Argon2id becoming the default.
+
 ## How it works
 
 - Fill a large block of memory (the $m$ parameter, in KiB) with chained hashes

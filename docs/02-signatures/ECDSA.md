@@ -12,6 +12,14 @@ that problem is harder per bit than factoring, ECDSA gets RSA-level security fro
 much smaller keys, which is why it's the common choice in TLS certificates,
 Bitcoin, and SSH.
 
+## The story
+
+- **Who made it:** Scott Vanstone (University of Waterloo, Canada, co-founder of Certicom) proposed it in 1992 in response to NIST's call for comments on DSA. It became ANSI X9.62 in 1999 and joined FIPS 186-2 in 2000.
+- **What for:** DSA on an elliptic curve, for small keys and fast signing.
+- **What it solved:** A 256-bit ECDSA key gives the security of a 3072-bit DSA or RSA key, which fits smart cards, phones and blockchains.
+- **Where it stands:** Widely used in TLS certificates, Bitcoin and Ethereum. Deterministic nonces (RFC 6979) are recommended. NIST IR 8547 deprecates it after 2030 and disallows it after 2035.
+- **Incidents:** **Sony PS3 (2010):** the fail0verflow group showed at 27C3 that Sony signed every game with the same nonce, which gave away Sony's private key. **Android Bitcoin wallets (2013):** a broken random number generator repeated nonces, and coins were stolen. **CurveBall (CVE-2020-0601):** Windows accepted certificates with attacker-chosen curve parameters; the NSA reported it. **Minerva and TPM-Fail (2019):** timing leaked a few nonce bits, enough to rebuild keys from smart cards and TPMs. **Psychic signatures (2022):** Java 15 to 18 accepted the signature $r = s = 0$ for any message.
+
 ## How it works
 
 Pick a standard curve with base point $G$ of prime order $n$.

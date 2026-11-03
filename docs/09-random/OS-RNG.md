@@ -27,6 +27,14 @@ Since Python 3.6, `os.urandom` on Linux calls `getrandom()` and waits until
 the kernel generator is seeded; on Windows it calls `BCryptGenRandom` since
 3.11.
 
+## The story
+
+- **Who made it:** Theodore Ts'o wrote Linux's /dev/random in 1994, the first kernel random generator; Jason Donenfeld rebuilt it in 2022. Each OS has its own, from Windows' CryptGenRandom to OpenBSD's arc4random.
+- **What for:** Giving every program unpredictable bytes without each one collecting its own randomness.
+- **What it solved:** Programs used to seed from the clock and process ID, which attackers could guess.
+- **Where it stands:** Recommended: call `getrandom()` or your language's secure random API.
+- **Incidents:** **Netscape (1995):** Ian Goldberg and David Wagner broke SSL in Netscape's browser because its key was seeded with the time and process IDs. **Windows 2000 (2007):** Dorrendorf, Gutterman and Pinkas showed its generator let past keys be worked out. **Boot-time entropy (2012):** routers made keys before the kernel had gathered any randomness, which led to `getrandom()` (2014) blocking until it is seeded.
+
 ## How it works
 
 ### Linux

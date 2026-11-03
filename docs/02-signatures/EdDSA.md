@@ -30,6 +30,14 @@ family is [X25519](../01-key-exchange/ECDH.md).
 | Deterministic | Yes | Yes | Only with RFC 6979 | PSS no, PKCS#1 v1.5 yes |
 | Nonce-reuse risk | None | None | Yes | n/a |
 
+## The story
+
+- **Who made it:** Daniel J. Bernstein, Niels Duif, Tanja Lange, Peter Schwabe and Bo-Yin Yang (Ed25519, 2011); Mike Hamburg's curve for Ed448 (2015).
+- **What for:** A Schnorr signature built to be fast and hard to get wrong.
+- **What it solved:** ECDSA's sharp edges: the nonce is derived from the key and message, so there is no random nonce to repeat (the PS3 mistake), and the formulas have no special cases that leak timing.
+- **Where it stands:** Recommended. It is the default key in OpenSSH and is used for Git commits, DNSSEC, Tor and Signal. FIPS 186-5 approved it in 2023. Like all curve signatures it is deprecated by NIST IR 8547 after 2030.
+- **Incidents:** **Double public key oracle (2022):** some 40 libraries let the caller pass in the public key separately when signing; with a wrong public key the result leaked the private key. **Verification differences:** libraries disagreed on edge cases, which matters when every computer on a blockchain must reach the same answer; Henry de Valence's 2020 survey led to stricter rules (ZIP-215).
+
 ## How it works
 
 - A 32-byte private seed is hashed with SHA-512. The first half, with a few

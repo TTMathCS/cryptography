@@ -14,6 +14,14 @@ the key.
 It is a MAC (message authentication code), not encryption — it does not hide the
 message, it vouches for it.
 
+## The story
+
+- **Who made it:** Mihir Bellare, Ran Canetti and Hugo Krawczyk (IBM), at CRYPTO '96; RFC 2104 (1997) and FIPS 198 (2002).
+- **What for:** A MAC built from any hash function, with a security proof.
+- **What it solved:** Ad hoc MACs like $H(\text{key} \parallel \text{message})$ fall to length extension: anyone can append data and compute the new tag. HMAC's two nested hashes stop that.
+- **Where it stands:** Recommended; in TLS, SSH, IPsec, JWT, TOTP and HKDF.
+- **Incidents:** **Flickr (2009):** Duong and Rizzo forged API calls because Flickr signed requests with MD5(secret + data), exactly the mistake HMAC avoids. **Timing:** comparing tags byte by byte leaks where they differ; this broke the Xbox 360's boot check (2007) and Google's Keyczar library (2009). Compare tags in constant time.
+
 ## How it works
 
 HMAC wraps an ordinary hash $H$ with the key on both ends:

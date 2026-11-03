@@ -31,6 +31,14 @@ The suites are ristretto255-SHA512, decaf448-SHAKE256, P256-SHA256,
 P384-SHA384 and P521-SHA512. The 256-bit groups give 128-bit security,
 minus a little for heavy use (see Security notes).
 
+## The story
+
+- **Who made it:** Freedman, Ishai, Pinkas and Reingold (2005); the practical 2HashDH by Jarecki, Kiayias and Krawczyk (2014); RFC 9497 (2023).
+- **What for:** Letting a server apply its secret key to your input without seeing it.
+- **What it solved:** Private set checks and password protocols that don't hand the server your secret.
+- **Where it stands:** Inside OPAQUE, Privacy Pass (Cloudflare, 2017) and WhatsApp's encrypted backups.
+- **Incidents:** None known.
+
 ## How it works
 
 In a group of prime order $q$ with generator $G$ (the RFC writes the group

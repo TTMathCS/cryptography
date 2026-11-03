@@ -25,6 +25,23 @@ that an attacker can flip chosen bits in one block at the cost of garbling
 the block before. BitLocker added a diffuser on top; later systems moved to
 XTS.
 
+## The story
+
+### XTS-AES {#story-xts-aes}
+
+- **Who made it:** From Phillip Rogaway's XEX (2004); IEEE 1619 (2007), NIST SP 800-38E (2010).
+- **What for:** Encrypting disk sectors in place, with no room for a nonce or tag.
+- **What it solved:** Each sector is encrypted differently, so copying data between sectors shows nothing.
+- **Where it stands:** The standard: BitLocker, FileVault, LUKS and Android all use it.
+- **Incidents:** The attacks go around the cipher. **Cold boot (2008):** Halderman and others read keys from a laptop's memory after a reboot by chilling the chips. **Self-encrypting SSDs (2018):** Meijer and van Gastel showed Crucial and Samsung drives could be unlocked without the password, and BitLocker trusted them by default; Microsoft changed that in 2019.
+### Adiantum {#story-adiantum}
+
+- **Who made it:** Paul Crowley and Eric Biggers at Google, 2018.
+- **What for:** Disk encryption for cheap phones with no AES instructions.
+- **What it solved:** Android Go phones could finally encrypt their storage without becoming unusably slow.
+- **Where it stands:** Used in Android and Linux.
+- **Incidents:** None.
+
 ## XTS-AES
 
 **Where it came from.** Liskov, Rivest and Wagner defined tweakable block

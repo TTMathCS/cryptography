@@ -20,6 +20,14 @@ subgroup of prime order $n$, and the point count divided by $n$ is the
 cofactor. Pollard's rho needs about $\sqrt{n}$ steps, so a 256-bit curve gives
 about 128-bit security.
 
+## The story
+
+- **Who made it:** The curves themselves go back to Diophantus (about AD 250), who solved such equations, and to the 19th-century work of Weierstrass and others. Mordell proved in 1922 that their rational points form a finitely generated group. Hendrik Lenstra used them to factor (1985), and Koblitz and Miller to build keys (1985).
+- **What for:** A group where discrete logs are much harder per bit than in ordinary numbers.
+- **What it solved:** Small keys: 256 bits instead of 3072.
+- **Where it stands:** The basis of X25519, Ed25519, ECDSA and Bitcoin; deprecated by NIST IR 8547 after 2030 because of quantum computers.
+- **Incidents:** **Weak curves:** the MOV attack (Menezes, Okamoto and Vanstone, 1993) and Smart's attack (1999) broke special classes of curves, so standards avoid them. **Trust:** the NSA's unexplained seeds for the NIST curves and the Dual_EC back door led many to prefer curves with explained constants, such as Curve25519.
+
 ## How it works
 
 Draw the line through $P$ and $Q$. It meets the curve in one more point; flip

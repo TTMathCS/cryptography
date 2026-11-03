@@ -27,6 +27,14 @@ proposes retiring the 224-bit hashes, SHA3-224 included; it is still a draft.
 | SHAKE128 / SHAKE256 | any length you ask for | XOFs: stream out as many bytes as needed |
 | Keccak-256 | 256-bit | Ethereum: the pre-standard padding, so it differs from SHA3-256 |
 
+## The story
+
+- **Who made it:** The Keccak team: Guido Bertoni, Joan Daemen (also co-designer of AES), Michaël Peeters and Gilles Van Assche. NIST's competition ran from 2007, with 64 entries; Keccak won on 2 October 2012. FIPS 202 (2015).
+- **What for:** A backup hash built on a different idea from SHA-2.
+- **What it solved:** After MD5 and SHA-1 fell, it gave the world a hash that wouldn't fall the same way. Its sponge also gives variable-length output (SHAKE).
+- **Where it stands:** Recommended; inside ML-KEM and ML-DSA.
+- **Incidents:** **2013:** NIST proposed lowering Keccak's capacity for speed. Coming just after the Snowden revelations, the change met fierce objections, and NIST kept the original. **CVE-2022-37454:** Nicky Mouha found a buffer overflow in the reference code (XKCP), which Python and PHP used.
+
 ## How it works
 
 SHA-3 is a **sponge** over a 1600-bit state, split into a *rate* part and a

@@ -27,6 +27,14 @@ so the switch starts now.
 For comparison, Ed25519 uses a 32-byte public key and a 64-byte signature.
 NSA's CNSA 2.0 asks for ML-DSA-87.
 
+## The story
+
+- **Who made it:** The CRYSTALS team (Léo Ducas, Eike Kiltz, Tancrède Lepoint, Vadim Lyubashevsky, Peter Schwabe, Gregor Seiler and Damien Stehlé), who submitted Dilithium in 2017. It builds on Lyubashevsky's "Fiat-Shamir with aborts" (2009, 2012).
+- **What for:** A signature that survives quantum computers, for certificates, software updates and everything RSA and ECDSA sign today.
+- **What it solved:** A drop-in quantum-safe signature with keys and signatures of a few kilobytes and fast signing, using only integer arithmetic.
+- **Where it stands:** Recommended. NIST picked it in July 2022 and published FIPS 204 in August 2024. Certificate authorities, HSM makers and operating systems are adding it now.
+- **Incidents:** No break. Researchers have recovered keys from unprotected chips by measuring power use or injecting faults, so hardware needs masking.
+
 ## How it works
 
 ML-DSA is "Fiat–Shamir with aborts" over polynomials modulo $q = 8{,}380{,}417$:

@@ -35,6 +35,14 @@ to 128-bit security; it is still a draft.
 
 SHA-1 (160-bit) came before it and is broken; see the main table.
 
+## The story
+
+- **Who made it:** The NSA; published by NIST in 2001 and finalized in FIPS 180-2 (2002). SHA-224 followed in 2004 and SHA-512/256 in 2012.
+- **What for:** A family of hashes stronger than SHA-1, matched to AES key sizes.
+- **What it solved:** SHA-1's 160 bits gave only 80-bit collision security, and its design was already being attacked. SHA-256 gives 128 bits.
+- **Where it stands:** Recommended: in certificates, TLS, SSH, Bitcoin and Git's newer format. No break after 25 years.
+- **Incidents:** Length extension still applies to plain SHA-256 (use HMAC), and it is why SHA-3 was wanted as a backup.
+
 ## How it works
 
 SHA-2 uses the Merkle–Damgård construction:

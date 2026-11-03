@@ -11,6 +11,37 @@ whatever the key size (RC4's biases, 64-bit blocks hitting the birthday
 bound). For new work use [AES-GCM](AES.md) or
 [ChaCha20-Poly1305](../05-modes-aead/AEAD.md).
 
+## The story
+
+### DES {#story-des}
+
+- **Who made it:** IBM, from Horst Feistel's Lucifer (early 1970s); adopted by the US National Bureau of Standards as FIPS 46 in 1977 after the NSA reviewed it.
+- **What for:** A public standard cipher for banks and business.
+- **What it solved:** It was the first cipher anyone could buy that a government had vetted, and it trained a generation of cryptographers.
+- **Why it was retired:** Its 56-bit key. The EFF's $250,000 Deep Crack found a key in 56 hours in 1998, and in 22 hours with distributed.net in 1999. NIST withdrew it in 2005.
+- **Incidents:** The NSA shortened the key from IBM's proposed 64 or 128 bits and changed the S-boxes without saying why. People suspected a back door; in 1994 Don Coppersmith revealed that the changes protected against differential cryptanalysis, which IBM and the NSA knew of in 1974 and the public found only in 1990.
+### 3DES {#story-3des}
+
+- **Who made it:** Walter Tuchman's IBM team, 1978; standardized in ANSI X9.52 (1998).
+- **What for:** Stretching DES by running it three times.
+- **What it solved:** It bought 20 years for banks and payment cards without new hardware.
+- **Why it was retired:** Its 64-bit block. Sweet32 (Bhargavan and Leurent, 2016) recovered HTTPS cookies after about 785 GB of traffic under one key. NIST disallowed it after 2023.
+- **Incidents:** Sweet32 is the incident. It also survives in older payment systems.
+### The 64-bit block ciphers {#story-the-64-bit-block-ciphers}
+
+- **Who made it:** Bruce Schneier (Blowfish, 1993), Xuejia Lai and James Massey at ETH Zurich (IDEA, 1991), Carlisle Adams and Stafford Tavares (CAST5, 1996), Ron Rivest (RC2, 1987).
+- **What for:** Faster or freer alternatives to DES in the 1990s.
+- **What it solved:** IDEA was the cipher in PGP 2; Blowfish was free and fast; CAST5 became GnuPG's default.
+- **Why it was retired:** All have 64-bit blocks, so Sweet32 applies. IDEA was also patented until 2012.
+- **Incidents:** RC2 was a trade secret until its code was posted anonymously to Usenet in 1996.
+### RC4 {#story-rc4}
+
+- **Who made it:** Ron Rivest for RSA Security, 1987, as a trade secret; the code leaked to the Cypherpunks mailing list in 1994.
+- **What for:** A very fast and very simple stream cipher.
+- **What it solved:** It ran fast on 1990s computers with ten lines of code, so it was put everywhere: SSL, WEP Wi-Fi, Windows and PDF.
+- **Why it was retired:** Its output is biased. RFC 7465 (2015) banned it from TLS.
+- **Incidents:** **WEP (2001):** Fluhrer, Mantin and Shamir recovered Wi-Fi keys from WEP's use of RC4; within a few years it took a minute. The TJX breach (disclosed 2007) began with an attacker breaking a store's WEP network and took 45 million card numbers. **TLS:** from 2013, AlFardan and others and then "RC4 NOMORE" (2015) recovered cookies and passwords from HTTPS.
+
 ## DES
 
 **What it was.** IBM's design, published by the US National Bureau of

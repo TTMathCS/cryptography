@@ -17,6 +17,14 @@ defines the IETF version of ChaCha20. Protocols use it inside
 [ChaCha20-Poly1305](../05-modes-aead/AEAD.md), since bare ChaCha20 only
 encrypts.
 
+## The story
+
+- **Who made it:** Daniel J. Bernstein: Salsa20 in 2005 for the EU's eSTREAM project, ChaCha in 2008.
+- **What for:** A fast cipher in plain software, with nothing that leaks timing.
+- **What it solved:** AES is fast with hardware support and slow, or leaky, without it. Phones of 2013 often had no AES instructions, so Google's Adam Langley moved Chrome and Android to ChaCha20-Poly1305 in TLS that year. It also became the replacement for RC4 in OpenBSD (2014) and the Linux random generator (2016).
+- **Where it stands:** Recommended, in TLS 1.3, SSH, WireGuard and QUIC.
+- **Incidents:** The best attacks reach only 7 of ChaCha20's 20 rounds. Real failures come from reusing a nonce with the same key, which gives away the XOR of two messages, a problem of how it is used, not the cipher.
+
 ## How it works
 
 The state is a $4 \times 4$ grid of 32-bit words: four constants ("expand 32-byte k"

@@ -22,6 +22,14 @@ multiple of 8 bytes. SP 800-38F (2012) approves both, as KW and KWP, plus
 TKW, a Triple DES version for old systems. In May 2026 NIST asked for
 comments on revising SP 800-38F and proposed removing TKW.
 
+## The story
+
+- **Who made it:** NIST (2001), written up by Jim Schaad and Russ Housley as RFC 3394 (2002); padding by Housley and Morris Dworkin (RFC 5649, 2009).
+- **What for:** Storing and moving keys under another key, inside HSMs, smart cards and key stores.
+- **What it solved:** A wrapped key needs no nonce and comes back checked, so a damaged or swapped key is refused instead of quietly used.
+- **Where it stands:** Acceptable and common: PKCS#11 tokens, JSON Web Encryption (A128KW), cloud key managers.
+- **Incidents:** The problems were in the APIs around it. Clulow (2003) and Bortolozzo and others (2010) showed that many PKCS#11 tokens let a key be wrapped and then decrypted with a key allowed to do both jobs, pulling "unextractable" keys out of the token.
+
 ## How it works
 
 - Split the key into 64-bit halves of a block ("semiblocks") $R[1..n]$, with

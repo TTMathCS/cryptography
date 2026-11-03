@@ -12,6 +12,14 @@ composite). They matter here because the [Lucas-Lehmer test](#how-its-tested)
 checks them far faster than any general method, making them the perennial
 record-holders for "largest known prime."
 
+## The story
+
+- **Who made it:** Named after Marin Mersenne, a French friar, who listed exponents in 1644 (with mistakes). Édouard Lucas found the test in 1876 and proved $M_{127}$ prime; Derrick Lehmer completed it in 1930. George Woltman started GIMPS, the volunteer search, in 1996.
+- **What for:** Finding record primes.
+- **What it solved:** The Lucas-Lehmer test makes them much faster to check than any other number of the same size.
+- **Where it stands:** The largest known prime, $M_{136279841}$ with over 41 million digits, was found in October 2024 by Luke Durant using cloud GPUs. Mersenne-like primes are used in elliptic curves ($2^{255} - 19$, $2^{521} - 1$).
+- **Incidents:** Not applicable.
+
 ## Why p must be prime
 
 If $p = a \cdot b$ with $a, b > 1$, then $2^a - 1$ divides $2^p - 1$, so $M_p$ is

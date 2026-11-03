@@ -23,6 +23,14 @@ $2b$12$R9h/cIPz0gi.URNNX3kh2OPST9/PgBkqquzi.Ss7KIUgO2t0jWMUW
 - `12`: the cost, meaning $2^{12}$ rounds
 - then 22 characters of salt (128 bits) and 31 characters of hash (184 bits)
 
+## The story
+
+- **Who made it:** Niels Provos and David Mazières, USENIX 1999, for OpenBSD, built on Blowfish's slow key setup.
+- **What for:** A password hash you can make slower as computers get faster.
+- **What it solved:** Unix's old DES and MD5 crypt had fixed cost; bcrypt has a work factor.
+- **Where it stands:** Still acceptable and very common (Ruby on Rails, Django option, PHP's password_hash). Argon2id is preferred for new systems.
+- **Incidents:** **crypt_blowfish (2011):** a sign bug made some passwords with non-ASCII characters weaker, hence the `$2y$` prefix. **The 72-byte limit:** bcrypt ignores everything past 72 bytes. In 2024 Okta disclosed that because it hashed user ID plus username plus password with bcrypt for a cache key, users with very long usernames could log in without the right password. **Ashley Madison (2015):** the bcrypt hashes held, but 11 million passwords were cracked from a weaker MD5 token stored next to them.
+
 ## How it works
 
 bcrypt is built on the Blowfish cipher's slow key setup ("Eksblowfish"):

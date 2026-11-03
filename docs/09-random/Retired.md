@@ -13,6 +13,37 @@ may hold a key to it (Dual_EC_DRBG). The famous failures at the end are a
 fourth kind: a sound generator with a guessable seed. For anything secret
 use the [OS generator](OS-RNG.md).
 
+## The story
+
+### Mersenne Twister {#story-mersenne-twister}
+
+- **Who made it:** Makoto Matsumoto and Takuji Nishimura, Keio University, Japan, 1997.
+- **What for:** A very fast generator with a huge period, for simulations.
+- **What it solved:** It replaced bad old generators in science and games.
+- **Why it was retired:** It was never meant for cryptography: 624 outputs reveal its whole state.
+- **Incidents:** Web apps that made reset tokens with PHP's mt_rand let attackers predict them.
+### C rand() {#story-c-rand}
+
+- **Who made it:** The C library, from the 1970s, usually a simple linear congruential generator.
+- **What for:** Quick random numbers for programs.
+- **What it solved:** Something better than nothing.
+- **Why it was retired:** Predictable from a few outputs, and often only 15 or 31 bits.
+- **Incidents:** Simple library generators like it were behind a famous 1999 case: Reliable Software Technologies showed that an online poker site seeded its shuffle from the clock, so after seeing five cards they knew every hand.
+### Dual_EC_DRBG {#story-dual-ec-drbg}
+
+- **Who made it:** The NSA, published by NIST in SP 800-90 (2006).
+- **What for:** A random generator based on elliptic curves.
+- **What it solved:** Nothing that the other DRBGs didn't do better: it was about a thousand times slower.
+- **Why it was retired:** Its constants could hide a back door, and the evidence says they did. Removed in 2015.
+- **Incidents:** The full story, with RSA BSAFE and Juniper, is on [NIST DRBGs](NIST-DRBG.md).
+### RC4-based arc4random {#story-rc4-based-arc4random}
+
+- **Who made it:** OpenBSD, 1996, using RC4.
+- **What for:** A fast secure random API that never fails.
+- **What it solved:** Programs had a simple safe call instead of reading devices.
+- **Why it was retired:** RC4's biases; OpenBSD switched to ChaCha20 in 2014, and others followed.
+- **Incidents:** None directly, but RC4's breaks in TLS showed the risk.
+
 ## Mersenne Twister
 
 **What it is.** MT19937, from Makoto Matsumoto and Takuji Nishimura

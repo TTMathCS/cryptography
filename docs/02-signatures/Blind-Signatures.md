@@ -26,6 +26,14 @@ RFC 9474 (October 2023, from the IRTF's CFRG) specifies the RSA version. The
 result is an ordinary RSASSA-PSS signature, so any RSA-PSS verifier can
 check it.
 
+## The story
+
+- **Who made it:** David Chaum, at CRYPTO '82, using RSA.
+- **What for:** Untraceable electronic cash: the bank signs a coin without seeing it.
+- **What it solved:** It let a bank check that money is real without being able to follow where each coin goes, privacy that paper cash has and card payments don't.
+- **Where it stands:** Chaum's company DigiCash (1990) ran eCash with Mark Twain Bank in the US from 1995 but went bankrupt in 1998. The idea came back for privacy tokens: Apple's Private Access Tokens (2022) and Privacy Pass use RSA blind signatures, standardized in RFC 9474 (2023).
+- **Incidents:** Blind signing means signing whatever the client sends. If the same RSA key is used to decrypt anything, a blind-signature request becomes a free decryption, so the key must be used for nothing else.
+
 ## How it works
 
 The signer has an [RSA](RSA.md) key: public $(n, e)$, secret $d$.

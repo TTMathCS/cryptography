@@ -27,6 +27,14 @@ Sizes are from the round-3 Falcon specification, with signatures padded to a
 fixed length. Private keys are 1,281 and 2,305 bytes. There is no middle size:
 the ring needs $n$ to be a power of two.
 
+## The story
+
+- **Who made it:** The Falcon team: Pierre-Alain Fouque, Jeffrey Hoffstein, Paul Kirchner, Vadim Lyubashevsky, Thomas Pornin, Thomas Prest, Thomas Ricosset, Gregor Seiler, William Whyte and Zhenfei Zhang (2017). It uses the hash-and-sign method of Gentry, Peikert and Vaikuntanathan (2008) on NTRU lattices.
+- **What for:** The smallest lattice signature, for places where every byte counts.
+- **What it solved:** ML-DSA's signatures are over 2 KB. Falcon-512's are about 666 bytes, so a signature and its public key fit together in one network packet.
+- **Where it stands:** Still on the way: FIPS 206 was not out as of October 2026. Its hard part is sampling from a Gaussian distribution using floating-point arithmetic in constant time, which is very easy to get wrong.
+- **Incidents:** In September 2019 the Falcon team found bugs in its own reference code that made signatures less random than intended, enough to leak the key; they were fixed. "FALCON Down" (2021) recovered keys from the electromagnetic leakage of an unprotected chip.
+
 ## How it works
 
 Falcon is "hash-and-sign" over an NTRU lattice, after Gentry, Peikert and

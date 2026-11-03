@@ -14,6 +14,14 @@ or verify your signature with the public key, but only you can decrypt or sign.
 Security rests on the factoring problem: $n$ is the product of two large secret
 primes $p$ and $q$, and recovering them from $n$ is infeasible at modern sizes.
 
+## The story
+
+- **Who made it:** Ron Rivest, Adi Shamir and Leonard Adleman at MIT, in April 1977. Martin Gardner announced it in Scientific American that August with a challenge: a message under a 129-digit key, for $100. At GCHQ, Clifford Cocks had found the same idea in 1973, but it was kept secret until 1997.
+- **What for:** Doing what Diffie and Hellman had only imagined: one public key for encryption and for checking signatures.
+- **What it solved:** It made digital signatures real. Diffie-Hellman agrees on a key; RSA can also sign, so a certificate authority could vouch for a website and a bank could sign a payment.
+- **Where it stands:** Still the most common certificate signature, but its keys are big and slow next to elliptic curves. MIT's patent expired in September 2000. NIST IR 8547 deprecates RSA after 2030 and disallows it after 2035 because of Shor's algorithm. The record classical factorization is RSA-250 (829 bits, 2020).
+- **Incidents:** **RSA-129** fell in 1994 to 1,600 volunteers' computers: "The Magic Words are Squeamish Ossifrage". **Bleichenbacher (1998):** PKCS#1 v1.5 padding errors let an attacker decrypt; it returned as ROBOT in 2017 against servers from Facebook to PayPal. **ROCA (2017):** Infineon's chip made keys with a pattern that allowed factoring, and Estonia had to block the certificates on about 750,000 ID cards. **Debian (2008)** and **"Mining your Ps and Qs" (2012)** gave predictable or shared primes (see [Retired RNGs](../09-random/Retired.md)). **FREAK (2015)** forced 512-bit export RSA.
+
 ## How it works
 
 Key generation:

@@ -20,6 +20,14 @@ place of SHA-256) WireGuard.
 Don't use it for passwords. A password is guessable, and HKDF is fast, so every
 guess is cheap. Use [Argon2](Argon2.md) or [scrypt](scrypt.md) for those.
 
+## The story
+
+- **Who made it:** Hugo Krawczyk (IBM), at CRYPTO 2010; RFC 5869 (2010).
+- **What for:** Turning a shared secret into clean, separate keys.
+- **What it solved:** Every protocol had its own ad hoc KDF, and some were weak. HKDF splits the job in two, extract the randomness and then expand it, and proves each step.
+- **Where it stands:** Recommended: in TLS 1.3, Signal, HPKE, MLS and WireGuard.
+- **Incidents:** None in HKDF. The common mistake is using it on passwords, where it is far too fast.
+
 ## How it works
 
 Two steps:

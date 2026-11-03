@@ -22,6 +22,14 @@ KBKDF (key-based KDF) splits one key into several, for example one per
 direction or per purpose. The other two sit right after a Diffie-Hellman or
 ECDH step and turn its shared secret into keys.
 
+## The story
+
+- **Who made it:** NIST (Lily Chen and colleagues): SP 800-108 (2009), SP 800-56A's one-step KDF (2006), and ANSI X9.63 (2001) from the banking world.
+- **What for:** Deriving keys inside US federal and banking systems.
+- **What it solved:** One approved, testable way to turn a key or a key-exchange output into more keys.
+- **Where it stands:** Approved and used in FIPS-validated products and smart cards.
+- **Incidents:** None tied to the KDFs themselves.
+
 ## How it works
 
 ### KBKDF (SP 800-108)

@@ -33,6 +33,14 @@ value. So each scheme picks the side that rests on a hard problem.
   perfectly binding, and hiding only while decisional Diffie-Hellman is
   hard.
 
+## The story
+
+- **Who made it:** Manuel Blum's "coin flipping by telephone" (1981); Torben Pedersen's commitment (CRYPTO '91, Aarhus, Denmark).
+- **What for:** Locking in a value now and revealing it later.
+- **What it solved:** Fair games and auctions online, and the building block of zero-knowledge proofs.
+- **Where it stands:** Pedersen commitments hide amounts in Monero and in Confidential Transactions (Greg Maxwell, 2015).
+- **Incidents:** None tied to the idea itself; bugs show up in the proofs built around it (see [Zero-knowledge](Zero-Knowledge.md)).
+
 ## How it works
 
 - **Getting $h$.** Whoever knows $\log_g h$ can open a Pedersen commitment to

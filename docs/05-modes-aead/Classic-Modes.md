@@ -23,6 +23,14 @@ standards name, and push authentication. For new work use an
 | OFB | unique | no (keystream can be made ahead) | flips that bit |
 | CTR | unique counter blocks | both ways | flips that bit |
 
+## The story
+
+- **Who made it:** ECB, CBC, CFB and OFB were published for DES in FIPS 81 (1980); CBC was patented by IBM's Ehrsam, Meyer, Smith and Tuchman (1976). Diffie and Hellman described CTR in 1979.
+- **What for:** Turning a block cipher, which handles one block, into a way to encrypt whole messages.
+- **What it solved:** Without a mode, equal blocks give equal ciphertext. CBC and CTR chain or count so that patterns disappear.
+- **Where it stands:** CTR is the core of GCM and still fine. CBC survives in older systems. All of them only hide data and don't detect changes, which is why TLS 1.3 removed them in favor of AEAD.
+- **Incidents:** **ECB:** the famous "ECB penguin" image still shows through; Adobe's 2013 breach exposed 153 million passwords encrypted with 3DES in ECB, so equal passwords were visible, and Zoom used AES in ECB until 2020. **Padding oracles:** Vaudenay (2002) showed CBC padding errors decrypt data; they hit ASP.NET in 2010 (Duong and Rizzo), TLS with Lucky Thirteen (2013) and SSL 3.0 with POODLE (2014). **BEAST (2011):** TLS 1.0's predictable CBC IVs let an attacker read cookies.
+
 ## ECB
 
 **How it works.** Each block is encrypted alone: $C_i = E(K, P_i)$.

@@ -38,6 +38,58 @@ one algorithm. RFC 5116 (2008) fixed the interface protocols code against:
 
 Sizes are in bits.
 
+## The story
+
+### AES-GCM {#story-aes-gcm}
+
+- **Who made it:** David McGrew and John Viega, 2004; NIST SP 800-38D (2007).
+- **What for:** Encryption and authentication in one fast pass, with hardware support.
+- **What it solved:** It replaced cipher-plus-MAC combinations that people built wrongly.
+- **Where it stands:** Recommended; the main cipher of TLS and IPsec.
+- **Incidents:** A repeated nonce breaks it: Joux showed in 2006 that it reveals the authentication key. In 2016 Böck and others found 184 HTTPS servers repeating GCM nonces, including sites of Visa. KRACK (2017) forced WPA2 to reuse nonces.
+### ChaCha20-Poly1305 {#story-chacha20-poly1305}
+
+- **Who made it:** Bernstein's ChaCha20 and Poly1305 (2005), combined by Adam Langley and Yoav Nir in RFC 7539 (2015).
+- **What for:** An AEAD that is fast without AES hardware.
+- **What it solved:** Phones and small devices got authenticated encryption without timing leaks.
+- **Where it stands:** Recommended, in TLS 1.3, SSH, WireGuard and QUIC.
+- **Incidents:** Same nonce rule as GCM; no break.
+### AES-GCM-SIV {#story-aes-gcm-siv}
+
+- **Who made it:** Shay Gueron and Yehuda Lindell, 2015; RFC 8452 (2019).
+- **What for:** An AEAD that survives a repeated nonce.
+- **What it solved:** A repeated nonce in GCM-SIV only reveals that two messages were equal, nothing more.
+- **Where it stands:** Recommended where nonces can't be trusted.
+- **Incidents:** None.
+### AES-CCM {#story-aes-ccm}
+
+- **Who made it:** Doug Whiting, Russ Housley and Niels Ferguson, 2002.
+- **What for:** An AEAD with no patent, using only AES encryption.
+- **What it solved:** It gave Wi-Fi (WPA2's CCMP) and Bluetooth a free AEAD while OCB was patented.
+- **Where it stands:** Acceptable; common in constrained devices.
+- **Incidents:** KRACK (2017) forced WPA2 to reuse CCM nonces.
+### AES-OCB {#story-aes-ocb}
+
+- **Who made it:** Phillip Rogaway, 2001; RFC 7253 (2014).
+- **What for:** The fastest one-pass AEAD.
+- **What it solved:** Encrypt and authenticate in one pass with almost no extra cost.
+- **Where it stands:** Fast and sound, but Rogaway's patents kept it out of most protocols until he abandoned them in 2021.
+- **Incidents:** OCB2 (a 2004 version) was broken in 2018 by Inoue, Iwata and Minematsu; OCB1 and OCB3 are fine.
+### AEGIS {#story-aegis}
+
+- **Who made it:** Hongjun Wu and Bart Preneel, 2013; a CAESAR competition finalist.
+- **What for:** A very fast AEAD on CPUs with AES instructions.
+- **What it solved:** It reaches tens of gigabytes per second per core.
+- **Where it stands:** Being standardized by the IETF.
+- **Incidents:** None.
+### Ascon {#story-ascon}
+
+- **Who made it:** Christoph Dobraunig, Maria Eichlseder, Florian Mendel and Martin Schläffer at Graz University of Technology, Austria, 2014.
+- **What for:** Encryption for tiny devices: sensors, RFID, medical implants.
+- **What it solved:** It won NIST's lightweight competition in February 2023 and became SP 800-232 in 2025.
+- **Where it stands:** Recommended for constrained hardware.
+- **Incidents:** None.
+
 ## How it works
 
 ### AES-GCM

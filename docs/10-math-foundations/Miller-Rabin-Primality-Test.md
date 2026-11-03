@@ -14,6 +14,14 @@ answer drops to $4^{-k}$ after $k$ rounds — run 40 rounds and that's negligibl
 
 It never gives a false "composite": a composite verdict is always correct.
 
+## The story
+
+- **Who made it:** Gary Miller (1976, a deterministic test that assumes the generalized Riemann hypothesis) and Michael Rabin (1980, who made it probabilistic and proved it unconditionally). It builds on Fermat's little theorem (1640).
+- **What for:** Telling quickly whether a huge number is prime.
+- **What it solved:** RSA and DH need primes of hundreds of digits; trial division can't handle them.
+- **Where it stands:** Used in every crypto library, usually with a Lucas test as well (Baillie-PSW).
+- **Incidents:** **Prime and Prejudice (2018):** Albrecht, Massimo, Paterson and Somorovsky built composite numbers that passed the fixed or too-few Miller-Rabin rounds in several libraries. Where an attacker can supply the number, for example DH parameters, use random bases and enough rounds.
+
 ## How it works
 
 It refines Fermat's little theorem ($a^{n-1} \equiv 1 \pmod{n}$ for prime $n$) with one

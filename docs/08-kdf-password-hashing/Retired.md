@@ -12,6 +12,37 @@ can't grow with hardware, a cap on password length, or no memory cost to slow
 down GPUs. For new hashes use [Argon2id](Argon2.md) or [scrypt](scrypt.md);
 yescrypt and [bcrypt](bcrypt.md) are acceptable too.
 
+## The story
+
+### PBKDF1 {#story-pbkdf1}
+
+- **Who made it:** RSA Laboratories, PKCS #5 v1.5 (1993).
+- **What for:** Turning a password into a DES key.
+- **What it solved:** It introduced salt and iterations to password-based encryption.
+- **Why it was retired:** Output limited to the hash length, and it used MD2, MD5 or SHA-1.
+- **Incidents:** None famous; it was replaced before it mattered.
+### DES-crypt {#story-des-crypt}
+
+- **Who made it:** Robert Morris and Ken Thompson at Bell Labs, for Unix Version 7 (1979), described in their paper "Password Security: A Case History".
+- **What for:** Storing Unix passwords so a stolen file doesn't give them away.
+- **What it solved:** It introduced salt, 12 bits of it, and deliberate slowness: 25 rounds of DES.
+- **Why it was retired:** Only 8 characters and far too fast today.
+- **Incidents:** The Morris worm (1988), by Robert Morris's son, spread partly by guessing passwords against these hashes.
+### MD5-crypt {#story-md5-crypt}
+
+- **Who made it:** Poul-Henning Kamp, FreeBSD, 1994.
+- **What for:** Longer passwords and no DES export issues.
+- **What it solved:** No 8-character limit.
+- **Why it was retired:** Fixed cost; Kamp himself declared it unsafe in 2012.
+- **Incidents:** Huge numbers of old systems still had it when hash dumps leaked in the 2010s.
+### sha256crypt and sha512crypt {#story-sha256crypt-and-sha512crypt}
+
+- **Who made it:** Ulrich Drepper, 2007, for glibc.
+- **What for:** A crypt with SHA-2 and adjustable rounds.
+- **What it solved:** It gave Linux a standard, tunable hash.
+- **Why it was retired:** No memory cost; distributions moved to yescrypt.
+- **Incidents:** None in the scheme.
+
 ## PBKDF1
 
 **What it was.** The key derivation function of RSA Labs' PKCS #5 v1.5

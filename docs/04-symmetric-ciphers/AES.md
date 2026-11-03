@@ -23,6 +23,14 @@ one key. NIST planned to write a draft standard and took comments until 25 June
 block (see [Block-cipher MACs](../06-mac/Block-Cipher-MACs.md)). Neither is a
 standard yet.
 
+## The story
+
+- **Who made it:** Joan Daemen and Vincent Rijmen, two Belgian cryptographers, under the name Rijndael. NIST ran an open contest from January 1997: 15 designs from 12 countries, five finalists (MARS, RC6, Rijndael, Serpent, Twofish), and Rijndael won on 2 October 2000. FIPS 197 followed in November 2001.
+- **What for:** A replacement for DES that the whole world could check and use free.
+- **What it solved:** DES's 56-bit key could be searched (the EFF's Deep Crack did it in 56 hours in 1998). AES has 128 to 256-bit keys, a 128-bit block and runs well on everything from 8-bit cards to servers. Because it came from an open contest, people trusted it in a way they never fully trusted DES.
+- **Where it stands:** Recommended. The NSA approved it for TOP SECRET in 2003, and most CPUs since about 2010 have AES instructions. 25 years of attacks have taken off only about 2 bits (the biclique attack of 2011, $2^{126}$ for AES-128).
+- **Incidents:** No break of the cipher; the trouble has been in implementations. **Cache timing (2005):** Bernstein recovered an AES key across a network from OpenSSL's table lookups, and Osvik, Shamir and Tromer did it from another process on the same machine. This is why constant-time code and AES hardware instructions matter.
+
 ## How it works
 
 AES arranges each 16-byte block as a $4 \times 4$ byte matrix (the *state*) and runs it

@@ -29,6 +29,14 @@ GnuPG's default key was DSA with an ElGamal subkey until versions 1.4.10 and
   session key, which NIST SP 800-131A deprecates. ElGamal signatures (the old
   type 20) are forbidden too.
 
+## The story
+
+- **Who made it:** Taher ElGamal, an Egyptian-born cryptographer working at Stanford with Hellman, at CRYPTO '84 (published 1985). He later led the SSL work at Netscape.
+- **What for:** Public-key encryption and signatures built from Diffie-Hellman, free of RSA's patent.
+- **What it solved:** It turned key agreement into encryption, and its randomness meant the same message encrypted twice looks different, which plain RSA lacked.
+- **Why it was retired:** Retired in OpenPGP: GnuPG moved its default from DSA with ElGamal to RSA in 2009, and RFC 9580 (2024) drops it. Its additive form lives on in voting and homomorphic schemes.
+- **Incidents:** **GnuPG (2003):** Phong Nguyen found that GnuPG's ElGamal signing keys used small values that let the private key be recovered in seconds; GnuPG removed ElGamal signing. **OpenPGP (2021):** De Feo, Poettering and Sorniotti showed that different programs made ElGamal keys in incompatible ways, and some combinations leaked plaintext.
+
 ## How it works
 
 Take a group with generator $g$ of prime order $q$, for example the squares

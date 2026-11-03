@@ -26,6 +26,14 @@ the widely deployed standards went that way. Schnorr came back twice:
   bytes for Bitcoin's ECDSA. The Taproot soft fork switched it on at block
   709,632 in November 2021.
 
+## The story
+
+- **Who made it:** Claus-Peter Schnorr of Goethe University Frankfurt, at CRYPTO '89.
+- **What for:** Cheap signatures for smart cards of the 1980s, which had very little processing power.
+- **What it solved:** It is the simplest secure signature in a discrete-log group, with a clean security proof, and signatures from many signers can be added together.
+- **Where it stands:** Its patent (until 2008) is why DSA and ECDSA exist in their more awkward forms. Once it expired, Schnorr came back: EdDSA is a Schnorr signature, and Bitcoin adopted BIP-340 Schnorr signatures with the Taproot upgrade in November 2021.
+- **Incidents:** Like DSA, it fails completely if a nonce repeats. Multi-signature schemes built on it needed care: in 2019 Drijvers and others showed that several published two-round multi-signature schemes, including the first version of MuSig, could be forged, which led to MuSig2.
+
 ## How it works
 
 Take a group with generator $G$ of prime order $n$, and a hash $H$.
