@@ -1,8 +1,5 @@
 {
   "name": "Civic Holiday",
   "greet": "Happy Civic Holiday from Mars",
-  "accent": "#9cc9ea",
-  "date": {
-    "day": "civic"
-  }
+  "accent": "#9cc9ea"
 }

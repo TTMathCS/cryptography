@@ -1,8 +1,5 @@
 {
   "name": "Thanksgiving",
   "greet": "Happy Thanksgiving from Mars",
-  "accent": "#e08a3c",
-  "date": {
-    "day": "thanksgiving"
-  }
+  "accent": "#e08a3c"
 }

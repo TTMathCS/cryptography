@@ -1,8 +1,7 @@
-// The date rules of the holiday themes (holidays/README.md). A theme's "date" in its theme.json names its holiday, a fixed
+// The date rules of the holiday themes (holidays/README.md). A theme's "date" in index.json names its holiday, a fixed
 // day {"on": "10-31"} or a moving Ontario holiday {"day": "thanksgiving"} (the list below), and the theme is on from LEAD
-// days before it through the day itself (Jim, 26 Oct 2026: "themes should be switched 1 week before the holiday ... so it
-// is celebrated for a week"). A theme may change that: "lead" (days before) and "after" (days after, 0 when not given).
-export const LEAD = 7;
+// days before it through the day itself (Jim, 26 Oct 2026: one week; 2 Nov 2026: "2 weeks earlier, instead of 1 week"). A theme may change that: "lead" (days before) and "after" (days after, 0 when not given).
+export const LEAD = 14;   // two weeks (Jim, 2 Nov 2026: "2 weeks earlier, instead of 1 week")
 export const day = (y, m, d) => Date.UTC(y, m - 1, d) / 864e5;                 // a date as a whole day number: no time zones
 const dow = (y, m, d) => new Date(Date.UTC(y, m - 1, d)).getUTCDay();       // 0 Sunday ... 6 Saturday
 const monday = (y, m, n) => day(y, m, 1 + ((8 - dow(y, m, 1)) % 7) + 7 * (n - 1));   // the n-th Monday of a month
@@ -24,12 +23,15 @@ export const DAYS = {
   thanksgiving: (y) => monday(y, 10, 2),                        // Thanksgiving: the second Monday of October
 };
 
-// whether a theme's date rule takes in this date (year, month 1-12, day)
-export function matches(rule, y, m, d) {
-  if (!rule) return false;
+// the last day of the theme's run that takes in this date (year, month 1-12, day), as a day number, or null when it is off.
+// When two runs overlap, the page shows the one that ends first (loader.js): the earlier holiday through its day, then the
+// next one from the day after (Jim, 2 Nov 2026).
+export function ends(rule, y, m, d) {
+  if (!rule) return null;
   const t = day(y, m, d), lead = rule.lead ?? LEAD, after = rule.after || 0, on = /^(\d\d)-(\d\d)$/.exec(rule.on || "");
-  return [y - 1, y, y + 1].some((s) => {
+  for (const s of [y - 1, y, y + 1]) {
     const c = on ? day(s, +on[1], +on[2]) : DAYS[rule.day] ? DAYS[rule.day](s) : NaN;
-    return t >= c - lead && t <= c + after;
-  });
+    if (t >= c - lead && t <= c + after) return c + after;
+  }
+  return null;
 }

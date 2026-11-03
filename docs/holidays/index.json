@@ -1,15 +1,15 @@
 {
   "themes": [
-    {"name": "newyear", "on": true},
-    {"name": "christmas", "on": true},
-    {"name": "family-day", "on": true},
-    {"name": "easter", "on": true},
-    {"name": "victoria-day", "on": true},
-    {"name": "canada-day", "on": true},
-    {"name": "civic-holiday", "on": true},
-    {"name": "labour-day", "on": true},
-    {"name": "thanksgiving", "on": true},
-    {"name": "halloween", "on": true},
-    {"name": "remembrance-day", "on": true}
+    {"name": "newyear", "on": true, "date": {"on": "01-01"}},
+    {"name": "christmas", "on": true, "date": {"on": "12-25", "after": 1}},
+    {"name": "family-day", "on": true, "date": {"day": "family"}},
+    {"name": "easter", "on": true, "date": {"day": "easter", "after": 1}},
+    {"name": "victoria-day", "on": true, "date": {"day": "victoria"}},
+    {"name": "canada-day", "on": true, "date": {"on": "07-01"}},
+    {"name": "civic-holiday", "on": true, "date": {"day": "civic"}},
+    {"name": "labour-day", "on": true, "date": {"day": "labour"}},
+    {"name": "thanksgiving", "on": true, "date": {"day": "thanksgiving"}},
+    {"name": "halloween", "on": true, "date": {"on": "10-31"}},
+    {"name": "remembrance-day", "on": true, "date": {"on": "11-11"}}
   ]
 }

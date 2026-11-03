@@ -13,5 +13,6 @@ for d in "$M"/holidays/*/; do
   n=$(basename "$d")
   mkdir -p "docs/holidays/$n"
   cp "$d/theme.json" "docs/holidays/$n/"
+  for f in "$d"*.svg; do [ -f "$f" ] && cp "$f" "docs/holidays/$n/"; done   # a picture icon (the poppy)
 done
 cp "$P"/21-starlit-city.webp "$P"/27-dawn-after-storm.webp docs/images/

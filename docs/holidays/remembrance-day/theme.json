@@ -2,8 +2,6 @@
   "name": "Remembrance Day",
   "greet": "Lest we forget · Remembrance Day",
   "accent": "#d23b33",
-  "date": {
-    "on": "11-11"
-  },
-  "home": true
+  "home": true,
+  "icon": "poppy.svg"
 }

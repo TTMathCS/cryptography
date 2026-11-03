@@ -1,8 +1,5 @@
 {
   "name": "Family Day",
   "greet": "Happy Family Day from Mars",
-  "accent": "#f0a35e",
-  "date": {
-    "day": "family"
-  }
+  "accent": "#f0a35e"
 }

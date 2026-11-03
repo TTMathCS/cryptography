@@ -2,9 +2,5 @@
   "name": "Christmas",
   "greet": "Merry Christmas from Mars",
   "accent": "#e0574f",
-  "date": {
-    "on": "12-25",
-    "after": 1
-  },
   "icon": "🎄"
 }

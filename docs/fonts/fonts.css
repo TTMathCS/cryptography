@@ -1,11 +1,22 @@
-/* The site's fonts, from our own site (fonts/README.md says where each file comes from). Written by
-   fonts/tools/fetch_fonts.py: change the script, not this file. */
+/* The site's fonts, from our own site (fonts/README.md says where each file comes from). Saira Condensed
+   comes as two files a weight: a Latin cut (about 17 KB instead of 40) for the letters the pages use, and the full file
+   only for any other character (fonts/README.md, 2 Nov 2026). */
 @font-face {
   font-family: 'Saira Condensed';
   font-style: normal;
   font-weight: 500;
   font-display: swap;
   src: url('saira-condensed/SairaCondensed-Medium.woff2') format('woff2');
+  unicode-range: U+0100-FFFF;
+}
+
+@font-face {
+  font-family: 'Saira Condensed';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('saira-condensed/SairaCondensed-Medium-Latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212, U+2215;
 }
 
 @font-face {
@@ -14,6 +25,16 @@
   font-weight: 600;
   font-display: swap;
   src: url('saira-condensed/SairaCondensed-SemiBold.woff2') format('woff2');
+  unicode-range: U+0100-FFFF;
+}
+
+@font-face {
+  font-family: 'Saira Condensed';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('saira-condensed/SairaCondensed-SemiBold-Latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212, U+2215;
 }
 
 @font-face {
@@ -22,6 +43,16 @@
   font-weight: 700;
   font-display: swap;
   src: url('saira-condensed/SairaCondensed-Bold.woff2') format('woff2');
+  unicode-range: U+0100-FFFF;
+}
+
+@font-face {
+  font-family: 'Saira Condensed';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('saira-condensed/SairaCondensed-Bold-Latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212, U+2215;
 }
 
 @font-face {
