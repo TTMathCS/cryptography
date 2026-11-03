@@ -79,6 +79,10 @@ validation:
   unrecognized_links: warn
   anchors: warn
 
+# Chapters of the book are added to the nav part by part as they are finished
+not_in_nav: |
+  /book/
+
 nav:
   - Home: index.md
   - Start here: learn/index.md
