@@ -3,14 +3,43 @@ template: home.html
 title: Cryptography
 ---
 
-# Algorithms by the job they do
+# Learn cryptography
+
+This site is a course in nine parts, from no background at all to the
+algorithms being standardized now. [Start here](learn/index.md) explains the
+path; the **Next** link at the foot of every page takes you through it.
+
+1. [The story](history/index.md): four thousand years of secret writing,
+   across the whole world.
+2. [First steps](learn/What-Cryptography-Does.md): what cryptography is for,
+   [the old ciphers and how they were broken](learn/Classical-Ciphers.md),
+   [the one-time pad](learn/One-Time-Pad.md).
+3. [The math toolkit](learn/Modular-Arithmetic.md): modular arithmetic,
+   [groups and fields](learn/Groups-and-Fields.md),
+   [probability](learn/Probability-and-Security-Levels.md), primes.
+4. [Secret-key cryptography](learn/Block-Cipher-Design.md): block ciphers, AES,
+   ChaCha, modes, hashes, MACs, password hashing, random numbers.
+5. [Public-key cryptography](10-math-foundations/Hard-Problems.md): hard
+   problems, elliptic curves, Diffie-Hellman, RSA, signatures.
+6. [Thinking like a cryptographer](learn/Security-Definitions.md): definitions,
+   proofs and [side channels](learn/Side-Channels.md).
+7. [Post-quantum](learn/Quantum-Computing.md): what quantum computers break,
+   [lattices](learn/Lattices-and-LWE.md), ML-KEM, ML-DSA and the rest.
+8. [Advanced primitives](11-advanced/Commitments.md): secret sharing,
+   zero-knowledge, MPC, homomorphic encryption.
+9. [Real systems](protocols/index.md): TLS, SSH, Signal, Wi-Fi and the formats
+   and tools around them.
+
+Every algorithm page tells its story (who made it, what for, what it fixed, why
+it was retired and what went wrong along the way), then how it works, with the
+math and a short program.
+
+## Algorithms by the job they do
 
 When SSH or TLS connects, it picks one algorithm for each job: a key exchange,
 a signature, a cipher, a MAC and a hash. The tables below list the algorithms
 themselves. [Protocols](protocols/index.md) shows the other side: what SSH,
 TLS, WireGuard, Signal and others actually run.
-New readers can start with [History](history/index.md), which tells how these
-algorithms came to be, from Caesar's cipher to post-quantum keys.
 
 **Columns:** *Size* is the key, output or group size (B means bytes).
 *Security* is the classical strength in bits: about $2^n$ work to break it, so
