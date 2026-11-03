@@ -37,6 +37,42 @@ roughly when a connection was made could try the few possible seeds and recover
 the key, often in under a minute. A 128-bit key had a few tens of bits of real
 uncertainty.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 230" width="640" role="img" aria-label="Time of day and two process IDs feed a mixing step that outputs a 128-bit key with only a few tens of bits of real uncertainty" xmlns="http://www.w3.org/2000/svg">
+<rect x="10" y="20" width="170" height="48" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="10" y="20" width="170" height="48" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="95" y="41" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">time of day</text>
+<text x="95" y="56" font-size="11" text-anchor="middle" fill="currentColor" font-style="italic">seconds + microseconds</text>
+<line x1="180" y1="44" x2="244.7" y2="99.4" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="250,104 241.6,101.5 246.3,96.1" fill="currentColor"/>
+<rect x="10" y="82" width="170" height="48" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="10" y="82" width="170" height="48" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="95" y="103" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">process ID</text>
+<text x="95" y="118" font-size="11" text-anchor="middle" fill="currentColor" font-style="italic">a small number</text>
+<line x1="180" y1="106" x2="243" y2="104.2" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="250,104 242.1,107.8 241.9,100.6" fill="currentColor"/>
+<rect x="10" y="144" width="170" height="48" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="10" y="144" width="170" height="48" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="95" y="165" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">parent's process ID</text>
+<text x="95" y="180" font-size="11" text-anchor="middle" fill="currentColor" font-style="italic">a small number</text>
+<line x1="180" y1="168" x2="244.8" y2="108.7" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="250,104 246.5,112.1 241.7,106.7" fill="currentColor"/>
+<rect x="250" y="80" width="110" height="48" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="250" y="80" width="110" height="48" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="305" y="108.5" font-size="13" text-anchor="middle" fill="currentColor">MD5 mixing</text>
+<line x1="360" y1="104" x2="413" y2="104" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="420,104 412,107.6 412,100.4" fill="currentColor"/>
+<rect x="420" y="74" width="210" height="60" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="420" y="74" width="210" height="60" rx="6" class="soft-acc" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<rect x="420" y="74" width="210" height="60" rx="6" fill="none" stroke="currentColor" class="acc" stroke-width="2"/>
+<text x="525" y="108.5" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">128-bit session key</text>
+<text x="525" y="160" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">looks like 128 bits</text>
+<text x="525" y="178" font-size="12" text-anchor="middle" fill="currentColor" class="acc-fill" font-style="italic">but only a few tens of bits</text>
+<text x="525" y="196" font-size="12" text-anchor="middle" fill="currentColor" class="acc-fill" font-style="italic">were really unknown</text>
+</svg>
+<figcaption>Figure 4.1. Netscape's 1995 key generator. However well the inputs are mixed, the key can't be less predictable than the inputs, and an eavesdropper could guess these.</figcaption>
+</figure>
+
 That is the lesson of this chapter in one story. Every security level in
 [Chapter 1](01-What-Cryptography-Is-For.md) assumes the key was chosen
 **uniformly at random** from all possible keys. If it wasn't, the key length
@@ -54,6 +90,68 @@ used random numbers in the first computer simulations, warned in 1949:
 "Anyone who considers arithmetical methods of producing random digits is, of
 course, in a state of sin." Computers are deterministic machines, and turning
 them into sources of secrets is harder than it looks.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 560 590" width="560" role="img" aria-label="Timeline from Frank Miller's pad of 1882 to Sweet32 and Linux's ChaCha20 generator in 2016" xmlns="http://www.w3.org/2000/svg">
+<text x="280" y="22" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">Pads, randomness and their failures</text>
+<line x1="104" y1="36" x2="104" y2="558" stroke="currentColor" stroke-width="1.5"/>
+<text x="90" y="49" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1882</text>
+<circle cx="104" cy="44" r="4" fill="currentColor"/>
+<text x="118" y="49" font-size="13" text-anchor="start" fill="currentColor">Frank Miller's one-time pad for telegrams</text>
+<text x="90" y="79" font-size="13" text-anchor="end" fill="currentColor" class="acc-fill" font-weight="bold">1917</text>
+<circle cx="104" cy="74" r="5" fill="currentColor" class="acc-fill"/>
+<text x="118" y="79" font-size="13" text-anchor="start" fill="currentColor">Vernam's XOR tape machine</text>
+<text x="90" y="109" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1941</text>
+<circle cx="104" cy="104" r="4" fill="currentColor"/>
+<text x="118" y="109" font-size="13" text-anchor="start" fill="currentColor">Tunny: a Lorenz key setting used twice</text>
+<text x="90" y="139" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1943</text>
+<circle cx="104" cy="134" r="4" fill="currentColor"/>
+<text x="118" y="139" font-size="13" text-anchor="start" fill="currentColor">Venona: Grabeel starts on reused pads</text>
+<text x="90" y="169" font-size="13" text-anchor="end" fill="currentColor" class="acc-fill" font-weight="bold">1948–49</text>
+<circle cx="104" cy="164" r="5" fill="currentColor" class="acc-fill"/>
+<text x="118" y="169" font-size="13" text-anchor="start" fill="currentColor">Shannon: entropy; perfect secrecy proved</text>
+<text x="90" y="199" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1955</text>
+<circle cx="104" cy="194" r="4" fill="currentColor"/>
+<text x="118" y="199" font-size="13" text-anchor="start" fill="currentColor">RAND's book of a million random digits</text>
+<text x="90" y="229" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1957</text>
+<circle cx="104" cy="224" r="4" fill="currentColor"/>
+<text x="118" y="229" font-size="13" text-anchor="start" fill="currentColor">ERNIE draws Premium Bond winners</text>
+<text x="90" y="259" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1963</text>
+<circle cx="104" cy="254" r="4" fill="currentColor"/>
+<text x="118" y="259" font-size="13" text-anchor="start" fill="currentColor">Moscow–Washington hotline on one-time tape</text>
+<text x="90" y="289" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">1994</text>
+<circle cx="104" cy="284" r="4" fill="currentColor"/>
+<text x="118" y="289" font-size="13" text-anchor="start" fill="currentColor">Linux /dev/random</text>
+<text x="90" y="319" font-size="13" text-anchor="end" fill="currentColor" class="acc-fill" font-weight="bold">1995</text>
+<circle cx="104" cy="314" r="5" fill="currentColor" class="acc-fill"/>
+<text x="118" y="319" font-size="13" text-anchor="start" fill="currentColor">Netscape's guessable seed</text>
+<text x="90" y="349" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">2006</text>
+<circle cx="104" cy="344" r="4" fill="currentColor"/>
+<text x="118" y="349" font-size="13" text-anchor="start" fill="currentColor">Debian's two deleted lines; Dual_EC standard</text>
+<text x="90" y="379" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">2008</text>
+<circle cx="104" cy="374" r="4" fill="currentColor"/>
+<text x="118" y="379" font-size="13" text-anchor="start" fill="currentColor">Debian flaw found</text>
+<text x="90" y="409" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">2010</text>
+<circle cx="104" cy="404" r="4" fill="currentColor"/>
+<text x="118" y="409" font-size="13" text-anchor="start" fill="currentColor">PlayStation 3 signing key extracted</text>
+<text x="90" y="439" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">2012</text>
+<circle cx="104" cy="434" r="4" fill="currentColor"/>
+<text x="118" y="439" font-size="13" text-anchor="start" fill="currentColor">Mining your Ps and Qs</text>
+<text x="90" y="469" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">2013</text>
+<circle cx="104" cy="464" r="4" fill="currentColor"/>
+<text x="118" y="469" font-size="13" text-anchor="start" fill="currentColor">Android wallets; Snowden on Dual_EC</text>
+<text x="90" y="499" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">2014</text>
+<circle cx="104" cy="494" r="4" fill="currentColor"/>
+<text x="118" y="499" font-size="13" text-anchor="start" fill="currentColor">Linux getrandom()</text>
+<text x="90" y="529" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">2015</text>
+<circle cx="104" cy="524" r="4" fill="currentColor"/>
+<text x="118" y="529" font-size="13" text-anchor="start" fill="currentColor">Juniper's replaced Q</text>
+<text x="90" y="559" font-size="13" text-anchor="end" fill="currentColor" class="acc-fill" font-weight="bold">2016</text>
+<circle cx="104" cy="554" r="5" fill="currentColor" class="acc-fill"/>
+<text x="118" y="559" font-size="13" text-anchor="start" fill="currentColor">Sweet32; Linux moves to ChaCha20</text>
+</svg>
+<figcaption>Figure 4.2. The chapter's story in dates: a perfect cipher found early, proved perfect in 1949, and broken in practice only by people reusing pads; then fifty years of real systems failing for want of good random numbers.</figcaption>
+</figure>
 
 ## 4.2 The probability you need
 
@@ -131,6 +229,50 @@ equals the ordinary entropy. NIST's rules for entropy sources (SP 800-90B) are
 stated in min-entropy, and so is the rule for keys: **a $k$-bit key needs $k$
 bits of min-entropy.**
 
+<figure class="mars-fig">
+<svg viewBox="0 0 560 320" width="560" role="img" aria-label="Entropy and min-entropy of a biased coin against the probability of heads; both are 1 bit at p = 0.5 and fall to 0 at the ends" xmlns="http://www.w3.org/2000/svg">
+<line x1="60" y1="260" x2="540" y2="260" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="54" y="264" font-size="12" text-anchor="end" fill="currentColor">0</text>
+<line x1="60" y1="140" x2="540" y2="140" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="54" y="144" font-size="12" text-anchor="end" fill="currentColor">0.5</text>
+<line x1="60" y1="20" x2="540" y2="20" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="54" y="24" font-size="12" text-anchor="end" fill="currentColor">1</text>
+<text x="60" y="278" font-size="12" text-anchor="middle" fill="currentColor">0</text>
+<text x="180" y="278" font-size="12" text-anchor="middle" fill="currentColor">0.25</text>
+<text x="300" y="278" font-size="12" text-anchor="middle" fill="currentColor">0.5</text>
+<text x="420" y="278" font-size="12" text-anchor="middle" fill="currentColor">0.75</text>
+<text x="540" y="278" font-size="12" text-anchor="middle" fill="currentColor">1</text>
+<path d="M60.0 260.0 L62.4 249.1 L64.8 240.6 L67.2 233.0 L69.6 226.1 L72.0 219.5 L74.4 213.3 L76.8 207.5 L79.2 201.8 L81.6 196.5 L84.0 191.3 L86.4 186.3 L88.8 181.4 L91.2 176.7 L93.6 172.2 L96.0 167.8 L98.4 163.5 L100.8 159.3 L103.2 155.2 L105.6 151.3 L108.0 147.4 L110.4 143.7 L112.8 140.0 L115.2 136.4 L117.6 133.0 L120.0 129.5 L122.4 126.2 L124.8 123.0 L127.2 119.8 L129.6 116.7 L132.0 113.6 L134.4 110.7 L136.8 107.8 L139.2 104.9 L141.6 102.2 L144.0 99.4 L146.4 96.8 L148.8 94.2 L151.2 91.6 L153.6 89.2 L156.0 86.7 L158.4 84.4 L160.8 82.0 L163.2 79.8 L165.6 77.6 L168.0 75.4 L170.4 73.3 L172.8 71.2 L175.2 69.2 L177.6 67.2 L180.0 65.3 L182.4 63.4 L184.8 61.6 L187.2 59.8 L189.6 58.0 L192.0 56.3 L194.4 54.7 L196.8 53.1 L199.2 51.5 L201.6 50.0 L204.0 48.5 L206.4 47.0 L208.8 45.6 L211.2 44.3 L213.6 42.9 L216.0 41.7 L218.4 40.4 L220.8 39.2 L223.2 38.0 L225.6 36.9 L228.0 35.8 L230.4 34.8 L232.8 33.8 L235.2 32.8 L237.6 31.8 L240.0 30.9 L242.4 30.1 L244.8 29.2 L247.2 28.4 L249.6 27.7 L252.0 27.0 L254.4 26.3 L256.8 25.6 L259.2 25.0 L261.6 24.5 L264.0 23.9 L266.4 23.4 L268.8 22.9 L271.2 22.5 L273.6 22.1 L276.0 21.7 L278.4 21.4 L280.8 21.1 L283.2 20.8 L285.6 20.6 L288.0 20.4 L290.4 20.3 L292.8 20.2 L295.2 20.1 L297.6 20.0 L300.0 20.0 L302.4 20.0 L304.8 20.1 L307.2 20.2 L309.6 20.3 L312.0 20.4 L314.4 20.6 L316.8 20.8 L319.2 21.1 L321.6 21.4 L324.0 21.7 L326.4 22.1 L328.8 22.5 L331.2 22.9 L333.6 23.4 L336.0 23.9 L338.4 24.5 L340.8 25.0 L343.2 25.6 L345.6 26.3 L348.0 27.0 L350.4 27.7 L352.8 28.4 L355.2 29.2 L357.6 30.1 L360.0 30.9 L362.4 31.8 L364.8 32.8 L367.2 33.8 L369.6 34.8 L372.0 35.8 L374.4 36.9 L376.8 38.0 L379.2 39.2 L381.6 40.4 L384.0 41.7 L386.4 42.9 L388.8 44.3 L391.2 45.6 L393.6 47.0 L396.0 48.5 L398.4 50.0 L400.8 51.5 L403.2 53.1 L405.6 54.7 L408.0 56.3 L410.4 58.0 L412.8 59.8 L415.2 61.6 L417.6 63.4 L420.0 65.3 L422.4 67.2 L424.8 69.2 L427.2 71.2 L429.6 73.3 L432.0 75.4 L434.4 77.6 L436.8 79.8 L439.2 82.0 L441.6 84.4 L444.0 86.7 L446.4 89.2 L448.8 91.6 L451.2 94.2 L453.6 96.8 L456.0 99.4 L458.4 102.2 L460.8 104.9 L463.2 107.8 L465.6 110.7 L468.0 113.6 L470.4 116.7 L472.8 119.8 L475.2 123.0 L477.6 126.2 L480.0 129.5 L482.4 133.0 L484.8 136.4 L487.2 140.0 L489.6 143.7 L492.0 147.4 L494.4 151.3 L496.8 155.2 L499.2 159.3 L501.6 163.5 L504.0 167.8 L506.4 172.2 L508.8 176.7 L511.2 181.4 L513.6 186.3 L516.0 191.3 L518.4 196.5 L520.8 201.8 L523.2 207.5 L525.6 213.3 L528.0 219.5 L530.4 226.1 L532.8 233.0 L535.2 240.6 L537.6 249.1 L540.0 260.0" stroke="currentColor" stroke-width="2.5" fill="none" class="acc"/>
+<path d="M60.0 260.0 L62.4 258.3 L64.8 256.5 L67.2 254.8 L69.6 253.0 L72.0 251.2 L74.4 249.5 L76.8 247.7 L79.2 245.9 L81.6 244.1 L84.0 242.2 L86.4 240.4 L88.8 238.6 L91.2 236.7 L93.6 234.9 L96.0 233.0 L98.4 231.1 L100.8 229.2 L103.2 227.3 L105.6 225.4 L108.0 223.5 L110.4 221.6 L112.8 219.7 L115.2 217.7 L117.6 215.7 L120.0 213.8 L122.4 211.8 L124.8 209.8 L127.2 207.8 L129.6 205.8 L132.0 203.7 L134.4 201.7 L136.8 199.6 L139.2 197.6 L141.6 195.5 L144.0 193.4 L146.4 191.3 L148.8 189.2 L151.2 187.0 L153.6 184.9 L156.0 182.7 L158.4 180.6 L160.8 178.4 L163.2 176.2 L165.6 174.0 L168.0 171.7 L170.4 169.5 L172.8 167.2 L175.2 165.0 L177.6 162.7 L180.0 160.4 L182.4 158.1 L184.8 155.7 L187.2 153.4 L189.6 151.0 L192.0 148.7 L194.4 146.3 L196.8 143.8 L199.2 141.4 L201.6 139.0 L204.0 136.5 L206.4 134.0 L208.8 131.5 L211.2 129.0 L213.6 126.5 L216.0 123.9 L218.4 121.3 L220.8 118.7 L223.2 116.1 L225.6 113.5 L228.0 110.8 L230.4 108.2 L232.8 105.5 L235.2 102.8 L237.6 100.0 L240.0 97.3 L242.4 94.5 L244.8 91.7 L247.2 88.9 L249.6 86.0 L252.0 83.1 L254.4 80.2 L256.8 77.3 L259.2 74.4 L261.6 71.4 L264.0 68.4 L266.4 65.4 L268.8 62.3 L271.2 59.2 L273.6 56.1 L276.0 53.0 L278.4 49.8 L280.8 46.6 L283.2 43.4 L285.6 40.2 L288.0 36.9 L290.4 33.6 L292.8 30.2 L295.2 26.9 L297.6 23.4 L300.0 20.0 L302.4 23.4 L304.8 26.9 L307.2 30.2 L309.6 33.6 L312.0 36.9 L314.4 40.2 L316.8 43.4 L319.2 46.6 L321.6 49.8 L324.0 53.0 L326.4 56.1 L328.8 59.2 L331.2 62.3 L333.6 65.4 L336.0 68.4 L338.4 71.4 L340.8 74.4 L343.2 77.3 L345.6 80.2 L348.0 83.1 L350.4 86.0 L352.8 88.9 L355.2 91.7 L357.6 94.5 L360.0 97.3 L362.4 100.0 L364.8 102.8 L367.2 105.5 L369.6 108.2 L372.0 110.8 L374.4 113.5 L376.8 116.1 L379.2 118.7 L381.6 121.3 L384.0 123.9 L386.4 126.5 L388.8 129.0 L391.2 131.5 L393.6 134.0 L396.0 136.5 L398.4 139.0 L400.8 141.4 L403.2 143.8 L405.6 146.3 L408.0 148.7 L410.4 151.0 L412.8 153.4 L415.2 155.7 L417.6 158.1 L420.0 160.4 L422.4 162.7 L424.8 165.0 L427.2 167.2 L429.6 169.5 L432.0 171.7 L434.4 174.0 L436.8 176.2 L439.2 178.4 L441.6 180.6 L444.0 182.7 L446.4 184.9 L448.8 187.0 L451.2 189.2 L453.6 191.3 L456.0 193.4 L458.4 195.5 L460.8 197.6 L463.2 199.6 L465.6 201.7 L468.0 203.7 L470.4 205.8 L472.8 207.8 L475.2 209.8 L477.6 211.8 L480.0 213.8 L482.4 215.7 L484.8 217.7 L487.2 219.7 L489.6 221.6 L492.0 223.5 L494.4 225.4 L496.8 227.3 L499.2 229.2 L501.6 231.1 L504.0 233.0 L506.4 234.9 L508.8 236.7 L511.2 238.6 L513.6 240.4 L516.0 242.2 L518.4 244.1 L520.8 245.9 L523.2 247.7 L525.6 249.5 L528.0 251.2 L530.4 253.0 L532.8 254.8 L535.2 256.5 L537.6 258.3 L540.0 260.0" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="6 4"/>
+<line x1="492" y1="260" x2="492" y2="147.4" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2"/>
+<circle cx="492" cy="147.4" r="4.5" fill="currentColor" class="acc-fill"/>
+<circle cx="492" cy="223.5" r="4.5" fill="currentColor"/>
+<text x="484" y="141.4" font-size="12" text-anchor="end" fill="currentColor" class="acc-fill" font-weight="bold">0.47</text>
+<text x="484" y="217.5" font-size="12" text-anchor="end" fill="currentColor" font-weight="bold">0.15</text>
+<text x="300" y="14" font-size="13" text-anchor="middle" fill="currentColor" class="acc-fill" font-weight="bold">Shannon entropy</text>
+<rect x="254.1" y="98.8" width="91.8" height="16.9" style="fill: var(--md-default-bg-color)"/>
+<text x="300" y="111.2" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">min-entropy</text>
+<text x="300" y="306" font-size="13" text-anchor="middle" fill="currentColor" font-style="italic">probability of heads, p</text>
+<text x="16" y="140" font-size="12" text-anchor="middle" fill="currentColor" transform="rotate(-90 16 140)">bits</text>
+</svg>
+<figcaption>Figure 4.3. A coin's uncertainty in bits. Both measures peak at a fair coin. At p = 0.9 the average surprise is 0.47 bits, but an attacker who always guesses heads is right 90% of the time, which min-entropy (0.15 bits) captures.</figcaption>
+</figure>
+
+**The story.** Claude Shannon was a mathematician at Bell Labs who had spent
+the war on fire-control systems and secret telephony. Bell Labs wanted to know
+how much information a telephone line or a radio channel could carry, and
+Shannon's answer, published in two parts in the *Bell System Technical
+Journal* in 1948, created information theory in one stroke. He borrowed the
+word "entropy" from physics; the formula itself had the same shape as one in
+statistical mechanics. In the same paper he used the word "bit", which he
+credited to his colleague John Tukey.
+
+!!! note "Life story: entropy"
+    **Born:** 1948, Claude Shannon, "A Mathematical Theory of Communication", Bell Labs · **Purpose:** measure
+    information, to know how much a channel can carry · **Helped:** the basis of compression, coding and
+    cryptography; Shannon's own 1949 secrecy paper and every key-strength estimate since · **Status:** current;
+    for keys, the stricter min-entropy is the standard (NIST SP 800-90B)
+
 **What passwords are worth.** If a password is chosen uniformly from $N$
 possibilities, its entropy is $\log_2 N$:
 
@@ -141,6 +283,43 @@ possibilities, its entropy is $\log_2 N$:
 | 6 random words from a 7,776-word list (Diceware) | $7776^6$ | 77.5 bits |
 | 12 random words from 2,048 (a BIP-39 wallet phrase) | $2048^{12}$ | 132 bits, of which 128 are entropy and 4 a checksum |
 | one common English word | about 20,000 | 14.3 bits |
+
+<figure class="mars-fig">
+<svg viewBox="0 0 620 250" width="620" role="img" aria-label="Bars of password entropy: a common word 14.3 bits, 8 random characters 52.6, 12 lowercase 56.4, 6 Diceware words 77.5, a BIP-39 phrase 128" xmlns="http://www.w3.org/2000/svg">
+<line x1="200" y1="14" x2="200" y2="200" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="200" y="218" font-size="12" text-anchor="middle" fill="currentColor">0</text>
+<line x1="296" y1="14" x2="296" y2="200" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="296" y="218" font-size="12" text-anchor="middle" fill="currentColor">32</text>
+<line x1="392" y1="14" x2="392" y2="200" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="392" y="218" font-size="12" text-anchor="middle" fill="currentColor">64</text>
+<line x1="488" y1="14" x2="488" y2="200" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="488" y="218" font-size="12" text-anchor="middle" fill="currentColor">96</text>
+<line x1="584" y1="14" x2="584" y2="200" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="584" y="218" font-size="12" text-anchor="middle" fill="currentColor">128</text>
+<text x="190" y="38" font-size="13" text-anchor="end" fill="currentColor">one common word</text>
+<rect x="200" y="24" width="42.9" height="22" rx="2" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<rect x="245.9" y="28.6" width="70.8" height="15.6" style="fill: var(--md-default-bg-color)"/>
+<text x="248.9" y="40" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">14.3 bits</text>
+<text x="190" y="74" font-size="13" text-anchor="end" fill="currentColor">8 random printable chars</text>
+<rect x="200" y="60" width="157.8" height="22" rx="2" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<rect x="360.8" y="64.6" width="70.8" height="15.6" style="fill: var(--md-default-bg-color)"/>
+<text x="363.8" y="76" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">52.6 bits</text>
+<text x="190" y="110" font-size="13" text-anchor="end" fill="currentColor">12 random lowercase</text>
+<rect x="200" y="96" width="169.2" height="22" rx="2" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<rect x="372.2" y="100.6" width="70.8" height="15.6" style="fill: var(--md-default-bg-color)"/>
+<text x="375.2" y="112" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">56.4 bits</text>
+<text x="190" y="146" font-size="13" text-anchor="end" fill="currentColor">6 Diceware words</text>
+<rect x="200" y="132" width="232.5" height="22" rx="2" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<rect x="435.5" y="136.6" width="70.8" height="15.6" style="fill: var(--md-default-bg-color)"/>
+<text x="438.5" y="148" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">77.5 bits</text>
+<text x="190" y="182" font-size="13" text-anchor="end" fill="currentColor">12-word BIP-39 phrase</text>
+<rect x="200" y="168" width="384" height="22" rx="2" class="soft-acc" fill="currentColor"/>
+<rect x="200" y="168" width="384" height="22" rx="2" fill="none" stroke="currentColor" class="acc" stroke-width="1"/>
+<text x="578" y="184" font-size="12" text-anchor="end" fill="currentColor" font-weight="bold">128 bits</text>
+<text x="395" y="242" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">entropy in bits, if chosen uniformly at random</text>
+</svg>
+<figcaption>Figure 4.4. What passwords are worth, from the table above. Only random choices earn these numbers; a person picking their own password usually lands near the top bar.</figcaption>
+</figure>
 
 These numbers hold only if the choice is **truly random**. People choosing for
 themselves are predictable, and leaked password lists show the same favorites
@@ -174,6 +353,37 @@ def p_clash(k, N):                  # chance that k random values out of N are n
 
 print(round(p_clash(23, 365), 3), round(p_clash(70, 365), 4))   # 0.507 0.9992
 ```
+
+<figure class="mars-fig">
+<svg viewBox="0 0 580 320" width="580" role="img" aria-label="The probability of a shared birthday rises steeply with group size, passing 50% at 23 people and 99.9% at 70" xmlns="http://www.w3.org/2000/svg">
+<line x1="60" y1="260" x2="560" y2="260" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="54" y="264" font-size="12" text-anchor="end" fill="currentColor">0%</text>
+<line x1="60" y1="200" x2="560" y2="200" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="54" y="204" font-size="12" text-anchor="end" fill="currentColor">25%</text>
+<line x1="60" y1="140" x2="560" y2="140" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="54" y="144" font-size="12" text-anchor="end" fill="currentColor">50%</text>
+<line x1="60" y1="80" x2="560" y2="80" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="54" y="84" font-size="12" text-anchor="end" fill="currentColor">75%</text>
+<line x1="60" y1="20" x2="560" y2="20" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="54" y="24" font-size="12" text-anchor="end" fill="currentColor">100%</text>
+<text x="60" y="278" font-size="12" text-anchor="middle" fill="currentColor">0</text>
+<text x="185" y="278" font-size="12" text-anchor="middle" fill="currentColor">20</text>
+<text x="310" y="278" font-size="12" text-anchor="middle" fill="currentColor">40</text>
+<text x="435" y="278" font-size="12" text-anchor="middle" fill="currentColor">60</text>
+<text x="560" y="278" font-size="12" text-anchor="middle" fill="currentColor">80</text>
+<path d="M60.0 260.0 L66.2 260.0 L72.5 259.3 L78.8 258.0 L85.0 256.1 L91.2 253.5 L97.5 250.3 L103.8 246.5 L110.0 242.2 L116.2 237.3 L122.5 231.9 L128.8 226.1 L135.0 219.9 L141.2 213.3 L147.5 206.5 L153.8 199.3 L160.0 191.9 L166.2 184.4 L172.5 176.7 L178.8 169.0 L185.0 161.3 L191.2 153.5 L197.5 145.8 L203.8 138.2 L210.0 130.8 L216.2 123.5 L222.5 116.4 L228.8 109.6 L235.0 102.9 L241.2 96.6 L247.5 90.5 L253.8 84.7 L260.0 79.2 L266.2 74.0 L272.5 69.1 L278.8 64.5 L285.0 60.3 L291.2 56.3 L297.5 52.6 L303.8 49.2 L310.0 46.1 L316.2 43.2 L322.5 40.6 L328.8 38.3 L335.0 36.1 L341.2 34.2 L347.5 32.4 L353.8 30.9 L360.0 29.5 L366.2 28.2 L372.5 27.1 L378.8 26.1 L385.0 25.3 L391.2 24.5 L397.5 23.9 L403.8 23.3 L410.0 22.8 L416.2 22.4 L422.5 22.0 L428.8 21.7 L435.0 21.4 L441.2 21.2 L447.5 21.0 L453.8 20.8 L460.0 20.7 L466.2 20.6 L472.5 20.5 L478.8 20.4 L485.0 20.3 L491.2 20.2 L497.5 20.2 L503.8 20.2 L510.0 20.1 L516.2 20.1 L522.5 20.1 L528.8 20.1 L535.0 20.1 L541.2 20.0 L547.5 20.0 L553.8 20.0 L560.0 20.0" stroke="currentColor" stroke-width="2.5" fill="none" class="acc"/>
+<line x1="203.8" y1="260" x2="203.8" y2="138.2" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3"/>
+<circle cx="203.8" cy="138.2" r="5" fill="currentColor" class="acc-fill"/>
+<rect x="208.8" y="143.9" width="130.8" height="16.9" style="fill: var(--md-default-bg-color)"/>
+<text x="211.8" y="156.2" font-size="13" text-anchor="start" fill="currentColor" font-weight="bold">23 people: 50.7%</text>
+<line x1="497.5" y1="260" x2="497.5" y2="20.2" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3"/>
+<circle cx="497.5" cy="20.2" r="5" fill="currentColor" class="acc-fill"/>
+<rect x="502.5" y="29.9" width="130.8" height="16.9" style="fill: var(--md-default-bg-color)"/>
+<text x="505.5" y="42.2" font-size="13" text-anchor="start" fill="currentColor" font-weight="bold">70 people: 99.9%</text>
+<text x="310" y="308" font-size="13" text-anchor="middle" fill="currentColor" font-style="italic">number of people in the room</text>
+</svg>
+<figcaption>Figure 4.5. The birthday curve for 365 days. A repeat becomes likely at about 1.18 × √365 ≈ 23 people, long before the room is anywhere near 365.</figcaption>
+</figure>
 
 Setting $e^{-k^2/2N} = \frac12$ gives $k \approx 1.18\sqrt{N}$ for a 50% chance,
 and the expected number of draws until the first repeat is
@@ -215,6 +425,22 @@ and Blowfish that is $2^{32}$ blocks, 32 GiB, which a busy HTTPS connection send
 in hours. Karthikeyan Bhargavan and Gaëtan Leurent demonstrated it in 2016 as
 the **Sweet32** attack, and 64-bit ciphers were retired. AES's 128-bit blocks
 push the limit to $2^{64}$ blocks, about $3 \times 10^{20}$ bytes.
+
+**The story.** The birthday problem is a classroom favorite from the first
+half of the 20th century; it became an attack in 1979, when Gideon Yuval
+published "How to Swindle Rabin" in *Cryptologia*. His swindler prepares many
+harmless variants of a contract and many variants of a harmful one (changing
+spaces, commas and wording that don't matter), until one of each has the same
+hash; the victim signs the harmless version, and the signature also fits the
+harmful one. Yuval's point was that a hash meant to resist $2^n$ work gives
+only $2^{n/2}$ against this attack, which is why hash outputs doubled in size.
+
+!!! note "Life story: the birthday attack"
+    **Born:** as a probability puzzle in the early 20th century; as an attack in 1979 (Gideon Yuval, "How to
+    Swindle Rabin") · **Purpose:** find collisions in about the square root of the brute-force work ·
+    **Helped (attackers):** sank 64-bit hashes, then MD5 and SHA-1 with cleverer methods, and 64-bit block
+    ciphers (Sweet32, 2016) · **Status:** current, and the reason hashes have 256-bit outputs and block
+    ciphers 128-bit blocks
 
 ## 4.5 Security levels
 
@@ -268,6 +494,107 @@ $$
 It is the Vigenère cipher of [Chapter 2](02-Classical-Ciphers.md) with an
 alphabet of two letters.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 560 230" width="560" role="img" aria-label="The byte for A, 01000001, XORed with key byte 01011100 gives 00011101; XORing again with the key gives back 01000001" xmlns="http://www.w3.org/2000/svg">
+<text x="148" y="30" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">message  'A'  41</text>
+<rect x="160" y="10" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="175" y="30" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="190" y="10" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="205" y="30" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">1</text>
+<rect x="220" y="10" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="235" y="30" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="250" y="10" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="265" y="30" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="280" y="10" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="295" y="30" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="310" y="10" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="325" y="30" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="340" y="10" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="355" y="30" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="370" y="10" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="385" y="30" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">1</text>
+<text x="148" y="72" font-size="13" text-anchor="end" fill="currentColor">⊕ key byte  5c</text>
+<rect x="160" y="52" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="175" y="72" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="190" y="52" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="205" y="72" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">1</text>
+<rect x="220" y="52" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="235" y="72" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="250" y="52" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="265" y="72" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">1</text>
+<rect x="280" y="52" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="295" y="72" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">1</text>
+<rect x="310" y="52" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="325" y="72" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">1</text>
+<rect x="340" y="52" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="355" y="72" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="370" y="52" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="385" y="72" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<text x="148" y="114" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">= ciphertext  1d</text>
+<rect x="160" y="94" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="175" y="114" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="190" y="94" width="30" height="30" rx="0" class="soft-acc" fill="currentColor"/>
+<rect x="190" y="94" width="30" height="30" rx="0" fill="none" stroke="currentColor" class="acc" stroke-width="1"/>
+<text x="205" y="114" font-size="15" text-anchor="middle" fill="currentColor" font-weight="bold" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="220" y="94" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="235" y="114" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="250" y="94" width="30" height="30" rx="0" class="soft-acc" fill="currentColor"/>
+<rect x="250" y="94" width="30" height="30" rx="0" fill="none" stroke="currentColor" class="acc" stroke-width="1"/>
+<text x="265" y="114" font-size="15" text-anchor="middle" fill="currentColor" font-weight="bold" font-family="ui-monospace, Menlo, Consolas, monospace">1</text>
+<rect x="280" y="94" width="30" height="30" rx="0" class="soft-acc" fill="currentColor"/>
+<rect x="280" y="94" width="30" height="30" rx="0" fill="none" stroke="currentColor" class="acc" stroke-width="1"/>
+<text x="295" y="114" font-size="15" text-anchor="middle" fill="currentColor" font-weight="bold" font-family="ui-monospace, Menlo, Consolas, monospace">1</text>
+<rect x="310" y="94" width="30" height="30" rx="0" class="soft-acc" fill="currentColor"/>
+<rect x="310" y="94" width="30" height="30" rx="0" fill="none" stroke="currentColor" class="acc" stroke-width="1"/>
+<text x="325" y="114" font-size="15" text-anchor="middle" fill="currentColor" font-weight="bold" font-family="ui-monospace, Menlo, Consolas, monospace">1</text>
+<rect x="340" y="94" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="355" y="114" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="370" y="94" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="385" y="114" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">1</text>
+<line x1="160" y1="90" x2="400" y2="90" stroke="currentColor" stroke-width="1.5"/>
+<text x="148" y="156" font-size="13" text-anchor="end" fill="currentColor">⊕ key byte  5c</text>
+<rect x="160" y="136" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="175" y="156" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="190" y="136" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="205" y="156" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">1</text>
+<rect x="220" y="136" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="235" y="156" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="250" y="136" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="265" y="156" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">1</text>
+<rect x="280" y="136" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="295" y="156" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">1</text>
+<rect x="310" y="136" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="325" y="156" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">1</text>
+<rect x="340" y="136" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="355" y="156" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="370" y="136" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="385" y="156" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<text x="148" y="198" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">= message  41</text>
+<rect x="160" y="178" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="175" y="198" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="190" y="178" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="205" y="198" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">1</text>
+<rect x="220" y="178" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="235" y="198" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="250" y="178" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="265" y="198" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="280" y="178" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="295" y="198" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="310" y="178" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="325" y="198" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="340" y="178" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="355" y="198" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+<rect x="370" y="178" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="385" y="198" font-size="15" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">1</text>
+<line x1="160" y1="174" x2="400" y2="174" stroke="currentColor" stroke-width="1.5"/>
+<text x="490" y="70" font-size="12" text-anchor="middle" fill="currentColor" class="acc-fill" font-style="italic">a key bit 1 flips</text>
+<text x="490" y="88" font-size="12" text-anchor="middle" fill="currentColor" class="acc-fill" font-style="italic">the message bit</text>
+<text x="490" y="170" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">XOR with the same key</text>
+<text x="490" y="188" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">flips them back</text>
+</svg>
+<figcaption>Figure 4.6. XOR bit by bit. Wherever the key has a 1, the message bit flips (highlighted); doing it again flips the same bits back. Encryption and decryption are the same operation.</figcaption>
+</figure>
+
 **The one-time pad.** Take the Vigenère cipher and remove its weakness, the
 repeating key. The key is a string of truly random bits, as long as the
 message, used only once. Encrypt with $c = m \oplus k$; decrypt with
@@ -293,6 +620,21 @@ Joseph Mauborgne of the US Army saw that the key tape must be random and never
 reused. In the 1920s the German Foreign Office used pads of random digits, and
 in the Second World War and after, Soviet agents carried pads printed on tiny
 sheets. In 1963 the new Moscow-Washington hotline ran on one-time tape.
+
+Vernam was a 26-year-old engineer at AT&T when he built his machine, and his
+problem was a practical one: the US government wanted teleprinter messages
+that a wiretapper couldn't read. His first design looped a short key tape,
+which made it a Vigenère cipher in electrical form and just as breakable;
+Mauborgne's insistence on a random, never-repeated tape is what turned it into
+the one-time pad. The price showed at once: the key tape had to be as long as
+all the traffic, made in advance and carried to every station.
+
+!!! note "Life story: the one-time pad"
+    **Born:** 1882 (Frank Miller, on paper), 1917 to 1919 (Gilbert Vernam and Joseph Mauborgne, on teleprinter
+    tape) · **Purpose:** unbreakable encryption for telegraph and teleprinter traffic · **Helped:** diplomats,
+    spies and the Moscow-Washington hotline; Shannon proved it perfect in 1949 · **Broken:** never in itself, only
+    when pads were reused (Venona) or keys weren't random · **Status:** current in tiny niches; for everything
+    else **replaced by** stream ciphers, which stretch a short key ([Chapter 5](05-Stream-Ciphers.md))
 
 ## 4.7 Perfect secrecy
 
@@ -331,6 +673,159 @@ under exactly one key. This holds against unlimited computing power, quantum
 computers included; there is nothing to search, because every answer is
 equally consistent with what you see.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 460 430" width="460" role="img" aria-label="An 8 by 8 table of 3-bit messages against ciphertexts; each cell holds the key m XOR c, and every key appears once in each row and column" xmlns="http://www.w3.org/2000/svg">
+<text x="250" y="22" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">ciphertext c</text>
+<text x="26" y="230" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold" transform="rotate(-90 26 230)">message m</text>
+<text x="110" y="60" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">000</text>
+<text x="150" y="60" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">001</text>
+<text x="190" y="60" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">010</text>
+<text x="230" y="60" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">011</text>
+<text x="270" y="60" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">100</text>
+<text x="310" y="60" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">101</text>
+<text x="350" y="60" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">110</text>
+<text x="390" y="60" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">111</text>
+<text x="82" y="94" font-size="12" text-anchor="end" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">000</text>
+<rect x="90" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="110" y="95" font-size="14" text-anchor="middle" fill="currentColor">0</text>
+<rect x="130" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="150" y="95" font-size="14" text-anchor="middle" fill="currentColor">1</text>
+<rect x="170" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="190" y="95" font-size="14" text-anchor="middle" fill="currentColor">2</text>
+<rect x="210" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="230" y="95" font-size="14" text-anchor="middle" fill="currentColor">3</text>
+<rect x="250" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="270" y="95" font-size="14" text-anchor="middle" fill="currentColor">4</text>
+<rect x="290" y="70" width="40" height="40" rx="0" class="soft-acc" fill="currentColor" stroke="currentColor" stroke-width="0.6"/>
+<text x="310" y="95" font-size="14" text-anchor="middle" fill="currentColor" class="acc-fill" font-weight="bold">5</text>
+<rect x="330" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="350" y="95" font-size="14" text-anchor="middle" fill="currentColor">6</text>
+<rect x="370" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="390" y="95" font-size="14" text-anchor="middle" fill="currentColor">7</text>
+<text x="82" y="134" font-size="12" text-anchor="end" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">001</text>
+<rect x="90" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="110" y="135" font-size="14" text-anchor="middle" fill="currentColor">1</text>
+<rect x="130" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="150" y="135" font-size="14" text-anchor="middle" fill="currentColor">0</text>
+<rect x="170" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="190" y="135" font-size="14" text-anchor="middle" fill="currentColor">3</text>
+<rect x="210" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="230" y="135" font-size="14" text-anchor="middle" fill="currentColor">2</text>
+<rect x="250" y="110" width="40" height="40" rx="0" class="soft-acc" fill="currentColor" stroke="currentColor" stroke-width="0.6"/>
+<text x="270" y="135" font-size="14" text-anchor="middle" fill="currentColor" class="acc-fill" font-weight="bold">5</text>
+<rect x="290" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="310" y="135" font-size="14" text-anchor="middle" fill="currentColor">4</text>
+<rect x="330" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="350" y="135" font-size="14" text-anchor="middle" fill="currentColor">7</text>
+<rect x="370" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="390" y="135" font-size="14" text-anchor="middle" fill="currentColor">6</text>
+<text x="82" y="174" font-size="12" text-anchor="end" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">010</text>
+<rect x="90" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="110" y="175" font-size="14" text-anchor="middle" fill="currentColor">2</text>
+<rect x="130" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="150" y="175" font-size="14" text-anchor="middle" fill="currentColor">3</text>
+<rect x="170" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="190" y="175" font-size="14" text-anchor="middle" fill="currentColor">0</text>
+<rect x="210" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="230" y="175" font-size="14" text-anchor="middle" fill="currentColor">1</text>
+<rect x="250" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="270" y="175" font-size="14" text-anchor="middle" fill="currentColor">6</text>
+<rect x="290" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="310" y="175" font-size="14" text-anchor="middle" fill="currentColor">7</text>
+<rect x="330" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="350" y="175" font-size="14" text-anchor="middle" fill="currentColor">4</text>
+<rect x="370" y="150" width="40" height="40" rx="0" class="soft-acc" fill="currentColor" stroke="currentColor" stroke-width="0.6"/>
+<text x="390" y="175" font-size="14" text-anchor="middle" fill="currentColor" class="acc-fill" font-weight="bold">5</text>
+<text x="82" y="214" font-size="12" text-anchor="end" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">011</text>
+<rect x="90" y="190" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="110" y="215" font-size="14" text-anchor="middle" fill="currentColor">3</text>
+<rect x="130" y="190" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="150" y="215" font-size="14" text-anchor="middle" fill="currentColor">2</text>
+<rect x="170" y="190" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="190" y="215" font-size="14" text-anchor="middle" fill="currentColor">1</text>
+<rect x="210" y="190" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="230" y="215" font-size="14" text-anchor="middle" fill="currentColor">0</text>
+<rect x="250" y="190" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="270" y="215" font-size="14" text-anchor="middle" fill="currentColor">7</text>
+<rect x="290" y="190" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="310" y="215" font-size="14" text-anchor="middle" fill="currentColor">6</text>
+<rect x="330" y="190" width="40" height="40" rx="0" class="soft-acc" fill="currentColor" stroke="currentColor" stroke-width="0.6"/>
+<text x="350" y="215" font-size="14" text-anchor="middle" fill="currentColor" class="acc-fill" font-weight="bold">5</text>
+<rect x="370" y="190" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="390" y="215" font-size="14" text-anchor="middle" fill="currentColor">4</text>
+<text x="82" y="254" font-size="12" text-anchor="end" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">100</text>
+<rect x="90" y="230" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="110" y="255" font-size="14" text-anchor="middle" fill="currentColor">4</text>
+<rect x="130" y="230" width="40" height="40" rx="0" class="soft-acc" fill="currentColor" stroke="currentColor" stroke-width="0.6"/>
+<text x="150" y="255" font-size="14" text-anchor="middle" fill="currentColor" class="acc-fill" font-weight="bold">5</text>
+<rect x="170" y="230" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="190" y="255" font-size="14" text-anchor="middle" fill="currentColor">6</text>
+<rect x="210" y="230" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="230" y="255" font-size="14" text-anchor="middle" fill="currentColor">7</text>
+<rect x="250" y="230" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="270" y="255" font-size="14" text-anchor="middle" fill="currentColor">0</text>
+<rect x="290" y="230" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="310" y="255" font-size="14" text-anchor="middle" fill="currentColor">1</text>
+<rect x="330" y="230" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="350" y="255" font-size="14" text-anchor="middle" fill="currentColor">2</text>
+<rect x="370" y="230" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="390" y="255" font-size="14" text-anchor="middle" fill="currentColor">3</text>
+<text x="82" y="294" font-size="12" text-anchor="end" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">101</text>
+<rect x="90" y="270" width="40" height="40" rx="0" class="soft-acc" fill="currentColor" stroke="currentColor" stroke-width="0.6"/>
+<text x="110" y="295" font-size="14" text-anchor="middle" fill="currentColor" class="acc-fill" font-weight="bold">5</text>
+<rect x="130" y="270" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="150" y="295" font-size="14" text-anchor="middle" fill="currentColor">4</text>
+<rect x="170" y="270" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="190" y="295" font-size="14" text-anchor="middle" fill="currentColor">7</text>
+<rect x="210" y="270" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="230" y="295" font-size="14" text-anchor="middle" fill="currentColor">6</text>
+<rect x="250" y="270" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="270" y="295" font-size="14" text-anchor="middle" fill="currentColor">1</text>
+<rect x="290" y="270" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="310" y="295" font-size="14" text-anchor="middle" fill="currentColor">0</text>
+<rect x="330" y="270" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="350" y="295" font-size="14" text-anchor="middle" fill="currentColor">3</text>
+<rect x="370" y="270" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="390" y="295" font-size="14" text-anchor="middle" fill="currentColor">2</text>
+<text x="82" y="334" font-size="12" text-anchor="end" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">110</text>
+<rect x="90" y="310" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="110" y="335" font-size="14" text-anchor="middle" fill="currentColor">6</text>
+<rect x="130" y="310" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="150" y="335" font-size="14" text-anchor="middle" fill="currentColor">7</text>
+<rect x="170" y="310" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="190" y="335" font-size="14" text-anchor="middle" fill="currentColor">4</text>
+<rect x="210" y="310" width="40" height="40" rx="0" class="soft-acc" fill="currentColor" stroke="currentColor" stroke-width="0.6"/>
+<text x="230" y="335" font-size="14" text-anchor="middle" fill="currentColor" class="acc-fill" font-weight="bold">5</text>
+<rect x="250" y="310" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="270" y="335" font-size="14" text-anchor="middle" fill="currentColor">2</text>
+<rect x="290" y="310" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="310" y="335" font-size="14" text-anchor="middle" fill="currentColor">3</text>
+<rect x="330" y="310" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="350" y="335" font-size="14" text-anchor="middle" fill="currentColor">0</text>
+<rect x="370" y="310" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="390" y="335" font-size="14" text-anchor="middle" fill="currentColor">1</text>
+<text x="82" y="374" font-size="12" text-anchor="end" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">111</text>
+<rect x="90" y="350" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="110" y="375" font-size="14" text-anchor="middle" fill="currentColor">7</text>
+<rect x="130" y="350" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="150" y="375" font-size="14" text-anchor="middle" fill="currentColor">6</text>
+<rect x="170" y="350" width="40" height="40" rx="0" class="soft-acc" fill="currentColor" stroke="currentColor" stroke-width="0.6"/>
+<text x="190" y="375" font-size="14" text-anchor="middle" fill="currentColor" class="acc-fill" font-weight="bold">5</text>
+<rect x="210" y="350" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="230" y="375" font-size="14" text-anchor="middle" fill="currentColor">4</text>
+<rect x="250" y="350" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="270" y="375" font-size="14" text-anchor="middle" fill="currentColor">3</text>
+<rect x="290" y="350" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="310" y="375" font-size="14" text-anchor="middle" fill="currentColor">2</text>
+<rect x="330" y="350" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="350" y="375" font-size="14" text-anchor="middle" fill="currentColor">1</text>
+<rect x="370" y="350" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="390" y="375" font-size="14" text-anchor="middle" fill="currentColor">0</text>
+<text x="230" y="418" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">entry = the one key that turns m into c (k = m ⊕ c); key 5 highlighted</text>
+</svg>
+<figcaption>Figure 4.7. Perfect secrecy for 3-bit messages. Pick any column (a ciphertext you intercepted): every message appears in it, each under exactly one key. With all keys equally likely, the ciphertext favors no message.</figcaption>
+</figure>
+
 **By hand, and by computer.** Take 3-bit messages. With a uniform 3-bit key,
 XOR sends any message to each of the 8 ciphertexts with probability $1/8$:
 the same table for every message. Now weaken the cipher: add the key mod 8, but
@@ -353,6 +848,60 @@ print(dist(short, range(4), 0))      # ciphertexts 0, 1, 2, 3, each with probabi
 print(dist(short, range(4), 5))      # ciphertexts 5, 6, 7, 0: a different set
 ```
 
+<figure class="mars-fig">
+<svg viewBox="0 0 600 262" width="600" role="img" aria-label="With only four keys, message 0 can reach ciphertexts 0 to 3 and message 5 only 5, 6, 7 and 0" xmlns="http://www.w3.org/2000/svg">
+<text x="150" y="20" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">message 0</text>
+<text x="450" y="20" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">message 5</text>
+<circle cx="150" cy="60" r="20" class="soft-acc" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="150" y="66" font-size="16" text-anchor="middle" fill="currentColor" font-weight="bold">0</text>
+<line x1="150" y1="80" x2="30" y2="175" stroke="currentColor" stroke-width="1.3" class="acc"/>
+<line x1="150" y1="80" x2="64.3" y2="175" stroke="currentColor" stroke-width="1.3" class="acc"/>
+<line x1="150" y1="80" x2="98.6" y2="175" stroke="currentColor" stroke-width="1.3" class="acc"/>
+<line x1="150" y1="80" x2="132.9" y2="175" stroke="currentColor" stroke-width="1.3" class="acc"/>
+<circle cx="30" cy="190" r="13" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="30" y="195" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">0</text>
+<circle cx="64.3" cy="190" r="13" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="64.3" y="195" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">1</text>
+<circle cx="98.6" cy="190" r="13" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="98.6" y="195" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">2</text>
+<circle cx="132.9" cy="190" r="13" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="132.9" y="195" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">3</text>
+<circle cx="167.2" cy="190" r="13" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="167.2" y="195" font-size="13" text-anchor="middle" fill="currentColor" fill-opacity="0.4">4</text>
+<circle cx="201.5" cy="190" r="13" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="201.5" y="195" font-size="13" text-anchor="middle" fill="currentColor" fill-opacity="0.4">5</text>
+<circle cx="235.8" cy="190" r="13" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="235.8" y="195" font-size="13" text-anchor="middle" fill="currentColor" fill-opacity="0.4">6</text>
+<circle cx="270.1" cy="190" r="13" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="270.1" y="195" font-size="13" text-anchor="middle" fill="currentColor" fill-opacity="0.4">7</text>
+<circle cx="450" cy="60" r="20" class="soft-acc" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="450" y="66" font-size="16" text-anchor="middle" fill="currentColor" font-weight="bold">5</text>
+<line x1="450" y1="80" x2="501.5" y2="175" stroke="currentColor" stroke-width="1.3" class="acc"/>
+<line x1="450" y1="80" x2="535.8" y2="175" stroke="currentColor" stroke-width="1.3" class="acc"/>
+<line x1="450" y1="80" x2="570.1" y2="175" stroke="currentColor" stroke-width="1.3" class="acc"/>
+<line x1="450" y1="80" x2="330" y2="175" stroke="currentColor" stroke-width="1.3" class="acc"/>
+<circle cx="330" cy="190" r="13" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="330" y="195" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">0</text>
+<circle cx="364.3" cy="190" r="13" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="364.3" y="195" font-size="13" text-anchor="middle" fill="currentColor" fill-opacity="0.4">1</text>
+<circle cx="398.6" cy="190" r="13" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="398.6" y="195" font-size="13" text-anchor="middle" fill="currentColor" fill-opacity="0.4">2</text>
+<circle cx="432.9" cy="190" r="13" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="432.9" y="195" font-size="13" text-anchor="middle" fill="currentColor" fill-opacity="0.4">3</text>
+<circle cx="467.2" cy="190" r="13" fill="none" stroke="currentColor" stroke-width="0.6"/>
+<text x="467.2" y="195" font-size="13" text-anchor="middle" fill="currentColor" fill-opacity="0.4">4</text>
+<circle cx="501.5" cy="190" r="13" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="501.5" y="195" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">5</text>
+<circle cx="535.8" cy="190" r="13" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="535.8" y="195" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">6</text>
+<circle cx="570.1" cy="190" r="13" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="570.1" y="195" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">7</text>
+<text x="300" y="228" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">each message: 4 keys, so only 4 of the 8 ciphertexts</text>
+<text x="300" y="250" font-size="13" text-anchor="middle" fill="currentColor" class="acc-fill" font-weight="bold">seeing ciphertext 2 rules out message 5 entirely</text>
+</svg>
+<figcaption>Figure 4.8. A cipher with fewer keys than messages. Each message reaches only half the ciphertexts, so the ciphertext tells the attacker which messages are possible. Shannon's theorem says this always happens when keys run short.</figcaption>
+</figure>
+
 Notice that a one-letter Caesar cipher with a uniformly random shift is also
 perfectly secret: 26 keys for 26 messages. What broke Caesar in
 [Chapter 2](02-Classical-Ciphers.md) was reusing the key for every letter.
@@ -370,6 +919,19 @@ cipher is not perfectly secret. $\square$
 In bits: to send $n$ bits with perfect secrecy you need $n$ bits of key, used
 once. You can't do better than the pad, and every perfectly secret cipher is,
 in effect, a one-time pad.
+
+Shannon worked on cryptography at Bell Labs during the war, and in 1943 he met
+Alan Turing, who was visiting to study the American speech-scrambling system;
+the two talked over lunch about machines that might think, though neither could
+discuss his secret work. Shannon's 1945 report was classified; the published
+version of 1949 is the paper that made cryptography a branch of mathematics.
+
+!!! note "Life story: perfect secrecy"
+    **Born:** 1945 (classified report) and 1949 ("Communication Theory of Secrecy Systems"), Claude Shannon ·
+    **Purpose:** say exactly what "unbreakable" means and what it costs · **Helped:** proved the one-time pad
+    perfect and showed that nothing cheaper can be; introduced unicity distance, confusion and diffusion ·
+    **Status:** current as the gold standard; practice uses its relaxed form, computational security
+    ([§4.12](#412-going-deeper))
 
 ## 4.8 Break it: the two-time pad and malleability
 
@@ -393,6 +955,93 @@ print(xor(c1, c2) == xor(m1, m2))            # True: the key cancels out
 print(xor(xor(c1, c2), b"ATTACK"))           # b'RETREA': guess six letters of one, read six of the other
 ```
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 270" width="640" role="img" aria-label="The XOR of two ciphertexts under the same pad equals the XOR of the messages; XORing in the guess ATTACK reveals RETREA" xmlns="http://www.w3.org/2000/svg">
+<text x="158" y="51" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">c₁ ⊕ c₂ = m₁ ⊕ m₂</text>
+<rect x="170" y="30" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="0.8"/>
+<text x="185" y="50" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">13</text>
+<rect x="200" y="30" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="0.8"/>
+<text x="215" y="50" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">11</text>
+<rect x="230" y="30" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="0.8"/>
+<text x="245" y="50" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">00</text>
+<rect x="260" y="30" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="0.8"/>
+<text x="275" y="50" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">13</text>
+<rect x="290" y="30" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="0.8"/>
+<text x="305" y="50" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">06</text>
+<rect x="320" y="30" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="0.8"/>
+<text x="335" y="50" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">0a</text>
+<rect x="350" y="30" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="0.8"/>
+<text x="365" y="50" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">74</text>
+<rect x="380" y="30" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="0.8"/>
+<text x="395" y="50" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">61</text>
+<rect x="410" y="30" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="0.8"/>
+<text x="425" y="50" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">15</text>
+<rect x="440" y="30" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="0.8"/>
+<text x="455" y="50" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">74</text>
+<rect x="470" y="30" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="0.8"/>
+<text x="485" y="50" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">64</text>
+<rect x="500" y="30" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="0.8"/>
+<text x="515" y="50" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">15</text>
+<rect x="530" y="30" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="0.8"/>
+<text x="545" y="50" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">12</text>
+<rect x="560" y="30" width="30" height="30" rx="0" class="soft" fill="currentColor" stroke="currentColor" stroke-width="0.8"/>
+<text x="575" y="50" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">00</text>
+<text x="158" y="103" font-size="13" text-anchor="end" fill="currentColor">guess: ATTACK</text>
+<rect x="170" y="82" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="185" y="102" font-size="13" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">A</text>
+<rect x="200" y="82" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="215" y="102" font-size="13" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">T</text>
+<rect x="230" y="82" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="245" y="102" font-size="13" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">T</text>
+<rect x="260" y="82" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="275" y="102" font-size="13" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">A</text>
+<rect x="290" y="82" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="305" y="102" font-size="13" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">C</text>
+<rect x="320" y="82" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="335" y="102" font-size="13" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">K</text>
+<text x="158" y="155" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">result</text>
+<rect x="170" y="134" width="30" height="30" rx="0" class="soft-acc" fill="currentColor"/>
+<rect x="170" y="134" width="30" height="30" rx="0" fill="none" stroke="currentColor" class="acc" stroke-width="0.8"/>
+<text x="185" y="154" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold" font-family="ui-monospace, Menlo, Consolas, monospace">R</text>
+<rect x="200" y="134" width="30" height="30" rx="0" class="soft-acc" fill="currentColor"/>
+<rect x="200" y="134" width="30" height="30" rx="0" fill="none" stroke="currentColor" class="acc" stroke-width="0.8"/>
+<text x="215" y="154" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold" font-family="ui-monospace, Menlo, Consolas, monospace">E</text>
+<rect x="230" y="134" width="30" height="30" rx="0" class="soft-acc" fill="currentColor"/>
+<rect x="230" y="134" width="30" height="30" rx="0" fill="none" stroke="currentColor" class="acc" stroke-width="0.8"/>
+<text x="245" y="154" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold" font-family="ui-monospace, Menlo, Consolas, monospace">T</text>
+<rect x="260" y="134" width="30" height="30" rx="0" class="soft-acc" fill="currentColor"/>
+<rect x="260" y="134" width="30" height="30" rx="0" fill="none" stroke="currentColor" class="acc" stroke-width="0.8"/>
+<text x="275" y="154" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold" font-family="ui-monospace, Menlo, Consolas, monospace">R</text>
+<rect x="290" y="134" width="30" height="30" rx="0" class="soft-acc" fill="currentColor"/>
+<rect x="290" y="134" width="30" height="30" rx="0" fill="none" stroke="currentColor" class="acc" stroke-width="0.8"/>
+<text x="305" y="154" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold" font-family="ui-monospace, Menlo, Consolas, monospace">E</text>
+<rect x="320" y="134" width="30" height="30" rx="0" class="soft-acc" fill="currentColor"/>
+<rect x="320" y="134" width="30" height="30" rx="0" fill="none" stroke="currentColor" class="acc" stroke-width="0.8"/>
+<text x="335" y="154" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold" font-family="ui-monospace, Menlo, Consolas, monospace">A</text>
+<rect x="350" y="134" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="365" y="154" font-size="13" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">?</text>
+<rect x="380" y="134" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="395" y="154" font-size="13" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">?</text>
+<rect x="410" y="134" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="425" y="154" font-size="13" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">?</text>
+<rect x="440" y="134" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="455" y="154" font-size="13" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">?</text>
+<rect x="470" y="134" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="485" y="154" font-size="13" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">?</text>
+<rect x="500" y="134" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="515" y="154" font-size="13" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">?</text>
+<rect x="530" y="134" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="545" y="154" font-size="13" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">?</text>
+<rect x="560" y="134" width="30" height="30" rx="0" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="575" y="154" font-size="13" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">?</text>
+<text x="158" y="200" font-size="1" text-anchor="middle" fill="currentColor"></text>
+<text x="320" y="200" font-size="13" text-anchor="middle" fill="currentColor" font-style="italic">the key has cancelled out: no key appears anywhere above</text>
+<text x="320" y="222" font-size="13" text-anchor="middle" fill="currentColor" font-style="italic">a right guess in one message reveals the other at the same place</text>
+<text x="320" y="250" font-size="13" text-anchor="middle" fill="currentColor" class="acc-fill" font-weight="bold">slide the guess along, keep what reads as language: crib dragging</text>
+</svg>
+<figcaption>Figure 4.9. The two-time pad, with the bytes from the code above. Guessing six letters of one message reads six letters of the other, without ever touching the key.</figcaption>
+</figure>
+
 **Tunny, 1941.** On 30 August 1941 a German operator sent a message of about
 4,000 characters on the Lorenz teleprinter cipher, a machine that XORed each
 character with a machine-made key stream. The receiver asked for it again, and
@@ -401,6 +1050,56 @@ text. At Bletchley Park John Tiltman recovered both messages and the key
 stream. From that key stream alone, Bill Tutte worked out the structure of the
 whole machine, which nobody at Bletchley had seen.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 330" width="640" role="img" aria-label="Sequence chart: a German Lorenz operator sends a long message, is asked to repeat it, resends with the same key; Bletchley hears both and recovers the key stream" xmlns="http://www.w3.org/2000/svg">
+<rect x="25" y="10" width="150" height="30" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="25" y="10" width="150" height="30" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="100" y="29.6" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">German sender</text>
+<line x1="100" y1="40" x2="100" y2="250" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4"/>
+<rect x="245" y="10" width="150" height="30" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="245" y="10" width="150" height="30" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="320" y="29.6" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">German receiver</text>
+<line x1="320" y1="40" x2="320" y2="250" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4"/>
+<rect x="465" y="10" width="150" height="30" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="465" y="10" width="150" height="30" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="540" y="29.6" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">Bletchley Park</text>
+<line x1="540" y1="40" x2="540" y2="250" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4"/>
+<line x1="100" y1="80" x2="313" y2="80" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="320,80 312,83.6 312,76.4" fill="currentColor"/>
+<rect x="134.4" y="58.6" width="151.2" height="15.6" style="fill: var(--md-default-bg-color)"/>
+<text x="210" y="70" font-size="12" text-anchor="middle" fill="currentColor">about 4,000 characters</text>
+<line x1="320" y1="120" x2="107" y2="120" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="100,120 108,116.4 108,123.6" fill="currentColor"/>
+<rect x="117.9" y="98.6" width="184.2" height="15.6" style="fill: var(--md-default-bg-color)"/>
+<text x="210" y="110" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">“didn't get it, send again”</text>
+<line x1="100" y1="160" x2="313" y2="160" stroke="currentColor" stroke-width="1.5" class="acc"/>
+<polygon points="320,160 312,163.6 312,156.4" fill="currentColor" class="acc-fill"/>
+<rect x="104.7" y="138.6" width="210.6" height="15.6" style="fill: var(--md-default-bg-color)"/>
+<text x="210" y="150" font-size="12" text-anchor="middle" fill="currentColor" class="acc-fill">same key setting, small changes</text>
+<line x1="100" y1="80" x2="540" y2="80" stroke="currentColor" stroke-width="1" stroke-dasharray="1 4"/>
+<line x1="100" y1="160" x2="540" y2="160" stroke="currentColor" stroke-width="1" stroke-dasharray="1 4"/>
+<circle cx="540" cy="80" r="4" fill="currentColor"/>
+<circle cx="540" cy="160" r="4" fill="currentColor" class="acc-fill"/>
+<rect x="470.7" y="177.7" width="138.6" height="16.9" style="fill: var(--md-default-bg-color)"/>
+<text x="540" y="190" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">c₁ ⊕ c₂ = m₁ ⊕ m₂</text>
+<rect x="450" y="210" width="180" height="40" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="450" y="210" width="180" height="40" rx="6" class="soft-acc" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<rect x="450" y="210" width="180" height="40" rx="6" fill="none" stroke="currentColor" class="acc" stroke-width="2"/>
+<text x="540" y="234.2" font-size="12" text-anchor="middle" fill="currentColor">Tiltman: both texts</text>
+<rect x="450" y="262" width="180" height="40" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="450" y="262" width="180" height="40" rx="6" class="soft-acc" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<rect x="450" y="262" width="180" height="40" rx="6" fill="none" stroke="currentColor" class="acc" stroke-width="2"/>
+<text x="540" y="286.2" font-size="12" text-anchor="middle" fill="currentColor">and the key stream</text>
+<line x1="450" y1="282" x2="267" y2="282" stroke="currentColor" stroke-width="1.5" class="acc"/>
+<polygon points="260,282 268,278.4 268,285.6" fill="currentColor" class="acc-fill"/>
+<rect x="25" y="258" width="235" height="48" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="25" y="258" width="235" height="48" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="142.5" y="279" font-size="12" text-anchor="middle" fill="currentColor" font-weight="bold">Tutte: the machine's design</text>
+<text x="142.5" y="293" font-size="10" text-anchor="middle" fill="currentColor" font-style="italic">from the key stream alone</text>
+</svg>
+<figcaption>Figure 4.10. Tunny, 30 August 1941. One repeated key setting gave Bletchley Park two messages under the same key stream, and from that, the design of a machine no one there had ever seen.</figcaption>
+</figure>
+
 **Venona, 1943 to 1980.** Under wartime pressure in 1942, the Soviet office
 that printed one-time pads printed some pages twice. In February 1943 Gene
 Grabeel began studying Soviet diplomatic traffic for the US Army at Arlington
@@ -408,6 +1107,13 @@ Hall; she and her colleagues found the reused pages, and Meredith Gardner and
 others went on to read parts of about 3,000 messages. They exposed Soviet
 agents including Klaus Fuchs, Julius Rosenberg and Donald Maclean. The pad was
 mathematically perfect; the pad factory was not.
+
+!!! note "Life story: the two-time pad attack"
+    **Born:** as soon as pads were reused; its great successes were Tunny (August 1941, Tiltman and Tutte) and
+    Venona (1943 onward, Grabeel, Gardner and colleagues) · **Purpose:** cancel the key by combining two
+    ciphertexts made with the same pad · **Helped (codebreakers):** opened the Lorenz machine and exposed
+    Soviet spies; the same algebra broke WEP Wi-Fi and an early Microsoft VPN (PPTP) ·
+    **Status:** current: every reuse of a key and nonce in a stream cipher or GCM invites it
 
 **Malleability.** The pad hides; it doesn't protect. Flip a bit of $c$ and the
 same bit of $m$ flips, and nobody can tell. If Mallory knows (or guesses) that
@@ -419,6 +1125,39 @@ c = xor(b"ATTACK AT DAWN", k)
 forged = xor(c, xor(b"ATTACK", b"RETIRE") + bytes(8))   # Mallory never sees k
 print(xor(forged, k))                                   # b'RETIRE AT DAWN'
 ```
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 210" width="640" role="img" aria-label="Mallory XORs the ciphertext with the difference between ATTACK and RETIRE, and Bob decrypts RETIRE AT DAWN" xmlns="http://www.w3.org/2000/svg">
+<rect x="10" y="30" width="170" height="40" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="10" y="30" width="170" height="40" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="95" y="54.5" font-size="13" text-anchor="middle" fill="currentColor">ATTACK AT DAWN</text>
+<text x="95" y="20" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">Alice's message</text>
+<line x1="180" y1="50" x2="223" y2="50" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="230,50 222,53.6 222,46.4" fill="currentColor"/>
+<text x="205" y="40" font-size="12" text-anchor="middle" fill="currentColor">⊕ k</text>
+<rect x="230" y="30" width="140" height="40" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="230" y="30" width="140" height="40" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="300" y="54.5" font-size="13" text-anchor="middle" fill="currentColor">ciphertext c</text>
+<line x1="370" y1="50" x2="423" y2="50" stroke="currentColor" stroke-width="1.5" class="acc"/>
+<polygon points="430,50 422,53.6 422,46.4" fill="currentColor" class="acc-fill"/>
+<text x="400" y="40" font-size="13" text-anchor="middle" fill="currentColor" class="acc-fill" font-weight="bold">⊕ Δ</text>
+<rect x="430" y="30" width="200" height="40" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="430" y="30" width="200" height="40" rx="6" class="soft-acc" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<rect x="430" y="30" width="200" height="40" rx="6" fill="none" stroke="currentColor" class="acc" stroke-width="2"/>
+<text x="530" y="54.5" font-size="13" text-anchor="middle" fill="currentColor">forged c ⊕ Δ</text>
+<line x1="530" y1="70" x2="530" y2="113" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="530,120 526.4,112 533.6,112" fill="currentColor"/>
+<text x="546" y="100" font-size="12" text-anchor="start" fill="currentColor">Bob: ⊕ k</text>
+<rect x="430" y="120" width="200" height="40" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="430" y="120" width="200" height="40" rx="6" class="soft-acc" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<rect x="430" y="120" width="200" height="40" rx="6" fill="none" stroke="currentColor" class="acc" stroke-width="2"/>
+<text x="530" y="144.6" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">RETIRE AT DAWN</text>
+<text x="300" y="105" font-size="13" text-anchor="middle" fill="currentColor" class="acc-fill" font-weight="bold">Δ = ATTACK ⊕ RETIRE</text>
+<text x="300" y="125" font-size="12" text-anchor="middle" fill="currentColor" font-family="ui-monospace, Menlo, Consolas, monospace">= 13 11 00 08 11 0e, then zeros</text>
+<text x="300" y="190" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">Mallory never sees k, and Bob can't tell anything happened</text>
+</svg>
+<figcaption>Figure 4.11. Malleability. Flipping ciphertext bits flips the same plaintext bits, so anyone who can guess part of the message can rewrite it. Perfect secrecy says nothing about integrity.</figcaption>
+</figure>
 
 Perfect secrecy and integrity are different jobs ([§1.2](01-What-Cryptography-Is-For.md#12-four-jobs)). This is why every
 modern cipher in this book is paired with a MAC
@@ -470,15 +1209,86 @@ hardware events, hashes it into a seed, and runs a fast cipher-based generator:
 
 | System | Ask for bytes with | Generator behind it |
 |---|---|---|
-| Linux | `getrandom()`, `/dev/urandom` | ChaCha20 since 4.8 (2016), seeded through BLAKE2s |
+| Linux | `getrandom()`, `/dev/urandom` | ChaCha20 since 4.8 (2016); the pool is hashed with BLAKE2s since 5.17 (2022) |
 | OpenBSD, FreeBSD, macOS | `arc4random()`, `getentropy()` | ChaCha20 on the BSDs; AES on macOS |
 | Windows | `BCryptGenRandom` | CTR_DRBG from NIST SP 800-90A |
 
 Once such a generator holds 256 bits of secret seed, reading more output
 doesn't "use up" its entropy, any more than encrypting more data with AES uses up
 a key. The one dangerous moment is right after boot, before the seed has
-collected enough entropy, and `getrandom()` waits through it. Details:
-[OS random number generators](../09-random/OS-RNG.md).
+collected enough entropy, and `getrandom()` waits through it.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 680 270" width="680" role="img" aria-label="Entropy sources feed a hashed input pool that seeds a ChaCha20 generator, which serves getrandom and /dev/urandom to programs" xmlns="http://www.w3.org/2000/svg">
+<rect x="10" y="14" width="150" height="38" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="10" y="14" width="150" height="38" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="85" y="37.2" font-size="12" text-anchor="middle" fill="currentColor">interrupt timing</text>
+<line x1="160" y1="33" x2="196.7" y2="101.8" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="200,108 193.1,102.6 199.4,99.2" fill="currentColor"/>
+<rect x="10" y="64" width="150" height="38" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="10" y="64" width="150" height="38" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="85" y="87.2" font-size="12" text-anchor="middle" fill="currentColor">CPU timing jitter</text>
+<line x1="160" y1="83" x2="194.1" y2="104.3" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="200,108 191.3,106.8 195.1,100.7" fill="currentColor"/>
+<rect x="10" y="114" width="150" height="38" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="10" y="114" width="150" height="38" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="85" y="137.2" font-size="12" text-anchor="middle" fill="currentColor">RDRAND / RDSEED</text>
+<line x1="160" y1="133" x2="194.1" y2="111.7" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="200,108 195.1,115.3 191.3,109.2" fill="currentColor"/>
+<rect x="10" y="164" width="150" height="38" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="10" y="164" width="150" height="38" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="85" y="187.2" font-size="12" text-anchor="middle" fill="currentColor">boot seed, VM ID</text>
+<line x1="160" y1="183" x2="196.7" y2="114.2" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="200,108 199.4,116.8 193.1,113.4" fill="currentColor"/>
+<rect x="200" y="80" width="110" height="56" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="200" y="80" width="110" height="56" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="255" y="105" font-size="13" text-anchor="middle" fill="currentColor">input pool</text>
+<text x="255" y="120" font-size="11" text-anchor="middle" fill="currentColor" font-style="italic">hashed (BLAKE2s)</text>
+<line x1="310" y1="108" x2="343" y2="108" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="350,108 342,111.6 342,104.4" fill="currentColor"/>
+<text x="330" y="98" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">seed</text>
+<rect x="350" y="80" width="120" height="56" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="350" y="80" width="120" height="56" rx="6" class="soft-acc" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<rect x="350" y="80" width="120" height="56" rx="6" fill="none" stroke="currentColor" class="acc" stroke-width="2"/>
+<text x="410" y="105" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">ChaCha20</text>
+<text x="410" y="120" font-size="11" text-anchor="middle" fill="currentColor" font-style="italic">generator</text>
+<line x1="470" y1="108" x2="503" y2="108" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="510,108 502,111.6 502,104.4" fill="currentColor"/>
+<rect x="510" y="60" width="160" height="44" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="510" y="60" width="160" height="44" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="590" y="86.2" font-size="12" text-anchor="middle" fill="currentColor">getrandom()</text>
+<rect x="510" y="112" width="160" height="44" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="510" y="112" width="160" height="44" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="590" y="138.2" font-size="12" text-anchor="middle" fill="currentColor">/dev/urandom</text>
+<line x1="590" y1="156" x2="590" y2="189" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="590,196 586.4,188 593.6,188" fill="currentColor"/>
+<rect x="500" y="196" width="180" height="44" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="500" y="196" width="180" height="44" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="590" y="222.2" font-size="12" text-anchor="middle" fill="currentColor" font-weight="bold">secrets, os.urandom</text>
+<path d="M255 136 Q250 180 300 180 Q410 180 410 144" stroke="currentColor" stroke-width="1.5" fill="none" class="acc" stroke-dasharray="5 4"/>
+<polygon points="410,137 413.6,145 406.4,145" fill="currentColor" class="acc-fill"/>
+<text x="330" y="200" font-size="12" text-anchor="middle" fill="currentColor" class="acc-fill" font-style="italic">reseeded from the pool</text>
+<text x="330" y="216" font-size="12" text-anchor="middle" fill="currentColor" class="acc-fill" font-style="italic">regularly, and the old state erased</text>
+</svg>
+<figcaption>Figure 4.12. How Linux makes random bytes, simplified. Many noisy sources are mixed into a pool; a hash of the pool seeds a fast stream-cipher generator; programs read from it through one interface.</figcaption>
+</figure>
+
+**The story.** Theodore Ts'o wrote Linux's `/dev/random` in 1994, so that
+programs no longer had to gather randomness themselves, as PGP did by timing
+the user's keystrokes. Its design followed the ideas the BSDs and later Windows also
+adopted: gather noise from the hardware, estimate how much is real, hash it,
+and run a generator from the result. Over the years it changed from
+SHA-1 to ChaCha20 and BLAKE2s. In 2020 `/dev/random` stopped blocking once the
+generator had been seeded, ending an old quarrel about which device to use,
+and in 2022 Jason Donenfeld rewrote much of the code.
+
+!!! note "Life story: operating-system random generators"
+    **Born:** 1994, Theodore Ts'o's `/dev/random` for Linux; similar designs in the BSDs, macOS and Windows ·
+    **Purpose:** give every program good random numbers without each one gathering its own entropy ·
+    **Helped:** ended the era of guessable seeds like Netscape's; `getrandom()` (2014) fixed the early-boot gap ·
+    **Status:** current, and the right source for every key, nonce and token
+
+Details: [OS random number generators](../09-random/OS-RNG.md).
 
 **In Python, use `secrets`** (3.6 and later), which reads the OS generator:
 
@@ -507,6 +1317,48 @@ have broken real systems: ECDSA signatures with nonces biased by a fraction of a
 bit leak the private key through lattice attacks
 ([Chapter 14](14-Discrete-Log-Systems.md)). `randbelow` throws away values
 beyond the last full group and tries again.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 520 260" width="520" role="img" aria-label="Bar chart of how many of the 256 byte values give each digit mod 10: 26 for digits 0 to 5, 25 for 6 to 9" xmlns="http://www.w3.org/2000/svg">
+<line x1="60" y1="210" x2="500" y2="210" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="54" y="214" font-size="12" text-anchor="end" fill="currentColor">0</text>
+<line x1="60" y1="176.8" x2="500" y2="176.8" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="54" y="180.8" font-size="12" text-anchor="end" fill="currentColor">5</text>
+<line x1="60" y1="143.6" x2="500" y2="143.6" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="54" y="147.6" font-size="12" text-anchor="end" fill="currentColor">10</text>
+<line x1="60" y1="110.4" x2="500" y2="110.4" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="54" y="114.4" font-size="12" text-anchor="end" fill="currentColor">15</text>
+<line x1="60" y1="77.1" x2="500" y2="77.1" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="54" y="81.1" font-size="12" text-anchor="end" fill="currentColor">20</text>
+<line x1="60" y1="43.9" x2="500" y2="43.9" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="54" y="47.9" font-size="12" text-anchor="end" fill="currentColor">25</text>
+<rect x="66.6" y="37.3" width="30.8" height="172.7" rx="1" class="acc-fill" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="82" y="226" font-size="12" text-anchor="middle" fill="currentColor">0</text>
+<rect x="110.6" y="37.3" width="30.8" height="172.7" rx="1" class="acc-fill" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="126" y="226" font-size="12" text-anchor="middle" fill="currentColor">1</text>
+<rect x="154.6" y="37.3" width="30.8" height="172.7" rx="1" class="acc-fill" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="170" y="226" font-size="12" text-anchor="middle" fill="currentColor">2</text>
+<rect x="198.6" y="37.3" width="30.8" height="172.7" rx="1" class="acc-fill" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="214" y="226" font-size="12" text-anchor="middle" fill="currentColor">3</text>
+<rect x="242.6" y="37.3" width="30.8" height="172.7" rx="1" class="acc-fill" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="258" y="226" font-size="12" text-anchor="middle" fill="currentColor">4</text>
+<rect x="286.6" y="37.3" width="30.8" height="172.7" rx="1" class="acc-fill" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="302" y="226" font-size="12" text-anchor="middle" fill="currentColor">5</text>
+<rect x="330.6" y="43.9" width="30.8" height="166.1" rx="1" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="346" y="226" font-size="12" text-anchor="middle" fill="currentColor">6</text>
+<rect x="374.6" y="43.9" width="30.8" height="166.1" rx="1" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="390" y="226" font-size="12" text-anchor="middle" fill="currentColor">7</text>
+<rect x="418.6" y="43.9" width="30.8" height="166.1" rx="1" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="434" y="226" font-size="12" text-anchor="middle" fill="currentColor">8</text>
+<rect x="462.6" y="43.9" width="30.8" height="166.1" rx="1" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<text x="478" y="226" font-size="12" text-anchor="middle" fill="currentColor">9</text>
+<line x1="60" y1="210" x2="500" y2="210" stroke="currentColor" stroke-width="1.5"/>
+<text x="16" y="117" font-size="12" text-anchor="middle" fill="currentColor" transform="rotate(-90 16 117)">how many bytes give it</text>
+<text x="280" y="250" font-size="12" text-anchor="middle" fill="currentColor">digit = byte mod 10</text>
+<text x="260" y="18" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">0–5: 26 bytes each · 6–9: 25 bytes each</text>
+</svg>
+<figcaption>Figure 4.13. Modulo bias. 256 = 25 × 10 + 6, so the six leftover values 250 to 255 fall on digits 0 to 5 and make them a little more likely. The bars barely differ, which is exactly why the bias goes unnoticed.</figcaption>
+</figure>
 
 **DRBGs.** NIST's SP 800-90A defines three **deterministic random bit
 generators**: Hash_DRBG, HMAC_DRBG and CTR_DRBG, which certified products must
@@ -550,9 +1402,69 @@ print(out[:16].hex())                    # e528e9abf2dece54d47c7e75e5fe3021
 print(out[-16:].hex())                   # 1f50d476aa0458bdaba806f48be9dcb8
 ```
 
+<figure class="mars-fig">
+<svg viewBox="0 0 660 280" width="660" role="img" aria-label="HMAC_DRBG: repeated HMAC of V under K produces output blocks, then K and V are replaced by fresh HMAC values" xmlns="http://www.w3.org/2000/svg">
+<text x="150" y="20" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">generate</text>
+<rect x="20" y="40" width="80" height="40" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="20" y="40" width="80" height="40" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="60" y="64.5" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">K, V</text>
+<rect x="140" y="40" width="140" height="40" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="140" y="40" width="140" height="40" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="210" y="64.2" font-size="12" text-anchor="middle" fill="currentColor">V = HMAC(K, V)</text>
+<line x1="280" y1="60" x2="313" y2="60" stroke="currentColor" stroke-width="1.5" class="acc"/>
+<polygon points="320,60 312,63.6 312,56.4" fill="currentColor" class="acc-fill"/>
+<text x="330" y="65" font-size="12" text-anchor="start" fill="currentColor" class="acc-fill">output block 1</text>
+<line x1="210" y1="80" x2="210" y2="89" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="210,96 206.4,88 213.6,88" fill="currentColor"/>
+<rect x="140" y="96" width="140" height="40" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="140" y="96" width="140" height="40" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="210" y="120.2" font-size="12" text-anchor="middle" fill="currentColor">V = HMAC(K, V)</text>
+<line x1="280" y1="116" x2="313" y2="116" stroke="currentColor" stroke-width="1.5" class="acc"/>
+<polygon points="320,116 312,119.6 312,112.4" fill="currentColor" class="acc-fill"/>
+<text x="330" y="121" font-size="12" text-anchor="start" fill="currentColor" class="acc-fill">output block 2</text>
+<line x1="210" y1="136" x2="210" y2="145" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="210,152 206.4,144 213.6,144" fill="currentColor"/>
+<rect x="140" y="152" width="140" height="40" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="140" y="152" width="140" height="40" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="210" y="176.2" font-size="12" text-anchor="middle" fill="currentColor">V = HMAC(K, V)</text>
+<line x1="280" y1="172" x2="313" y2="172" stroke="currentColor" stroke-width="1.5" class="acc"/>
+<polygon points="320,172 312,175.6 312,168.4" fill="currentColor" class="acc-fill"/>
+<text x="330" y="177" font-size="12" text-anchor="start" fill="currentColor" class="acc-fill">output block 3</text>
+<line x1="100" y1="60" x2="133" y2="60" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="140,60 132,63.6 132,56.4" fill="currentColor"/>
+<text x="210" y="222" font-size="14" text-anchor="middle" fill="currentColor">⋮</text>
+<line x1="470" y1="20" x2="470" y2="270" stroke="currentColor" stroke-width="0.6" stroke-dasharray="3 4"/>
+<text x="570" y="20" font-size="14" text-anchor="middle" fill="currentColor" font-weight="bold">then update</text>
+<rect x="490" y="40" width="160" height="40" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="490" y="40" width="160" height="40" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="570" y="64.2" font-size="12" text-anchor="middle" fill="currentColor">K = HMAC(K, V‖00)</text>
+<line x1="570" y1="80" x2="570" y2="97" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="570,104 566.4,96 573.6,96" fill="currentColor"/>
+<rect x="490" y="104" width="160" height="40" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="490" y="104" width="160" height="40" rx="6" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<text x="570" y="128.2" font-size="12" text-anchor="middle" fill="currentColor">V = HMAC(K, V)</text>
+<line x1="570" y1="144" x2="570" y2="161" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="570,168 566.4,160 573.6,160" fill="currentColor"/>
+<rect x="490" y="168" width="160" height="40" rx="6" style="fill: var(--md-default-bg-color)"/>
+<rect x="490" y="168" width="160" height="40" rx="6" class="soft-acc" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+<rect x="490" y="168" width="160" height="40" rx="6" fill="none" stroke="currentColor" class="acc" stroke-width="2"/>
+<text x="570" y="192.6" font-size="13" text-anchor="middle" fill="currentColor" font-weight="bold">new K, V</text>
+<text x="570" y="234" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">old K and V are gone, so</text>
+<text x="570" y="250" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">a thief who steals the new state</text>
+<text x="570" y="266" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">can't rebuild earlier output</text>
+</svg>
+<figcaption>Figure 4.14. HMAC_DRBG as in the code above (no extra input). Output comes from re-hashing V; afterwards both K and V are replaced, which gives forward secrecy.</figcaption>
+</figure>
+
 This is for learning how it works. In real code call the OS generator, which is
 already a well-seeded generator of this kind. Full details:
 [NIST DRBGs](../09-random/NIST-DRBG.md).
+
+!!! note "Life story: HMAC_DRBG"
+    **Born:** 2006, NIST SP 800-90 (Elaine Barker and John Kelsey), revised as SP 800-90A · **Purpose:** a
+    certified generator built from a well-studied primitive (HMAC) · **Helped:** used in FIPS-validated
+    libraries, and by RFC 6979 to make ECDSA nonces deterministic · **Status:** current, alongside Hash_DRBG and
+    CTR_DRBG; its sibling Dual_EC_DRBG was withdrawn (§4.10)
 
 ## 4.10 Famous failures
 
@@ -599,6 +1511,12 @@ print(clone.getrandbits(128) == victim.getrandbits(128))   # True: a 128-bit "to
 Web applications that made password-reset tokens this way (PHP's `mt_rand` was
 a common culprit) let attackers predict them. Never use `random` for secrets.
 
+!!! note "Life story: the Mersenne Twister"
+    **Born:** 1997, Makoto Matsumoto and Takuji Nishimura (published 1998); named for its period, the Mersenne
+    prime $2^{19937} - 1$ · **Purpose:** fast, high-quality random numbers for simulations · **Helped:** the
+    default generator of Python, Ruby, R, MATLAB and PHP's `mt_rand` · **Status:** current for simulations;
+    never for secrets, because 624 outputs reveal its state
+
 **A guessable seed: Netscape (1995).** Section 4.1. Fixing it meant gathering
 real entropy, which is what operating systems took over. Linux's `/dev/random`,
 written by Theodore Ts'o, had appeared in 1994.
@@ -635,6 +1553,13 @@ documents of 2013 indicated that the NSA had promoted it; NIST withdrew it. In
 2015 Juniper found that someone had replaced $Q$ in its firewalls, which let
 them decrypt VPN traffic. A random generator is the most valuable place to hide
 a back door, because its output looks random either way.
+
+!!! note "Life story: Dual_EC_DRBG"
+    **Born:** standardized 2006 in NIST SP 800-90 (and ANSI X9.82, ISO 18031) · **Purpose,** officially: a
+    generator with security based on elliptic curves · **Helped:** almost no one: it was far slower than its
+    siblings, yet RSA Security's BSAFE library made it the default · **Retired:** NIST
+    told users to stop in 2013 and removed it from the standard in 2015, after Shumow and Ferguson's warning (2007) and the
+    Snowden documents · **Replaced by:** the hash, HMAC and CTR generators
 
 The fix in every case is the same: **ask the operating system, through your
 language's secure API, for every secret value**, and never invent your own
@@ -708,6 +1633,12 @@ that are within $\varepsilon$ of uniform. In practice systems use a cryptographi
 hash or HKDF as a "computational extractor": Linux hashes its input pool with
 BLAKE2s ([Chapter 11](11-Passwords-and-Key-Derivation.md) covers HKDF).
 
+!!! note "Life story: von Neumann's extractor"
+    **Born:** 1951, John von Neumann, "Various techniques used in connection with random digits" ·
+    **Purpose:** turn a biased coin into a fair one · **Helped:** a first step in hardware random generators; the
+    model for the theory of extractors (leftover hash lemma, 1989) · **Status:** current as a teaching example
+    and in simple hardware; real systems use hash-based extractors because physical bits are correlated
+
 **Statistical tests don't prove randomness.** Test suites such as NIST SP 800-22
 and TestU01 catch broken generators, but every deterministic generator,
 including a back-doored one, can pass them. Dual_EC_DRBG's output passed. Only
@@ -729,6 +1660,45 @@ erase bits as they go. (Bruce Schneier made this argument in *Applied
 Cryptography* in 1996. Reversible computing would escape Landauer's bound in
 principle, and quantum search changes the count; see
 [Chapter 20](20-Quantum-Computers.md).)
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 260" width="640" role="img" aria-label="Log-scale bars of energy: counting to 2^128 needs 10^16 joules, less than a year of world energy; 2^192 needs more than the Sun's yearly output; 2^256 vastly more" xmlns="http://www.w3.org/2000/svg">
+<line x1="200" y1="14" x2="200" y2="196" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="200" y="214" font-size="12" text-anchor="middle" fill="currentColor">10¹⁰</text>
+<line x1="289.1" y1="14" x2="289.1" y2="196" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="289.1" y="214" font-size="12" text-anchor="middle" fill="currentColor">10²⁰</text>
+<line x1="378.3" y1="14" x2="378.3" y2="196" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="378.3" y="214" font-size="12" text-anchor="middle" fill="currentColor">10³⁰</text>
+<line x1="467.4" y1="14" x2="467.4" y2="196" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="467.4" y="214" font-size="12" text-anchor="middle" fill="currentColor">10⁴⁰</text>
+<line x1="556.5" y1="14" x2="556.5" y2="196" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 3"/>
+<text x="556.5" y="214" font-size="12" text-anchor="middle" fill="currentColor">10⁵⁰</text>
+<text x="190" y="36" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">count to 2¹²⁸</text>
+<rect x="200" y="22" width="53.6" height="22" rx="2" class="soft-acc" fill="currentColor"/>
+<rect x="200" y="22" width="53.6" height="22" rx="2" fill="none" stroke="currentColor" class="acc" stroke-width="1"/>
+<rect x="256.6" y="26.6" width="78" height="15.6" style="fill: var(--md-default-bg-color)"/>
+<text x="259.6" y="38" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">1 × 10¹⁶ J</text>
+<text x="190" y="72" font-size="13" text-anchor="end" fill="currentColor">world energy use, 1 year</text>
+<rect x="200" y="58" width="96.1" height="22" rx="2" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<rect x="299.1" y="62.6" width="78" height="15.6" style="fill: var(--md-default-bg-color)"/>
+<text x="302.1" y="74" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">6 × 10²⁰ J</text>
+<text x="190" y="108" font-size="13" text-anchor="end" fill="currentColor">the Sun, 1 year</text>
+<rect x="200" y="94" width="214.6" height="22" rx="2" class="soft" fill="currentColor" stroke="currentColor" stroke-width="1"/>
+<rect x="417.6" y="98.6" width="92.4" height="15.6" style="fill: var(--md-default-bg-color)"/>
+<text x="420.6" y="110" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">1.2 × 10³⁴ J</text>
+<text x="190" y="144" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">count to 2¹⁹²</text>
+<rect x="200" y="130" width="225.4" height="22" rx="2" class="soft-acc" fill="currentColor"/>
+<rect x="200" y="130" width="225.4" height="22" rx="2" fill="none" stroke="currentColor" class="acc" stroke-width="1"/>
+<rect x="428.4" y="134.6" width="92.4" height="15.6" style="fill: var(--md-default-bg-color)"/>
+<text x="431.4" y="146" font-size="12" text-anchor="start" fill="currentColor" font-weight="bold">1.9 × 10³⁵ J</text>
+<text x="190" y="180" font-size="13" text-anchor="end" fill="currentColor" font-weight="bold">count to 2²⁵⁶</text>
+<rect x="200" y="166" width="397" height="22" rx="2" class="soft-acc" fill="currentColor"/>
+<rect x="200" y="166" width="397" height="22" rx="2" fill="none" stroke="currentColor" class="acc" stroke-width="1"/>
+<text x="591" y="182" font-size="12" text-anchor="end" fill="currentColor" font-weight="bold">3.5 × 10⁵⁴ J</text>
+<text x="405" y="246" font-size="12" text-anchor="middle" fill="currentColor" font-style="italic">joules, log scale; counting uses Landauer's limit at 3.2 K</text>
+</svg>
+<figcaption>Figure 4.15. The physics of brute force. Merely counting through 2¹²⁸ states costs less than humanity's yearly energy use; 2¹⁹² costs sixteen years of the Sun's output; 2²⁵⁶ is beyond any star.</figcaption>
+</figure>
 
 ## Exercises
 
