@@ -126,7 +126,7 @@ Each part below starts closed; open the ones you want.
 ??? info "The math underneath"
 
     - **Modular exponentiation**, done quickly by square and multiply (see the step-by-step box on
-      [RSA](../02-signatures/RSA.md#going-deeper)).
+      [RSA](../02-signatures/RSA.md#3-build-it-by-hand)).
     - **Cyclic groups and generators:** why $g^a$ can land on every element, and why the order of the group
       decides which attacks work (Pohlig–Hellman breaks groups whose order has only small factors).
     - **The discrete log problem** and its relatives (computational and decisional Diffie-Hellman): see

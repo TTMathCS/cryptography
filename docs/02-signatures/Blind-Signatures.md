@@ -120,7 +120,7 @@ Each part below starts closed; open the ones you want.
 
 ??? example "Sample calculation: an RSA blind signature with small numbers"
 
-    The signer's RSA key from the [RSA](RSA.md#going-deeper) example: $n = 3233$, $e = 17$, $d = 2753$. The
+    The signer's RSA key from the [RSA](RSA.md#3-build-it-by-hand) example: $n = 3233$, $e = 17$, $d = 2753$. The
     user wants a signature on $m = 65$ without the signer seeing 65. Checked with Python:
 
     | Step | Who | Calculation | Value |
