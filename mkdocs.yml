@@ -40,6 +40,7 @@ extra_css:
   - fonts/fonts.css
   - stylesheets/mars.css
   - stylesheets/ask.css
+  - stylesheets/reader.css
   - katex/katex.min.css
 
 extra:
@@ -56,6 +57,7 @@ extra_javascript:
   - katex/katex.min.js
   - katex/auto-render.min.js
   - javascripts/math.js
+  - javascripts/reader.js
   - path: holidays/badge.js
     type: module
 

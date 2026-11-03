@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{#- The reader's text size and reading mode (javascripts/reader.js) are set here, before the page is drawn,
+    so the text does not jump when the page opens. Same file on cs, math and cryptography. -#}
+{% block extrahead %}
+  {{ super() }}
+  <script>try{var r=JSON.parse(localStorage.getItem("akadian-reader"))||{};if(r.scale)document.documentElement.style.setProperty("--reader-scale",r.scale);if(r.focus)document.documentElement.classList.add("reader-mode")}catch(e){}</script>
+{% endblock %}
