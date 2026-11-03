@@ -60,6 +60,58 @@ So a cryptographic hash is a public function $H$, with no key, that takes any
 input and gives a fixed-size output (the **digest**), and that no one can
 steer. The next section makes "no one can steer" precise.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 520 438" width="520" role="img" aria-label="Timeline of hash functions from Luhn in 1953 to the planned end of SHA-1 in 2030">
+<line x1="78" y1="12" x2="78" y2="426" stroke="currentColor" stroke-width="2"/>
+<circle cx="78" cy="20" r="5" fill="currentColor"/>
+<text x="64" y="25" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">1953</text>
+<text x="94" y="25" font-size="14" fill="currentColor">Luhn at IBM: hashing for fast lookup</text>
+<circle cx="78" cy="48" r="5" fill="currentColor"/>
+<text x="64" y="53" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">1976</text>
+<text x="94" y="53" font-size="14" fill="currentColor">Diffie and Hellman: sign a short digest</text>
+<circle cx="78" cy="76" r="5" fill="currentColor"/>
+<text x="64" y="81" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">1979</text>
+<text x="94" y="81" font-size="14" fill="currentColor">Yuval&#x27;s birthday swindle; Merkle&#x27;s thesis</text>
+<circle cx="78" cy="104" r="5" fill="currentColor"/>
+<text x="64" y="109" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">1989</text>
+<text x="94" y="109" font-size="14" fill="currentColor">Merkle and Damgård prove the chain safe</text>
+<circle cx="78" cy="132" r="5" fill="currentColor"/>
+<text x="64" y="137" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">1991</text>
+<text x="94" y="137" font-size="14" fill="currentColor">Rivest&#x27;s MD5 (MD4 in 1990)</text>
+<circle cx="78" cy="160" r="5" fill="currentColor"/>
+<text x="64" y="165" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">1995</text>
+<text x="94" y="165" font-size="14" fill="currentColor">NSA&#x27;s SHA-1 replaces SHA-0</text>
+<circle cx="78" cy="188" r="5" fill="currentColor"/>
+<text x="64" y="193" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">2001</text>
+<text x="94" y="193" font-size="14" fill="currentColor">SHA-2 published by NIST</text>
+<circle cx="78" cy="216" r="5" class="acc-fill"/>
+<text x="64" y="221" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2004</text>
+<text x="94" y="221" font-size="14" fill="currentColor">Wang&#x27;s team: MD5 collisions</text>
+<circle cx="78" cy="244" r="5" fill="currentColor"/>
+<text x="64" y="249" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">2005</text>
+<text x="94" y="249" font-size="14" fill="currentColor">Wang&#x27;s team: SHA-1 attack, about 2⁶⁹</text>
+<circle cx="78" cy="272" r="5" class="acc-fill"/>
+<text x="64" y="277" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2008</text>
+<text x="94" y="277" font-size="14" fill="currentColor">Rogue certificate authority from MD5</text>
+<circle cx="78" cy="300" r="5" class="acc-fill"/>
+<text x="64" y="305" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2012</text>
+<text x="94" y="305" font-size="14" fill="currentColor">Flame; Keccak wins SHA-3; BLAKE2</text>
+<circle cx="78" cy="328" r="5" fill="currentColor"/>
+<text x="64" y="333" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">2015</text>
+<text x="94" y="333" font-size="14" fill="currentColor">SHA-3 becomes FIPS 202</text>
+<circle cx="78" cy="356" r="5" class="acc-fill"/>
+<text x="64" y="361" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2017</text>
+<text x="94" y="361" font-size="14" fill="currentColor">SHAttered: first SHA-1 collision</text>
+<circle cx="78" cy="384" r="5" class="acc-fill"/>
+<text x="64" y="389" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2020</text>
+<text x="94" y="389" font-size="14" fill="currentColor">SHA-1 is a Shambles; BLAKE3</text>
+<circle cx="78" cy="412" r="5" fill="currentColor"/>
+<text x="64" y="417" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">2030</text>
+<text x="94" y="417" font-size="14" fill="currentColor">NIST&#x27;s planned end of SHA-1</text>
+</svg>
+<figcaption>Figure 9.1. Seventy years of hashing. The highlighted years are breaks: each one came long after the first public warnings.</figcaption>
+</figure>
+
 ## 9.2 What a hash must do
 
 Think of a 256-bit hash as a machine that gives every possible file a 64-digit
@@ -72,6 +124,56 @@ That splits into three separate jobs, from hardest to break to easiest:
 | **Preimage resistance** (one-way) | a digest $y$ | any $x$ with $H(x) = y$ | $2^n$ |
 | **Second-preimage resistance** | a message $x$ | some $x' \neq x$ with $H(x') = H(x)$ | $2^n$ |
 | **Collision resistance** | nothing | any pair $x \neq x'$ with $H(x) = H(x')$ | $2^{n/2}$ |
+
+<figure class="mars-fig">
+<svg viewBox="0 0 600 300" width="600" role="img" aria-label="Three diagrams: preimage, second preimage and collision attacks, showing what the attacker is given and must find">
+<text x="10" y="45" font-size="15" font-weight="bold" fill="currentColor">Preimage</text>
+<text x="10" y="67" font-size="14" fill="currentColor">cost 2ⁿ</text>
+<rect x="220" y="33" width="100" height="34" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="270" y="54.9" font-size="14" text-anchor="middle" fill="currentColor">x = ?</text>
+<polyline points="320,50 374,50" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="380,50 373.1,54 373.1,46" fill="currentColor"/>
+<rect x="380" y="33" width="50" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="405" y="54.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">H</text>
+<polyline points="430,50 464,50" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="470,50 463.1,54 463.1,46" fill="currentColor"/>
+<rect x="470" y="33" width="110" height="34" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="525" y="54.9" font-size="14" text-anchor="middle" fill="currentColor">y (given)</text>
+<text x="10" y="140" font-size="15" font-weight="bold" fill="currentColor">Second preimage</text>
+<text x="10" y="162" font-size="14" fill="currentColor">cost 2ⁿ</text>
+<rect x="220" y="112" width="100" height="30" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="270" y="131.9" font-size="14" text-anchor="middle" fill="currentColor">x (given)</text>
+<rect x="220" y="150" width="100" height="30" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="270" y="169.9" font-size="14" text-anchor="middle" fill="currentColor">x′ = ?</text>
+<polyline points="320,127 374.1,138.7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="380,140 372.4,142.4 374.1,134.6" fill="currentColor"/>
+<polyline points="320,165 374.1,153.3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="380,152 374.1,157.4 372.4,149.6" fill="currentColor"/>
+<rect x="380" y="129" width="50" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="405" y="150.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">H</text>
+<polyline points="430,146 464,146" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="470,146 463.1,150 463.1,142" fill="currentColor"/>
+<rect x="470" y="129" width="110" height="34" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="525" y="150.9" font-size="14" text-anchor="middle" fill="currentColor">same y</text>
+<text x="10" y="235" font-size="15" font-weight="bold" fill="currentColor">Collision</text>
+<text x="10" y="257" font-size="14" class="acc-fill">cost 2ⁿᐟ²</text>
+<rect x="220" y="207" width="100" height="30" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="270" y="226.9" font-size="14" text-anchor="middle" fill="currentColor">x = ?</text>
+<rect x="220" y="245" width="100" height="30" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="270" y="264.9" font-size="14" text-anchor="middle" fill="currentColor">x′ = ?</text>
+<polyline points="320,222 374.1,233.7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="380,235 372.4,237.4 374.1,229.6" fill="currentColor"/>
+<polyline points="320,260 374.1,248.3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="380,247 374.1,252.4 372.4,244.6" fill="currentColor"/>
+<rect x="380" y="224" width="50" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="405" y="245.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">H</text>
+<polyline points="430,241 464,241" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="470,241 463.1,245 463.1,237" fill="currentColor"/>
+<rect x="470" y="224" width="110" height="34" rx="4" class="soft-acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="525" y="245.9" font-size="14" text-anchor="middle" fill="currentColor">same y</text>
+</svg>
+<figcaption>Figure 9.2. The three jobs of a hash. Dashed boxes are what the attacker must find. In a collision attack the attacker picks both inputs, which is why it is the cheapest of the three.</figcaption>
+</figure>
 
 Each job matches a use:
 
@@ -104,6 +206,269 @@ print(bin(int.from_bytes(a, "big") ^ int.from_bytes(b, "big")).count("1"), "of 2
 
 SHA-256 of "abc" begins `ba7816bf`; of "abd", `a52d159f`. Nothing about one
 tells you anything about the other.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 340 360" width="340" role="img" aria-label="A 16 by 16 grid of the 256 output bits of SHA-256; the 122 bits that differ between abc and abd are filled">
+<rect x="12" y="12" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="32" y="12" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="52" y="12" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="72" y="12" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="92" y="12" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="112" y="12" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="132" y="12" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="152" y="12" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="172" y="12" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="192" y="12" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="212" y="12" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="232" y="12" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="252" y="12" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="272" y="12" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="292" y="12" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="312" y="12" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="12" y="32" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="32" y="32" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="52" y="32" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="72" y="32" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="92" y="32" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="112" y="32" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="132" y="32" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="152" y="32" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="172" y="32" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="192" y="32" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="212" y="32" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="232" y="32" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="252" y="32" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="272" y="32" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="292" y="32" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="312" y="32" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="12" y="52" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="32" y="52" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="52" y="52" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="72" y="52" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="92" y="52" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="112" y="52" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="132" y="52" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="152" y="52" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="172" y="52" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="192" y="52" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="212" y="52" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="232" y="52" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="252" y="52" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="272" y="52" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="292" y="52" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="312" y="52" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="12" y="72" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="32" y="72" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="52" y="72" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="72" y="72" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="92" y="72" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="112" y="72" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="132" y="72" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="152" y="72" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="172" y="72" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="192" y="72" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="212" y="72" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="232" y="72" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="252" y="72" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="272" y="72" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="292" y="72" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="312" y="72" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="12" y="92" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="32" y="92" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="52" y="92" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="72" y="92" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="92" y="92" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="112" y="92" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="132" y="92" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="152" y="92" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="172" y="92" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="192" y="92" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="212" y="92" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="232" y="92" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="252" y="92" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="272" y="92" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="292" y="92" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="312" y="92" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="12" y="112" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="32" y="112" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="52" y="112" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="72" y="112" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="92" y="112" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="112" y="112" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="132" y="112" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="152" y="112" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="172" y="112" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="192" y="112" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="212" y="112" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="232" y="112" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="252" y="112" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="272" y="112" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="292" y="112" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="312" y="112" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="12" y="132" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="32" y="132" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="52" y="132" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="72" y="132" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="92" y="132" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="112" y="132" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="132" y="132" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="152" y="132" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="172" y="132" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="192" y="132" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="212" y="132" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="232" y="132" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="252" y="132" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="272" y="132" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="292" y="132" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="312" y="132" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="12" y="152" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="32" y="152" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="52" y="152" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="72" y="152" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="92" y="152" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="112" y="152" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="132" y="152" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="152" y="152" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="172" y="152" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="192" y="152" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="212" y="152" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="232" y="152" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="252" y="152" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="272" y="152" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="292" y="152" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="312" y="152" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="12" y="172" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="32" y="172" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="52" y="172" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="72" y="172" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="92" y="172" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="112" y="172" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="132" y="172" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="152" y="172" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="172" y="172" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="192" y="172" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="212" y="172" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="232" y="172" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="252" y="172" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="272" y="172" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="292" y="172" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="312" y="172" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="12" y="192" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="32" y="192" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="52" y="192" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="72" y="192" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="92" y="192" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="112" y="192" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="132" y="192" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="152" y="192" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="172" y="192" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="192" y="192" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="212" y="192" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="232" y="192" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="252" y="192" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="272" y="192" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="292" y="192" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="312" y="192" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="12" y="212" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="32" y="212" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="52" y="212" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="72" y="212" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="92" y="212" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="112" y="212" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="132" y="212" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="152" y="212" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="172" y="212" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="192" y="212" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="212" y="212" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="232" y="212" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="252" y="212" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="272" y="212" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="292" y="212" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="312" y="212" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="12" y="232" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="32" y="232" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="52" y="232" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="72" y="232" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="92" y="232" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="112" y="232" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="132" y="232" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="152" y="232" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="172" y="232" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="192" y="232" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="212" y="232" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="232" y="232" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="252" y="232" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="272" y="232" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="292" y="232" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="312" y="232" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="12" y="252" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="32" y="252" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="52" y="252" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="72" y="252" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="92" y="252" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="112" y="252" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="132" y="252" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="152" y="252" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="172" y="252" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="192" y="252" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="212" y="252" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="232" y="252" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="252" y="252" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="272" y="252" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="292" y="252" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="312" y="252" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="12" y="272" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="32" y="272" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="52" y="272" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="72" y="272" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="92" y="272" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="112" y="272" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="132" y="272" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="152" y="272" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="172" y="272" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="192" y="272" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="212" y="272" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="232" y="272" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="252" y="272" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="272" y="272" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="292" y="272" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="312" y="272" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="12" y="292" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="32" y="292" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="52" y="292" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="72" y="292" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="92" y="292" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="112" y="292" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="132" y="292" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="152" y="292" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="172" y="292" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="192" y="292" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="212" y="292" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="232" y="292" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="252" y="292" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="272" y="292" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="292" y="292" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="312" y="292" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="12" y="312" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="32" y="312" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="52" y="312" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="72" y="312" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="92" y="312" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="112" y="312" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="132" y="312" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="152" y="312" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="172" y="312" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="192" y="312" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="212" y="312" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="232" y="312" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="252" y="312" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="272" y="312" width="16" height="16" rx="2" class="acc-fill"/>
+<rect x="292" y="312" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<rect x="312" y="312" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="170" y="352" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">122 of 256 bits differ</text>
+</svg>
+<figcaption>Figure 9.3. The avalanche effect. Each square is one of SHA-256's 256 output bits, read left to right, top to bottom; a filled square is a bit that differs between SHA-256("abc") and SHA-256("abd"). One changed input bit flipped 122 output bits, scattered with no pattern.</figcaption>
+</figure>
 
 ### Brute force, at a size you can watch
 
@@ -145,7 +510,8 @@ apart. That gap is the birthday bound.
 ## 9.3 The birthday bound
 
 How many people must be in a room before two of them probably share a
-birthday? Not 183. Twenty-three.
+birthday? Not 183. Twenty-three. (The puzzle is older than computers: the
+Austrian mathematician Richard von Mises published a version of it in 1939.)
 
 The reason is that the question is about *pairs*, and 23 people make
 $\binom{23}{2} = 253$ pairs. Work it out by computing the chance that all
@@ -183,6 +549,51 @@ above needed 8,865, a little unlucky but the right size. For real hashes:
 This is why hashes are twice the size of keys. A 128-bit security level, the
 same as [AES-128](07-AES.md), needs a 256-bit digest.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 600 288" width="600" role="img" aria-label="Curve of the chance of a shared birthday against the number of people, crossing one half at 23 people">
+<line x1="60" y1="240" x2="560" y2="240" stroke="currentColor" stroke-width="1.5"/>
+<line x1="60" y1="20" x2="60" y2="240" stroke="currentColor" stroke-width="1.5"/>
+<line x1="60" y1="240" x2="60" y2="245" stroke="currentColor" stroke-width="1.5"/>
+<text x="60" y="260" font-size="13" text-anchor="middle" fill="currentColor">0</text>
+<line x1="131.4" y1="240" x2="131.4" y2="245" stroke="currentColor" stroke-width="1.5"/>
+<text x="131.4" y="260" font-size="13" text-anchor="middle" fill="currentColor">10</text>
+<line x1="202.9" y1="240" x2="202.9" y2="245" stroke="currentColor" stroke-width="1.5"/>
+<text x="202.9" y="260" font-size="13" text-anchor="middle" fill="currentColor">20</text>
+<line x1="274.3" y1="240" x2="274.3" y2="245" stroke="currentColor" stroke-width="1.5"/>
+<text x="274.3" y="260" font-size="13" text-anchor="middle" fill="currentColor">30</text>
+<line x1="345.7" y1="240" x2="345.7" y2="245" stroke="currentColor" stroke-width="1.5"/>
+<text x="345.7" y="260" font-size="13" text-anchor="middle" fill="currentColor">40</text>
+<line x1="417.1" y1="240" x2="417.1" y2="245" stroke="currentColor" stroke-width="1.5"/>
+<text x="417.1" y="260" font-size="13" text-anchor="middle" fill="currentColor">50</text>
+<line x1="488.6" y1="240" x2="488.6" y2="245" stroke="currentColor" stroke-width="1.5"/>
+<text x="488.6" y="260" font-size="13" text-anchor="middle" fill="currentColor">60</text>
+<line x1="560" y1="240" x2="560" y2="245" stroke="currentColor" stroke-width="1.5"/>
+<text x="560" y="260" font-size="13" text-anchor="middle" fill="currentColor">70</text>
+<line x1="55" y1="240" x2="60" y2="240" stroke="currentColor" stroke-width="1.5"/>
+<text x="51" y="245" font-size="13" text-anchor="end" fill="currentColor">0</text>
+<line x1="55" y1="185" x2="60" y2="185" stroke="currentColor" stroke-width="1.5"/>
+<text x="51" y="190" font-size="13" text-anchor="end" fill="currentColor">0.25</text>
+<line x1="60" y1="185" x2="560" y2="185" stroke="currentColor" stroke-width="0.6" stroke-opacity="0.3"/>
+<line x1="55" y1="130" x2="60" y2="130" stroke="currentColor" stroke-width="1.5"/>
+<text x="51" y="135" font-size="13" text-anchor="end" fill="currentColor">0.5</text>
+<line x1="60" y1="130" x2="560" y2="130" stroke="currentColor" stroke-width="0.6" stroke-opacity="0.3"/>
+<line x1="55" y1="75" x2="60" y2="75" stroke="currentColor" stroke-width="1.5"/>
+<text x="51" y="80" font-size="13" text-anchor="end" fill="currentColor">0.75</text>
+<line x1="60" y1="75" x2="560" y2="75" stroke="currentColor" stroke-width="0.6" stroke-opacity="0.3"/>
+<line x1="55" y1="20" x2="60" y2="20" stroke="currentColor" stroke-width="1.5"/>
+<text x="51" y="25" font-size="13" text-anchor="end" fill="currentColor">1</text>
+<line x1="60" y1="20" x2="560" y2="20" stroke="currentColor" stroke-width="0.6" stroke-opacity="0.3"/>
+<polyline points="60,240 67.1,240 74.3,239.4 81.4,238.2 88.6,236.4 95.7,234 102.9,231.1 110,227.6 117.1,223.6 124.3,219.2 131.4,214.3 138.6,208.9 145.7,203.3 152.9,197.2 160,190.9 167.1,184.4 174.3,177.6 181.4,170.7 188.6,163.7 195.7,156.6 202.9,149.5 210,142.4 217.1,135.3 224.3,128.4 231.4,121.6 238.6,114.9 245.7,108.4 252.9,102.1 260,96 267.1,90.2 274.3,84.6 281.4,79.3 288.6,74.3 295.7,69.5 302.9,65 310,60.8 317.1,56.9 324.3,53.3 331.4,49.9 338.6,46.8 345.7,43.9 352.9,41.3 360,38.9 367.1,36.7 374.3,34.8 381.4,33 388.6,31.4 395.7,29.9 402.9,28.7 410,27.5 417.1,26.5 424.3,25.6 431.4,24.8 438.6,24.1 445.7,23.5 452.9,23 460,22.6 467.1,22.2 474.3,21.8 481.4,21.5 488.6,21.3 495.7,21.1 502.9,20.9 510,20.7 517.1,20.6 524.3,20.5 531.4,20.4 538.6,20.3 545.7,20.3 552.9,20.2 560,20.2" fill="none" class="acc" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+<line x1="224.3" y1="240" x2="224.3" y2="128.4" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4"/>
+<line x1="60" y1="128.4" x2="224.3" y2="128.4" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4"/>
+<circle cx="224.3" cy="128.4" r="5" class="acc-fill"/>
+<text x="234.3" y="148.4" font-size="14" font-weight="bold" fill="currentColor">23 people: 0.507</text>
+<text x="310" y="280" font-size="13" text-anchor="middle" fill="currentColor">people in the room</text>
+<text x="555" y="213.6" font-size="13" text-anchor="end" fill="currentColor">chance that two share a birthday</text>
+</svg>
+<figcaption>Figure 9.4. The birthday curve for 365 days. It passes one half at 23 people, about 1.18 × √365, and is near certain by 60. Replace 365 days by 2ⁿ digests and the same curve passes one half near 1.18 × 2ⁿᐟ² tries.</figcaption>
+</figure>
+
 **Yuval's swindle.** Here is the 1979 attack in story form. A swindler wants
 you to sign a contract that pays them \$1,000, and then claim you signed one
 that pays \$100,000. They write both contracts with 32 places where the wording
@@ -192,6 +603,19 @@ the birthday bound says that among $2^{32}$ fair versions and $2^{32}$ unfair
 ones, a fair and an unfair version probably share a digest. You sign the fair
 one; the signature also fits the unfair one. No weakness in the hash is
 needed, only a digest too short to stand $2^{n/2}$ work.
+
+Yuval wrote his note as a short, almost playful reply to Rabin's proposal, but
+it changed how hashes were sized. From then on a digest had to be long enough
+that $2^{n/2}$ work was out of reach. That is why the 64-bit digests of the
+1970s gave way to 128 bits (MD4 and MD5), then 160 (SHA-1), then 256.
+
+!!! note "Life story: the birthday attack"
+    **Born:** 1979, Gideon Yuval's "How to Swindle Rabin" (*Cryptologia*), applying the old
+    birthday puzzle to signatures · **Purpose:** to show that a digest too short to stand
+    $2^{n/2}$ work cannot protect a signature, however good the hash · **Helped:** set the rule
+    that a hash needs twice as many bits as the security level it promises, which sized every
+    later hash · **Status:** current, as a generic attack on every hash; only a longer output
+    defends against it.
 
 ## 9.4 Building a hash: Merkle-Damgård
 
@@ -210,6 +634,46 @@ construction runs it over the message one block at a time:
 3. For each block, $h_i = f(h_{i-1}, m_i)$.
 4. The last chaining value is the digest.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 600 180" width="600" role="img" aria-label="Merkle-Damgård chain: IV goes through compression function f with message blocks m1, m2 and a last block holding the padding and length, giving the digest">
+<rect x="6" y="94" width="54" height="40" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="33" y="119.6" font-size="16" text-anchor="middle" fill="currentColor">IV</text>
+<text x="33" y="156" font-size="16" text-anchor="middle" fill="currentColor">h₀</text>
+<rect x="93" y="12" width="64" height="36" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="125" y="35.6" font-size="16" text-anchor="middle" fill="currentColor">m₁</text>
+<polyline points="125,48 125,86" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="125,92 121,85.1 129,85.1" fill="currentColor"/>
+<rect x="100" y="92" width="50" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="125" y="120.3" font-size="18" text-anchor="middle" font-weight="bold" fill="currentColor">f</text>
+<polyline points="60,114 94,114" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="100,114 93.1,118 93.1,110" fill="currentColor"/>
+<text x="190" y="106" font-size="16" text-anchor="middle" fill="currentColor">h₁</text>
+<rect x="223" y="12" width="64" height="36" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="255" y="35.6" font-size="16" text-anchor="middle" fill="currentColor">m₂</text>
+<polyline points="255,48 255,86" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="255,92 251,85.1 259,85.1" fill="currentColor"/>
+<rect x="230" y="92" width="50" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="255" y="120.3" font-size="18" text-anchor="middle" font-weight="bold" fill="currentColor">f</text>
+<polyline points="150,114 224,114" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="230,114 223.1,118 223.1,110" fill="currentColor"/>
+<text x="325" y="106" font-size="16" text-anchor="middle" fill="currentColor">h₂</text>
+<rect x="320" y="12" width="150" height="36" rx="4" class="soft-acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="395" y="35.6" font-size="16" text-anchor="middle" fill="currentColor">m₃ ‖ pad ‖ len</text>
+<polyline points="395,48 395,86" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="395,92 391,85.1 399,85.1" fill="currentColor"/>
+<rect x="370" y="92" width="50" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="395" y="120.3" font-size="18" text-anchor="middle" font-weight="bold" fill="currentColor">f</text>
+<polyline points="280,114 364,114" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="370,114 363.1,118 363.1,110" fill="currentColor"/>
+<polyline points="420,114 472,114" fill="none" class="acc" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="478,114 471.1,118 471.1,110" class="acc-fill"/>
+<rect x="478" y="94" width="116" height="40" rx="4" class="soft-acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="536" y="119.6" font-size="16" text-anchor="middle" font-weight="bold" fill="currentColor">digest</text>
+<text x="536" y="156" font-size="16" text-anchor="middle" fill="currentColor">h₃ = H(M)</text>
+</svg>
+<figcaption>Figure 9.5. Merkle-Damgård. One compression function f eats the message a block at a time, carrying a chaining value from left to right. The last block holds the padding and the message length, and the final chaining value is the digest.</figcaption>
+</figure>
+
 **Padding "abc" by hand.** "abc" is the three bytes `61 62 63`, which is 24
 bits. Add the byte `80` (a `1` bit and seven zeros), then zeros up to byte 56,
 then the length 24 = `0x18` in the last 8 bytes:
@@ -218,6 +682,156 @@ then the length 24 = `0x18` in the last 8 bytes:
 61626380 00000000 00000000 00000000 00000000 00000000 00000000 00000000
 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000018
 ```
+
+<figure class="mars-fig">
+<svg viewBox="0 0 612 182" width="612" role="img" aria-label="The 64-byte padded block for abc: bytes 61 62 63, then 80, then zeros, then the length 18 in the last byte">
+<rect x="11" y="11" width="35" height="26" rx="0" class="soft-acc"/>
+<rect x="11" y="11" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="28.5" y="29" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace" fill="currentColor">61</text>
+<rect x="48" y="11" width="35" height="26" rx="0" class="soft-acc"/>
+<rect x="48" y="11" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="65.5" y="29" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace" fill="currentColor">62</text>
+<rect x="85" y="11" width="35" height="26" rx="0" class="soft-acc"/>
+<rect x="85" y="11" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="102.5" y="29" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace" fill="currentColor">63</text>
+<rect x="122" y="11" width="35" height="26" rx="0" class="soft-acc"/>
+<rect x="122" y="11" width="35" height="26" rx="1" fill="none" class="acc" stroke="currentColor" stroke-width="0.8"/>
+<text x="139.5" y="29" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace" fill="currentColor">80</text>
+<rect x="159" y="11" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="176.5" y="29" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="196" y="11" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="213.5" y="29" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="233" y="11" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="250.5" y="29" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="270" y="11" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="287.5" y="29" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="307" y="11" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="324.5" y="29" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="344" y="11" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="361.5" y="29" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="381" y="11" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="398.5" y="29" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="418" y="11" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="435.5" y="29" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="455" y="11" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="472.5" y="29" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="492" y="11" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="509.5" y="29" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="529" y="11" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="546.5" y="29" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="566" y="11" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="583.5" y="29" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="11" y="39" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="28.5" y="57" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="48" y="39" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="65.5" y="57" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="85" y="39" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="102.5" y="57" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="122" y="39" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="139.5" y="57" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="159" y="39" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="176.5" y="57" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="196" y="39" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="213.5" y="57" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="233" y="39" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="250.5" y="57" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="270" y="39" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="287.5" y="57" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="307" y="39" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="324.5" y="57" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="344" y="39" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="361.5" y="57" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="381" y="39" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="398.5" y="57" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="418" y="39" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="435.5" y="57" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="455" y="39" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="472.5" y="57" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="492" y="39" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="509.5" y="57" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="529" y="39" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="546.5" y="57" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="566" y="39" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="583.5" y="57" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="11" y="67" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="28.5" y="85" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="48" y="67" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="65.5" y="85" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="85" y="67" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="102.5" y="85" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="122" y="67" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="139.5" y="85" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="159" y="67" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="176.5" y="85" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="196" y="67" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="213.5" y="85" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="233" y="67" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="250.5" y="85" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="270" y="67" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="287.5" y="85" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="307" y="67" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="324.5" y="85" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="344" y="67" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="361.5" y="85" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="381" y="67" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="398.5" y="85" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="418" y="67" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="435.5" y="85" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="455" y="67" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="472.5" y="85" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="492" y="67" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="509.5" y="85" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="529" y="67" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="546.5" y="85" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="566" y="67" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="583.5" y="85" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="11" y="95" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="28.5" y="113" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="48" y="95" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="65.5" y="113" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="85" y="95" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="102.5" y="113" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="122" y="95" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="139.5" y="113" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="159" y="95" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="176.5" y="113" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="196" y="95" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="213.5" y="113" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="233" y="95" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="250.5" y="113" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="270" y="95" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="287.5" y="113" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="307" y="95" width="35" height="26" rx="0" class="soft"/>
+<rect x="307" y="95" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="324.5" y="113" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="344" y="95" width="35" height="26" rx="0" class="soft"/>
+<rect x="344" y="95" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="361.5" y="113" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="381" y="95" width="35" height="26" rx="0" class="soft"/>
+<rect x="381" y="95" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="398.5" y="113" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="418" y="95" width="35" height="26" rx="0" class="soft"/>
+<rect x="418" y="95" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="435.5" y="113" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="455" y="95" width="35" height="26" rx="0" class="soft"/>
+<rect x="455" y="95" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="472.5" y="113" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="492" y="95" width="35" height="26" rx="0" class="soft"/>
+<rect x="492" y="95" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="509.5" y="113" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="529" y="95" width="35" height="26" rx="0" class="soft"/>
+<rect x="529" y="95" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="546.5" y="113" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">00</text>
+<rect x="566" y="95" width="35" height="26" rx="0" class="soft"/>
+<rect x="566" y="95" width="35" height="26" rx="1" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="583.5" y="113" font-size="13" text-anchor="middle" font-weight="bold" font-family="monospace" fill="currentColor">18</text>
+<text x="10" y="146" font-size="13" fill="currentColor">61 62 63 = &quot;abc&quot;   80 = the 1 bit</text>
+<text x="10" y="168" font-size="13" fill="currentColor">zeros up to byte 56</text>
+<polyline points="306,128 306,136 600,136 600,128" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+<text x="453" y="151.2" font-size="13" text-anchor="middle" fill="currentColor">length: 24 bits = 0x18</text>
+</svg>
+<figcaption>Figure 9.6. "abc" padded to one 64-byte SHA-256 block: the three message bytes, the byte 80 (a single 1 bit), zeros, and the last 8 bytes holding the length in bits.</figcaption>
+</figure>
 
 That is one 64-byte block, so SHA-256("abc") is a single call of $f$.
 
@@ -245,8 +859,53 @@ could decrypt backwards from a chosen output, and preimages would be easy. In
 SHA-256, $E$ is 64 rounds on eight 32-bit words, and "+" is word-wise addition
 mod $2^{32}$.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 560 190" width="560" role="img" aria-label="Davies-Meyer compression: the message block is the key of block cipher E, the chaining value is encrypted, and the input is added back to the output">
+<text x="20" y="84" font-size="15" font-weight="bold" fill="currentColor">hᵢ₋₁</text>
+<polyline points="60,80 104,80" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="110,80 103.1,84 103.1,76" fill="currentColor"/>
+<line x1="85" y1="80" x2="85" y2="150" stroke="currentColor" stroke-width="1.5"/>
+<polyline points="85,150 370,150 370,98" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="370,92 374,98.9 366,98.9" class="acc-fill"/>
+<rect x="110" y="55" width="150" height="50" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="185" y="86.3" font-size="18" text-anchor="middle" font-weight="bold" fill="currentColor">E</text>
+<text x="185" y="22" font-size="14" text-anchor="middle" fill="currentColor">mᵢ (used as the key)</text>
+<polyline points="185,30 185,49" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="185,55 181,48.1 189,48.1" fill="currentColor"/>
+<polyline points="260,80 352,80" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="358,80 351.1,84 351.1,76" fill="currentColor"/>
+<rect x="360" y="70" width="20" height="20" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<line x1="364" y1="80" x2="376" y2="80" stroke="currentColor" class="acc" stroke-width="2"/>
+<line x1="370" y1="74" x2="370" y2="86" stroke="currentColor" class="acc" stroke-width="2"/>
+<polyline points="380,80 444,80" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="450,80 443.1,84 443.1,76" fill="currentColor"/>
+<text x="460" y="85" font-size="15" font-weight="bold" fill="currentColor">hᵢ</text>
+<text x="230" y="172" font-size="13" text-anchor="middle" class="acc-fill">feed-forward: add hᵢ₋₁ back, word by word mod 2³²</text>
+</svg>
+<figcaption>Figure 9.7. The Davies-Meyer compression function f(h, m) = Eₘ(h) + h. The message block is the key; the chaining value is the plaintext. The feed-forward (accent) is what stops anyone from running the cipher backwards to find a preimage.</figcaption>
+</figure>
+
 The digest of a Merkle-Damgård hash is its entire final state. Keep that fact in
 mind; it causes the attack in §9.7.
+
+**Where the design came from.** Ralph Merkle had made his name as a Berkeley
+undergraduate in 1974, with a scheme for strangers to agree on a key in public
+("Merkle's puzzles", [Chapter 12](12-Diffie-Hellman.md)) before Diffie and
+Hellman published. His 1979 Stanford thesis, supervised by Martin Hellman,
+described both the hash chain and the hash tree that now carry his name. The
+proof that chaining is safe came ten years later, at the CRYPTO '89 conference
+in Santa Barbara, in two papers written independently: Merkle's "One Way Hash
+Functions and DES" and Ivan Damgård's "A Design Principle for Hash Functions",
+from Aarhus. That is why the construction carries both names. For the next
+quarter century almost every hash in use was built this way.
+
+!!! note "Life story: Merkle-Damgård"
+    **Born:** 1979 (Merkle's Stanford thesis); proved safe in 1989 by Merkle and by Damgård,
+    independently · **Purpose:** hash messages of any length with one fixed-size compression
+    function, with a proof that the whole is as strong as its part · **Helped:** the shape of
+    MD4, MD5, SHA-1, SHA-2, RIPEMD-160 and SM3, the hashes that ran the internet from 1990 on ·
+    **Weak spots:** length extension (§9.7) and multicollisions (§9.12), both because the digest
+    is the whole state · **Status:** current inside SHA-2; SHA-3 chose a sponge instead (§9.9).
 
 ## 9.5 Inside SHA-256
 
@@ -314,6 +973,91 @@ square-root constants:
 
 </div>
 
+<figure class="mars-fig">
+<svg viewBox="0 0 690 330" width="690" role="img" aria-label="One SHA-256 round on abc: eight words shift one place; new a is T1 plus T2 and new e is d plus T1">
+<rect x="10" y="30" width="78" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="49" y="49" font-size="15" text-anchor="middle" fill="currentColor">a</text>
+<text x="49" y="66" font-size="13" text-anchor="middle" fill="currentColor">6a09e667</text>
+<rect x="10" y="200" width="78" height="44" rx="4" class="soft-acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="49" y="219" font-size="15" text-anchor="middle" fill="currentColor">a</text>
+<text x="49" y="236" font-size="13" text-anchor="middle" fill="currentColor">5d6aebcd</text>
+<rect x="95" y="30" width="78" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="134" y="49" font-size="15" text-anchor="middle" fill="currentColor">b</text>
+<text x="134" y="66" font-size="13" text-anchor="middle" fill="currentColor">bb67ae85</text>
+<rect x="95" y="200" width="78" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="134" y="219" font-size="15" text-anchor="middle" fill="currentColor">b</text>
+<text x="134" y="236" font-size="13" text-anchor="middle" fill="currentColor">6a09e667</text>
+<rect x="180" y="30" width="78" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="219" y="49" font-size="15" text-anchor="middle" fill="currentColor">c</text>
+<text x="219" y="66" font-size="13" text-anchor="middle" fill="currentColor">3c6ef372</text>
+<rect x="180" y="200" width="78" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="219" y="219" font-size="15" text-anchor="middle" fill="currentColor">c</text>
+<text x="219" y="236" font-size="13" text-anchor="middle" fill="currentColor">bb67ae85</text>
+<rect x="265" y="30" width="78" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="304" y="49" font-size="15" text-anchor="middle" fill="currentColor">d</text>
+<text x="304" y="66" font-size="13" text-anchor="middle" fill="currentColor">a54ff53a</text>
+<rect x="265" y="200" width="78" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="304" y="219" font-size="15" text-anchor="middle" fill="currentColor">d</text>
+<text x="304" y="236" font-size="13" text-anchor="middle" fill="currentColor">3c6ef372</text>
+<rect x="350" y="30" width="78" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="389" y="49" font-size="15" text-anchor="middle" fill="currentColor">e</text>
+<text x="389" y="66" font-size="13" text-anchor="middle" fill="currentColor">510e527f</text>
+<rect x="350" y="200" width="78" height="44" rx="4" class="soft-acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="389" y="219" font-size="15" text-anchor="middle" fill="currentColor">e</text>
+<text x="389" y="236" font-size="13" text-anchor="middle" fill="currentColor">fa2a4622</text>
+<rect x="435" y="30" width="78" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="474" y="49" font-size="15" text-anchor="middle" fill="currentColor">f</text>
+<text x="474" y="66" font-size="13" text-anchor="middle" fill="currentColor">9b05688c</text>
+<rect x="435" y="200" width="78" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="474" y="219" font-size="15" text-anchor="middle" fill="currentColor">f</text>
+<text x="474" y="236" font-size="13" text-anchor="middle" fill="currentColor">510e527f</text>
+<rect x="520" y="30" width="78" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="559" y="49" font-size="15" text-anchor="middle" fill="currentColor">g</text>
+<text x="559" y="66" font-size="13" text-anchor="middle" fill="currentColor">1f83d9ab</text>
+<rect x="520" y="200" width="78" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="559" y="219" font-size="15" text-anchor="middle" fill="currentColor">g</text>
+<text x="559" y="236" font-size="13" text-anchor="middle" fill="currentColor">9b05688c</text>
+<rect x="605" y="30" width="78" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="644" y="49" font-size="15" text-anchor="middle" fill="currentColor">h</text>
+<text x="644" y="66" font-size="13" text-anchor="middle" fill="currentColor">5be0cd19</text>
+<rect x="605" y="200" width="78" height="44" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="644" y="219" font-size="15" text-anchor="middle" fill="currentColor">h</text>
+<text x="644" y="236" font-size="13" text-anchor="middle" fill="currentColor">1f83d9ab</text>
+<text x="10" y="20" font-size="13" fill="currentColor">before round 0 (the square-root constants)</text>
+<text x="10" y="266" font-size="13" fill="currentColor">after round 0</text>
+<polyline points="49,74 130.6,193.1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="134,198 126.8,194.5 133.4,190" fill="currentColor"/>
+<polyline points="134,74 215.6,193.1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="219,198 211.8,194.5 218.4,190" fill="currentColor"/>
+<polyline points="219,74 300.6,193.1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="304,198 296.8,194.5 303.4,190" fill="currentColor"/>
+<polyline points="389,74 470.6,193.1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="474,198 466.8,194.5 473.4,190" fill="currentColor"/>
+<polyline points="474,74 555.6,193.1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="559,198 551.8,194.5 558.4,190" fill="currentColor"/>
+<polyline points="559,74 640.6,193.1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+<polygon points="644,198 636.8,194.5 643.4,190" fill="currentColor"/>
+<rect x="39" y="140" width="20" height="20" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<line x1="43" y1="150" x2="55" y2="150" stroke="currentColor" class="acc" stroke-width="2"/>
+<line x1="49" y1="144" x2="49" y2="156" stroke="currentColor" class="acc" stroke-width="2"/>
+<text x="47" y="128" font-size="13" text-anchor="middle" font-weight="bold" class="acc-fill">T1 + T2</text>
+<polyline points="49,160 49,192" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="49,198 45,191.1 53,191.1" class="acc-fill"/>
+<line x1="304" y1="74" x2="381" y2="142" stroke="currentColor" class="acc" stroke-width="1.5"/>
+<rect x="379" y="140" width="20" height="20" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<line x1="383" y1="150" x2="395" y2="150" stroke="currentColor" class="acc" stroke-width="2"/>
+<line x1="389" y1="144" x2="389" y2="156" stroke="currentColor" class="acc" stroke-width="2"/>
+<text x="339" y="152" font-size="13" text-anchor="end" font-weight="bold" class="acc-fill">d + T1</text>
+<polyline points="389,160 389,192" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="389,198 385,191.1 393,191.1" class="acc-fill"/>
+<text x="644" y="100" font-size="12" text-anchor="middle" fill="currentColor">h is used</text>
+<text x="644" y="114" font-size="12" text-anchor="middle" fill="currentColor">up in T1</text>
+<text x="10" y="292" font-size="13" fill="currentColor">T1 = h + Σ1(e) + Ch(e,f,g) + K0 + W0 = 54da50e8</text>
+<text x="10" y="314" font-size="13" fill="currentColor">T2 = Σ0(a) + Maj(a,b,c) = 08909ae5</text>
+</svg>
+<figcaption>Figure 9.8. Round 0 of SHA-256("abc"), with the values from the table above. Six words just move one place to the right (grey arrows); only the new a and the new e are computed (accent). Sixty-four such rounds make one compression.</figcaption>
+</figure>
+
 **The message schedule.** The block gives only 16 words, $W_0$ to $W_{15}$. The
 other 48 are made from earlier ones, so every message bit reaches many rounds:
 
@@ -325,6 +1069,26 @@ with $\sigma_0(x) = (x \ggg 7) \oplus (x \ggg 18) \oplus (x \gg 3)$ and
 $\sigma_1(x) = (x \ggg 17) \oplus (x \ggg 19) \oplus (x \gg 10)$, where $\gg$ is a plain shift.
 This schedule is the part SHA-1 had too little of, and it is a large reason
 SHA-2 has held.
+
+**SHA-2's quiet career.** SHA-2 is the one hash in this chapter without a
+dramatic story, which is its best feature. When the NSA's design was published
+in 2001, SHA-1 had no known break, and for years few people bothered to switch:
+through the 2000s most web certificates were still signed over SHA-1. The
+attacks of 2005 (§9.8) started the move, and the deadline set by browsers and
+certificate authorities, no new SHA-1 certificates from 2016, finished it.
+Meanwhile SHA-256 found new jobs. Bitcoin, launched in 2009, hashes each block
+header with SHA-256 twice, and its miners spend their electricity searching for
+a header whose double hash falls below a target. Many processors now have
+instructions just for SHA-256's rounds. After twenty-five years of public
+attack, the best results reach only reduced versions (§9.12).
+
+!!! note "Life story: SHA-2"
+    **Born:** 2001, designed at the NSA, published by NIST and finalized in FIPS 180-2 (2002);
+    SHA-224 followed in 2004 and SHA-512/256 in 2012 · **Purpose:** hashes matched to AES's key
+    sizes, to replace the 80-bit collision level of SHA-1 · **Helped:** certificates, TLS, SSH,
+    code signing, Bitcoin, Git's SHA-256 format, HMAC-SHA-256 and HKDF · **Status:** current; no
+    practical attack on the full function, but plain SHA-256 and SHA-512 are open to length
+    extension (§9.7).
 
 ## 9.6 Code it
 
@@ -448,13 +1212,59 @@ True
 The forged message carries some binary junk in the middle (the old padding),
 but many parsers skip it, and if the server reads the last `role=` it now says
 `admin`. The key length is rarely secret; an attacker can also just try each
-plausible length. In 2009 Thai Duong and Juliano Rizzo forged requests to
-Flickr's API this way, because Flickr signed calls with MD5(secret + data).
+plausible length. In 2009 Thai Duong and Juliano Rizzo, two security researchers from Vietnam
+and Argentina, forged requests to Flickr's API this way, because Flickr signed
+calls with MD5(secret + data). The same pair later found the BEAST (2011) and
+CRIME (2012) attacks on TLS.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 700 230" width="700" role="img" aria-label="Length extension: the server hashes key, message and padding to get the tag; the attacker starts from the tag and hashes extra data to get a valid forged tag">
+<rect x="10" y="120" width="50" height="36" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="35" y="142.9" font-size="14" text-anchor="middle" fill="currentColor">IV</text>
+<rect x="80" y="22" width="210" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="185" y="43.5" font-size="13" text-anchor="middle" fill="currentColor">key ‖ msg ‖ glue padding</text>
+<polyline points="185,56 185,112" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="185,118 181,111.1 189,111.1" fill="currentColor"/>
+<polyline points="60,138 154,138" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="160,138 153.1,142 153.1,134" fill="currentColor"/>
+<rect x="160" y="118" width="50" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="185" y="143.6" font-size="16" text-anchor="middle" font-weight="bold" fill="currentColor">f</text>
+<polyline points="210,138 294,138" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="300,138 293.1,142 293.1,134" fill="currentColor"/>
+<rect x="300" y="118" width="90" height="40" rx="4" class="soft-acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="345" y="142.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">tag</text>
+<rect x="400" y="22" width="170" height="34" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="485" y="43.5" font-size="13" text-anchor="middle" fill="currentColor">extra ‖ new pad</text>
+<polyline points="475,56 475,112" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="475,118 471,111.1 479,111.1" class="acc-fill"/>
+<polyline points="390,138 444,138" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="450,138 443.1,142 443.1,134" class="acc-fill"/>
+<rect x="450" y="118" width="50" height="40" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="475" y="143.6" font-size="16" text-anchor="middle" font-weight="bold" fill="currentColor">f</text>
+<polyline points="500,138 554,138" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="560,138 553.1,142 553.1,134" class="acc-fill"/>
+<rect x="560" y="118" width="130" height="40" rx="4" class="soft-acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="625" y="142.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">forged tag</text>
+<polyline points="10,176 10,184 390,184 390,176" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+<text x="200" y="199.2" font-size="13" text-anchor="middle" fill="currentColor">the server&#x27;s hash (needs the key)</text>
+<polyline points="400,176 400,184 690,184 690,176" fill="none" class="acc" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+<text x="545" y="199.2" font-size="13" text-anchor="middle" class="acc-fill">the attacker&#x27;s hash (needs only the tag)</text>
+</svg>
+<figcaption>Figure 9.9. Length extension. The tag is the whole chaining value after the server's last block, so the attacker loads it as a starting state and keeps going. The server, hashing key ‖ msg ‖ glue ‖ extra from scratch, passes through exactly the same states and gets the same forged tag.</figcaption>
+</figure>
 
 **The fixes.** Use a real MAC, [HMAC](10-Message-Authentication.md), which
 hashes twice so the outer hash hides the inner state. Or use a hash whose
 output is not its whole state: SHA-512/256 and SHA-384 cut the output short,
 and SHA-3 (§9.9) never outputs its hidden part at all.
+
+!!! note "Life story: the length-extension attack"
+    **Born:** as soon as people keyed Merkle-Damgård hashes by putting a secret in front; it was
+    understood by the early 1990s and is the reason HMAC (1996) hashes twice · **What it breaks:**
+    $H(\mathit{key} \,\Vert\, \mathit{message})$ used as a MAC, with MD5, SHA-1, SHA-256 or
+    SHA-512 · **Famous use:** the Flickr API forgery (Duong and Rizzo, 2009) · **Fixed by:** HMAC,
+    truncated hashes such as SHA-512/256, and sponges such as SHA-3 · **Status:** still works
+    against every system that makes this mistake.
 
 ## 9.8 How MD5 and SHA-1 fell
 
@@ -462,7 +1272,8 @@ and SHA-3 (§9.9) never outputs its hidden part at all.
 
 **MD4 and MD5.** Ron Rivest at MIT designed MD4 in 1990 for the fast 32-bit
 processors of the day, and MD5 in 1991 as a more careful version (RFC 1321,
-1992). Their shape, a Davies-Meyer compression function with rounds of
+1992). Rivest was already famous as the R of RSA
+([Chapter 13](13-RSA.md)); "MD" stands for message digest. Their shape, a Davies-Meyer compression function with rounds of
 add, rotate, XOR and a non-linear bit function, became the template for SHA-0,
 SHA-1 and SHA-2. Through the 1990s MD5 was everywhere: file checksums,
 certificates, Unix passwords, HMAC in TLS and IPsec.
@@ -481,8 +1292,9 @@ differences through the rounds that cancels by the end, so that both blocks give
 the same output. Each step of the path holds only with some probability, but
 she found ways to choose the message words so that the early steps hold by
 construction ("message modification"), leaving only the late ones to chance.
-Within two years, a laptop found MD5
-collisions in seconds. Here is one, from Wang and Yu's 2005 paper: two 128-byte
+By 2006 Vlastimil Klíma in Prague had sped the
+method up so that an ordinary notebook computer found MD5 collisions in under a
+minute. Here is one, from Wang and Yu's 2005 paper: two 128-byte
 inputs that differ in six bits.
 
 ```python
@@ -518,6 +1330,48 @@ keeps them colliding**. A file format can put a colliding block early and then
 let later content branch on it, which is how researchers built pairs of PDFs,
 programs and certificates with the same MD5.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 660 200" width="660" role="img" aria-label="Two different blocks M and M prime reach the same chaining value from the IV; any common tail keeps them equal through to the digest">
+<rect x="10" y="80" width="50" height="36" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="35" y="102.9" font-size="14" text-anchor="middle" fill="currentColor">IV</text>
+<rect x="100" y="12" width="80" height="32" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="140" y="32.9" font-size="14" text-anchor="middle" fill="currentColor">M</text>
+<rect x="100" y="152" width="80" height="32" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="140" y="172.9" font-size="14" text-anchor="middle" fill="currentColor">M′</text>
+<polyline points="60,92 90,92 90,66 174,66" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="180,66 173.1,70 173.1,62" fill="currentColor"/>
+<polyline points="60,104 90,104 90,130 174,130" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="180,130 173.1,134 173.1,126" fill="currentColor"/>
+<polyline points="140,44 140,54" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="140,60 136,53.1 144,53.1" fill="currentColor"/>
+<polyline points="140,152 140,142" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="140,136 144,142.9 136,142.9" fill="currentColor"/>
+<rect x="180" y="50" width="50" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="205" y="70.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">f</text>
+<rect x="180" y="114" width="50" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="205" y="134.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">f</text>
+<polyline points="230,66 290,66 290,88 314,88" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="320,88 313.1,92 313.1,84" class="acc-fill"/>
+<polyline points="230,130 290,130 290,108 314,108" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="320,108 313.1,112 313.1,104" class="acc-fill"/>
+<rect x="320" y="78" width="110" height="40" rx="4" class="soft-acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="375" y="102.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">same h</text>
+<rect x="450" y="12" width="110" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="505" y="32.9" font-size="14" text-anchor="middle" fill="currentColor">any tail</text>
+<polyline points="505,44 505,70" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="505,76 501,69.1 509,69.1" fill="currentColor"/>
+<polyline points="430,98 474,98" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="480,98 473.1,102 473.1,94" fill="currentColor"/>
+<rect x="480" y="78" width="50" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="505" y="102.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">f</text>
+<polyline points="530,98 554,98" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="560,98 553.1,102 553.1,94" fill="currentColor"/>
+<rect x="560" y="80" width="90" height="36" rx="4" class="soft-acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="605" y="102.2" font-size="12" text-anchor="middle" fill="currentColor">same digest</text>
+</svg>
+<figcaption>Figure 9.10. Why one MD5 collision lasts. Once M and M′ lead to the same chaining value, the hash can no longer tell them apart, and any ending appended to both keeps the digests equal.</figcaption>
+</figure>
+
 **Chosen prefixes, and a rogue authority.** Wang's collisions start from the
 same prefix. Marc Stevens, Arjen Lenstra and Benne de Weger (CWI Amsterdam,
 EPFL and TU Eindhoven) went further in 2007 with **chosen-prefix collisions**:
@@ -538,6 +1392,14 @@ own hash cryptanalysts. Microsoft revoked the certificates involved (Security
 Advisory 2718704). MD5 had been "broken" for eight years, but a forgotten
 licensing service still signed with it.
 
+!!! note "Life story: MD5"
+    **Born:** 1991, Ron Rivest at MIT, a strengthened MD4; RFC 1321 (1992) · **Purpose:** a fast
+    128-bit digest for signatures on the 32-bit computers of the day · **Helped:** a decade of
+    file checksums, certificates, Unix password hashing (MD5-crypt) and HMAC-MD5 in TLS and IPsec
+    · **Retired:** collisions by Wang's team in 2004, then the rogue CA (2008) and Flame (2012);
+    RFC 6151 (2011) told protocols to stop relying on it for collision resistance · **Replaced
+    by:** SHA-256
+
 **SHA-1.** The NSA's SHA-0 appeared in 1993 (FIPS 180), and in 1995 it was
 replaced by SHA-1 (FIPS 180-1), which differs by a single one-bit rotation in
 the message schedule. The NSA gave no reason. In 1998 Florent Chabaud and
@@ -557,11 +1419,51 @@ more years for the attack to be run:
   US\$45,000 of rented GPU time, and used it to build two PGP keys with
   different names whose certification signatures collide.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 180" width="640" role="img" aria-label="Bar chart of SHA-1 collision costs in powers of two: generic 80, 2005 estimate 69, SHAttered 63.1, Shambles 63.4">
+<text x="250" y="32" font-size="14" text-anchor="end" fill="currentColor">birthday bound (generic)</text>
+<rect x="260" y="16" width="290" height="22" rx="2" class="soft"/>
+<rect x="260" y="16" width="290" height="22" rx="2" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<text x="558" y="32" font-size="13" fill="currentColor">2⁸⁰</text>
+<text x="250" y="66" font-size="14" text-anchor="end" fill="currentColor">Wang, Yin, Yu, 2005 (estimate)</text>
+<rect x="260" y="50" width="183.7" height="22" rx="2" class="soft"/>
+<rect x="260" y="50" width="183.7" height="22" rx="2" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<text x="451.7" y="66" font-size="13" fill="currentColor">about 2⁶⁹</text>
+<text x="250" y="100" font-size="14" text-anchor="end" fill="currentColor">SHAttered, 2017 (run)</text>
+<rect x="260" y="84" width="126.6" height="22" rx="2" class="soft-acc"/>
+<rect x="260" y="84" width="126.6" height="22" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="1.2"/>
+<text x="394.6" y="100" font-size="13" font-weight="bold" fill="currentColor">2⁶³·¹</text>
+<text x="250" y="134" font-size="14" text-anchor="end" fill="currentColor">Shambles chosen prefix, 2020</text>
+<rect x="260" y="118" width="129.5" height="22" rx="2" class="soft-acc"/>
+<rect x="260" y="118" width="129.5" height="22" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="1.2"/>
+<text x="397.5" y="134" font-size="13" font-weight="bold" fill="currentColor">2⁶³·⁴</text>
+<line x1="260" y1="10" x2="260" y2="146" stroke="currentColor" stroke-width="1.5"/>
+<line x1="260" y1="146" x2="550" y2="146" stroke="currentColor" stroke-width="1"/>
+<line x1="260" y1="146" x2="260" y2="151" stroke="currentColor" stroke-width="1"/>
+<text x="260" y="165" font-size="12" text-anchor="middle" fill="currentColor">2⁵⁰</text>
+<line x1="356.7" y1="146" x2="356.7" y2="151" stroke="currentColor" stroke-width="1"/>
+<text x="356.7" y="165" font-size="12" text-anchor="middle" fill="currentColor">2⁶⁰</text>
+<line x1="453.3" y1="146" x2="453.3" y2="151" stroke="currentColor" stroke-width="1"/>
+<text x="453.3" y="165" font-size="12" text-anchor="middle" fill="currentColor">2⁷⁰</text>
+<line x1="550" y1="146" x2="550" y2="151" stroke="currentColor" stroke-width="1"/>
+<text x="550" y="165" font-size="12" text-anchor="middle" fill="currentColor">2⁸⁰</text>
+</svg>
+<figcaption>Figure 9.11. SHA-1 collision cost in SHA-1 computations, on a scale of powers of two (the axis starts at 2⁵⁰). Seventeen powers of two below the birthday bound is a factor of about 120,000.</figcaption>
+</figure>
+
 Browsers stopped accepting SHA-1 certificates in early 2017. Git, whose object
 names are SHA-1, switched in 2017 to a version of SHA-1 by Stevens and Dan
 Shumow that detects the tell-tale patterns of these attacks (counter-
 cryptanalysis), and added SHA-256 repositories in 2020. NIST plans to stop
 allowing SHA-1 entirely by the end of 2030.
+
+!!! note "Life story: SHA-1"
+    **Born:** 1995, the NSA's revision of SHA-0 (1993), published as FIPS 180-1 · **Purpose:** the
+    US federal hash, paired with the DSA signature standard · **Helped:** twenty years as the hash
+    of the internet: certificates, TLS, PGP, software updates and every Git repository ·
+    **Retired:** a theoretical attack in 2005, the first real collision (SHAttered) in 2017, a
+    chosen-prefix collision in 2020; browsers rejected SHA-1 certificates from 2017, and NIST ends
+    all use by the end of 2030 · **Replaced by:** SHA-256 and SHA-3
 
 **The lesson.** Collisions broke both hashes. Preimages never fell: the best
 known preimage attack on MD5 still costs about $2^{123.4}$. That is why HMAC-MD5
@@ -569,6 +1471,14 @@ and HMAC-SHA-1, which need something closer to preimage resistance, were never
 practically broken, even though nobody should pick them today. And each hash
 had years of public warnings before the attacks became cheap. Systems that had
 planned a way to change hash functions moved easily; the rest were caught out.
+
+!!! note "Life story: differential collision attacks on hashes"
+    **Born:** 2004, Wang Xiaoyun and her colleagues at Shandong University, turning Biham and
+    Shamir's differential cryptanalysis of block ciphers (1990) on hash functions and building
+    on Dobbertin's attacks on MD4 · **Broke:** MD4, MD5, HAVAL-128 and RIPEMD in 2004, SHA-0 and
+    (in theory) SHA-1 in 2005 · **Led to:** chosen-prefix collisions (Stevens, 2007), the rogue
+    CA, SHAttered, and NIST's SHA-3 competition · **Status:** current as a method; SHA-2 and SHA-3
+    resist it, with attacks only on reduced rounds.
 
 ## 9.9 A different design: the sponge and SHA-3
 
@@ -584,7 +1494,10 @@ December 2010 five finalists remained: BLAKE (Switzerland and the UK), Grøstl
 and Skein (a team including Bruce Schneier and Niels Ferguson). On 2 October 2012 NIST chose
 **Keccak**, by Guido Bertoni, Joan Daemen (a co-designer of AES), Michaël
 Peeters and Gilles Van Assche. NIST wrote that it was chosen partly because it
-is so unlike SHA-2. It became FIPS 202 in 2015.
+is so unlike SHA-2. It became FIPS 202 in August 2015. Daemen thus became a
+co-designer of the winners of both of NIST's great open competitions, AES and
+SHA-3. The team had published the sponge idea itself in 2007, the year the
+competition opened, and Keccak was its first full use.
 
 **The sponge.** Keccak is not Merkle-Damgård. It keeps a 1,600-bit state and
 one fixed **permutation** $f$ (a reversible scramble with no key, Keccak-f[1600]).
@@ -601,6 +1514,93 @@ learns the full state, so length extension does not work, and the generic
 security of a sponge is $c/2$ bits. SHA3-256 uses $c = 512$ and
 $r = 1088$ bits (136 bytes), giving 128-bit collision and 256-bit preimage
 security, matching SHA-256.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 700 250" width="700" role="img" aria-label="Sponge construction: message blocks are XORed into the rate part of the state between applications of permutation f; output is read from the rate part during squeezing">
+<text x="14" y="115" font-size="15" font-weight="bold" fill="currentColor">r</text>
+<text x="14" y="165" font-size="15" font-weight="bold" fill="currentColor">c</text>
+<rect x="36" y="140" width="24" height="40" rx="0" class="soft"/>
+<rect x="36" y="90" width="24" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<rect x="36" y="140" width="24" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<rect x="170" y="140" width="24" height="40" rx="0" class="soft"/>
+<rect x="170" y="90" width="24" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<rect x="170" y="140" width="24" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<rect x="304" y="140" width="24" height="40" rx="0" class="soft"/>
+<rect x="304" y="90" width="24" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<rect x="304" y="140" width="24" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<text x="76" y="30" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">P₀</text>
+<polyline points="76,38 76,94" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="76,100 72,93.1 80,93.1" fill="currentColor"/>
+<circle cx="76" cy="110" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="67" y1="110" x2="85" y2="110" stroke="currentColor" stroke-width="1.5"/>
+<line x1="76" y1="101" x2="76" y2="119" stroke="currentColor" stroke-width="1.5"/>
+<line x1="60" y1="110" x2="67" y2="110" stroke="currentColor" stroke-width="1.5"/>
+<line x1="60" y1="160" x2="96" y2="160" stroke="currentColor" stroke-width="1.5"/>
+<line x1="85" y1="110" x2="96" y2="110" stroke="currentColor" stroke-width="1.5"/>
+<rect x="96" y="90" width="46" height="90" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="119" y="140.6" font-size="16" text-anchor="middle" font-weight="bold" fill="currentColor">f</text>
+<polyline points="142,110 164,110" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="170,110 163.1,114 163.1,106" fill="currentColor"/>
+<polyline points="142,160 164,160" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="170,160 163.1,164 163.1,156" fill="currentColor"/>
+<text x="210" y="30" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">P₁</text>
+<polyline points="210,38 210,94" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="210,100 206,93.1 214,93.1" fill="currentColor"/>
+<circle cx="210" cy="110" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="201" y1="110" x2="219" y2="110" stroke="currentColor" stroke-width="1.5"/>
+<line x1="210" y1="101" x2="210" y2="119" stroke="currentColor" stroke-width="1.5"/>
+<line x1="194" y1="110" x2="201" y2="110" stroke="currentColor" stroke-width="1.5"/>
+<line x1="194" y1="160" x2="230" y2="160" stroke="currentColor" stroke-width="1.5"/>
+<line x1="219" y1="110" x2="230" y2="110" stroke="currentColor" stroke-width="1.5"/>
+<rect x="230" y="90" width="46" height="90" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="253" y="140.6" font-size="16" text-anchor="middle" font-weight="bold" fill="currentColor">f</text>
+<polyline points="276,110 298,110" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="304,110 297.1,114 297.1,106" fill="currentColor"/>
+<polyline points="276,160 298,160" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="304,160 297.1,164 297.1,156" fill="currentColor"/>
+<text x="344" y="30" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">P₂</text>
+<polyline points="344,38 344,94" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="344,100 340,93.1 348,93.1" fill="currentColor"/>
+<circle cx="344" cy="110" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="335" y1="110" x2="353" y2="110" stroke="currentColor" stroke-width="1.5"/>
+<line x1="344" y1="101" x2="344" y2="119" stroke="currentColor" stroke-width="1.5"/>
+<line x1="328" y1="110" x2="335" y2="110" stroke="currentColor" stroke-width="1.5"/>
+<line x1="328" y1="160" x2="364" y2="160" stroke="currentColor" stroke-width="1.5"/>
+<line x1="353" y1="110" x2="364" y2="110" stroke="currentColor" stroke-width="1.5"/>
+<rect x="364" y="90" width="46" height="90" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="387" y="140.6" font-size="16" text-anchor="middle" font-weight="bold" fill="currentColor">f</text>
+<polyline points="410,110 432,110" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="438,110 431.1,114 431.1,106" fill="currentColor"/>
+<polyline points="410,160 432,160" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="438,160 431.1,164 431.1,156" fill="currentColor"/>
+<rect x="438" y="140" width="24" height="40" rx="0" class="soft"/>
+<rect x="438" y="90" width="24" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<rect x="438" y="140" width="24" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<rect x="486" y="90" width="46" height="90" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="509" y="140.6" font-size="16" text-anchor="middle" font-weight="bold" fill="currentColor">f</text>
+<line x1="462" y1="110" x2="486" y2="110" stroke="currentColor" stroke-width="1.5"/>
+<line x1="462" y1="160" x2="486" y2="160" stroke="currentColor" stroke-width="1.5"/>
+<polyline points="532,110 566,110" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="572,110 565.1,114 565.1,106" fill="currentColor"/>
+<polyline points="532,160 566,160" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="572,160 565.1,164 565.1,156" fill="currentColor"/>
+<rect x="572" y="140" width="24" height="40" rx="0" class="soft"/>
+<rect x="572" y="90" width="24" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<rect x="572" y="140" width="24" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<polyline points="450,90 450,52" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="450,46 454,52.9 446,52.9" class="acc-fill"/>
+<text x="450" y="38" font-size="14" text-anchor="middle" font-weight="bold" class="acc-fill">Z₀</text>
+<polyline points="584,90 584,52" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="584,46 588,52.9 580,52.9" class="acc-fill"/>
+<text x="584" y="38" font-size="14" text-anchor="middle" font-weight="bold" class="acc-fill">Z₁</text>
+<text x="620" y="115" font-size="18" fill="currentColor">…</text>
+<polyline points="36,196 36,204 400,204 400,196" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+<text x="218" y="219.2" font-size="13" text-anchor="middle" fill="currentColor">absorb</text>
+<polyline points="438,196 438,204 600,204 600,196" fill="none" class="acc" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+<text x="519" y="219.2" font-size="13" text-anchor="middle" class="acc-fill">squeeze</text>
+</svg>
+<figcaption>Figure 9.12. The sponge. Message blocks P₀, P₁, … are XORed into the rate r (white) and the whole state is scrambled by f; output Z₀, Z₁, … is read from the rate. The capacity c (shaded) is never input or output directly, which is what blocks length extension.</figcaption>
+</figure>
 
 **Inside Keccak-f.** The state is a $5 \times 5$ grid of 64-bit "lanes", and each of
 24 rounds runs five steps, each simple: $\theta$ XORs every bit with the parity
@@ -621,6 +1621,100 @@ against timing attacks.
 6. Need more output? Scramble again and read again. That is how SHAKE gives any length.
 
 </div>
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 290" width="640" role="img" aria-label="Keccak state as a 5 by 5 grid of 64-bit lanes, and the chi step acting on one row of five bits">
+<rect x="40" y="190" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="60" y="215" font-size="12" text-anchor="middle" fill="currentColor">0,0</text>
+<rect x="80" y="190" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="100" y="215" font-size="12" text-anchor="middle" fill="currentColor">1,0</text>
+<rect x="120" y="190" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="140" y="215" font-size="12" text-anchor="middle" fill="currentColor">2,0</text>
+<rect x="160" y="190" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="180" y="215" font-size="12" text-anchor="middle" fill="currentColor">3,0</text>
+<rect x="200" y="190" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="220" y="215" font-size="12" text-anchor="middle" fill="currentColor">4,0</text>
+<rect x="40" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="60" y="175" font-size="12" text-anchor="middle" fill="currentColor">0,1</text>
+<rect x="80" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="100" y="175" font-size="12" text-anchor="middle" fill="currentColor">1,1</text>
+<rect x="120" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="140" y="175" font-size="12" text-anchor="middle" fill="currentColor">2,1</text>
+<rect x="160" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="180" y="175" font-size="12" text-anchor="middle" fill="currentColor">3,1</text>
+<rect x="200" y="150" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="220" y="175" font-size="12" text-anchor="middle" fill="currentColor">4,1</text>
+<rect x="40" y="110" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="40" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="60" y="135" font-size="12" text-anchor="middle" fill="currentColor">0,2</text>
+<rect x="80" y="110" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="80" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="100" y="135" font-size="12" text-anchor="middle" fill="currentColor">1,2</text>
+<rect x="120" y="110" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="120" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="140" y="135" font-size="12" text-anchor="middle" fill="currentColor">2,2</text>
+<rect x="160" y="110" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="160" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="180" y="135" font-size="12" text-anchor="middle" fill="currentColor">3,2</text>
+<rect x="200" y="110" width="40" height="40" rx="0" class="soft-acc"/>
+<rect x="200" y="110" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="220" y="135" font-size="12" text-anchor="middle" fill="currentColor">4,2</text>
+<rect x="40" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="60" y="95" font-size="12" text-anchor="middle" fill="currentColor">0,3</text>
+<rect x="80" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="100" y="95" font-size="12" text-anchor="middle" fill="currentColor">1,3</text>
+<rect x="120" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="140" y="95" font-size="12" text-anchor="middle" fill="currentColor">2,3</text>
+<rect x="160" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="180" y="95" font-size="12" text-anchor="middle" fill="currentColor">3,3</text>
+<rect x="200" y="70" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="220" y="95" font-size="12" text-anchor="middle" fill="currentColor">4,3</text>
+<rect x="40" y="30" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="60" y="55" font-size="12" text-anchor="middle" fill="currentColor">0,4</text>
+<rect x="80" y="30" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="100" y="55" font-size="12" text-anchor="middle" fill="currentColor">1,4</text>
+<rect x="120" y="30" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="140" y="55" font-size="12" text-anchor="middle" fill="currentColor">2,4</text>
+<rect x="160" y="30" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="180" y="55" font-size="12" text-anchor="middle" fill="currentColor">3,4</text>
+<rect x="200" y="30" width="40" height="40" rx="0" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="220" y="55" font-size="12" text-anchor="middle" fill="currentColor">4,4</text>
+<text x="140" y="252" font-size="13" text-anchor="middle" fill="currentColor">x →</text>
+<text x="24" y="130" font-size="13" text-anchor="middle" fill="currentColor">y</text>
+<text x="140" y="18" font-size="13" text-anchor="middle" fill="currentColor">25 lanes × 64 bits = 1,600 bits</text>
+<text x="140" y="272" font-size="13" text-anchor="middle" class="acc-fill">a row: 5 lanes with the same y</text>
+<text x="470" y="30" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">χ on one row, bit by bit</text>
+<rect x="330" y="50" width="44" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="352" y="71.5" font-size="13" text-anchor="middle" fill="currentColor">A[0]</text>
+<rect x="330" y="190" width="44" height="34" rx="4" class="soft-acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="352" y="211.6" font-size="13" text-anchor="middle" fill="currentColor">A′[0]</text>
+<rect x="386" y="50" width="44" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="408" y="71.5" font-size="13" text-anchor="middle" fill="currentColor">A[1]</text>
+<rect x="386" y="190" width="44" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="408" y="211.6" font-size="13" text-anchor="middle" fill="currentColor">A′[1]</text>
+<rect x="442" y="50" width="44" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="464" y="71.5" font-size="13" text-anchor="middle" fill="currentColor">A[2]</text>
+<rect x="442" y="190" width="44" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="464" y="211.6" font-size="13" text-anchor="middle" fill="currentColor">A′[2]</text>
+<rect x="498" y="50" width="44" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="520" y="71.5" font-size="13" text-anchor="middle" fill="currentColor">A[3]</text>
+<rect x="498" y="190" width="44" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="520" y="211.6" font-size="13" text-anchor="middle" fill="currentColor">A′[3]</text>
+<rect x="554" y="50" width="44" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="576" y="71.5" font-size="13" text-anchor="middle" fill="currentColor">A[4]</text>
+<rect x="554" y="190" width="44" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="576" y="211.6" font-size="13" text-anchor="middle" fill="currentColor">A′[4]</text>
+<polyline points="352,84 352,182" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="352,188 348,181.1 356,181.1" class="acc-fill"/>
+<polyline points="408,84 368.2,182.4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="366,188 364.9,180.1 372.3,183.1" class="acc-fill"/>
+<polyline points="464,84 376,183.5" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="372,188 373.6,180.2 379.6,185.5" class="acc-fill"/>
+<text x="470" y="252" font-size="14" text-anchor="middle" fill="currentColor">A′[x] = A[x] ⊕ (¬A[x+1] ∧ A[x+2])</text>
+<text x="470" y="274" font-size="13" text-anchor="middle" fill="currentColor">the only non-linear step</text>
+</svg>
+<figcaption>Figure 9.13. Left: Keccak-f[1600]'s state, a 5 × 5 grid of 64-bit lanes; one row is highlighted. Right: χ changes each bit using the next two bits along its row (shown for A′[0]). θ, ρ, π and ι are XOR, rotations and moves, so χ alone supplies the non-linearity.</figcaption>
+</figure>
 
 **Code it.** The whole of SHA-3 is short enough to write out. Even the round
 constants come from a seven-bit shift register rather than a table:
@@ -705,6 +1799,14 @@ matter as much as the mathematics.
 its domain byte, so Ethereum's "Keccak-256" uses suffix `01` and gives different
 digests. Check which one a system means.
 
+!!! note "Life story: SHA-3 (Keccak)"
+    **Born:** 2008 as a competition entry by Bertoni, Daemen, Peeters and Van Assche; chosen by
+    NIST on 2 October 2012; FIPS 202 (2015) · **Purpose:** a backup hash built on a different idea
+    from SHA-2, so that one new attack could not break both · **Helped:** SHAKE and KMAC, the seed
+    expansion inside ML-KEM and ML-DSA, and Ethereum (as pre-standard Keccak-256) · **Status:**
+    current; slower than SHA-256 in software, so it is chosen mostly where its sponge features or
+    its independence matter.
+
 ## 9.10 BLAKE2, BLAKE3 and hashes around the world
 
 *Level: intermediate.*
@@ -744,6 +1846,14 @@ NIST standard, and its 7 rounds are the thinnest margin of the hashes here; its
 designers base that choice on years of attacks on BLAKE and BLAKE2 that never
 got close.
 
+!!! note "Life story: BLAKE2 and BLAKE3"
+    **Born:** BLAKE in 2008 (a SHA-3 finalist), BLAKE2 in December 2012, BLAKE3 in January 2020,
+    with Jean-Philippe Aumasson and Samuel Neves on all three teams · **Purpose:** a hash as safe as
+    SHA-3 and faster than MD5 in software, with keys, salts and tree hashing built in ·
+    **Helped:** Argon2, WireGuard, libsodium, the Linux random number generator and many
+    file-sync and backup tools · **Status:** current; BLAKE2 is RFC 7693, BLAKE3 has no formal
+    standard.
+
 **National hashes.** Several countries standardize their own. China's SM3
 (published by the State Cryptography Administration in 2010) is a 256-bit
 Merkle-Damgård design in the SHA-2 style and is required in Chinese commercial
@@ -772,6 +1882,65 @@ and SHA-3, simply because fewer people have studied them.
 - **Building blocks.** HMAC and every MAC in [Chapter 10](10-Message-Authentication.md),
   HKDF and password hashing in [Chapter 11](11-Passwords-and-Key-Derivation.md),
   random generators, and proof-of-work all run on hashes.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 660 270" width="660" role="img" aria-label="Merkle tree with eight leaves; to prove leaf d3 belongs to the root, give the three sibling hashes on its path">
+<rect x="18" y="200" width="64" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="50" y="220.6" font-size="13" text-anchor="middle" fill="currentColor">H(d0)</text>
+<rect x="98" y="200" width="64" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="130" y="220.6" font-size="13" text-anchor="middle" fill="currentColor">H(d1)</text>
+<rect x="178" y="200" width="64" height="32" rx="4" class="soft-acc acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="210" y="220.6" font-size="13" text-anchor="middle" fill="currentColor">H(d2)</text>
+<rect x="258" y="200" width="64" height="32" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="290" y="220.6" font-size="13" text-anchor="middle" fill="currentColor">H(d3)</text>
+<rect x="338" y="200" width="64" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="370" y="220.6" font-size="13" text-anchor="middle" fill="currentColor">H(d4)</text>
+<rect x="418" y="200" width="64" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="450" y="220.6" font-size="13" text-anchor="middle" fill="currentColor">H(d5)</text>
+<rect x="498" y="200" width="64" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="530" y="220.6" font-size="13" text-anchor="middle" fill="currentColor">H(d6)</text>
+<rect x="578" y="200" width="64" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="610" y="220.6" font-size="13" text-anchor="middle" fill="currentColor">H(d7)</text>
+<rect x="58" y="140" width="64" height="32" rx="4" class="soft-acc acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="90" y="160.6" font-size="13" text-anchor="middle" fill="currentColor">H(·‖·)</text>
+<line x1="50" y1="200" x2="90" y2="172" stroke="currentColor" stroke-width="1.2"/>
+<line x1="130" y1="200" x2="90" y2="172" stroke="currentColor" stroke-width="1.2"/>
+<rect x="218" y="140" width="64" height="32" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="250" y="160.6" font-size="13" text-anchor="middle" fill="currentColor">H(·‖·)</text>
+<line x1="210" y1="200" x2="250" y2="172" stroke="currentColor" stroke-width="1.2"/>
+<line x1="290" y1="200" x2="250" y2="172" stroke="currentColor" stroke-width="1.2"/>
+<rect x="378" y="140" width="64" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="410" y="160.6" font-size="13" text-anchor="middle" fill="currentColor">H(·‖·)</text>
+<line x1="370" y1="200" x2="410" y2="172" stroke="currentColor" stroke-width="1.2"/>
+<line x1="450" y1="200" x2="410" y2="172" stroke="currentColor" stroke-width="1.2"/>
+<rect x="538" y="140" width="64" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="570" y="160.6" font-size="13" text-anchor="middle" fill="currentColor">H(·‖·)</text>
+<line x1="530" y1="200" x2="570" y2="172" stroke="currentColor" stroke-width="1.2"/>
+<line x1="610" y1="200" x2="570" y2="172" stroke="currentColor" stroke-width="1.2"/>
+<rect x="138" y="80" width="64" height="32" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="170" y="100.5" font-size="13" text-anchor="middle" fill="currentColor">H(·‖·)</text>
+<line x1="90" y1="140" x2="170" y2="112" stroke="currentColor" stroke-width="1.2"/>
+<line x1="250" y1="140" x2="170" y2="112" stroke="currentColor" stroke-width="1.2"/>
+<rect x="458" y="80" width="64" height="32" rx="4" class="soft-acc acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="490" y="100.5" font-size="13" text-anchor="middle" fill="currentColor">H(·‖·)</text>
+<line x1="410" y1="140" x2="490" y2="112" stroke="currentColor" stroke-width="1.2"/>
+<line x1="570" y1="140" x2="490" y2="112" stroke="currentColor" stroke-width="1.2"/>
+<rect x="298" y="20" width="64" height="32" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="330" y="40.5" font-size="13" text-anchor="middle" font-weight="bold" fill="currentColor">root</text>
+<line x1="170" y1="80" x2="330" y2="52" stroke="currentColor" stroke-width="1.2"/>
+<line x1="490" y1="80" x2="330" y2="52" stroke="currentColor" stroke-width="1.2"/>
+<text x="50" y="252" font-size="13" text-anchor="middle" fill="currentColor">d0</text>
+<text x="130" y="252" font-size="13" text-anchor="middle" fill="currentColor">d1</text>
+<text x="210" y="252" font-size="13" text-anchor="middle" fill="currentColor">d2</text>
+<text x="290" y="252" font-size="13" text-anchor="middle" font-weight="bold" fill="currentColor">d3</text>
+<text x="370" y="252" font-size="13" text-anchor="middle" fill="currentColor">d4</text>
+<text x="450" y="252" font-size="13" text-anchor="middle" fill="currentColor">d5</text>
+<text x="530" y="252" font-size="13" text-anchor="middle" fill="currentColor">d6</text>
+<text x="610" y="252" font-size="13" text-anchor="middle" fill="currentColor">d7</text>
+<line x1="290" y1="236" x2="290" y2="240" stroke="currentColor" stroke-width="1.5"/>
+</svg>
+<figcaption>Figure 9.14. A Merkle tree over eight items. To prove that d3 is included, send the three accent hashes (its sibling at each level); the checker hashes upward and compares with the root. For a million items the proof is 20 hashes.</figcaption>
+</figure>
 
 **What to choose.**
 

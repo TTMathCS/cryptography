@@ -44,6 +44,67 @@ very concrete problem: seismic sensors placed to verify a nuclear test ban had
 to report readings the host country could read but could not fake. In 1981
 Mark Wegman and Larry Carter at IBM found how to make such codes fast (§10.5).
 
+<figure class="mars-fig">
+<svg viewBox="0 0 560 505" width="560" role="img" aria-label="Timeline of message authentication from 1974 to 2023">
+<line x1="78" y1="12" x2="78" y2="493" stroke="currentColor" stroke-width="2"/>
+<circle cx="78" cy="20" r="5" fill="currentColor"/>
+<text x="64" y="25" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">1974</text>
+<text x="94" y="25" font-size="14" fill="currentColor">Gilbert, MacWilliams, Sloane: codes that detect deception</text>
+<circle cx="78" cy="47" r="5" fill="currentColor"/>
+<text x="64" y="52" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">1981</text>
+<text x="94" y="52" font-size="14" fill="currentColor">Wegman and Carter: MACs from universal hashing</text>
+<circle cx="78" cy="74" r="5" fill="currentColor"/>
+<text x="64" y="79" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">1985</text>
+<text x="94" y="79" font-size="14" fill="currentColor">FIPS 113: DES CBC-MAC for banking</text>
+<circle cx="78" cy="101" r="5" fill="currentColor"/>
+<text x="64" y="106" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">1996</text>
+<text x="94" y="106" font-size="14" fill="currentColor">HMAC (Bellare, Canetti, Krawczyk)</text>
+<circle cx="78" cy="128" r="5" fill="currentColor"/>
+<text x="64" y="133" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">2000</text>
+<text x="94" y="133" font-size="14" fill="currentColor">Bellare and Namprempre: encrypt-then-MAC</text>
+<circle cx="78" cy="155" r="5" class="acc-fill"/>
+<text x="64" y="160" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2002</text>
+<text x="94" y="160" font-size="14" fill="currentColor">Vaudenay&#x27;s padding oracle</text>
+<circle cx="78" cy="182" r="5" fill="currentColor"/>
+<text x="64" y="187" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">2004</text>
+<text x="94" y="187" font-size="14" fill="currentColor">GCM (McGrew and Viega)</text>
+<circle cx="78" cy="209" r="5" fill="currentColor"/>
+<text x="64" y="214" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">2005</text>
+<text x="94" y="214" font-size="14" fill="currentColor">Poly1305 (Bernstein); CMAC standardized</text>
+<circle cx="78" cy="236" r="5" class="acc-fill"/>
+<text x="64" y="241" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2006</text>
+<text x="94" y="241" font-size="14" fill="currentColor">Joux&#x27;s &quot;forbidden attack&quot; on GCM</text>
+<circle cx="78" cy="263" r="5" fill="currentColor"/>
+<text x="64" y="268" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">2008</text>
+<text x="94" y="268" font-size="14" fill="currentColor">RFC 5116: the AEAD interface</text>
+<circle cx="78" cy="290" r="5" class="acc-fill"/>
+<text x="64" y="295" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2011</text>
+<text x="94" y="295" font-size="14" fill="currentColor">Hash flooding takes down web servers</text>
+<circle cx="78" cy="317" r="5" fill="currentColor"/>
+<text x="64" y="322" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">2012</text>
+<text x="94" y="322" font-size="14" fill="currentColor">SipHash</text>
+<circle cx="78" cy="344" r="5" class="acc-fill"/>
+<text x="64" y="349" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2013</text>
+<text x="94" y="349" font-size="14" fill="currentColor">Lucky Thirteen</text>
+<circle cx="78" cy="371" r="5" class="acc-fill"/>
+<text x="64" y="376" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2014</text>
+<text x="94" y="376" font-size="14" fill="currentColor">POODLE ends SSL 3.0</text>
+<circle cx="78" cy="398" r="5" fill="currentColor"/>
+<text x="64" y="403" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">2015</text>
+<text x="94" y="403" font-size="14" fill="currentColor">ChaCha20-Poly1305 becomes RFC 7539</text>
+<circle cx="78" cy="425" r="5" class="acc-fill"/>
+<text x="64" y="430" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2017</text>
+<text x="94" y="430" font-size="14" fill="currentColor">KRACK: nonce reuse in Wi-Fi</text>
+<circle cx="78" cy="452" r="5" fill="currentColor"/>
+<text x="64" y="457" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">2018</text>
+<text x="94" y="457" font-size="14" fill="currentColor">TLS 1.3 allows only AEADs</text>
+<circle cx="78" cy="479" r="5" fill="currentColor"/>
+<text x="64" y="484" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">2023</text>
+<text x="94" y="484" font-size="14" fill="currentColor">NIST chooses Ascon for small devices</text>
+</svg>
+<figcaption>Figure 10.1. Fifty years of message authentication. The accent years are attacks; each one pushed the field toward the designs that are standard today.</figcaption>
+</figure>
+
 Here is why it matters. In [Chapter 4](04-Randomness-and-Perfect-Secrecy.md)
 the one-time pad gave perfect secrecy: the ciphertext tells an attacker nothing
 at all about the message. But look what an attacker can *do* to it:
@@ -64,6 +125,137 @@ evil = ct[:4] + xor(ct[4:14], xor(old, new)) + ct[14:]
 print(xor(evil, key))                    # what the bank decrypts
 # b'pay Eve $90000.00 from Alice'
 ```
+
+<figure class="mars-fig">
+<svg viewBox="0 0 596 200" width="596" role="img" aria-label="Three rows of characters: Alice&#x27;s message, the difference the attacker XORs into the ciphertext, and the message the bank decrypts">
+<text x="10" y="18" font-size="13" fill="currentColor">what Alice sent (the attacker never sees it)</text>
+<rect x="11" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="26" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">p</text>
+<rect x="43" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="58" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">a</text>
+<rect x="75" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="90" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">y</text>
+<rect x="107" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="122" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill-opacity="0.45" fill="currentColor">␣</text>
+<rect x="139" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="154" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">B</text>
+<rect x="171" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="186" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">o</text>
+<rect x="203" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="218" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">b</text>
+<rect x="235" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="250" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill-opacity="0.45" fill="currentColor">␣</text>
+<rect x="267" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="282" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill-opacity="0.45" fill="currentColor">␣</text>
+<rect x="299" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="314" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill-opacity="0.45" fill="currentColor">␣</text>
+<rect x="331" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="346" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">$</text>
+<rect x="363" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="378" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">1</text>
+<rect x="395" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="410" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">0</text>
+<rect x="427" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="442" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">0</text>
+<rect x="459" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="474" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">.</text>
+<rect x="491" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="506" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">0</text>
+<rect x="523" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="538" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">0</text>
+<rect x="555" y="25" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="570" y="46" font-size="16" text-anchor="middle" font-family="monospace" fill-opacity="0.45" fill="currentColor">␣</text>
+<text x="10" y="78" font-size="13" fill="currentColor">Δ the attacker XORs into the ciphertext</text>
+<rect x="11" y="85" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="26" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">·</text>
+<rect x="43" y="85" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="58" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">·</text>
+<rect x="75" y="85" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="90" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">·</text>
+<rect x="107" y="85" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="122" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">·</text>
+<rect x="139" y="85" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="139" y="85" width="30" height="30" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="0.8"/>
+<text x="154" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">07</text>
+<rect x="171" y="85" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="171" y="85" width="30" height="30" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="0.8"/>
+<text x="186" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">19</text>
+<rect x="203" y="85" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="203" y="85" width="30" height="30" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="0.8"/>
+<text x="218" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">07</text>
+<rect x="235" y="85" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="250" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">·</text>
+<rect x="267" y="85" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="267" y="85" width="30" height="30" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="0.8"/>
+<text x="282" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">04</text>
+<rect x="299" y="85" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="299" y="85" width="30" height="30" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="0.8"/>
+<text x="314" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">19</text>
+<rect x="331" y="85" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="331" y="85" width="30" height="30" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="0.8"/>
+<text x="346" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">14</text>
+<rect x="363" y="85" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="363" y="85" width="30" height="30" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="0.8"/>
+<text x="378" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">01</text>
+<rect x="395" y="85" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="410" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">·</text>
+<rect x="427" y="85" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="442" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">·</text>
+<rect x="459" y="85" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="474" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">·</text>
+<rect x="491" y="85" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="506" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">·</text>
+<rect x="523" y="85" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="538" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">·</text>
+<rect x="555" y="85" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="570" y="105" font-size="13" text-anchor="middle" font-family="monospace" fill="currentColor">·</text>
+<text x="10" y="138" font-size="13" font-weight="bold" fill="currentColor">what the bank decrypts</text>
+<rect x="11" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="26" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">p</text>
+<rect x="43" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="58" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">a</text>
+<rect x="75" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="90" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">y</text>
+<rect x="107" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="122" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill-opacity="0.45" fill="currentColor">␣</text>
+<rect x="139" y="145" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="139" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="154" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">E</text>
+<rect x="171" y="145" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="171" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="186" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">v</text>
+<rect x="203" y="145" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="203" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="218" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">e</text>
+<rect x="235" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="250" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill-opacity="0.45" fill="currentColor">␣</text>
+<rect x="267" y="145" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="267" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="282" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">$</text>
+<rect x="299" y="145" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="299" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="314" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">9</text>
+<rect x="331" y="145" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="331" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="346" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">0</text>
+<rect x="363" y="145" width="30" height="30" rx="0" class="soft-acc"/>
+<rect x="363" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="378" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">0</text>
+<rect x="395" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="410" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">0</text>
+<rect x="427" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="442" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">0</text>
+<rect x="459" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="474" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">.</text>
+<rect x="491" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="506" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">0</text>
+<rect x="523" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="538" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">0</text>
+<rect x="555" y="145" width="30" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="0.8"/>
+<text x="570" y="166" font-size="16" text-anchor="middle" font-family="monospace" fill-opacity="0.45" fill="currentColor">␣</text>
+</svg>
+<figcaption>Figure 10.2. Editing a one-time-pad ciphertext. The attacker XORs Δ = old ⊕ new into the ciphertext bytes where they expect "Bob   $100"; decryption cancels the pad and leaves Alice's text XOR Δ, which is "Eve $90000". No key was needed.</figcaption>
+</figure>
 
 XORing a value into the ciphertext XORs the same value into the plaintext. The
 attacker never learned the key and never read anything; they knew the format
@@ -87,6 +279,29 @@ secret key $K$:
 The sender sends $(m, t)$. The receiver recomputes the tag and accepts only if
 it matches. A MAC does not hide $m$; it vouches for it.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 170" width="640" role="img" aria-label="Alice computes a tag with key K and sends message and tag; Bob recomputes the tag with K and accepts only if it matches">
+<rect x="10" y="50" width="150" height="60" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="85" y="77" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">Alice</text>
+<text x="85" y="94" font-size="13" text-anchor="middle" fill="currentColor">t = Tag(K, m)</text>
+<rect x="480" y="50" width="150" height="60" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="555" y="77" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">Bob</text>
+<text x="555" y="94" font-size="13" text-anchor="middle" fill="currentColor">Verify(K, m, t)</text>
+<polyline points="160,80 472,80" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="478,80 471.1,84 471.1,76" fill="currentColor"/>
+<text x="320" y="70" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">m, t</text>
+<text x="320" y="104" font-size="13" text-anchor="middle" font-style="italic" fill="currentColor">the network: anyone may read or change it</text>
+<rect x="255" y="120" width="130" height="36" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="320" y="142.9" font-size="14" text-anchor="middle" fill="currentColor">attacker</text>
+<polyline points="320,120 320,94" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="5 4"/>
+<polygon points="320,88 324,94.9 316,94.9" class="acc-fill"/>
+<text x="85" y="30" font-size="14" text-anchor="middle" font-weight="bold" class="acc-fill">key K</text>
+<text x="555" y="30" font-size="14" text-anchor="middle" font-weight="bold" class="acc-fill">key K</text>
+<text x="555" y="136" font-size="14" text-anchor="middle" fill="currentColor">valid / invalid</text>
+</svg>
+<figcaption>Figure 10.3. A MAC in use. Both ends share the key K. The message travels in the clear with its tag; any change to either makes Bob's check fail, unless the attacker can compute a tag without K.</figcaption>
+</figure>
+
 **What "secure" means.** Imagine the strongest reasonable attacker. They may ask
 for tags on any messages they like, as many as they like, and see every answer.
 They win if they then produce a valid tag for any message they did *not* ask
@@ -94,6 +309,33 @@ about. A MAC is secure if no efficient attacker wins with more than tiny
 probability. The formal name is **existential unforgeability under chosen-message
 attack** (EUF-CMA): "existential" because forging *any* message counts, even
 gibberish, since the MAC cannot know what the application considers meaningful.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 600 250" width="600" role="img" aria-label="The forgery game: the attacker asks a tagging oracle for tags on chosen messages, then must output a valid tag on a new message">
+<rect x="10" y="30" width="170" height="150" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="95" y="110.2" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">attacker</text>
+<rect x="420" y="30" width="170" height="150" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="505" y="102" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">tag oracle</text>
+<text x="505" y="119" font-size="13" text-anchor="middle" fill="currentColor">holds K</text>
+<polyline points="180,58 412,58" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="418,58 411.1,62 411.1,54" fill="currentColor"/>
+<text x="300" y="51" font-size="13" text-anchor="middle" fill="currentColor">m₁  (any message)</text>
+<polyline points="418,72 188,72" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="182,72 188.9,68 188.9,76" fill="currentColor"/>
+<text x="300" y="89" font-size="13" text-anchor="middle" fill="currentColor">t₁</text>
+<polyline points="180,112 412,112" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="418,112 411.1,116 411.1,108" fill="currentColor"/>
+<text x="300" y="105" font-size="13" text-anchor="middle" fill="currentColor">m₂  (any message)</text>
+<polyline points="418,126 188,126" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="182,126 188.9,122 188.9,130" fill="currentColor"/>
+<text x="300" y="143" font-size="13" text-anchor="middle" fill="currentColor">t₂</text>
+<text x="300" y="170" font-size="13" text-anchor="middle" font-style="italic" fill="currentColor">… as many as they like</text>
+<polyline points="95,180 95,204" fill="none" class="acc" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="95,210 91,203.1 99,203.1" class="acc-fill"/>
+<text x="110" y="234" font-size="14" font-weight="bold" class="acc-fill">output (m*, t*): wins if m* was never asked and t* is valid</text>
+</svg>
+<figcaption>Figure 10.4. The EUF-CMA game. The attacker gets tags on any messages they choose, then wins by producing a valid tag on any message not asked, even gibberish. A MAC is secure if no efficient attacker wins with more than negligible probability.</figcaption>
+</figure>
 
 **Tag length is a hard limit.** With a $\tau$-bit tag, an attacker who simply
 guesses succeeds with probability $2^{-\tau}$ per try. A 32-bit tag, as in 4G
@@ -128,8 +370,13 @@ The fixes are the subject of the next three sections.
 
 *Level: intermediate.*
 
-In 1996 Mihir Bellare, Ran Canetti and Hugo Krawczyk, then at UC San Diego
-and IBM, published HMAC: a way to turn any hash into a MAC, with a proof. It
+In the mid-1990s the IETF was building IPsec and needed a MAC. The candidates
+on the table were the ad hoc ones of §10.2: a secret key in front of the
+message, behind it, or on both sides. In 1996 Mihir Bellare, Ran Canetti and
+Hugo Krawczyk, then at UC San Diego and IBM, published HMAC: a way to turn any
+hash into a MAC, with a proof. Its selling point was practical as much as
+theoretical: it calls an existing hash function unchanged, as a black box, so
+every library that already had MD5 or SHA-1 could add HMAC in a few lines. It
 became RFC 2104 (1997) and FIPS 198 (2002), and it is now the most widely used
 MAC there is: in TLS, SSH, IPsec, JSON Web Tokens (`HS256`), webhook
 signatures, the six-digit codes of authenticator apps (TOTP), and inside HKDF
@@ -145,6 +392,41 @@ $$
   SHA-256), or, if the key is longer than a block, its hash, padded.
 - $\mathit{ipad}$ is the byte `36` repeated, $\mathit{opad}$ the byte `5c` repeated. They
   make the inner and outer keys different.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 660 210" width="660" role="img" aria-label="HMAC: the key XOR ipad is hashed with the message; the key XOR opad is hashed with that inner digest to give the tag">
+<rect x="10" y="20" width="120" height="36" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="70" y="42.9" font-size="14" text-anchor="middle" fill="currentColor">K′ ⊕ ipad</text>
+<rect x="140" y="20" width="150" height="36" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="215" y="42.9" font-size="14" text-anchor="middle" fill="currentColor">message m</text>
+<polyline points="70,56 70,66 170,66 170,72" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="170,78 166,71.1 174,71.1" fill="currentColor"/>
+<polyline points="215,56 215,66 170,66 170,72" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="170,78 166,71.1 174,71.1" fill="currentColor"/>
+<rect x="130" y="78" width="80" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="170" y="103.6" font-size="16" text-anchor="middle" font-weight="bold" fill="currentColor">H</text>
+<polyline points="210,98 324,98" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="330,98 323.1,102 323.1,94" fill="currentColor"/>
+<rect x="330" y="80" width="120" height="36" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="390" y="102.5" font-size="13" text-anchor="middle" fill="currentColor">inner digest</text>
+<rect x="330" y="140" width="120" height="36" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="390" y="162.9" font-size="14" text-anchor="middle" fill="currentColor">K′ ⊕ opad</text>
+<polyline points="450,98 480,98 480,128 504,128" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="510,128 503.1,132 503.1,124" class="acc-fill"/>
+<polyline points="450,158 480,158 480,128 504,128" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="510,128 503.1,132 503.1,124" class="acc-fill"/>
+<rect x="510" y="108" width="60" height="40" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="540" y="133.6" font-size="16" text-anchor="middle" font-weight="bold" fill="currentColor">H</text>
+<polyline points="570,128 594,128" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="600,128 593.1,132 593.1,124" class="acc-fill"/>
+<text x="628" y="133" font-size="15" text-anchor="middle" font-weight="bold" class="acc-fill">tag</text>
+<text x="170" y="150" font-size="13" text-anchor="middle" fill="currentColor">inner hash: key first,</text>
+<text x="170" y="166" font-size="13" text-anchor="middle" fill="currentColor">open to length extension</text>
+<text x="540" y="182" font-size="13" text-anchor="middle" class="acc-fill">outer hash: hides the inner</text>
+<text x="540" y="198" font-size="13" text-anchor="middle" class="acc-fill">state behind a second key</text>
+</svg>
+<figcaption>Figure 10.5. HMAC hashes twice. The inner hash alone would be the weak "key first" MAC; the outer hash takes its short, fixed-length digest and hashes it again under a second key, so an attacker who extends the inner hash cannot compute the outer one.</figcaption>
+</figure>
 
 The inner hash is the "key first" MAC from §10.2, which on its own is open to
 length extension. The outer hash fixes that: it takes the inner digest as a
@@ -199,13 +481,22 @@ there is no reason to build on a broken hash.)
 one it received. An ordinary `==` stops at the first byte that differs, so a
 wrong first byte is rejected a little faster than a wrong tenth byte. An
 attacker who can time thousands of attempts learns the correct tag one byte at
-a time, in about $256 \times 16$ tries instead of $2^{128}$. This broke the Xbox
+a time, in about $256 \times 16$ guesses (each timed many times) instead of
+$2^{128}$. This broke the Xbox
 360's boot check in 2007 and Google's Keyczar library in 2009. Python's
 `hmac.compare_digest` takes the same time wherever the difference is; use it
 for every tag comparison.
 
 **Keys.** Use a random key at least as long as the hash output, 32 bytes for
 HMAC-SHA-256. A password is not a key ([Chapter 11](11-Passwords-and-Key-Derivation.md)).
+
+!!! note "Life story: HMAC"
+    **Born:** 1996, Bellare, Canetti and Krawczyk (CRYPTO '96); RFC 2104 (1997), FIPS 198 (2002) ·
+    **Purpose:** a MAC from any hash function, with a proof, to replace the ad hoc secret-prefix
+    and secret-suffix MACs · **Helped:** IPsec, TLS, SSH, JSON Web Tokens, authenticator-app codes,
+    and the key derivation functions HKDF and PBKDF2 · **Status:** current. HMAC-MD5 and HMAC-SHA-1
+    were never practically broken, but they are retired with their hashes; HMAC-SHA-256 is the
+    default.
 
 ## 10.4 MACs from a block cipher: CBC-MAC and CMAC
 
@@ -230,6 +521,40 @@ two-block message $M \,\Vert\, (M \oplus t)$: the first block encrypts to $t$, t
 second enters the cipher as $t \oplus M \oplus t = M$, which encrypts to $t$ again.
 So the forged message has tag $t$, and nobody needed the key.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 600 230" width="600" role="img" aria-label="CBC-MAC forgery: the two-block message M then M XOR t has the same tag t as the one-block message M">
+<rect x="40" y="12" width="120" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="100" y="34.2" font-size="15" text-anchor="middle" fill="currentColor">M</text>
+<rect x="330" y="12" width="140" height="34" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="400" y="34.2" font-size="15" text-anchor="middle" fill="currentColor">M ⊕ t</text>
+<polyline points="100,46 100,64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="100,70 96,63.1 104,63.1" fill="currentColor"/>
+<rect x="60" y="72" width="80" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="100" y="97.2" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">E_K</text>
+<polyline points="140,92 224,92" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="230,92 223.1,96 223.1,88" fill="currentColor"/>
+<text x="185" y="84" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">t</text>
+<polyline points="230,92 384,92" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="390,92 383.1,96 383.1,88" fill="currentColor"/>
+<circle cx="400" cy="92" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="391" y1="92" x2="409" y2="92" stroke="currentColor" stroke-width="1.5"/>
+<line x1="400" y1="83" x2="400" y2="101" stroke="currentColor" stroke-width="1.5"/>
+<polyline points="400,46 400,76" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="400,82 396,75.1 404,75.1" class="acc-fill"/>
+<polyline points="400,101 400,134" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="400,140 396,133.1 404,133.1" fill="currentColor"/>
+<text x="470" y="126" font-size="14" text-anchor="middle" font-weight="bold" class="acc-fill">(M ⊕ t) ⊕ t = M</text>
+<rect x="360" y="142" width="80" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="400" y="167.2" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">E_K</text>
+<polyline points="440,162 514,162" fill="none" class="acc" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="520,162 513.1,166 513.1,158" class="acc-fill"/>
+<text x="550" y="167" font-size="17" text-anchor="middle" font-weight="bold" class="acc-fill">t</text>
+<text x="100" y="150" font-size="14" text-anchor="middle" fill="currentColor">block 1 gives t</text>
+<text x="300" y="214" font-size="14" text-anchor="middle" fill="currentColor">block 2 enters the cipher as M again, so the tag is t again</text>
+</svg>
+<figcaption>Figure 10.6. Forging plain CBC-MAC with one tag. After the first block the chaining value is t, and the attacker's second block M ⊕ t cancels it, so the cipher sees M a second time and outputs t again.</figcaption>
+</figure>
+
 **CMAC.** The fix is to treat the last block specially, with a secret mask the
 attacker cannot predict. John Black and Phillip Rogaway's XCBC (2000) did it
 with three keys; Tetsu Iwata and Kaoru Kurosawa at Ibaraki University in Japan
@@ -247,6 +572,57 @@ $x^{128} + x^7 + x^2 + x + 1$. If the last block is full, XOR in $K_1$; if not, 
 it with `80 00 ...` and XOR in $K_2$. Then finish the CBC chain. The masked last
 block no longer equals the chaining value a longer message would continue from,
 so the splice above fails.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 190" width="640" role="img" aria-label="CMAC: a CBC chain where the last block is XORed with subkey K1, or padded and XORed with K2, before the final encryption">
+<rect x="40" y="10" width="110" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="95" y="30.9" font-size="14" text-anchor="middle" fill="currentColor">M₁</text>
+<polyline points="95,42 95,86" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="95,92 91,85.1 99,85.1" fill="currentColor"/>
+<polyline points="95,92 95,122" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="95,128 91,121.1 99,121.1" fill="currentColor"/>
+<rect x="55" y="128" width="80" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="95" y="153.2" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">E_K</text>
+<rect x="220" y="10" width="110" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="275" y="30.9" font-size="14" text-anchor="middle" fill="currentColor">M₂</text>
+<polyline points="275,42 275,86" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="275,92 271,85.1 279,85.1" fill="currentColor"/>
+<circle cx="275" cy="101" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="266" y1="101" x2="284" y2="101" stroke="currentColor" stroke-width="1.5"/>
+<line x1="275" y1="92" x2="275" y2="110" stroke="currentColor" stroke-width="1.5"/>
+<polyline points="135,155 200,155 200,101 260,101" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="266,101 259.1,105 259.1,97" fill="currentColor"/>
+<polyline points="275,110 275,122" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="275,128 271,121.1 279,121.1" fill="currentColor"/>
+<rect x="235" y="128" width="80" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="275" y="153.2" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">E_K</text>
+<rect x="420" y="10" width="110" height="32" rx="4" class="soft-acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="475" y="30.9" font-size="14" text-anchor="middle" fill="currentColor">M₃ (last)</text>
+<polyline points="475,42 475,52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="475,58 471,51.1 479,51.1" fill="currentColor"/>
+<circle cx="475" cy="68" r="9" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<line x1="466" y1="68" x2="484" y2="68" stroke="currentColor" class="acc" stroke-width="1.5"/>
+<line x1="475" y1="59" x2="475" y2="77" stroke="currentColor" class="acc" stroke-width="1.5"/>
+<polyline points="475,77 475,86" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="475,92 471,85.1 479,85.1" fill="currentColor"/>
+<circle cx="475" cy="101" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="466" y1="101" x2="484" y2="101" stroke="currentColor" stroke-width="1.5"/>
+<line x1="475" y1="92" x2="475" y2="110" stroke="currentColor" stroke-width="1.5"/>
+<polyline points="315,155 400,155 400,101 460,101" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="466,101 459.1,105 459.1,97" fill="currentColor"/>
+<polyline points="475,110 475,122" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="475,128 471,121.1 479,121.1" fill="currentColor"/>
+<rect x="435" y="128" width="80" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="475" y="153.2" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">E_K</text>
+<text x="600" y="68" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">K₁ or K₂</text>
+<polyline points="520,68 492,68" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="486,68 492.9,64 492.9,72" class="acc-fill"/>
+<polyline points="515,148 594,148" fill="none" class="acc" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="600,148 593.1,152 593.1,144" class="acc-fill"/>
+<text x="620" y="153" font-size="17" text-anchor="middle" font-weight="bold" class="acc-fill">t</text>
+</svg>
+<figcaption>Figure 10.7. CMAC is CBC-MAC with a secret mask on the last block: K₁ if the block is full, K₂ if it had to be padded. Both come from L = E_K(0). The mask means the final chaining value is never one an attacker can continue from.</figcaption>
+</figure>
 
 The code uses real AES from the `cryptography` package and checks two of RFC
 4493's test vectors, then tries the splice on both MACs:
@@ -311,6 +687,14 @@ tied to AES hardware, HMAC-SHA-256 has no such limit.
 
 Full details: [Block-cipher MACs](../06-mac/Block-Cipher-MACs.md).
 
+!!! note "Life story: CBC-MAC and CMAC"
+    **Born:** CBC-MAC in 1980s banking (FIPS 113, 1985; ANSI X9.9, 1986); XCBC (Black and Rogaway,
+    2000), OMAC (Iwata and Kurosawa, 2003), standardized by NIST as CMAC in SP 800-38B (2005) ·
+    **Purpose:** authenticate messages with nothing but a block cipher, first DES in bank
+    hardware, then AES in chips · **Helped:** payment messages, smart cards, 4G and 5G radio
+    integrity, IPsec · **Retired:** plain CBC-MAC as a general MAC, because mixed message lengths
+    allow the splice forgery above · **Replaced by:** CMAC, which is current.
+
 ## 10.5 Universal hashing: Wegman-Carter and Poly1305
 
 *Level: intermediate.*
@@ -361,7 +745,146 @@ Trying all 101 values gives one solution, $r = 10$, and then $s = 66 - 9 = 57$. 
 attacker has the whole key and can tag anything. Reusing the pad of a
 Wegman-Carter MAC is as fatal as reusing a one-time pad.
 
-**Poly1305.** Daniel J. Bernstein's Poly1305 (2005) is this idea at full size.
+<figure class="mars-fig">
+<svg viewBox="0 0 620 268" width="620" role="img" aria-label="Scatter plot of r cubed minus 6 r squared plus 3 r minus 26 mod 101 for r from 0 to 100; the only zero is at r = 10">
+<line x1="50" y1="215" x2="600" y2="215" stroke="currentColor" stroke-width="1.5"/>
+<line x1="50" y1="15" x2="50" y2="215" stroke="currentColor" stroke-width="1.5"/>
+<line x1="50" y1="215" x2="50" y2="220" stroke="currentColor" stroke-width="1.5"/>
+<text x="50" y="235" font-size="13" text-anchor="middle" fill="currentColor">0</text>
+<line x1="45" y1="215" x2="50" y2="215" stroke="currentColor" stroke-width="1.5"/>
+<text x="42" y="220" font-size="13" text-anchor="end" fill="currentColor">0</text>
+<line x1="160" y1="215" x2="160" y2="220" stroke="currentColor" stroke-width="1.5"/>
+<text x="160" y="235" font-size="13" text-anchor="middle" fill="currentColor">20</text>
+<line x1="45" y1="175" x2="50" y2="175" stroke="currentColor" stroke-width="1.5"/>
+<text x="42" y="180" font-size="13" text-anchor="end" fill="currentColor">20</text>
+<line x1="270" y1="215" x2="270" y2="220" stroke="currentColor" stroke-width="1.5"/>
+<text x="270" y="235" font-size="13" text-anchor="middle" fill="currentColor">40</text>
+<line x1="45" y1="135" x2="50" y2="135" stroke="currentColor" stroke-width="1.5"/>
+<text x="42" y="140" font-size="13" text-anchor="end" fill="currentColor">40</text>
+<line x1="380" y1="215" x2="380" y2="220" stroke="currentColor" stroke-width="1.5"/>
+<text x="380" y="235" font-size="13" text-anchor="middle" fill="currentColor">60</text>
+<line x1="45" y1="95" x2="50" y2="95" stroke="currentColor" stroke-width="1.5"/>
+<text x="42" y="100" font-size="13" text-anchor="end" fill="currentColor">60</text>
+<line x1="490" y1="215" x2="490" y2="220" stroke="currentColor" stroke-width="1.5"/>
+<text x="490" y="235" font-size="13" text-anchor="middle" fill="currentColor">80</text>
+<line x1="45" y1="55" x2="50" y2="55" stroke="currentColor" stroke-width="1.5"/>
+<text x="42" y="60" font-size="13" text-anchor="end" fill="currentColor">80</text>
+<line x1="600" y1="215" x2="600" y2="220" stroke="currentColor" stroke-width="1.5"/>
+<text x="600" y="235" font-size="13" text-anchor="middle" fill="currentColor">100</text>
+<line x1="45" y1="15" x2="50" y2="15" stroke="currentColor" stroke-width="1.5"/>
+<text x="42" y="20" font-size="13" text-anchor="end" fill="currentColor">100</text>
+<circle cx="50" cy="65" r="2.6" fill="currentColor"/>
+<circle cx="55.5" cy="69" r="2.6" fill="currentColor"/>
+<circle cx="61" cy="85" r="2.6" fill="currentColor"/>
+<circle cx="66.5" cy="101" r="2.6" fill="currentColor"/>
+<circle cx="72" cy="105" r="2.6" fill="currentColor"/>
+<circle cx="77.5" cy="85" r="2.6" fill="currentColor"/>
+<circle cx="83" cy="29" r="2.6" fill="currentColor"/>
+<circle cx="88.5" cy="127" r="2.6" fill="currentColor"/>
+<circle cx="94" cy="165" r="2.6" fill="currentColor"/>
+<circle cx="99.5" cy="131" r="2.6" fill="currentColor"/>
+<circle cx="110.5" cy="203" r="2.6" fill="currentColor"/>
+<circle cx="116" cy="83" r="2.6" fill="currentColor"/>
+<circle cx="121.5" cy="45" r="2.6" fill="currentColor"/>
+<circle cx="127" cy="77" r="2.6" fill="currentColor"/>
+<circle cx="132.5" cy="167" r="2.6" fill="currentColor"/>
+<circle cx="138" cy="101" r="2.6" fill="currentColor"/>
+<circle cx="143.5" cy="69" r="2.6" fill="currentColor"/>
+<circle cx="149" cy="59" r="2.6" fill="currentColor"/>
+<circle cx="154.5" cy="59" r="2.6" fill="currentColor"/>
+<circle cx="160" cy="57" r="2.6" fill="currentColor"/>
+<circle cx="165.5" cy="41" r="2.6" fill="currentColor"/>
+<circle cx="171" cy="201" r="2.6" fill="currentColor"/>
+<circle cx="176.5" cy="121" r="2.6" fill="currentColor"/>
+<circle cx="182" cy="193" r="2.6" fill="currentColor"/>
+<circle cx="187.5" cy="203" r="2.6" fill="currentColor"/>
+<circle cx="193" cy="139" r="2.6" fill="currentColor"/>
+<circle cx="198.5" cy="191" r="2.6" fill="currentColor"/>
+<circle cx="204" cy="145" r="2.6" fill="currentColor"/>
+<circle cx="209.5" cy="191" r="2.6" fill="currentColor"/>
+<circle cx="215" cy="115" r="2.6" fill="currentColor"/>
+<circle cx="220.5" cy="107" r="2.6" fill="currentColor"/>
+<circle cx="226" cy="155" r="2.6" fill="currentColor"/>
+<circle cx="231.5" cy="45" r="2.6" fill="currentColor"/>
+<circle cx="237" cy="169" r="2.6" fill="currentColor"/>
+<circle cx="242.5" cy="111" r="2.6" fill="currentColor"/>
+<circle cx="248" cy="61" r="2.6" fill="currentColor"/>
+<circle cx="253.5" cy="209" r="2.6" fill="currentColor"/>
+<circle cx="259" cy="139" r="2.6" fill="currentColor"/>
+<circle cx="264.5" cy="41" r="2.6" fill="currentColor"/>
+<circle cx="270" cy="105" r="2.6" fill="currentColor"/>
+<circle cx="275.5" cy="117" r="2.6" fill="currentColor"/>
+<circle cx="281" cy="65" r="2.6" fill="currentColor"/>
+<circle cx="286.5" cy="139" r="2.6" fill="currentColor"/>
+<circle cx="292" cy="125" r="2.6" fill="currentColor"/>
+<circle cx="297.5" cy="213" r="2.6" fill="currentColor"/>
+<circle cx="303" cy="189" r="2.6" fill="currentColor"/>
+<circle cx="308.5" cy="41" r="2.6" fill="currentColor"/>
+<circle cx="314" cy="161" r="2.6" fill="currentColor"/>
+<circle cx="319.5" cy="133" r="2.6" fill="currentColor"/>
+<circle cx="325" cy="147" r="2.6" fill="currentColor"/>
+<circle cx="330.5" cy="191" r="2.6" fill="currentColor"/>
+<circle cx="336" cy="51" r="2.6" fill="currentColor"/>
+<circle cx="341.5" cy="119" r="2.6" fill="currentColor"/>
+<circle cx="347" cy="181" r="2.6" fill="currentColor"/>
+<circle cx="352.5" cy="23" r="2.6" fill="currentColor"/>
+<circle cx="358" cy="37" r="2.6" fill="currentColor"/>
+<circle cx="363.5" cy="211" r="2.6" fill="currentColor"/>
+<circle cx="369" cy="129" r="2.6" fill="currentColor"/>
+<circle cx="374.5" cy="183" r="2.6" fill="currentColor"/>
+<circle cx="380" cy="159" r="2.6" fill="currentColor"/>
+<circle cx="385.5" cy="45" r="2.6" fill="currentColor"/>
+<circle cx="391" cy="31" r="2.6" fill="currentColor"/>
+<circle cx="396.5" cy="105" r="2.6" fill="currentColor"/>
+<circle cx="402" cy="53" r="2.6" fill="currentColor"/>
+<circle cx="407.5" cy="65" r="2.6" fill="currentColor"/>
+<circle cx="413" cy="129" r="2.6" fill="currentColor"/>
+<circle cx="418.5" cy="31" r="2.6" fill="currentColor"/>
+<circle cx="424" cy="163" r="2.6" fill="currentColor"/>
+<circle cx="429.5" cy="109" r="2.6" fill="currentColor"/>
+<circle cx="435" cy="59" r="2.6" fill="currentColor"/>
+<circle cx="440.5" cy="203" r="2.6" fill="currentColor"/>
+<circle cx="446" cy="125" r="2.6" fill="currentColor"/>
+<circle cx="451.5" cy="15" r="2.6" fill="currentColor"/>
+<circle cx="457" cy="63" r="2.6" fill="currentColor"/>
+<circle cx="462.5" cy="55" r="2.6" fill="currentColor"/>
+<circle cx="468" cy="181" r="2.6" fill="currentColor"/>
+<circle cx="473.5" cy="25" r="2.6" fill="currentColor"/>
+<circle cx="479" cy="181" r="2.6" fill="currentColor"/>
+<circle cx="484.5" cy="31" r="2.6" fill="currentColor"/>
+<circle cx="490" cy="169" r="2.6" fill="currentColor"/>
+<circle cx="495.5" cy="179" r="2.6" fill="currentColor"/>
+<circle cx="501" cy="49" r="2.6" fill="currentColor"/>
+<circle cx="506.5" cy="171" r="2.6" fill="currentColor"/>
+<circle cx="512" cy="129" r="2.6" fill="currentColor"/>
+<circle cx="517.5" cy="113" r="2.6" fill="currentColor"/>
+<circle cx="523" cy="111" r="2.6" fill="currentColor"/>
+<circle cx="528.5" cy="111" r="2.6" fill="currentColor"/>
+<circle cx="534" cy="101" r="2.6" fill="currentColor"/>
+<circle cx="539.5" cy="69" r="2.6" fill="currentColor"/>
+<circle cx="545" cy="205" r="2.6" fill="currentColor"/>
+<circle cx="550.5" cy="93" r="2.6" fill="currentColor"/>
+<circle cx="556" cy="125" r="2.6" fill="currentColor"/>
+<circle cx="561.5" cy="87" r="2.6" fill="currentColor"/>
+<circle cx="567" cy="169" r="2.6" fill="currentColor"/>
+<circle cx="572.5" cy="157" r="2.6" fill="currentColor"/>
+<circle cx="578" cy="39" r="2.6" fill="currentColor"/>
+<circle cx="583.5" cy="207" r="2.6" fill="currentColor"/>
+<circle cx="589" cy="43" r="2.6" fill="currentColor"/>
+<circle cx="594.5" cy="141" r="2.6" fill="currentColor"/>
+<circle cx="600" cy="85" r="2.6" fill="currentColor"/>
+<circle cx="105" cy="215" r="6" class="acc-fill"/>
+<text x="97" y="259" font-size="14" font-weight="bold" class="acc-fill">▲ r = 10: the only root</text>
+<text x="540" y="259" font-size="13" text-anchor="middle" fill="currentColor">candidate r</text>
+</svg>
+<figcaption>Figure 10.8. The attacker's equation r³ − 6r² + 3r ≡ 26 (mod 101), written as r³ − 6r² + 3r − 26 mod 101 for every candidate r. The values look random, and exactly one candidate gives zero: the secret r = 10.</figcaption>
+</figure>
+
+**Poly1305.** Daniel J. Bernstein, a mathematician then at the University of
+Illinois at Chicago, was already known for suing the US government in the 1990s
+over export rules on cryptographic software (Bernstein v. United States), and
+for writing small, fast, carefully engineered programs. His Poly1305 (2005) is
+this idea at full size.
 The prime is $p = 2^{130} - 5$, chosen so reduction is a shift and a multiply by 5.
 The 32-byte one-time key is $(r, s)$, with 22 bits of $r$ forced to zero
 ("clamped") so the arithmetic fits fast 64-bit multiplies. Each 16-byte block,
@@ -427,6 +950,13 @@ general big-number code leaks timing; it is for learning.
 even faster hash called NH, and is one of OpenSSH's default MACs.
 
 Full details: [Universal hash MACs](../06-mac/Universal-Hash-MACs.md).
+
+!!! note "Life story: Wegman-Carter MACs and Poly1305"
+    **Born:** 1981, Mark Wegman and Larry Carter at IBM (universal hashing for authentication);
+    Poly1305 by Bernstein in 2005 · **Purpose:** MACs whose security is proved by counting, at the
+    cost of about one multiplication per block · **Helped:** Poly1305 inside ChaCha20-Poly1305 (TLS,
+    WireGuard, SSH), GHASH inside AES-GCM, UMAC in OpenSSH · **Status:** current, with one hard rule:
+    the one-time key must never be used for a second message.
 
 ## 10.6 More MACs: KMAC, keyed BLAKE2 and SipHash
 
@@ -501,6 +1031,13 @@ The constants are the ASCII text "somepseudorandomlygeneratedbytes". A 64-bit
 tag is too short for a general-purpose MAC; SipHash is for hash tables and
 other short-lived checks.
 
+!!! note "Life story: SipHash"
+    **Born:** 2012, Jean-Philippe Aumasson and Daniel J. Bernstein, months after the 28C3 hash-flooding
+    talk · **Purpose:** a keyed hash fast enough for hash tables and strong enough that an attacker
+    cannot pick colliding keys · **Helped:** made hash tables in Python (3.4 on), Rust, Ruby, Perl
+    and the Linux kernel safe against flooding · **Status:** current, for hash tables and short
+    checks; its 64-bit tag is too short for a general MAC.
+
 ## 10.7 Putting encryption and a MAC together
 
 *Level: intermediate.*
@@ -514,6 +1051,80 @@ different one:
 | **Encrypt-and-MAC** | $E(m)$ and $\mathrm{MAC}(m)$ | SSH |
 | **MAC-then-encrypt** | $E(m \,\Vert\, \mathrm{MAC}(m))$ | SSL and TLS up to 1.2 |
 | **Encrypt-then-MAC** | $c = E(m)$ and $\mathrm{MAC}(c)$ | IPsec ESP |
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="Three ways to combine encryption and a MAC: encrypt-and-MAC, MAC-then-encrypt, and encrypt-then-MAC">
+<text x="10" y="38" font-size="15" font-weight="bold" fill="currentColor">Encrypt-and-MAC</text>
+<text x="10" y="58" font-size="13" fill="currentColor">SSH</text>
+<text x="10" y="76" font-size="13" font-style="italic" fill="currentColor">leaks, or fragile</text>
+<rect x="200" y="18" width="40" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="220" y="37.9" font-size="14" text-anchor="middle" fill="currentColor">m</text>
+<polyline points="240,33 264,33" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="270,33 263.1,37 263.1,29" fill="currentColor"/>
+<rect x="270" y="18" width="60" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="300" y="37.9" font-size="14" text-anchor="middle" fill="currentColor">Enc</text>
+<polyline points="330,33 354,33" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="360,33 353.1,37 353.1,29" fill="currentColor"/>
+<rect x="360" y="18" width="60" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="390" y="37.9" font-size="14" text-anchor="middle" fill="currentColor">c</text>
+<polyline points="220,48 220,68 264,68" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="270,68 263.1,72 263.1,64" fill="currentColor"/>
+<rect x="270" y="54" width="60" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="300" y="73.9" font-size="14" text-anchor="middle" fill="currentColor">MAC</text>
+<polyline points="330,69 354,69" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="360,69 353.1,73 353.1,65" fill="currentColor"/>
+<rect x="360" y="54" width="60" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="390" y="73.9" font-size="14" text-anchor="middle" fill="currentColor">t</text>
+<text x="440" y="54" font-size="14" fill="currentColor">send c, t</text>
+<text x="440" y="74" font-size="13" font-style="italic" fill="currentColor">t is a tag of the plaintext</text>
+<text x="10" y="134" font-size="15" font-weight="bold" fill="currentColor">MAC-then-encrypt</text>
+<text x="10" y="154" font-size="13" fill="currentColor">SSL, TLS ≤ 1.2</text>
+<text x="10" y="172" font-size="13" font-style="italic" fill="currentColor">leaks, or fragile</text>
+<rect x="200" y="130" width="40" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="220" y="149.9" font-size="14" text-anchor="middle" fill="currentColor">m</text>
+<polyline points="240,145 254,145" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="260,145 253.1,149 253.1,141" fill="currentColor"/>
+<rect x="260" y="130" width="60" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="290" y="149.9" font-size="14" text-anchor="middle" fill="currentColor">MAC</text>
+<polyline points="320,145 334,145" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="340,145 333.1,149 333.1,141" fill="currentColor"/>
+<rect x="340" y="130" width="64" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="372" y="149.9" font-size="14" text-anchor="middle" fill="currentColor">m ‖ t</text>
+<polyline points="404,145 418,145" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="424,145 417.1,149 417.1,141" fill="currentColor"/>
+<rect x="424" y="130" width="50" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="449" y="149.9" font-size="14" text-anchor="middle" fill="currentColor">Enc</text>
+<polyline points="474,145 488,145" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="494,145 487.1,149 487.1,141" fill="currentColor"/>
+<rect x="494" y="130" width="40" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="514" y="149.9" font-size="14" text-anchor="middle" fill="currentColor">c</text>
+<text x="440" y="182" font-size="13" text-anchor="middle" font-style="italic" fill="currentColor">receiver must decrypt before checking</text>
+<text x="10" y="230" font-size="15" font-weight="bold" class="acc-fill">Encrypt-then-MAC</text>
+<text x="10" y="250" font-size="13" fill="currentColor">IPsec ESP</text>
+<text x="10" y="268" font-size="13" class="acc-fill">secure in general</text>
+<rect x="200" y="226" width="40" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="220" y="245.9" font-size="14" text-anchor="middle" fill="currentColor">m</text>
+<polyline points="240,241 254,241" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="260,241 253.1,245 253.1,237" fill="currentColor"/>
+<rect x="260" y="226" width="50" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="285" y="245.9" font-size="14" text-anchor="middle" fill="currentColor">Enc</text>
+<polyline points="310,241 324,241" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="330,241 323.1,245 323.1,237" fill="currentColor"/>
+<rect x="330" y="226" width="40" height="30" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="350" y="245.9" font-size="14" text-anchor="middle" fill="currentColor">c</text>
+<polyline points="370,241 384,241" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="390,241 383.1,245 383.1,237" class="acc-fill"/>
+<rect x="390" y="226" width="60" height="30" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="420" y="245.9" font-size="14" text-anchor="middle" fill="currentColor">MAC</text>
+<polyline points="450,241 464,241" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="470,241 463.1,245 463.1,237" class="acc-fill"/>
+<rect x="470" y="226" width="40" height="30" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="490" y="245.9" font-size="14" text-anchor="middle" fill="currentColor">t</text>
+<text x="520" y="246" font-size="14" fill="currentColor">send c, t</text>
+<text x="420" y="278" font-size="13" text-anchor="middle" class="acc-fill">receiver checks t first, then decrypts</text>
+</svg>
+<figcaption>Figure 10.9. The three orders. Only encrypt-then-MAC (accent) is secure for every secure cipher and MAC: the tag covers exactly what travels, and a forged ciphertext is thrown away before any decryption code touches it.</figcaption>
+</figure>
 
 In 2000 Mihir Bellare and Chanathip Namprempre analyzed all three, and in 2001
 Hugo Krawczyk asked directly "how secure is SSL?". The answer: only
@@ -542,6 +1153,14 @@ The lesson is the same every time:
 **check the tag first, on the ciphertext, and decrypt only if it is valid.**
 RFC 7366 (2014) let TLS switch to encrypt-then-MAC, and TLS 1.3 removed the
 question by allowing only AEAD ciphers (§10.8).
+
+!!! note "Life story: padding-oracle attacks"
+    **Born:** 2002, Serge Vaudenay at EPFL in Lausanne, Switzerland · **What it breaks:** CBC
+    encryption whose receiver reveals, by an error message or by timing, whether a tampered
+    ciphertext had valid padding · **Famous uses:** Juliano Rizzo and Thai Duong's attack on
+    ASP.NET (2010), Lucky Thirteen (2013), POODLE (2014) · **Fixed by:** encrypt-then-MAC (RFC 7366)
+    and AEAD-only TLS 1.3 · **Status:** still found in home-made protocols that decrypt before they
+    verify.
 
 **Code it: encrypt-then-MAC.** AES in CTR mode, then HMAC-SHA-256 over the IV and
 ciphertext, with separate keys:
@@ -625,6 +1244,128 @@ GHASH is a polynomial evaluated at the secret point $H$, exactly like the toy in
 AES rounds and for the carry-less multiplication GHASH needs, which makes GCM
 very fast, and it is the most used cipher on the internet.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 700 330" width="700" role="img" aria-label="AES-GCM: counter blocks are encrypted to make keystream for the plaintext; GHASH multiplies the associated data, ciphertext blocks and lengths by H; the result is XORed with AES of J0 to give the tag">
+<rect x="10" y="14" width="110" height="34" rx="4" class="soft-acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="65" y="35.9" font-size="14" text-anchor="middle" fill="currentColor">J₀</text>
+<rect x="170" y="14" width="110" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="225" y="35.9" font-size="14" text-anchor="middle" fill="currentColor">J₀ + 1</text>
+<polyline points="225,48 225,58" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="225,64 221,57.1 229,57.1" fill="currentColor"/>
+<rect x="185" y="64" width="80" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="225" y="85.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">AES_K</text>
+<polyline points="225,98 225,118" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="225,124 221,117.1 229,117.1" fill="currentColor"/>
+<circle cx="225" cy="133" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="216" y1="133" x2="234" y2="133" stroke="currentColor" stroke-width="1.5"/>
+<line x1="225" y1="124" x2="225" y2="142" stroke="currentColor" stroke-width="1.5"/>
+<text x="164" y="138" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">P₁</text>
+<polyline points="172,133 210,133" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="216,133 209.1,137 209.1,129" fill="currentColor"/>
+<polyline points="225,142 225,160" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="225,166 221,159.1 229,159.1" fill="currentColor"/>
+<rect x="195" y="166" width="60" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="225" y="185.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">C₁</text>
+<rect x="330" y="14" width="110" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="385" y="35.9" font-size="14" text-anchor="middle" fill="currentColor">J₀ + 2</text>
+<polyline points="385,48 385,58" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="385,64 381,57.1 389,57.1" fill="currentColor"/>
+<rect x="345" y="64" width="80" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="385" y="85.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">AES_K</text>
+<polyline points="385,98 385,118" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="385,124 381,117.1 389,117.1" fill="currentColor"/>
+<circle cx="385" cy="133" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="376" y1="133" x2="394" y2="133" stroke="currentColor" stroke-width="1.5"/>
+<line x1="385" y1="124" x2="385" y2="142" stroke="currentColor" stroke-width="1.5"/>
+<text x="324" y="138" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">P₂</text>
+<polyline points="332,133 370,133" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="376,133 369.1,137 369.1,129" fill="currentColor"/>
+<polyline points="385,142 385,160" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="385,166 381,159.1 389,159.1" fill="currentColor"/>
+<rect x="355" y="166" width="60" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="385" y="185.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">C₂</text>
+<text x="560" y="37" font-size="18" text-anchor="middle" fill="currentColor">…</text>
+<polyline points="65,48 65,58" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="65,64 61,57.1 69,57.1" fill="currentColor"/>
+<rect x="25" y="64" width="80" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="65" y="85.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">AES_K</text>
+<rect x="30" y="218" width="50" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="55" y="235.6" font-size="13" text-anchor="middle" fill="currentColor">A</text>
+<polyline points="55,244 55,250" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="55,256 51,249.1 59,249.1" fill="currentColor"/>
+<rect x="33" y="256" width="44" height="26" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="55" y="273.6" font-size="13" text-anchor="middle" fill="currentColor">·H</text>
+<rect x="190" y="218" width="50" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="215" y="235.6" font-size="13" text-anchor="middle" fill="currentColor">C₁</text>
+<circle cx="215" cy="265" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="206" y1="265" x2="224" y2="265" stroke="currentColor" stroke-width="1.5"/>
+<line x1="215" y1="256" x2="215" y2="274" stroke="currentColor" stroke-width="1.5"/>
+<polyline points="215,244 215,250" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="215,256 211,249.1 219,249.1" fill="currentColor"/>
+<polyline points="77,265 200,265" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="206,265 199.1,269 199.1,261" fill="currentColor"/>
+<polyline points="224,265 235,265" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="241,265 234.1,269 234.1,261" fill="currentColor"/>
+<rect x="241" y="252" width="40" height="26" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="261" y="269.6" font-size="13" text-anchor="middle" fill="currentColor">·H</text>
+<rect x="350" y="218" width="50" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="375" y="235.6" font-size="13" text-anchor="middle" fill="currentColor">C₂</text>
+<circle cx="375" cy="265" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="366" y1="265" x2="384" y2="265" stroke="currentColor" stroke-width="1.5"/>
+<line x1="375" y1="256" x2="375" y2="274" stroke="currentColor" stroke-width="1.5"/>
+<polyline points="375,244 375,250" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="375,256 371,249.1 379,249.1" fill="currentColor"/>
+<polyline points="281,265 360,265" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="366,265 359.1,269 359.1,261" fill="currentColor"/>
+<polyline points="384,265 395,265" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="401,265 394.1,269 394.1,261" fill="currentColor"/>
+<rect x="401" y="252" width="40" height="26" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="421" y="269.6" font-size="13" text-anchor="middle" fill="currentColor">·H</text>
+<rect x="510" y="218" width="50" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="535" y="235.6" font-size="13" text-anchor="middle" fill="currentColor">len</text>
+<circle cx="535" cy="265" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="526" y1="265" x2="544" y2="265" stroke="currentColor" stroke-width="1.5"/>
+<line x1="535" y1="256" x2="535" y2="274" stroke="currentColor" stroke-width="1.5"/>
+<polyline points="535,244 535,250" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="535,256 531,249.1 539,249.1" fill="currentColor"/>
+<polyline points="441,265 520,265" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="526,265 519.1,269 519.1,261" fill="currentColor"/>
+<polyline points="544,265 555,265" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="561,265 554.1,269 554.1,261" fill="currentColor"/>
+<rect x="561" y="252" width="40" height="26" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="581" y="269.6" font-size="13" text-anchor="middle" fill="currentColor">·H</text>
+<polyline points="215,196 215,212" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="215,218 211,211.1 219,211.1" fill="currentColor"/>
+<polyline points="375,196 375,212" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="375,218 371,211.1 379,211.1" fill="currentColor"/>
+<circle cx="640" cy="265" r="9" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<line x1="631" y1="265" x2="649" y2="265" stroke="currentColor" class="acc" stroke-width="1.5"/>
+<line x1="640" y1="256" x2="640" y2="274" stroke="currentColor" class="acc" stroke-width="1.5"/>
+<polyline points="601,265 625,265" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="631,265 624.1,269 624.1,261" fill="currentColor"/>
+<polyline points="65,98 65,112 655,112 655,210 640,210 640,250" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="5 4"/>
+<polygon points="640,256 636,249.1 644,249.1" class="acc-fill"/>
+<text x="600" y="106" font-size="13" text-anchor="end" class="acc-fill">AES_K(J₀): the one-time pad</text>
+<polyline points="640,274 640,306" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="640,312 636,305.1 644,305.1" class="acc-fill"/>
+<text x="620" y="322" font-size="15" text-anchor="end" font-weight="bold" class="acc-fill">tag T</text>
+<text x="10" y="322" font-size="13" class="acc-fill">GHASH: multiply by H and add (XOR), block by block</text>
+</svg>
+<figcaption>Figure 10.10. AES-GCM with two plaintext blocks. Top: CTR mode, counters J₀+1, J₀+2 encrypted and XORed into the plaintext. Bottom: GHASH, a polynomial in the hash key H = AES_K(0) over the associated data, the ciphertext and the lengths, masked with AES_K(J₀) to give the tag.</figcaption>
+</figure>
+
+Those instructions arrived in 2010, when Intel added AES-NI and a carry-less
+multiply to its processors; other chip makers followed. With them, AES-GCM runs
+at a few clock cycles per byte, and wherever the hardware is present the choice
+of AEAD is easy.
+
+!!! note "Life story: AES-GCM"
+    **Born:** 2004, David McGrew and John Viega; NIST SP 800-38D (2007) · **Purpose:** a fast,
+    parallel, patent-free AEAD for high-speed networks · **Helped:** TLS 1.2 and 1.3, IPsec, SSH
+    and WPA3 (GCMP); it now protects most internet traffic · **Status:**
+    current, with two caveats: a repeated nonce is fatal (§10.9), and NIST is removing tags shorter
+    than 96 bits.
+
 **ChaCha20-Poly1305.** On phones and small chips without AES instructions, AES
 is slower and hard to make constant-time. Adam Langley at Google proposed in 2013
 combining Bernstein's ChaCha20 ([Chapter 5](05-Stream-Ciphers.md)) with
@@ -632,6 +1373,67 @@ Poly1305; it became RFC 7539 (2015), now RFC 8439. Block 0 of ChaCha20 for the
 key and nonce gives the Poly1305 key, the following blocks encrypt, and Poly1305
 covers the associated data, the ciphertext and both lengths. TLS 1.3, WireGuard,
 OpenSSH and QUIC all offer it.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 660 230" width="660" role="img" aria-label="ChaCha20-Poly1305: ChaCha20 block 0 gives the one-time Poly1305 key; blocks 1 onward encrypt the plaintext; Poly1305 tags the associated data, ciphertext and lengths">
+<rect x="10" y="14" width="170" height="40" rx="4" class="soft-acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="95" y="38.9" font-size="14" text-anchor="middle" fill="currentColor">ChaCha20(K, N, 0)</text>
+<rect x="230" y="14" width="170" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="315" y="38.9" font-size="14" text-anchor="middle" fill="currentColor">ChaCha20(K, N, 1)</text>
+<rect x="450" y="14" width="170" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="535" y="38.9" font-size="14" text-anchor="middle" fill="currentColor">ChaCha20(K, N, 2)</text>
+<text x="640" y="40" font-size="18" text-anchor="middle" fill="currentColor">…</text>
+<polyline points="95,54 95,144" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="95,150 91,143.1 99,143.1" class="acc-fill"/>
+<text x="105" y="100" font-size="13" class="acc-fill">first 32 bytes:</text>
+<text x="105" y="116" font-size="13" class="acc-fill">key (r, s)</text>
+<polyline points="315,54 315,70" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="315,76 311,69.1 319,69.1" fill="currentColor"/>
+<circle cx="315" cy="85" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="306" y1="85" x2="324" y2="85" stroke="currentColor" stroke-width="1.5"/>
+<line x1="315" y1="76" x2="315" y2="94" stroke="currentColor" stroke-width="1.5"/>
+<text x="285" y="90" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">P₁</text>
+<polyline points="289,85 300,85" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="306,85 299.1,89 299.1,81" fill="currentColor"/>
+<polyline points="315,94 315,104" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="315,110 311,103.1 319,103.1" fill="currentColor"/>
+<rect x="285" y="110" width="60" height="28" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="315" y="128.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">C₁</text>
+<polyline points="315,138 315,144" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="315,150 311,143.1 319,143.1" fill="currentColor"/>
+<polyline points="535,54 535,70" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="535,76 531,69.1 539,69.1" fill="currentColor"/>
+<circle cx="535" cy="85" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="526" y1="85" x2="544" y2="85" stroke="currentColor" stroke-width="1.5"/>
+<line x1="535" y1="76" x2="535" y2="94" stroke="currentColor" stroke-width="1.5"/>
+<text x="505" y="90" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">P₂</text>
+<polyline points="509,85 520,85" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="526,85 519.1,89 519.1,81" fill="currentColor"/>
+<polyline points="535,94 535,104" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="535,110 531,103.1 539,103.1" fill="currentColor"/>
+<rect x="505" y="110" width="60" height="28" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="535" y="128.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">C₂</text>
+<polyline points="535,138 535,144" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="535,150 531,143.1 539,143.1" fill="currentColor"/>
+<rect x="30" y="150" width="600" height="36" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="330" y="172.9" font-size="14" text-anchor="middle" fill="currentColor">Poly1305 over  AD ‖ pad ‖ ciphertext ‖ pad ‖ lengths</text>
+<polyline points="330,186 330,204" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="330,210 326,203.1 334,203.1" class="acc-fill"/>
+<text x="345" y="222" font-size="15" font-weight="bold" class="acc-fill">tag</text>
+</svg>
+<figcaption>Figure 10.11. ChaCha20-Poly1305. Block 0 of ChaCha20 for this key and nonce is not used for encryption: its first 32 bytes become Poly1305's one-time key. A new nonce gives a new Poly1305 key, which is how "one key, one message" is kept.</figcaption>
+</figure>
+
+Google turned it on in Chrome for Android in 2014, because most phones of that
+time had no AES instructions and AES-GCM in software was both slow and hard to
+make constant-time. It is now one of the main cipher suites of TLS 1.3 and the
+only cipher of WireGuard.
+
+!!! note "Life story: ChaCha20-Poly1305"
+    **Born:** 2013, Adam Langley's proposal at Google to pair Bernstein's ChaCha20 (2008) with
+    Poly1305 (2005); RFC 7539 (2015), RFC 8439 (2018) · **Purpose:** a fast, constant-time AEAD for
+    devices without AES hardware · **Helped:** Chrome on Android, TLS 1.3, WireGuard, OpenSSH, QUIC
+    and, as XChaCha20-Poly1305, libsodium · **Status:** current.
 
 With a library, both look the same:
 
@@ -669,6 +1471,58 @@ for a limited number of messages: by the birthday bound
 ([§9.3](09-Hash-Functions.md)), SP 800-38D caps one GCM key at $2^{32}$ random
 nonces, which keeps the chance of a repeat near $2^{-33}$.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 600 290" width="600" role="img" aria-label="Log-log plot of the chance of a repeated random 96-bit nonce against the number of messages, with marks at 2 to the 32 and 2 to the 40">
+<line x1="70" y1="235" x2="570" y2="235" stroke="currentColor" stroke-width="1.5"/>
+<line x1="70" y1="15" x2="70" y2="235" stroke="currentColor" stroke-width="1.5"/>
+<line x1="70" y1="235" x2="70" y2="240" stroke="currentColor" stroke-width="1.5"/>
+<text x="70" y="255" font-size="13" text-anchor="middle" fill="currentColor">2²⁰</text>
+<line x1="141.4" y1="235" x2="141.4" y2="240" stroke="currentColor" stroke-width="1.5"/>
+<text x="141.4" y="255" font-size="13" text-anchor="middle" fill="currentColor">2²⁴</text>
+<line x1="212.9" y1="235" x2="212.9" y2="240" stroke="currentColor" stroke-width="1.5"/>
+<text x="212.9" y="255" font-size="13" text-anchor="middle" fill="currentColor">2²⁸</text>
+<line x1="284.3" y1="235" x2="284.3" y2="240" stroke="currentColor" stroke-width="1.5"/>
+<text x="284.3" y="255" font-size="13" text-anchor="middle" fill="currentColor">2³²</text>
+<line x1="355.7" y1="235" x2="355.7" y2="240" stroke="currentColor" stroke-width="1.5"/>
+<text x="355.7" y="255" font-size="13" text-anchor="middle" fill="currentColor">2³⁶</text>
+<line x1="427.1" y1="235" x2="427.1" y2="240" stroke="currentColor" stroke-width="1.5"/>
+<text x="427.1" y="255" font-size="13" text-anchor="middle" fill="currentColor">2⁴⁰</text>
+<line x1="498.6" y1="235" x2="498.6" y2="240" stroke="currentColor" stroke-width="1.5"/>
+<text x="498.6" y="255" font-size="13" text-anchor="middle" fill="currentColor">2⁴⁴</text>
+<line x1="570" y1="235" x2="570" y2="240" stroke="currentColor" stroke-width="1.5"/>
+<text x="570" y="255" font-size="13" text-anchor="middle" fill="currentColor">2⁴⁸</text>
+<line x1="65" y1="235" x2="70" y2="235" stroke="currentColor" stroke-width="1.5"/>
+<text x="62" y="240" font-size="13" text-anchor="end" fill="currentColor">2⁻⁶⁰</text>
+<line x1="70" y1="235" x2="570" y2="235" stroke="currentColor" stroke-width="0.6" stroke-opacity="0.3"/>
+<line x1="65" y1="198.3" x2="70" y2="198.3" stroke="currentColor" stroke-width="1.5"/>
+<text x="62" y="203.3" font-size="13" text-anchor="end" fill="currentColor">2⁻⁵⁰</text>
+<line x1="70" y1="198.3" x2="570" y2="198.3" stroke="currentColor" stroke-width="0.6" stroke-opacity="0.3"/>
+<line x1="65" y1="161.7" x2="70" y2="161.7" stroke="currentColor" stroke-width="1.5"/>
+<text x="62" y="166.7" font-size="13" text-anchor="end" fill="currentColor">2⁻⁴⁰</text>
+<line x1="70" y1="161.7" x2="570" y2="161.7" stroke="currentColor" stroke-width="0.6" stroke-opacity="0.3"/>
+<line x1="65" y1="125" x2="70" y2="125" stroke="currentColor" stroke-width="1.5"/>
+<text x="62" y="130" font-size="13" text-anchor="end" fill="currentColor">2⁻³⁰</text>
+<line x1="70" y1="125" x2="570" y2="125" stroke="currentColor" stroke-width="0.6" stroke-opacity="0.3"/>
+<line x1="65" y1="88.3" x2="70" y2="88.3" stroke="currentColor" stroke-width="1.5"/>
+<text x="62" y="93.3" font-size="13" text-anchor="end" fill="currentColor">2⁻²⁰</text>
+<line x1="70" y1="88.3" x2="570" y2="88.3" stroke="currentColor" stroke-width="0.6" stroke-opacity="0.3"/>
+<line x1="65" y1="51.7" x2="70" y2="51.7" stroke="currentColor" stroke-width="1.5"/>
+<text x="62" y="56.7" font-size="13" text-anchor="end" fill="currentColor">2⁻¹⁰</text>
+<line x1="70" y1="51.7" x2="570" y2="51.7" stroke="currentColor" stroke-width="0.6" stroke-opacity="0.3"/>
+<line x1="65" y1="15" x2="70" y2="15" stroke="currentColor" stroke-width="1.5"/>
+<text x="62" y="20" font-size="13" text-anchor="end" fill="currentColor">1</text>
+<line x1="70" y1="15" x2="570" y2="15" stroke="currentColor" stroke-width="0.6" stroke-opacity="0.3"/>
+<polyline points="70,224 71.8,223.3 73.6,222.5 75.4,221.8 77.1,221.1 78.9,220.3 80.7,219.6 82.5,218.9 84.3,218.1 86.1,217.4 87.9,216.7 89.6,215.9 91.4,215.2 93.2,214.5 95,213.7 96.8,213 98.6,212.3 100.4,211.5 102.1,210.8 103.9,210.1 105.7,209.3 107.5,208.6 109.3,207.9 111.1,207.1 112.9,206.4 114.6,205.7 116.4,204.9 118.2,204.2 120,203.5 121.8,202.7 123.6,202 125.4,201.3 127.1,200.5 128.9,199.8 130.7,199.1 132.5,198.3 134.3,197.6 136.1,196.9 137.9,196.1 139.6,195.4 141.4,194.7 143.2,193.9 145,193.2 146.8,192.5 148.6,191.7 150.4,191 152.1,190.3 153.9,189.5 155.7,188.8 157.5,188.1 159.3,187.3 161.1,186.6 162.9,185.9 164.6,185.1 166.4,184.4 168.2,183.7 170,182.9 171.8,182.2 173.6,181.5 175.4,180.7 177.1,180 178.9,179.3 180.7,178.5 182.5,177.8 184.3,177.1 186.1,176.3 187.9,175.6 189.6,174.9 191.4,174.1 193.2,173.4 195,172.7 196.8,171.9 198.6,171.2 200.4,170.5 202.1,169.7 203.9,169 205.7,168.3 207.5,167.5 209.3,166.8 211.1,166.1 212.9,165.3 214.6,164.6 216.4,163.9 218.2,163.1 220,162.4 221.8,161.7 223.6,160.9 225.4,160.2 227.1,159.5 228.9,158.7 230.7,158 232.5,157.3 234.3,156.5 236.1,155.8 237.9,155.1 239.6,154.3 241.4,153.6 243.2,152.9 245,152.1 246.8,151.4 248.6,150.7 250.4,149.9 252.1,149.2 253.9,148.5 255.7,147.7 257.5,147 259.3,146.3 261.1,145.5 262.9,144.8 264.6,144.1 266.4,143.3 268.2,142.6 270,141.9 271.8,141.1 273.6,140.4 275.4,139.7 277.1,138.9 278.9,138.2 280.7,137.5 282.5,136.7 284.3,136 286.1,135.3 287.9,134.5 289.6,133.8 291.4,133.1 293.2,132.3 295,131.6 296.8,130.9 298.6,130.1 300.4,129.4 302.1,128.7 303.9,127.9 305.7,127.2 307.5,126.5 309.3,125.7 311.1,125 312.9,124.3 314.6,123.5 316.4,122.8 318.2,122.1 320,121.3 321.8,120.6 323.6,119.9 325.4,119.1 327.1,118.4 328.9,117.7 330.7,116.9 332.5,116.2 334.3,115.5 336.1,114.7 337.9,114 339.6,113.3 341.4,112.5 343.2,111.8 345,111.1 346.8,110.3 348.6,109.6 350.4,108.9 352.1,108.1 353.9,107.4 355.7,106.7 357.5,105.9 359.3,105.2 361.1,104.5 362.9,103.7 364.6,103 366.4,102.3 368.2,101.5 370,100.8 371.8,100.1 373.6,99.3 375.4,98.6 377.1,97.9 378.9,97.1 380.7,96.4 382.5,95.7 384.3,94.9 386.1,94.2 387.9,93.5 389.6,92.7 391.4,92 393.2,91.3 395,90.5 396.8,89.8 398.6,89.1 400.4,88.3 402.1,87.6 403.9,86.9 405.7,86.1 407.5,85.4 409.3,84.7 411.1,83.9 412.9,83.2 414.6,82.5 416.4,81.7 418.2,81 420,80.3 421.8,79.5 423.6,78.8 425.4,78.1 427.1,77.3 428.9,76.6 430.7,75.9 432.5,75.1 434.3,74.4 436.1,73.7 437.9,72.9 439.6,72.2 441.4,71.5 443.2,70.7 445,70 446.8,69.3 448.6,68.5 450.4,67.8 452.1,67.1 453.9,66.3 455.7,65.6 457.5,64.9 459.3,64.1 461.1,63.4 462.9,62.7 464.6,61.9 466.4,61.2 468.2,60.5 470,59.7 471.8,59 473.6,58.3 475.4,57.5 477.1,56.8 478.9,56.1 480.7,55.3 482.5,54.6 484.3,53.9 486.1,53.1 487.9,52.4 489.6,51.7 491.4,50.9 493.2,50.2 495,49.5 496.8,48.7 498.6,48 500.4,47.3 502.1,46.5 503.9,45.8 505.7,45.1 507.5,44.3 509.3,43.6 511.1,42.9 512.9,42.1 514.6,41.4 516.4,40.7 518.2,39.9 520,39.2 521.8,38.5 523.6,37.7 525.4,37 527.1,36.3 528.9,35.5 530.7,34.8 532.5,34.1 534.3,33.3 536.1,32.6 537.9,31.9 539.6,31.1 541.4,30.4 543.2,29.7 545,28.9 546.8,28.2 548.6,27.5 550.4,26.7 552.1,26 553.9,25.3 555.7,24.5 557.5,23.8 559.3,23.1 561.1,22.3 562.9,21.6 564.6,20.9 566.4,20.1 568.2,19.4 570,18.7" fill="none" class="acc" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+<circle cx="284.3" cy="136" r="5" class="acc-fill"/>
+<text x="294.3" y="154" font-size="13" font-weight="bold" fill="currentColor">2³² messages: 2⁻³³ (NIST&#x27;s limit)</text>
+<circle cx="427.1" cy="77.3" r="5" class="acc-fill"/>
+<text x="437.1" y="95.3" font-size="13" font-weight="bold" fill="currentColor">2⁴⁰ messages: 2⁻¹⁷</text>
+<text x="320" y="282" font-size="13" text-anchor="middle" fill="currentColor">messages under one key</text>
+<text x="78" y="29" font-size="13" fill="currentColor">chance some nonce repeats ≈ q² / 2⁹⁷</text>
+</svg>
+<figcaption>Figure 10.12. Random 96-bit nonces and the birthday bound. The chance of a repeat grows as the square of the number of messages q: each doubling of q makes a repeat four times likelier. At 2⁴⁸ messages it is close to certain.</figcaption>
+</figure>
+
 ## 10.9 Break it: one repeated nonce
 
 *Level: intermediate.*
@@ -701,6 +1555,34 @@ element has exactly one root, $x^{2^{127}}$), and then recovers the pad. With $H
 and the pad they can tag any ciphertext for that nonce. Antoine Joux pointed this
 out in 2006 and called it the "forbidden attack". For longer messages the
 equation is a higher-degree polynomial in $H$, which is still easy to solve.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 620 190" width="620" role="img" aria-label="Two GCM tags under a repeated nonce: XORing them cancels the length term and the pad, leaving the ciphertext difference times H squared">
+<text x="20" y="34" font-size="16" font-weight="bold" fill="currentColor">T₁ =</text>
+<text x="110" y="34" font-size="16" text-anchor="middle" font-weight="bold" class="acc-fill">C₁ · H²</text>
+<text x="190" y="34" font-size="16" text-anchor="middle" fill="currentColor">⊕</text>
+<text x="260" y="34" font-size="16" text-anchor="middle" fill="currentColor">L · H</text>
+<text x="330" y="34" font-size="16" text-anchor="middle" fill="currentColor">⊕</text>
+<text x="440" y="34" font-size="16" text-anchor="middle" fill="currentColor">AES_K(J₀)</text>
+<line x1="225" y1="28" x2="295" y2="28" stroke="currentColor" stroke-width="2"/>
+<line x1="380" y1="28" x2="500" y2="28" stroke="currentColor" stroke-width="2"/>
+<text x="20" y="78" font-size="16" font-weight="bold" fill="currentColor">T₂ =</text>
+<text x="110" y="78" font-size="16" text-anchor="middle" font-weight="bold" class="acc-fill">C₂ · H²</text>
+<text x="190" y="78" font-size="16" text-anchor="middle" fill="currentColor">⊕</text>
+<text x="260" y="78" font-size="16" text-anchor="middle" fill="currentColor">L · H</text>
+<text x="330" y="78" font-size="16" text-anchor="middle" fill="currentColor">⊕</text>
+<text x="440" y="78" font-size="16" text-anchor="middle" fill="currentColor">AES_K(J₀)</text>
+<line x1="225" y1="72" x2="295" y2="72" stroke="currentColor" stroke-width="2"/>
+<line x1="380" y1="72" x2="500" y2="72" stroke="currentColor" stroke-width="2"/>
+<line x1="15" y1="104" x2="600" y2="104" stroke="currentColor" stroke-width="1.5"/>
+<text x="20" y="136" font-size="16" font-weight="bold" fill="currentColor">T₁ ⊕ T₂ =</text>
+<text x="260" y="136" font-size="16" text-anchor="middle" font-weight="bold" class="acc-fill">(C₁ ⊕ C₂) · H²</text>
+<text x="572" y="50" font-size="13" text-anchor="middle" fill="currentColor">same nonce:</text>
+<text x="572" y="66" font-size="13" text-anchor="middle" fill="currentColor">these cancel</text>
+<text x="20" y="174" font-size="14" fill="currentColor">Everything but H is public, so the attacker solves for H², then H, then the pad.</text>
+</svg>
+<figcaption>Figure 10.13. The forbidden attack in one picture. Under a repeated nonce the length term and the pad AES_K(J₀) are the same in both tags, so XORing the tags wipes them out and leaves an equation whose only unknown is H.</figcaption>
+</figure>
 
 The program below does it against the real AES-GCM in the `cryptography`
 package. The only arithmetic it needs is multiplication in GCM's field.
@@ -765,6 +1647,13 @@ of the Wi-Fi WPA2 handshake, an attacker could make a device reinstall its key
 and reset its nonce counter, forcing nonce reuse in CCMP and GCMP on billions of
 devices until they were patched.
 
+!!! note "Life story: the forbidden attack (GCM nonce reuse)"
+    **Born:** 2006, Antoine Joux's comment to NIST on the draft GCM standard · **What it breaks:**
+    AES-GCM whenever a nonce repeats under one key: it recovers the hash key $H$ and lets the
+    attacker forge · **Famous cases:** the 2016 scan that found HTTPS servers repeating nonces;
+    KRACK (2017), which forced nonce reuse in Wi-Fi · **Fixed by:** counters for nonces, AES-GCM-SIV,
+    and XChaCha20-Poly1305's long random nonces · **Status:** works against every GCM misuse.
+
 ## 10.10 Surviving nonce misuse
 
 *Level: intermediate.*
@@ -778,10 +1667,47 @@ the same nonce gives the same ciphertext, which reveals only that the two
 messages were equal, and nothing else. AES-SIV is RFC 5297 (2008). The price is
 two passes: encryption cannot start until the whole message has been read.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 620 170" width="620" role="img" aria-label="SIV: a MAC over the associated data and plaintext gives a tag that is also used as the IV for CTR encryption">
+<rect x="10" y="20" width="120" height="36" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="70" y="43.2" font-size="15" text-anchor="middle" fill="currentColor">A, P</text>
+<polyline points="130,38 174,38" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="180,38 173.1,42 173.1,34" fill="currentColor"/>
+<rect x="180" y="18" width="120" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="240" y="42.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">MAC (pass 1)</text>
+<polyline points="300,38 344,38" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="350,38 343.1,42 343.1,34" class="acc-fill"/>
+<rect x="350" y="20" width="100" height="36" rx="4" class="soft-acc acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="400" y="42.9" font-size="14" text-anchor="middle" fill="currentColor">tag = IV</text>
+<polyline points="450,38 594,38" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="600,38 593.1,42 593.1,34" class="acc-fill"/>
+<text x="530" y="30" font-size="13" text-anchor="middle" class="acc-fill">sent</text>
+<polyline points="400,56 400,90" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="400,96 396,89.1 404,89.1" class="acc-fill"/>
+<rect x="330" y="96" width="140" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="400" y="120.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">CTR (pass 2)</text>
+<polyline points="70,56 70,116 324,116" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="330,116 323.1,120 323.1,112" fill="currentColor"/>
+<text x="80" y="108" font-size="14" fill="currentColor">P</text>
+<polyline points="470,116 514,116" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="520,116 513.1,120 513.1,112" fill="currentColor"/>
+<text x="540" y="121" font-size="16" font-weight="bold" fill="currentColor">C</text>
+<text x="10" y="160" font-size="13" fill="currentColor">same A and P give the same IV, so a repeated nonce reveals only that a message repeated</text>
+</svg>
+<figcaption>Figure 10.14. The synthetic IV. The tag is computed first, from everything, and then reused as the IV for encryption. Nothing about the nonce can make two different messages share a keystream.</figcaption>
+</figure>
+
 **AES-GCM-SIV.** Shay Gueron and Yehuda Lindell (2015, RFC 8452 in 2019)
 applied the same idea with GCM's fast parts: each nonce derives its own keys,
 POLYVAL (a little-endian twin of GHASH) runs over the data, and its masked
 output is both the tag and the starting counter. It runs at nearly GCM's speed.
+
+!!! note "Life story: SIV and AES-GCM-SIV"
+    **Born:** SIV in 2006 (Phillip Rogaway and Thomas Shrimpton), AES-SIV as RFC 5297 (2008);
+    AES-GCM-SIV in 2015 (Shay Gueron and Yehuda Lindell), RFC 8452 (2019) · **Purpose:** an AEAD
+    that degrades gracefully when a nonce repeats, and safe key wrapping · **Helped:** systems
+    that cannot guarantee unique nonces: many senders, random nonces, restored snapshots ·
+    **Status:** current.
 
 **Longer nonces.** XChaCha20-Poly1305 has a 192-bit nonce, so random nonces
 never collide in practice; it is the usual choice in libsodium. AEGIS-256 has a

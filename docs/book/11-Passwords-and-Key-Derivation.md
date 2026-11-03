@@ -44,12 +44,95 @@ their 1979 paper "Password Security: A Case History" set out most of what this
 chapter covers: users pick guessable passwords, so the function must be slow,
 and each password should be mixed with a random **salt**.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 560 438" width="560" role="img" aria-label="Timeline of password storage and key derivation from 1966 to 2024">
+<line x1="78" y1="12" x2="78" y2="426" stroke="currentColor" stroke-width="2"/>
+<circle cx="78" cy="20" r="5" class="acc-fill"/>
+<text x="64" y="25" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">1966</text>
+<text x="94" y="25" font-size="14" fill="currentColor">CTSS shows every password as the message of the day</text>
+<circle cx="78" cy="48" r="5" fill="currentColor"/>
+<text x="64" y="53" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">1968</text>
+<text x="94" y="53" font-size="14" fill="currentColor">Wilkes describes Cambridge&#x27;s one-way password storage</text>
+<circle cx="78" cy="76" r="5" fill="currentColor"/>
+<text x="64" y="81" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">1979</text>
+<text x="94" y="81" font-size="14" fill="currentColor">Morris and Thompson: Unix crypt, with salt</text>
+<circle cx="78" cy="104" r="5" fill="currentColor"/>
+<text x="64" y="109" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">1980</text>
+<text x="94" y="109" font-size="14" fill="currentColor">Hellman: trading memory for time in tables</text>
+<circle cx="78" cy="132" r="5" fill="currentColor"/>
+<text x="64" y="137" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">1999</text>
+<text x="94" y="137" font-size="14" fill="currentColor">bcrypt (Provos, Mazières); PBKDF2 (Kaliski)</text>
+<circle cx="78" cy="160" r="5" fill="currentColor"/>
+<text x="64" y="165" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">2003</text>
+<text x="94" y="165" font-size="14" fill="currentColor">Oechslin&#x27;s rainbow tables</text>
+<circle cx="78" cy="188" r="5" class="acc-fill"/>
+<text x="64" y="193" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2009</text>
+<text x="94" y="193" font-size="14" fill="currentColor">scrypt (Percival); RockYou leaks 32 million</text>
+<circle cx="78" cy="216" r="5" fill="currentColor"/>
+<text x="64" y="221" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">2010</text>
+<text x="94" y="221" font-size="14" fill="currentColor">HKDF (Krawczyk)</text>
+<circle cx="78" cy="244" r="5" class="acc-fill"/>
+<text x="64" y="249" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2012</text>
+<text x="94" y="249" font-size="14" fill="currentColor">LinkedIn: unsalted SHA-1</text>
+<circle cx="78" cy="272" r="5" class="acc-fill"/>
+<text x="64" y="277" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2013</text>
+<text x="94" y="277" font-size="14" fill="currentColor">Adobe: passwords under one 3DES key</text>
+<circle cx="78" cy="300" r="5" fill="currentColor"/>
+<text x="64" y="305" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">2015</text>
+<text x="94" y="305" font-size="14" fill="currentColor">Argon2 wins the PHC; Ashley Madison</text>
+<circle cx="78" cy="328" r="5" class="acc-fill"/>
+<text x="64" y="333" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2016</text>
+<text x="94" y="333" font-size="14" fill="currentColor">Yahoo&#x27;s 3 billion accounts disclosed</text>
+<circle cx="78" cy="356" r="5" fill="currentColor"/>
+<text x="64" y="361" font-size="14" text-anchor="end" font-weight="bold" fill="currentColor">2021</text>
+<text x="94" y="361" font-size="14" fill="currentColor">Argon2 becomes RFC 9106</text>
+<circle cx="78" cy="384" r="5" class="acc-fill"/>
+<text x="64" y="389" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2022</text>
+<text x="94" y="389" font-size="14" fill="currentColor">LastPass vaults stolen</text>
+<circle cx="78" cy="412" r="5" class="acc-fill"/>
+<text x="64" y="417" font-size="14" text-anchor="end" font-weight="bold" class="acc-fill">2024</text>
+<text x="94" y="417" font-size="14" fill="currentColor">Okta&#x27;s bcrypt 72-byte bug</text>
+</svg>
+<figcaption>Figure 11.1. Sixty years of storing passwords. Accent years are leaks and failures; nearly every design in this chapter answers one of them.</figcaption>
+</figure>
+
 Here is the attacker's position, then and now. They steal the database
 (through an SQL injection, a lost backup, an insider) and take it home. There,
 with no rate limits and no one watching, they can make as many guesses as their
 hardware allows. This is an **offline attack**, and it is what password storage
 must defend against. (An **online attack**, guessing at the login page, is slowed
 by lockouts and rate limits instead.)
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 250" width="640" role="img" aria-label="Online attack: guesses go through the login page with rate limits. Offline attack: the stolen database is copied to the attacker&#x27;s own hardware, with no limits">
+<text x="10" y="22" font-size="15" font-weight="bold" fill="currentColor">Online</text>
+<rect x="10" y="36" width="130" height="50" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="75" y="65.9" font-size="14" text-anchor="middle" fill="currentColor">attacker</text>
+<polyline points="140,61 224,61" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="230,61 223.1,65 223.1,57" fill="currentColor"/>
+<text x="185" y="52" font-size="13" text-anchor="middle" fill="currentColor">guess</text>
+<rect x="230" y="36" width="170" height="50" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="315" y="58" font-size="14" text-anchor="middle" fill="currentColor">login page</text>
+<text x="315" y="75" font-size="12" text-anchor="middle" fill="currentColor">rate limits, lockouts</text>
+<polyline points="400,61 464,61" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="470,61 463.1,65 463.1,57" fill="currentColor"/>
+<rect x="470" y="36" width="160" height="50" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="550" y="65.9" font-size="14" text-anchor="middle" fill="currentColor">server + database</text>
+<text x="320" y="110" font-size="13" text-anchor="middle" font-style="italic" fill="currentColor">a few guesses a second, and someone is watching</text>
+<line x1="10" y1="128" x2="630" y2="128" stroke="currentColor" stroke-width="0.8" stroke-opacity="0.4"/>
+<text x="10" y="152" font-size="15" font-weight="bold" class="acc-fill">Offline</text>
+<rect x="470" y="166" width="160" height="50" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="550" y="195.9" font-size="14" text-anchor="middle" fill="currentColor">server + database</text>
+<polyline points="470,191 336,191" fill="none" class="acc" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="330,191 336.9,187 336.9,195" class="acc-fill"/>
+<text x="400" y="182" font-size="13" text-anchor="middle" class="acc-fill">stolen copy</text>
+<rect x="130" y="166" width="200" height="50" rx="4" class="soft-acc acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="230" y="188" font-size="14" text-anchor="middle" fill="currentColor">attacker&#x27;s own rig</text>
+<text x="230" y="205" font-size="12" text-anchor="middle" fill="currentColor">GPUs, no limits</text>
+<text x="320" y="240" font-size="13" text-anchor="middle" font-style="italic" class="acc-fill">billions of guesses a second, for as long as they like</text>
+</svg>
+<figcaption>Figure 11.2. The two attacks. Online guessing goes through the server, which can slow it down. Offline guessing starts after a database is stolen; the only defense left is how much each guess costs.</figcaption>
+</figure>
 
 The defender cannot stop the guessing. What they control is **how much each
 guess costs**. Every idea in this chapter is a way to raise that cost.
@@ -114,6 +197,15 @@ real list of billions of leaked passwords and generated variations, and at
 billions of SHA-256 guesses per second on a graphics card, few human-chosen
 passwords last long.
 
+!!! note "Life story: precomputed tables and rainbow tables"
+    **Born:** 1980, Martin Hellman's time-memory trade-off at Stanford; rainbow tables in 2003,
+    by Philippe Oechslin at EPFL in Lausanne · **Purpose:** to crack hashes of a fixed function
+    faster than brute force, by doing the work once and storing a compressed table · **Helped
+    attackers:** free tools such as Ophcrack cracked Windows LAN Manager password hashes in
+    minutes, and tables for unsalted MD5 and SHA-1 were traded online · **Defeated by:** salts,
+    which make every user's hash a different function · **Status:** obsolete against salted
+    hashes; still useful against systems that never salted.
+
 ## 11.3 Salt
 
 A **salt** is a random value, different for each user, stored next to the hash
@@ -136,6 +228,36 @@ print([w for w in words if hashlib.sha256(salt + w.encode()).digest() == digest]
 # ['123456']
 ```
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 220" width="640" role="img" aria-label="Table: without salt, Bob and Carol with the same password have the same hash; with salt, their stored hashes differ">
+<text x="10" y="22" font-size="15" font-weight="bold" fill="currentColor">No salt</text>
+<text x="330" y="22" font-size="15" font-weight="bold" fill="currentColor">With a random salt each</text>
+<text x="10" y="63" font-size="14" fill="currentColor">alice</text>
+<rect x="70" y="44" width="230" height="30" rx="3" class="soft"/>
+<text x="80" y="64" font-size="13" font-family="monospace" fill="currentColor">a941a4c4fd0c01cd…</text>
+<text x="330" y="63" font-size="14" fill="currentColor">alice</text>
+<rect x="390" y="44" width="240" height="30" rx="3" class="soft"/>
+<text x="400" y="64" font-size="13" fill="currentColor">salt₁, H(salt₁ ‖ sunshine)</text>
+<text x="10" y="107" font-size="14" fill="currentColor">bob</text>
+<rect x="70" y="88" width="230" height="30" rx="3" class="soft-acc"/>
+<text x="80" y="108" font-size="13" font-family="monospace" fill="currentColor">8d969eef6ecad3c2…</text>
+<text x="330" y="107" font-size="14" fill="currentColor">bob</text>
+<rect x="390" y="88" width="240" height="30" rx="3" class="soft"/>
+<text x="400" y="108" font-size="13" fill="currentColor">salt₂, H(salt₂ ‖ 123456)</text>
+<text x="10" y="151" font-size="14" fill="currentColor">carol</text>
+<rect x="70" y="132" width="230" height="30" rx="3" class="soft-acc"/>
+<text x="80" y="152" font-size="13" font-family="monospace" fill="currentColor">8d969eef6ecad3c2…</text>
+<text x="330" y="151" font-size="14" fill="currentColor">carol</text>
+<rect x="390" y="132" width="240" height="30" rx="3" class="soft"/>
+<text x="400" y="152" font-size="13" fill="currentColor">salt₃, H(salt₃ ‖ 123456)</text>
+<text x="10" y="190" font-size="13" class="acc-fill">bob = carol: crack one, get both;</text>
+<text x="10" y="208" font-size="13" class="acc-fill">one precomputed table cracks every site</text>
+<text x="330" y="190" font-size="13" fill="currentColor">every row different: each account</text>
+<text x="330" y="208" font-size="13" fill="currentColor">must be attacked on its own</text>
+</svg>
+<figcaption>Figure 11.3. What a salt changes. Left: the real SHA-256 values from §11.2, where Bob's and Carol's rows match. Right: with a random salt per user, equal passwords no longer look equal and no precomputed table applies.</figcaption>
+</figure>
+
 Salt fixes both problems from §11.2. Equal passwords now look different, and a
 precomputed table is useless: it would need a separate table for every possible
 salt, and with 128-bit salts there are $2^{128}$ of them. The attacker must attack
@@ -149,6 +271,23 @@ costs them as little as before. That needs a different idea.
 Morris and Thompson's Unix salt was 12 bits, 4,096 values; it stopped the
 precomputed tables of 1979 but is far too small today. Modern salts are 16
 bytes from a secure random source.
+
+Morris and Thompson worked at Bell Labs in New Jersey, and their scheme, the
+Unix `crypt` function of Version 7 Unix (1979), did three things at once: it
+stored a one-way function of the password, it added a 12-bit salt, and it made
+the function slow on purpose by running DES 25 times with the password as the
+key. The paper also described cracking real Unix password files, and found that
+a large share of users picked short or dictionary passwords. Almost a decade
+later the Morris worm of 1988, written by Robert Morris's son, spread partly by
+guessing passwords against exactly these hashes.
+
+!!! note "Life story: Unix crypt and the salt"
+    **Born:** 1979, Robert Morris and Ken Thompson at Bell Labs, for Version 7 Unix · **Purpose:**
+    keep a stolen password file from giving the passwords away · **Helped:** introduced the
+    salt and deliberate slowness, the two ideas every later scheme kept; Unix and Linux used it
+    for twenty years · **Retired:** passwords limited to 8 characters, a 12-bit salt and 25 DES
+    runs became far too weak as hardware grew · **Replaced by:** MD5-crypt (1994), sha512crypt
+    (2007), bcrypt and today yescrypt
 
 ## 11.4 Make each guess slow: key stretching and PBKDF2
 
@@ -170,6 +309,34 @@ Stretching by a factor $c$ adds $\log_2 c$ bits of work to every guess: 600,000 
 about $2^{19.2}$. It cannot add what the password lacks. A password from a list of a
 thousand common ones is found in a second either way.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 680 146" width="680" role="img" aria-label="Bar chart on a log scale of cracking time: 21 seconds, 145 days, and 3,500 years">
+<text x="270" y="32" font-size="14" text-anchor="end" fill="currentColor">8 lowercase letters, SHA-256</text>
+<rect x="280" y="16" width="30" height="22" rx="2" class="soft"/>
+<rect x="280" y="16" width="30" height="22" rx="2" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<text x="318" y="32" font-size="13" fill="currentColor">21 seconds</text>
+<text x="270" y="66" font-size="14" text-anchor="end" fill="currentColor">same, PBKDF2 × 600,000</text>
+<rect x="280" y="50" width="161.3" height="22" rx="2" class="soft-acc"/>
+<rect x="280" y="50" width="161.3" height="22" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="1.2"/>
+<text x="449.3" y="66" font-size="13" font-weight="bold" fill="currentColor">145 days</text>
+<text x="270" y="100" font-size="14" text-anchor="end" fill="currentColor">4 Diceware words, PBKDF2 × 600,000</text>
+<rect x="280" y="84" width="250.9" height="22" rx="2" class="soft-acc"/>
+<rect x="280" y="84" width="250.9" height="22" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="1.2"/>
+<text x="538.9" y="100" font-size="13" font-weight="bold" fill="currentColor">3,500 years (average)</text>
+<line x1="280" y1="10" x2="280" y2="112" stroke="currentColor" stroke-width="1.5"/>
+<line x1="280" y1="112" x2="530" y2="112" stroke="currentColor" stroke-width="1"/>
+<line x1="280" y1="112" x2="280" y2="117" stroke="currentColor" stroke-width="1"/>
+<text x="280" y="131" font-size="12" text-anchor="middle" fill="currentColor">1 s</text>
+<line x1="360.8" y1="112" x2="360.8" y2="117" stroke="currentColor" stroke-width="1"/>
+<text x="360.8" y="131" font-size="12" text-anchor="middle" fill="currentColor">1 hour</text>
+<line x1="450.4" y1="112" x2="450.4" y2="117" stroke="currentColor" stroke-width="1"/>
+<text x="450.4" y="131" font-size="12" text-anchor="middle" fill="currentColor">1 year</text>
+<line x1="518.6" y1="112" x2="518.6" y2="117" stroke="currentColor" stroke-width="1"/>
+<text x="518.6" y="131" font-size="12" text-anchor="middle" fill="currentColor">1,000 years</text>
+</svg>
+<figcaption>Figure 11.4. What stretching buys, on a rig doing 10¹⁰ SHA-256 hashes a second (log scale). Times for the letters are to try every password; for the Diceware words, the average. Stretching multiplies the cost of every guess but cannot rescue a password from a short list.</figcaption>
+</figure>
+
 **PBKDF2.** The first widely standardized stretching function is PBKDF2,
 from Burt Kaliski at RSA Laboratories, in PKCS #5 v2.0 (1999) and RFC 2898
 (2000, now RFC 8018). NIST approves it in SP 800-132. It repeats HMAC, with the
@@ -182,6 +349,68 @@ U_1 &= \mathrm{HMAC}(P,\; S \,\Vert\, \mathrm{INT}(i)), \qquad U_j = \mathrm{HMA
 T_i &= U_1 \oplus U_2 \oplus \cdots \oplus U_c, \qquad \mathit{DK} = T_1 \,\Vert\, T_2 \,\Vert\, \cdots
 \end{aligned}
 $$
+
+<figure class="mars-fig">
+<svg viewBox="0 0 660 230" width="660" role="img" aria-label="PBKDF2: HMAC keyed with the password is applied to salt and block index, then repeatedly to its own output; all outputs are XORed together">
+<rect x="10" y="20" width="140" height="34" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="80" y="41.9" font-size="14" text-anchor="middle" fill="currentColor">S ‖ INT(i)</text>
+<rect x="30" y="80" width="110" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="85" y="104.5" font-size="13" text-anchor="middle" font-weight="bold" fill="currentColor">HMAC(P, ·)</text>
+<polyline points="85,120 85,140" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="85,146 81,139.1 89,139.1" fill="currentColor"/>
+<text x="85" y="162" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">U₁</text>
+<polyline points="85,168 85,182" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="85,188 81,181.1 89,181.1" class="acc-fill"/>
+<polyline points="95,162 180,162 180,64 235,64 235,72" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="235,78 231,71.1 239,71.1" fill="currentColor"/>
+<rect x="180" y="80" width="110" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="235" y="104.5" font-size="13" text-anchor="middle" font-weight="bold" fill="currentColor">HMAC(P, ·)</text>
+<polyline points="235,120 235,140" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="235,146 231,139.1 239,139.1" fill="currentColor"/>
+<text x="235" y="162" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">U₂</text>
+<polyline points="235,168 235,182" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="235,188 231,181.1 239,181.1" class="acc-fill"/>
+<polyline points="245,162 330,162 330,64 385,64 385,72" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="385,78 381,71.1 389,71.1" fill="currentColor"/>
+<rect x="330" y="80" width="110" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="385" y="104.5" font-size="13" text-anchor="middle" font-weight="bold" fill="currentColor">HMAC(P, ·)</text>
+<polyline points="385,120 385,140" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="385,146 381,139.1 389,139.1" fill="currentColor"/>
+<text x="385" y="162" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">U₃</text>
+<polyline points="385,168 385,182" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="385,188 381,181.1 389,181.1" class="acc-fill"/>
+<polyline points="395,162 480,162 480,64 565,64 565,72" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="565,78 561,71.1 569,71.1" fill="currentColor"/>
+<rect x="510" y="80" width="110" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="565" y="104.5" font-size="13" text-anchor="middle" font-weight="bold" fill="currentColor">HMAC(P, ·)</text>
+<polyline points="565,120 565,140" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="565,146 561,139.1 569,139.1" fill="currentColor"/>
+<text x="565" y="162" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">U_c</text>
+<polyline points="565,168 565,182" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="565,188 561,181.1 569,181.1" class="acc-fill"/>
+<polyline points="80,54 83.8,72.1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="85,78 79.7,72 87.5,70.4" fill="currentColor"/>
+<text x="470" y="100" font-size="18" text-anchor="middle" fill="currentColor">…</text>
+<line x1="85" y1="196" x2="565" y2="196" stroke="currentColor" class="acc" stroke-width="2"/>
+<circle cx="85" cy="196" r="9" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<line x1="76" y1="196" x2="94" y2="196" stroke="currentColor" class="acc" stroke-width="1.5"/>
+<line x1="85" y1="187" x2="85" y2="205" stroke="currentColor" class="acc" stroke-width="1.5"/>
+<circle cx="235" cy="196" r="9" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<line x1="226" y1="196" x2="244" y2="196" stroke="currentColor" class="acc" stroke-width="1.5"/>
+<line x1="235" y1="187" x2="235" y2="205" stroke="currentColor" class="acc" stroke-width="1.5"/>
+<circle cx="385" cy="196" r="9" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<line x1="376" y1="196" x2="394" y2="196" stroke="currentColor" class="acc" stroke-width="1.5"/>
+<line x1="385" y1="187" x2="385" y2="205" stroke="currentColor" class="acc" stroke-width="1.5"/>
+<circle cx="565" cy="196" r="9" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<line x1="556" y1="196" x2="574" y2="196" stroke="currentColor" class="acc" stroke-width="1.5"/>
+<line x1="565" y1="187" x2="565" y2="205" stroke="currentColor" class="acc" stroke-width="1.5"/>
+<polyline points="565,196 594,196" fill="none" class="acc" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="600,196 593.1,200 593.1,192" class="acc-fill"/>
+<text x="612" y="201" font-size="16" font-weight="bold" class="acc-fill">Tᵢ</text>
+<text x="330" y="226" font-size="13" text-anchor="middle" fill="currentColor">c HMAC calls per output block; every one is needed</text>
+</svg>
+<figcaption>Figure 11.5. PBKDF2. HMAC keyed with the password P runs c times in a chain, each call fed the previous output, and all c outputs are XORed into one block Tᵢ. An attacker cannot skip ahead: the last link needs all the others.</figcaption>
+</figure>
 
 $P$ is the password, $S$ the salt, $c$ the iteration count and $i$ the block number
 as 4 bytes. Here it is from `hmac`, checked against RFC 6070's test vector and
@@ -227,11 +456,21 @@ CPU core; the attacker pays far less per guess. The rest of this chapter is abou
 closing that gap. OWASP's 2023 guidance asks for at least 600,000 iterations
 with HMAC-SHA-256 if PBKDF2 must be used.
 
+!!! note "Life story: PBKDF2"
+    **Born:** 1999, Burt Kaliski at RSA Laboratories, in PKCS #5 v2.0; RFC 2898 (2000), now
+    RFC 8018 · **Purpose:** turn a password into a key of any length by repeating HMAC, replacing
+    PBKDF1, whose output was limited to one hash length · **Helped:** WPA2 Wi-Fi, encrypted key
+    files, BIP-39 seed phrases, iOS backups and every FIPS-bound system that needs a password
+    hash · **Status:** current and still NIST-approved, but costs only time, so GPUs crack it far
+    more cheaply than memory-hard functions.
+
 ## 11.5 bcrypt
 
 *Level: intermediate.*
 
-In 1999 Niels Provos and David Mazières published bcrypt for OpenBSD. It
+In 1999 Niels Provos and David Mazières published bcrypt for OpenBSD, at the
+USENIX conference, in a paper titled "A Future-Adaptable Password Scheme". The
+title was the point. It
 introduced the idea every later design kept: a **cost parameter** stored with the
 hash, so the work can be raised as computers get faster, and old hashes can be
 upgraded the next time each user logs in.
@@ -246,6 +485,28 @@ hash is one 60-character string:
 ```
 $2b$12$abcdefghijklmnopqrstuutwZ1IOTtu3SsEBT5lI/LFncP31tIybm
 ```
+
+<figure class="mars-fig">
+<svg viewBox="0 0 560 170" width="560" role="img" aria-label="The bcrypt string split into version 2b, cost 12, a 22-character salt and a 31-character hash">
+<rect x="14" y="10" width="58" height="34" rx="3" class="soft"/>
+<rect x="14" y="10" width="58" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="43" y="33" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">$2b$</text>
+<text x="43" y="64" font-size="13" text-anchor="middle" fill="currentColor">version 2b</text>
+<rect x="120" y="10" width="48" height="34" rx="3" class="soft-acc"/>
+<rect x="120" y="10" width="48" height="34" rx="3" fill="none" class="acc" stroke="currentColor" stroke-width="1"/>
+<text x="144" y="33" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">12$</text>
+<text x="144" y="64" font-size="13" text-anchor="middle" class="acc-fill">cost 2¹²</text>
+<rect x="214" y="10" width="238" height="34" rx="3" class="soft"/>
+<rect x="214" y="10" width="238" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="333" y="33" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">abcdefghijklmnopqrstuu</text>
+<text x="333" y="64" font-size="13" text-anchor="middle" fill="currentColor">salt: 22 characters</text>
+<rect x="10" y="92" width="328" height="34" rx="3" class="soft"/>
+<rect x="10" y="92" width="328" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="174" y="115" font-size="16" text-anchor="middle" font-family="monospace" fill="currentColor">twZ1IOTtu3SsEBT5lI/LFncP31tIybm</text>
+<text x="174" y="146" font-size="13" text-anchor="middle" fill="currentColor">hash: 31 characters</text>
+</svg>
+<figcaption>Figure 11.6. Anatomy of the bcrypt hash above, cut into its four parts. Everything the server needs to check a password later, the version, the cost and the salt, travels in the same string as the hash itself.</figcaption>
+</figure>
 
 `2b` is the version, `12` the cost ($2^{12} = 4{,}096$ rounds of the slow loop), then 22
 characters of salt and 31 of hash in bcrypt's own base-64 alphabet. (This one is
@@ -272,6 +533,13 @@ bcrypt is still acceptable at cost 10 or more. Its 4 KiB of tables fit in a CPU
 cache and slow GPUs somewhat, but it is not memory-hard in the sense of the next
 section, and FPGAs crack it well.
 
+!!! note "Life story: bcrypt"
+    **Born:** 1999, Niels Provos and David Mazières, for OpenBSD, built on the slow key setup of
+    Bruce Schneier's Blowfish (1993) · **Purpose:** a password hash whose cost can be raised as
+    computers get faster · **Helped:** the default in OpenBSD, Ruby on Rails and PHP's
+    `password_hash`; the Ashley Madison hashes held because of it · **Status:** still acceptable at
+    cost 10 or more; Argon2id is preferred for new systems, and the 72-byte limit must be handled.
+
 ## 11.6 Memory-hardness and scrypt
 
 *Level: intermediate.*
@@ -283,7 +551,202 @@ and cannot be shrunk by clever design. So the defense is to make each guess
 **need a lot of memory**, and to make sure an attacker who uses less memory pays
 heavily in extra time. A function with that property is **memory-hard**.
 
-Colin Percival designed **scrypt** in 2009 for his Tarsnap backup service, the
+<figure class="mars-fig">
+<svg viewBox="0 0 660 230" width="660" role="img" aria-label="Left: a chip packed with thousands of tiny hashing cores. Right: the same chip area when each guess needs a large block of memory, only a few cores fit">
+<text x="160" y="20" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">fast hash or PBKDF2</text>
+<rect x="20" y="32" width="280" height="160" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<rect x="28" y="40" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="44" y="40" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="60" y="40" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="76" y="40" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="92" y="40" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="108" y="40" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="124" y="40" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="140" y="40" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="156" y="40" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="172" y="40" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="188" y="40" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="204" y="40" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="220" y="40" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="236" y="40" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="252" y="40" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="268" y="40" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="284" y="40" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="28" y="55" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="44" y="55" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="60" y="55" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="76" y="55" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="92" y="55" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="108" y="55" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="124" y="55" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="140" y="55" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="156" y="55" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="172" y="55" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="188" y="55" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="204" y="55" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="220" y="55" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="236" y="55" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="252" y="55" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="268" y="55" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="284" y="55" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="28" y="70" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="44" y="70" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="60" y="70" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="76" y="70" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="92" y="70" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="108" y="70" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="124" y="70" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="140" y="70" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="156" y="70" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="172" y="70" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="188" y="70" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="204" y="70" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="220" y="70" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="236" y="70" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="252" y="70" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="268" y="70" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="284" y="70" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="28" y="85" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="44" y="85" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="60" y="85" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="76" y="85" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="92" y="85" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="108" y="85" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="124" y="85" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="140" y="85" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="156" y="85" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="172" y="85" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="188" y="85" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="204" y="85" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="220" y="85" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="236" y="85" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="252" y="85" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="268" y="85" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="284" y="85" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="28" y="100" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="44" y="100" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="60" y="100" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="76" y="100" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="92" y="100" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="108" y="100" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="124" y="100" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="140" y="100" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="156" y="100" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="172" y="100" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="188" y="100" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="204" y="100" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="220" y="100" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="236" y="100" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="252" y="100" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="268" y="100" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="284" y="100" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="28" y="115" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="44" y="115" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="60" y="115" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="76" y="115" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="92" y="115" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="108" y="115" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="124" y="115" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="140" y="115" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="156" y="115" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="172" y="115" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="188" y="115" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="204" y="115" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="220" y="115" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="236" y="115" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="252" y="115" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="268" y="115" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="284" y="115" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="28" y="130" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="44" y="130" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="60" y="130" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="76" y="130" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="92" y="130" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="108" y="130" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="124" y="130" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="140" y="130" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="156" y="130" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="172" y="130" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="188" y="130" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="204" y="130" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="220" y="130" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="236" y="130" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="252" y="130" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="268" y="130" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="284" y="130" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="28" y="145" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="44" y="145" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="60" y="145" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="76" y="145" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="92" y="145" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="108" y="145" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="124" y="145" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="140" y="145" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="156" y="145" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="172" y="145" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="188" y="145" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="204" y="145" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="220" y="145" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="236" y="145" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="252" y="145" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="268" y="145" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="284" y="145" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="28" y="160" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="44" y="160" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="60" y="160" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="76" y="160" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="92" y="160" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="108" y="160" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="124" y="160" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="140" y="160" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="156" y="160" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="172" y="160" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="188" y="160" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="204" y="160" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="220" y="160" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="236" y="160" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="252" y="160" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="268" y="160" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="284" y="160" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="28" y="175" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="44" y="175" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="60" y="175" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="76" y="175" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="92" y="175" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="108" y="175" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="124" y="175" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="140" y="175" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="156" y="175" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="172" y="175" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="188" y="175" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="204" y="175" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="220" y="175" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="236" y="175" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="252" y="175" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="268" y="175" width="11" height="10" rx="1" class="soft-acc"/>
+<rect x="284" y="175" width="11" height="10" rx="1" class="soft-acc"/>
+<text x="160" y="214" font-size="13" text-anchor="middle" fill="currentColor">thousands of tiny cores, one guess each</text>
+<text x="500" y="20" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">memory-hard function</text>
+<rect x="360" y="32" width="280" height="160" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<rect x="370" y="42" width="18" height="38" rx="1" class="soft-acc"/>
+<rect x="394" y="42" width="236" height="38" rx="2" class="soft"/>
+<rect x="394" y="42" width="236" height="38" rx="2" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="512" y="66" font-size="13" text-anchor="middle" fill="currentColor">memory for one guess</text>
+<rect x="370" y="92" width="18" height="38" rx="1" class="soft-acc"/>
+<rect x="394" y="92" width="236" height="38" rx="2" class="soft"/>
+<rect x="394" y="92" width="236" height="38" rx="2" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="512" y="116" font-size="13" text-anchor="middle" fill="currentColor">memory for one guess</text>
+<rect x="370" y="142" width="18" height="38" rx="1" class="soft-acc"/>
+<rect x="394" y="142" width="236" height="38" rx="2" class="soft"/>
+<rect x="394" y="142" width="236" height="38" rx="2" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="512" y="166" font-size="13" text-anchor="middle" fill="currentColor">memory for one guess</text>
+<text x="500" y="214" font-size="13" text-anchor="middle" fill="currentColor">few guesses at once: memory fills the chip</text>
+</svg>
+<figcaption>Figure 11.7. Why memory-hardness works (schematic). A hashing core is tiny, so attack hardware packs thousands of them; RAM cannot be shrunk the same way. If each guess needs its own large block of memory, the attacker's chip runs only a few guesses at a time.</figcaption>
+</figure>
+
+Colin Percival, then the security officer of the FreeBSD project, designed
+**scrypt** in 2009 for his Tarsnap online backup service, the
 first memory-hard password function in wide use; it became RFC 7914 in 2016. Its
 core, ROMix, has two phases:
 
@@ -291,6 +754,55 @@ core, ROMix, has two phases:
    PBKDF2). Store $V_0 = X$, mix, store $V_1$, mix, and so on, $N$ times.
 2. **Read back:** $N$ times, read the current $X$ as a number $j$, fetch $V_j$, and
    set $X = \mathrm{mix}(X \oplus V_j)$.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 660 220" width="660" role="img" aria-label="ROMix: the fill phase writes a chain of table entries V0 to V(N-1); the read phase jumps to entries chosen by the current data">
+<text x="10" y="22" font-size="15" font-weight="bold" fill="currentColor">1. Fill</text>
+<rect x="30" y="36" width="56" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="58" y="56.9" font-size="14" text-anchor="middle" fill="currentColor">V0</text>
+<polyline points="86,52 100,52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="106,52 99.1,56 99.1,48" fill="currentColor"/>
+<rect x="106" y="36" width="56" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="134" y="56.9" font-size="14" text-anchor="middle" fill="currentColor">V1</text>
+<polyline points="162,52 176,52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="182,52 175.1,56 175.1,48" fill="currentColor"/>
+<rect x="182" y="36" width="56" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="210" y="56.9" font-size="14" text-anchor="middle" fill="currentColor">V2</text>
+<polyline points="238,52 252,52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="258,52 251.1,56 251.1,48" fill="currentColor"/>
+<rect x="258" y="36" width="56" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="286" y="56.9" font-size="14" text-anchor="middle" fill="currentColor">V3</text>
+<polyline points="314,52 328,52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="334,52 327.1,56 327.1,48" fill="currentColor"/>
+<rect x="334" y="36" width="56" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="362" y="56.9" font-size="14" text-anchor="middle" fill="currentColor">V4</text>
+<polyline points="390,52 404,52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="410,52 403.1,56 403.1,48" fill="currentColor"/>
+<rect x="410" y="36" width="56" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="438" y="56.9" font-size="14" text-anchor="middle" fill="currentColor">V5</text>
+<polyline points="466,52 480,52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="486,52 479.1,56 479.1,48" fill="currentColor"/>
+<rect x="486" y="36" width="56" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="514" y="56.9" font-size="14" text-anchor="middle" fill="currentColor">…</text>
+<polyline points="542,52 556,52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="562,52 555.1,56 555.1,48" fill="currentColor"/>
+<rect x="562" y="36" width="56" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="590" y="56.9" font-size="14" text-anchor="middle" fill="currentColor">V_N−1</text>
+<text x="110" y="22" font-size="13" font-style="italic" fill="currentColor">each entry is mix(previous), so the table is built in order</text>
+<text x="10" y="124" font-size="15" font-weight="bold" fill="currentColor">2. Read back</text>
+<rect x="30" y="150" width="70" height="34" rx="4" fill="none" class="acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="65" y="172.2" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">X</text>
+<text x="140" y="160" font-size="13" class="acc-fill">j = X mod N</text>
+<polyline points="65,150 280.3,74" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="286,72 280.8,78.1 278.1,70.5" class="acc-fill"/>
+<polyline points="75,150 59.3,77.9" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="5 4"/>
+<polygon points="58,72 63.4,77.9 55.6,79.6" class="acc-fill"/>
+<polyline points="85,150 432.1,73.3" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="5 4"/>
+<polygon points="438,72 432.1,77.4 430.4,69.6" class="acc-fill"/>
+<text x="330" y="205" font-size="13" text-anchor="middle" fill="currentColor">X = mix(X ⊕ V_j), N times: the next place to read is unknown until now</text>
+</svg>
+<figcaption>Figure 11.8. scrypt's ROMix. Phase 1 fills a table of N entries, each made from the one before. Phase 2 reads it back at places chosen by the running value X, so which entries will be needed is not known in advance, and the whole table must be kept (or recomputed at a price).</figcaption>
+</figure>
 
 The places read in phase 2 depend on data not known until that moment, so the
 whole table has to be kept. An attacker can store only every $k$-th entry and
@@ -344,6 +856,29 @@ $8.4 \times 10^6$ here. Trading memory for time gives the attacker at most a sma
 constant factor. Alwen, Chen, Pietrzak, Reyzin and Tessaro proved in 2017 that,
 in an idealized model, no strategy does fundamentally better.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 680 156" width="680" role="img" aria-label="Bar chart of work against memory: 4096 slots 8192 mixes; 1024 slots 14358; 256 slots 39022; 64 slots 137118">
+<text x="150" y="32" font-size="14" text-anchor="end" fill="currentColor">4,096 slots kept</text>
+<rect x="160" y="16" width="15.8" height="22" rx="2" class="soft"/>
+<rect x="160" y="16" width="15.8" height="22" rx="2" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<text x="183.8" y="32" font-size="13" fill="currentColor">8,192 mixes   (product 33.6 M)</text>
+<text x="150" y="66" font-size="14" text-anchor="end" fill="currentColor">1,024 slots kept</text>
+<rect x="160" y="50" width="27.7" height="22" rx="2" class="soft-acc"/>
+<rect x="160" y="50" width="27.7" height="22" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="1.2"/>
+<text x="195.7" y="66" font-size="13" font-weight="bold" fill="currentColor">14,358 mixes   (product 14.7 M)</text>
+<text x="150" y="100" font-size="14" text-anchor="end" fill="currentColor">256 slots kept</text>
+<rect x="160" y="84" width="75.3" height="22" rx="2" class="soft-acc"/>
+<rect x="160" y="84" width="75.3" height="22" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="1.2"/>
+<text x="243.3" y="100" font-size="13" font-weight="bold" fill="currentColor">39,022 mixes   (product 10.0 M)</text>
+<text x="150" y="134" font-size="14" text-anchor="end" fill="currentColor">64 slots kept</text>
+<rect x="160" y="118" width="264.4" height="22" rx="2" class="soft-acc"/>
+<rect x="160" y="118" width="264.4" height="22" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="1.2"/>
+<text x="432.4" y="134" font-size="13" font-weight="bold" fill="currentColor">137,118 mixes   (product 8.8 M)</text>
+<line x1="160" y1="10" x2="160" y2="146" stroke="currentColor" stroke-width="1.5"/>
+</svg>
+<figcaption>Figure 11.9. The ROMix trade-off from the program above, with n = 4,096. Throwing memory away is paid for in extra mixing. The product of memory and work, roughly the attacker's hardware cost, falls from 33.6 million to about 8.8 million and then levels off near n²/2 ≈ 8.4 million.</figcaption>
+</figure>
+
 **Parameters.** scrypt takes $N$ (the number of table entries, a power of 2),
 $r$ (block size: each entry is $128r$ bytes) and $p$ (independent lanes). Memory is
 $128 \cdot N \cdot r$ bytes: with $N = 2^{17}$ and $r = 8$, OWASP's floor, that is 128 MiB per
@@ -362,6 +897,13 @@ the memory parameter.
 **yescrypt**, Alexander Peslyak's (Solar Designer's) extension of scrypt, is now
 the default for `/etc/shadow` in Debian, Fedora, Ubuntu and others.
 
+!!! note "Life story: scrypt"
+    **Born:** 2009, Colin Percival, presented at BSDCan; RFC 7914 (2016) · **Purpose:** make each
+    password guess cost memory, not just time, so that custom hardware gains little · **Helped:**
+    Tarsnap, the `age` encryption tool, many cryptocurrency wallets, and through yescrypt the
+    password files of most Linux distributions · **Status:** current; safe at large memory
+    settings, as Litecoin's small ones showed.
+
 ## 11.7 Argon2
 
 *Level: intermediate.*
@@ -370,7 +912,9 @@ By 2013 there were several competing ideas and no agreed standard, so
 Jean-Philippe Aumasson organized the open **Password Hashing Competition**
 (2013 to 2015), on the model of the AES and SHA-3 contests. Entries came from
 around the world. In July 2015 the panel chose **Argon2**, by Alex Biryukov,
-Daniel Dinu and Dmitry Khovratovich of the University of Luxembourg, and gave
+Daniel Dinu and Dmitry Khovratovich of the University of Luxembourg (Biryukov
+and Khovratovich were already known for the 2009 related-key attacks on
+AES-192 and AES-256), and gave
 special recognition to Catena (Germany), Lyra2 (Brazil), Makwa and yescrypt.
 Argon2 became RFC 9106 in 2021.
 
@@ -387,6 +931,92 @@ where $G$ is built from BLAKE2b's round with a multiplication added to every
 addition, so hardware can't skip the expensive part. It makes $t$ passes over
 memory, and $p$ lanes run in parallel. The final blocks of the lanes are XORed and
 hashed to the output.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 660 270" width="660" role="img" aria-label="Argon2 memory: p lanes of 1 KiB blocks; each new block is G of the previous block in its lane and one earlier reference block, possibly in another lane">
+<text x="60" y="52" font-size="13" text-anchor="end" fill="currentColor">lane 0</text>
+<rect x="70" y="30" width="50" height="34" rx="3" class="soft"/>
+<rect x="70" y="30" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="126" y="30" width="50" height="34" rx="3" class="soft"/>
+<rect x="126" y="30" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="182" y="30" width="50" height="34" rx="3" class="soft"/>
+<rect x="182" y="30" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="238" y="30" width="50" height="34" rx="3" class="soft"/>
+<rect x="238" y="30" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="294" y="30" width="50" height="34" rx="3" class="soft"/>
+<rect x="294" y="30" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="350" y="30" width="50" height="34" rx="3" class="soft"/>
+<rect x="350" y="30" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="406" y="30" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<rect x="462" y="30" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<rect x="518" y="30" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<rect x="574" y="30" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="60" y="96" font-size="13" text-anchor="end" fill="currentColor">lane 1</text>
+<rect x="70" y="74" width="50" height="34" rx="3" class="soft"/>
+<rect x="70" y="74" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="126" y="74" width="50" height="34" rx="3" class="soft"/>
+<rect x="126" y="74" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="182" y="74" width="50" height="34" rx="3" class="soft"/>
+<rect x="182" y="74" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="238" y="74" width="50" height="34" rx="3" class="soft"/>
+<rect x="238" y="74" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="294" y="74" width="50" height="34" rx="3" class="soft"/>
+<rect x="294" y="74" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="350" y="74" width="50" height="34" rx="3" class="soft"/>
+<rect x="350" y="74" width="50" height="34" rx="3" fill="none" class="acc" stroke="currentColor" stroke-width="1"/>
+<rect x="406" y="74" width="50" height="34" rx="3" class="soft-acc"/>
+<rect x="406" y="74" width="50" height="34" rx="3" fill="none" class="acc" stroke="currentColor" stroke-width="2"/>
+<text x="431" y="96" font-size="12" text-anchor="middle" font-weight="bold" fill="currentColor">B[i][j]</text>
+<rect x="462" y="74" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<rect x="518" y="74" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<rect x="574" y="74" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="60" y="140" font-size="13" text-anchor="end" fill="currentColor">lane 2</text>
+<rect x="70" y="118" width="50" height="34" rx="3" class="soft"/>
+<rect x="70" y="118" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="126" y="118" width="50" height="34" rx="3" class="soft"/>
+<rect x="126" y="118" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="182" y="118" width="50" height="34" rx="3" class="soft"/>
+<rect x="182" y="118" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="238" y="118" width="50" height="34" rx="3" class="soft"/>
+<rect x="238" y="118" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="294" y="118" width="50" height="34" rx="3" class="soft"/>
+<rect x="294" y="118" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="350" y="118" width="50" height="34" rx="3" class="soft"/>
+<rect x="350" y="118" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="406" y="118" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<rect x="462" y="118" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<rect x="518" y="118" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<rect x="574" y="118" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="60" y="184" font-size="13" text-anchor="end" fill="currentColor">lane 3</text>
+<rect x="70" y="162" width="50" height="34" rx="3" class="soft"/>
+<rect x="70" y="162" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="126" y="162" width="50" height="34" rx="3" class="soft"/>
+<rect x="126" y="162" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="182" y="162" width="50" height="34" rx="3" class="soft"/>
+<rect x="182" y="162" width="50" height="34" rx="3" fill="none" class="acc" stroke="currentColor" stroke-width="1"/>
+<rect x="238" y="162" width="50" height="34" rx="3" class="soft"/>
+<rect x="238" y="162" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="294" y="162" width="50" height="34" rx="3" class="soft"/>
+<rect x="294" y="162" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="350" y="162" width="50" height="34" rx="3" class="soft"/>
+<rect x="350" y="162" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1"/>
+<rect x="406" y="162" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<rect x="462" y="162" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<rect x="518" y="162" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<rect x="574" y="162" width="50" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<polyline points="400,91 400,91" fill="none" class="acc" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="406,91 399.1,95 399.1,87" class="acc-fill"/>
+<polyline points="207,162 237,132 425,108.7" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="5 4"/>
+<polygon points="431,108 424.6,112.8 423.6,104.9" class="acc-fill"/>
+<text x="182" y="218" font-size="13" class="acc-fill">↑ B[l][z]: an earlier block, chosen by the index</text>
+<text x="70" y="256" font-size="13" fill="currentColor">filled so far</text>
+<rect x="160" y="244" width="30" height="16" rx="2" class="soft"/>
+<text x="230" y="256" font-size="13" fill="currentColor">not yet</text>
+<rect x="290" y="244" width="30" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="360" y="256" font-size="13" fill="currentColor">t passes over all of it</text>
+</svg>
+<figcaption>Figure 11.10. Argon2's memory, schematic, with p = 4 lanes. Each new 1 KiB block is the compression G of the previous block in its lane and one earlier block chosen by an index. Argon2i picks that index from a counter, Argon2d from the data, and Argon2id from the counter first, then the data.</figcaption>
+</figure>
 
 **The three variants** differ in how the earlier block $B[l][z]$ is chosen:
 
@@ -436,6 +1066,15 @@ The stored string carries the variant, version, parameters and salt, so the
 server can raise the cost later; `ph.check_needs_rehash(stored)` says when a
 hash was made with older settings. One changed letter in the password gives an
 unrelated tag, and every guess must fill and reread 64 MiB.
+
+!!! note "Life story: Argon2"
+    **Born:** 2015, Alex Biryukov, Daniel Dinu and Dmitry Khovratovich at the University of
+    Luxembourg, winner of the Password Hashing Competition (2013 to 2015); RFC 9106 (2021) ·
+    **Purpose:** a memory-hard password hash with tunable time, memory and parallelism, and a
+    variant safe against cache-timing leaks · **Helped:** the first choice of OWASP and RFC 9106;
+    used by password managers, libsodium and many web frameworks · **Status:** current. Argon2i
+    was weakened by Alwen and Blocki's 2016 attack and fixed in version 1.3; Argon2id is the
+    default.
 
 ## 11.8 Code it: a password store
 
@@ -494,6 +1133,38 @@ login page.
 
 Every rule above was learned from a leak. A few of the largest:
 
+<figure class="mars-fig">
+<svg viewBox="0 0 680 180" width="680" role="img" aria-label="Bar chart on a log scale of accounts in four breaches: RockYou 32 million, LinkedIn 117 million, Adobe 153 million, Yahoo 3 billion">
+<text x="250" y="32" font-size="14" text-anchor="end" fill="currentColor">RockYou, 2009: plain text</text>
+<rect x="260" y="16" width="134.2" height="22" rx="2" class="soft"/>
+<rect x="260" y="16" width="134.2" height="22" rx="2" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<text x="402.2" y="32" font-size="13" fill="currentColor">32 million</text>
+<text x="250" y="66" font-size="14" text-anchor="end" fill="currentColor">LinkedIn, 2012: SHA-1, no salt</text>
+<rect x="260" y="50" width="184.4" height="22" rx="2" class="soft"/>
+<rect x="260" y="50" width="184.4" height="22" rx="2" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<text x="452.4" y="66" font-size="13" fill="currentColor">117 million</text>
+<text x="250" y="100" font-size="14" text-anchor="end" fill="currentColor">Adobe, 2013: 3DES-ECB, one key</text>
+<rect x="260" y="84" width="194.8" height="22" rx="2" class="soft"/>
+<rect x="260" y="84" width="194.8" height="22" rx="2" fill="none" stroke="currentColor" stroke-width="1.2"/>
+<text x="462.8" y="100" font-size="13" fill="currentColor">153 million</text>
+<text x="250" y="134" font-size="14" text-anchor="end" fill="currentColor">Yahoo, 2013: MD5</text>
+<rect x="260" y="118" width="310" height="22" rx="2" class="soft-acc"/>
+<rect x="260" y="118" width="310" height="22" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="1.2"/>
+<text x="578" y="134" font-size="13" font-weight="bold" fill="currentColor">3 billion</text>
+<line x1="260" y1="10" x2="260" y2="146" stroke="currentColor" stroke-width="1.5"/>
+<line x1="260" y1="146" x2="570" y2="146" stroke="currentColor" stroke-width="1"/>
+<line x1="260" y1="146" x2="260" y2="151" stroke="currentColor" stroke-width="1"/>
+<text x="260" y="165" font-size="12" text-anchor="middle" fill="currentColor">1 M</text>
+<line x1="349.2" y1="146" x2="349.2" y2="151" stroke="currentColor" stroke-width="1"/>
+<text x="349.2" y="165" font-size="12" text-anchor="middle" fill="currentColor">10 M</text>
+<line x1="438.3" y1="146" x2="438.3" y2="151" stroke="currentColor" stroke-width="1"/>
+<text x="438.3" y="165" font-size="12" text-anchor="middle" fill="currentColor">100 M</text>
+<line x1="527.5" y1="146" x2="527.5" y2="151" stroke="currentColor" stroke-width="1"/>
+<text x="527.5" y="165" font-size="12" text-anchor="middle" fill="currentColor">1 B</text>
+</svg>
+<figcaption>Figure 11.11. Accounts exposed in four of the breaches below (log scale), with how each stored its passwords. None used a slow, salted hash for all its copies of the password.</figcaption>
+</figure>
+
 **RockYou (December 2009).** A social-gaming company stored 32 million
 passwords in plain text. An attacker took them through an SQL injection flaw
 and they were posted online. The "rockyou" list became the starting dictionary
@@ -512,6 +1183,51 @@ gave equal ciphertexts, so a block shared by thousands of accounts, together wit
 their hints ("one to six", "1-6"), gave the password away without breaking 3DES
 at all. Lesson: passwords must be hashed with a salt, never encrypted with one
 key.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 232" width="640" role="img" aria-label="Illustration of Adobe&#x27;s leak: identical ciphertext blocks for identical passwords, with plain-text hints beside them">
+<text x="10" y="20" font-size="13" font-weight="bold" fill="currentColor">user</text>
+<text x="130" y="20" font-size="13" font-weight="bold" fill="currentColor">encrypted password (ECB, one key)</text>
+<text x="460" y="20" font-size="13" font-weight="bold" fill="currentColor">hint (plain text)</text>
+<text x="10" y="52" font-size="13" fill="currentColor">user 1</text>
+<rect x="130" y="35" width="150" height="26" rx="2" class="soft-acc"/>
+<rect x="130" y="35" width="150" height="26" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="1"/>
+<text x="205" y="53" font-size="13" text-anchor="middle" fill="currentColor">block X</text>
+<rect x="290" y="35" width="150" height="26" rx="2" class="soft"/>
+<text x="365" y="53" font-size="13" text-anchor="middle" fill-opacity="0.6" fill="currentColor">rest</text>
+<text x="460" y="52" font-size="13" class="acc-fill">one to six</text>
+<text x="10" y="86" font-size="13" fill="currentColor">user 2</text>
+<rect x="130" y="69" width="150" height="26" rx="2" class="soft-acc"/>
+<rect x="130" y="69" width="150" height="26" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="1"/>
+<text x="205" y="87" font-size="13" text-anchor="middle" fill="currentColor">block X</text>
+<rect x="290" y="69" width="150" height="26" rx="2" class="soft"/>
+<text x="365" y="87" font-size="13" text-anchor="middle" fill-opacity="0.6" fill="currentColor">rest</text>
+<text x="460" y="86" font-size="13" class="acc-fill">1-6</text>
+<text x="10" y="120" font-size="13" fill="currentColor">user 3</text>
+<rect x="130" y="103" width="150" height="26" rx="2" class="soft-acc"/>
+<rect x="130" y="103" width="150" height="26" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="1"/>
+<text x="205" y="121" font-size="13" text-anchor="middle" fill="currentColor">block X</text>
+<rect x="290" y="103" width="150" height="26" rx="2" class="soft"/>
+<text x="365" y="121" font-size="13" text-anchor="middle" fill-opacity="0.6" fill="currentColor">rest</text>
+<text x="460" y="120" font-size="13" fill="currentColor">(none)</text>
+<text x="10" y="154" font-size="13" fill="currentColor">user 4</text>
+<rect x="130" y="137" width="150" height="26" rx="2" class="soft"/>
+<rect x="130" y="137" width="150" height="26" rx="2" fill="none" stroke="currentColor" stroke-width="1"/>
+<text x="205" y="155" font-size="13" text-anchor="middle" fill="currentColor">block Y</text>
+<rect x="290" y="137" width="150" height="26" rx="2" class="soft"/>
+<text x="365" y="155" font-size="13" text-anchor="middle" fill-opacity="0.6" fill="currentColor">rest</text>
+<text x="460" y="154" font-size="13" fill="currentColor">(none)</text>
+<text x="10" y="188" font-size="13" fill="currentColor">user 5</text>
+<rect x="130" y="171" width="150" height="26" rx="2" class="soft-acc"/>
+<rect x="130" y="171" width="150" height="26" rx="2" fill="none" class="acc" stroke="currentColor" stroke-width="1"/>
+<text x="205" y="189" font-size="13" text-anchor="middle" fill="currentColor">block X</text>
+<rect x="290" y="171" width="150" height="26" rx="2" class="soft"/>
+<text x="365" y="189" font-size="13" text-anchor="middle" fill-opacity="0.6" fill="currentColor">rest</text>
+<text x="460" y="188" font-size="13" fill="currentColor">…</text>
+<text x="10" y="226" font-size="13" fill="currentColor">Thousands of rows share block X; their hints together give the password away.</text>
+</svg>
+<figcaption>Figure 11.12. How Adobe's leak gave passwords away (illustration, not real rows). ECB under one key turns equal passwords into equal ciphertext blocks, so users group themselves, and the hints of a group are read together. No one needed to break 3DES.</figcaption>
+</figure>
 
 **Ashley Madison (2015).** The dating site's leaked database used bcrypt at cost
 12, which is correct, and those hashes held. But a group called CynoSure Prime
@@ -572,6 +1288,51 @@ $$
 
 cut to the length needed (at most $255$ hash lengths, 8,160 bytes for SHA-256).
 
+<figure class="mars-fig">
+<svg viewBox="0 0 680 264" width="680" role="img" aria-label="HKDF: extract computes PRK as HMAC of salt and input keying material; expand chains HMAC under PRK with info and a counter to produce output blocks">
+<text x="10" y="22" font-size="15" font-weight="bold" fill="currentColor">Extract</text>
+<rect x="10" y="34" width="120" height="34" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="70" y="55.9" font-size="14" text-anchor="middle" fill="currentColor">salt</text>
+<rect x="150" y="34" width="160" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="230" y="55.9" font-size="14" text-anchor="middle" fill="currentColor">IKM (lumpy secret)</text>
+<polyline points="70,68 70,80 215,80 215,86" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="215,92 211,85.1 219,85.1" fill="currentColor"/>
+<polyline points="230,68 230,86" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="230,92 226,85.1 234,85.1" fill="currentColor"/>
+<rect x="170" y="92" width="110" height="36" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="225" y="114.9" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">HMAC</text>
+<polyline points="280,110 344,110" fill="none" class="acc" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="350,110 343.1,114 343.1,106" class="acc-fill"/>
+<rect x="350" y="92" width="110" height="36" rx="4" class="soft-acc acc" stroke="currentColor" stroke-width="1.5"/>
+<text x="405" y="115.2" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">PRK</text>
+<text x="480" y="108" font-size="13" class="acc-fill">one uniform key</text>
+<text x="480" y="124" font-size="12" fill="currentColor">(test case 1: 07770936…)</text>
+<text x="10" y="162" font-size="15" font-weight="bold" fill="currentColor">Expand</text>
+<rect x="30" y="172" width="160" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="110" y="192.6" font-size="13" text-anchor="middle" fill="currentColor">info ‖ 01</text>
+<text x="110" y="230" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">T(1)</text>
+<polyline points="110,204 110,210" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="110,216 106,209.1 114,209.1" fill="currentColor"/>
+<polyline points="140,226 230,226 230,188 244,188" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="5 4"/>
+<polygon points="250,188 243.1,192 243.1,184" fill="currentColor"/>
+<rect x="250" y="172" width="160" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="330" y="192.6" font-size="13" text-anchor="middle" fill="currentColor">T(1) ‖ info ‖ 02</text>
+<text x="330" y="230" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">T(2)</text>
+<polyline points="330,204 330,210" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="330,216 326,209.1 334,209.1" fill="currentColor"/>
+<polyline points="360,226 450,226 450,188 464,188" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="5 4"/>
+<polygon points="470,188 463.1,192 463.1,184" fill="currentColor"/>
+<rect x="470" y="172" width="160" height="32" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="550" y="192.6" font-size="13" text-anchor="middle" fill="currentColor">T(2) ‖ info ‖ 03</text>
+<text x="550" y="230" font-size="14" text-anchor="middle" font-weight="bold" fill="currentColor">T(3)</text>
+<polyline points="550,204 550,210" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="550,216 546,209.1 554,209.1" fill="currentColor"/>
+<text x="610" y="258" font-size="13" text-anchor="end" class="acc-fill">OKM = T(1) ‖ T(2) ‖ …</text>
+<text x="560" y="158" font-size="13" text-anchor="middle" class="acc-fill">each box: HMAC(PRK, ·)</text>
+</svg>
+<figcaption>Figure 11.13. HKDF's two steps. Extract concentrates whatever entropy the input has into one pseudorandom key, PRK. Expand chains HMAC under PRK, each call fed the previous block, the info label and a counter, until there are enough bytes.</figcaption>
+</figure>
+
 The **info** string names the key's purpose. Different info strings give
 independent keys from the same secret. This is **domain separation**, and it is
 the main tool for keeping keys apart.
@@ -604,6 +1365,28 @@ $\mathit{PRK} = \mathtt{077709362c2e32df\ldots 7c2b3e5}$; two expand blocks give
 The second part shows domain separation: one shared secret, two labels, two
 unrelated keys, so the client and server never encrypt with the same key.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 620 200" width="620" role="img" aria-label="One shared secret goes through HKDF with two different info labels and gives two unrelated keys">
+<rect x="10" y="80" width="150" height="40" rx="4" class="soft" stroke="currentColor" stroke-width="1.5"/>
+<text x="85" y="104.9" font-size="14" text-anchor="middle" fill="currentColor">shared secret</text>
+<polyline points="160,100 214,100" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="220,100 213.1,104 213.1,96" fill="currentColor"/>
+<rect x="220" y="80" width="90" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="265" y="105.2" font-size="15" text-anchor="middle" font-weight="bold" fill="currentColor">HKDF</text>
+<polyline points="310,92 340,92 340,40 364,40" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="370,40 363.1,44 363.1,36" class="acc-fill"/>
+<polyline points="310,108 340,108 340,160 364,160" fill="none" class="acc" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="370,160 363.1,164 363.1,156" class="acc-fill"/>
+<text x="380" y="26" font-size="13" class="acc-fill">info = &quot;myapp v1 client-to-server&quot;</text>
+<rect x="370" y="34" width="240" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="490" y="55.9" font-size="14" text-anchor="middle" font-family="monospace" fill="currentColor">5d74c39c8fa7351f…</text>
+<text x="380" y="146" font-size="13" class="acc-fill">info = &quot;myapp v1 server-to-client&quot;</text>
+<rect x="370" y="154" width="240" height="34" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<text x="490" y="175.9" font-size="14" text-anchor="middle" font-family="monospace" fill="currentColor">0ae210f3d6a5bd17…</text>
+</svg>
+<figcaption>Figure 11.14. Domain separation, with the values printed by the program above. The same secret and two labels give two keys that look unrelated, so the two directions of traffic never share a key.</figcaption>
+</figure>
+
 **Where it runs.** TLS 1.3 builds its whole key schedule from HKDF-Extract and a
 labeled HKDF-Expand ("tls13 c hs traffic", "tls13 key" and so on; see
 [Chapter 19](19-Protocols.md)). Signal, HPKE, MLS and the Noise protocols use
@@ -614,6 +1397,13 @@ library version, such as `HKDF` in the `cryptography` package.
 gives a key that can be guessed at billions of tries per second. Passwords go
 through a password hash first (§11.4 to §11.7); its output can then go through
 HKDF to make several keys.
+
+!!! note "Life story: HKDF"
+    **Born:** 2010, Hugo Krawczyk at IBM, presented at CRYPTO 2010; RFC 5869 · **Purpose:** one
+    clean, proven way to turn a shared secret into separate keys, replacing the many home-made
+    KDFs of earlier protocols · **Helped:** TLS 1.3's whole key schedule, Signal, HPKE, MLS, the
+    Noise protocols and WireGuard · **Status:** current; the common mistake is using it on
+    passwords, where it is far too fast.
 
 ## 11.11 The NIST KDFs
 
@@ -673,6 +1463,13 @@ print(base64.urlsafe_b64encode(onestep(z, info, 16)).rstrip(b"=").decode())
 The second value is the content key in RFC 7518's Appendix C, written in base64url
 as JWE does. For a new design, HKDF is the simple choice: every library has it
 and NIST accepts it. Full details: [NIST KDFs](../08-kdf-password-hashing/NIST-KDFs.md).
+
+!!! note "Life story: the NIST and ANSI KDFs"
+    **Born:** ANSI X9.63 (2001) from the banking world; the one-step KDF in SP 800-56A (2006), now
+    SP 800-56C; KBKDF in SP 800-108 (2009) · **Purpose:** approved, testable ways to derive keys
+    in US federal and banking systems · **Helped:** smart cards, Kerberos, JSON Web Encryption,
+    ECIES and 5G subscriber privacy · **Status:** current and approved; HKDF is accepted as an
+    instance of SP 800-56C's two-step method.
 
 ## 11.12 In the real world
 
