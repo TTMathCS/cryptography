@@ -29,14 +29,15 @@ algorithms being standardized now. [Start here](book/index.md) shows the
 contents and how to use them; the **Next** link at the foot of every page
 takes you through in order.
 
-## Already know the basics?
+## Find your level
 
-| | For whom | Where |
+| Level | For whom | Where to go |
 |---|---|---|
-| **Learn it in order** | new to cryptography, students | the [Book](book/index.md), from chapter 1 |
-| **Find a topic** | you have a job to do: SSH, HTTPS, passwords, encrypting files, post-quantum | [Topics](topics/index.md): one page each, from a one-minute summary to expert detail |
-| **Look something up** | you know the name of the algorithm | [Algorithms](algorithms/index.md), or [every algorithm in one table](algorithms/table.md) |
-| **Keep up** | researchers, professionals | [What's new](new.md): recent standards and results, dated |
+| **Beginner** | new to secret codes, young learners, a class | [Start](start/index.md): the six lessons above |
+| **Intermediate** | students who want to learn it properly | the [Book](book/index.md), chapters 1 to 16: secret-key and public-key cryptography, built by hand and in code |
+| **Expert** | professionals, university and beyond | [Topics](topics/index.md) (SSH, HTTPS, passwords, encrypting files, post-quantum), the [Algorithms](algorithms/index.md) reference and [full table](algorithms/table.md), Book chapters 17 to 23, and [What's new](new.md) for the latest research |
+
+Every page shows its level under the title.
 
 ## The book in five parts
 

@@ -196,7 +196,7 @@
   }
 
   // ---- level: where this page sits on the ladder; each site's rules are in javascripts/levels.js ----
-  var LEVELS = ["Start", "Student", "University", "Expert", "Research"];
+  var LEVELS = ["Beginner", "Intermediate", "Expert"];
   var lv = typeof window.akadianLevel === "function" ? window.akadianLevel(here, chNo, chapter.length) : null;
   var lvAt = h1 || article.querySelector("h1");
   if (lv && lvAt) {
