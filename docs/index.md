@@ -31,13 +31,51 @@ takes you through in order.
 
 ## Find your level
 
-| Level | For whom | Where to go |
-|---|---|---|
-| **Beginner** | new to secret codes, young learners, a class | [Start](start/index.md): the six lessons above |
-| **Intermediate** | students who want to learn it properly | the [Book](book/index.md), chapters 1 to 16: secret-key and public-key cryptography, built by hand and in code |
-| **Expert** | professionals, university and beyond | [Topics](topics/index.md) (SSH, HTTPS, passwords, encrypting files, post-quantum), the [Algorithms](algorithms/index.md) reference and [full table](algorithms/table.md), Book chapters 17 to 23, and [What's new](new.md) for the latest research |
+<div class="level-cards" markdown>
 
-Every page shows its level under the title.
+<div class="level-card level-card--1" markdown>
+
+Beginner
+
+New to secret codes: young learners, a class.
+
+- Six five-minute lessons with something to try on paper
+- Codes, code-breaking, keys and passwords
+
+[Start here](start/index.md)
+
+</div>
+
+<div class="level-card level-card--2" markdown>
+
+Intermediate
+
+Students who want to learn it properly.
+
+- The [Book](book/index.md), chapters 1 to 16
+- Secret-key and public-key cryptography, built by hand and in code
+
+[Open the book](book/index.md)
+
+</div>
+
+<div class="level-card level-card--3" markdown>
+
+Expert
+
+Professionals, university and beyond.
+
+- [Topics](topics/index.md): SSH, HTTPS, passwords, files, post-quantum
+- [Algorithms](algorithms/index.md) and the [full table](algorithms/table.md)
+- Book chapters 17 to 23, and [What's new](new.md)
+
+[Find a topic](topics/index.md)
+
+</div>
+
+</div>
+
+<p class="level-check-link" markdown>Not sure which one is you? [Take the one-minute level check →](level-check.md)</p>
 
 ## The book in five parts
 

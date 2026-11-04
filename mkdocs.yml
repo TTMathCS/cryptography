@@ -59,6 +59,7 @@ extra_javascript:
   - javascripts/math.js
   - javascripts/levels.js
   - javascripts/reader.js
+  - javascripts/levelcheck.js
   - path: holidays/badge.js
     type: module
 
@@ -94,6 +95,7 @@ nav:
   - Home: index.md
   - Start:
       - start/index.md
+      - Find your level: level-check.md
       - start/01-Why-Secrets.md
       - start/02-Caesar.md
       - start/03-Cracking-Caesar.md

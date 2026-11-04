@@ -174,3 +174,36 @@
   .md-typeset .start-band ol { grid-template-columns: 1fr; gap: .4rem; }
   .md-typeset .start-band ol li a { padding: .5rem .7rem .5rem 2.4rem; }
 }
+
+/* --- homepage level cards: Beginner, Intermediate, Expert (index.md on each site) --- */
+.md-typeset .level-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; margin: 0 0 .9rem; }
+.md-typeset .level-card {
+  display: flex; flex-direction: column; padding: 1rem 1rem 1.1rem; border-radius: .8rem;
+  border: 1px solid var(--md-default-fg-color--lightest); border-top: .35rem solid var(--lc, #eea66f);
+  background: color-mix(in srgb, var(--lc, #eea66f) 7%, var(--md-default-bg-color));
+}
+.md-typeset .level-card--1 { --lc: #6fb38a; }
+.md-typeset .level-card--2 { --lc: #e0a03f; }
+.md-typeset .level-card--3 { --lc: #c4572c; }
+.md-typeset .level-card > p { margin: 0 0 .7rem; }
+.md-typeset .level-card > p:first-child { margin: 0 0 .15rem; font-size: 1.35em; font-weight: 800; line-height: 1.2; }
+.md-typeset .level-card > p:nth-child(2) { color: var(--md-default-fg-color--light); font-size: .92em; }
+.md-typeset .level-card ul { margin: 0 0 .9rem; padding: 0; list-style: none; flex: 1; }
+.md-typeset .level-card ul li { margin: 0 0 .3rem; padding-left: 1.1rem; position: relative; font-size: .92em; }
+.md-typeset .level-card ul li::before { content: "›"; position: absolute; left: .2rem; color: var(--lc); font-weight: 800; }
+.md-typeset .level-card > p:last-child { margin: 0; }
+.md-typeset .level-card > p:last-child a {
+  display: inline-block; padding: .5rem 1.1rem; border-radius: 999px; font-weight: 700; text-decoration: none;
+  color: #1a100c; background: var(--lc);
+}
+.md-typeset .level-check-link { margin: 0 0 2rem; font-size: 1.02em; }
+.md-typeset .level-check-link a { font-weight: 700; }
+@media screen and (max-width: 59.9375em) { .md-typeset .level-cards { grid-template-columns: 1fr; } }
+
+/* --- level check page: a few questions, result shown in the page; nothing is saved or sent --- */
+.md-typeset .lcq { margin: 0 0 1rem; padding: .8rem 1rem; border: 1px solid var(--md-default-fg-color--lightest); border-radius: .7rem; }
+.md-typeset .lcq legend { font-weight: 700; padding: 0 .3rem; }
+.md-typeset .lcq label { display: flex; gap: .55rem; align-items: baseline; padding: .35rem .2rem; cursor: pointer; border-radius: .4rem; }
+.md-typeset .lcq label:hover { background: var(--md-default-fg-color--lightest); }
+.md-typeset .lc-result { margin: 1rem 0 2rem; }
+.md-typeset .lc-result[hidden], .md-typeset .lc-out[hidden] { display: none; }
