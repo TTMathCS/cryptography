@@ -19,6 +19,7 @@ takes you through in order.
 | **Learn it in order** | new to cryptography, students | the [Book](book/index.md), from chapter 1 |
 | **Find a topic** | you have a job to do: SSH, HTTPS, passwords, encrypting files, post-quantum | [Topics](topics/index.md): one page each, from a one-minute summary to expert detail |
 | **Look something up** | you know the name of the algorithm | [Algorithms](algorithms/index.md), or [every algorithm in one table](algorithms/table.md) |
+| **Keep up** | researchers, professionals | [What's new](new.md): recent standards and results, dated |
 
 ## The book in five parts
 
