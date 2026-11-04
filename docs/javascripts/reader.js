@@ -195,6 +195,20 @@
     article.insertBefore(top, h1 || article.firstChild);
   }
 
+  // ---- level: where this page sits on the ladder; each site's rules are in javascripts/levels.js ----
+  var LEVELS = ["Start", "Student", "University", "Expert", "Research"];
+  var lv = typeof window.akadianLevel === "function" ? window.akadianLevel(here, chNo, chapter.length) : null;
+  var lvAt = h1 || article.querySelector("h1");
+  if (lv && lvAt) {
+    var lvBox = el("p", "reader-level");
+    lvBox.setAttribute("aria-label", lv === "All" ? "Level: every level, part by part" : "Level: " + lv);
+    lvBox.appendChild(el("span", "reader-level-name", "Level"));
+    LEVELS.forEach(function (name) {
+      lvBox.appendChild(el("span", lv === "All" || lv === name ? "reader-level-on" : "reader-level-off", name));
+    });
+    lvAt.parentNode.insertBefore(lvBox, lvAt.nextSibling);
+  }
+
   // ---- parts ----
   var paged = null;
   var kids = Array.prototype.slice.call(article.children);

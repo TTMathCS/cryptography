@@ -57,6 +57,7 @@ extra_javascript:
   - katex/katex.min.js
   - katex/auto-render.min.js
   - javascripts/math.js
+  - javascripts/levels.js
   - javascripts/reader.js
   - path: holidays/badge.js
     type: module

@@ -11,6 +11,13 @@
 .md-typeset .uoft { zoom: var(--reader-scale); }
 .md-typeset p, .md-typeset li { overflow-wrap: break-word; }
 
+/* --- level: Start, Student, University, Expert, Research, the page's own one filled in --- */
+.md-typeset .reader-level { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem; margin: -.6rem 0 1.2rem; font-size: .66rem; line-height: 1.3; }
+.reader-level span { padding: .12rem .5rem; border-radius: 999px; white-space: nowrap; }
+.reader-level .reader-level-name { padding-left: 0; color: var(--md-default-fg-color--light); }
+.reader-level .reader-level-off { color: var(--md-default-fg-color--lighter); border: 1px solid var(--md-default-fg-color--lightest); }
+.reader-level .reader-level-on { color: var(--md-primary-bg-color, #fff); background: var(--md-accent-fg-color); border: 1px solid var(--md-accent-fg-color); font-weight: 600; }
+
 /* --- top bar: where you are, Previous / Next --- */
 .reader-top {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .4rem .8rem;
@@ -110,6 +117,8 @@
 
 @media screen and (max-width: 44.9375em) {
   .reader-top { font-size: .64rem; }
+  .md-typeset .reader-level { gap: .2rem; font-size: .6rem; }
+  .reader-level span { padding: .1rem .35rem; }
   .reader-pn a, .reader-pn .reader-off { padding: .3rem .6rem; }
   .reader-partnav { flex-direction: column; }
   .reader-partnav > span:empty { display: none; }
@@ -118,7 +127,7 @@
   .md-header__option[data-md-component="palette"] { display: none; }
 }
 @media print {
-  .reader-top, .reader-parts, .reader-partnav, .reader-btn, .reader-exit { display: none !important; }
+  .reader-top, .reader-level, .reader-parts, .reader-partnav, .reader-btn, .reader-exit { display: none !important; }
 }
 
 /* phone width: nothing may push the page sideways. KaTeX's hidden copy for screen readers is placed relative to
