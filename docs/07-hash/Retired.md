@@ -3,7 +3,7 @@
 *SHA-1, MD5, MD4 and RIPEMD-160: what broke each one, and where it still
 turns up. Check old data with them if you have to, but never sign with them.*
 
-**Status and standards:** see [Hash functions](../index.md#7-hash-functions)
+**Status and standards:** see [Hash functions](../algorithms/table.md#7-hash-functions)
 in the main table.
 
 A hash retires when collisions get cheap: two different inputs with the same

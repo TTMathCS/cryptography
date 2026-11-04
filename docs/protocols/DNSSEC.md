@@ -38,13 +38,13 @@ example.      86400 IN  RRSIG   DS 8 1 86400 20261129151455 20261030151455 2899 
 
 | DNSSEC name | Category | Algorithm inside |
 |---|---|---|
-| `13` in DNSKEY and RRSIG | [Signature](../index.md#2-digital-signatures) | [ECDSA](../02-signatures/ECDSA.md) on P-256 with SHA-256; a 64-byte signature, r then s (RFC 6605 §4) |
-| flags `257`, `256` | [Signature](../index.md#2-digital-signatures) | the key-signing key (KSK, tag 6703) signs the DNSKEY set; the zone-signing key (ZSK, tag 38668) signs the rest. Only the KSK's hash sits in the parent, so the ZSK can change without it (RFC 6781) |
-| `8` in the DS's RRSIG | [Signature](../index.md#2-digital-signatures) | [RSA](../02-signatures/RSA.md) PKCS#1 v1.5 with SHA-256 (RFC 5702): the parent signs the DS with its own key |
-| DS `6703 13 2` | [Hash](../index.md#7-hash-functions) | [SHA-256](../07-hash/SHA-2.md) over the child's name and its KSK: key tag, algorithm, digest type 2, digest |
-| NSEC3 `1 0 0 -` | [Hash](../index.md#7-hash-functions) | [SHA-1](../07-hash/Retired.md#sha-1) over owner names, no extra iterations, no salt (RFC 9276) |
+| `13` in DNSKEY and RRSIG | [Signature](../algorithms/table.md#2-digital-signatures) | [ECDSA](../02-signatures/ECDSA.md) on P-256 with SHA-256; a 64-byte signature, r then s (RFC 6605 §4) |
+| flags `257`, `256` | [Signature](../algorithms/table.md#2-digital-signatures) | the key-signing key (KSK, tag 6703) signs the DNSKEY set; the zone-signing key (ZSK, tag 38668) signs the rest. Only the KSK's hash sits in the parent, so the ZSK can change without it (RFC 6781) |
+| `8` in the DS's RRSIG | [Signature](../algorithms/table.md#2-digital-signatures) | [RSA](../02-signatures/RSA.md) PKCS#1 v1.5 with SHA-256 (RFC 5702): the parent signs the DS with its own key |
+| DS `6703 13 2` | [Hash](../algorithms/table.md#7-hash-functions) | [SHA-256](../07-hash/SHA-2.md) over the child's name and its KSK: key tag, algorithm, digest type 2, digest |
+| NSEC3 `1 0 0 -` | [Hash](../algorithms/table.md#7-hash-functions) | [SHA-1](../07-hash/Retired.md#sha-1) over owner names, no extra iterations, no salt (RFC 9276) |
 | key tag `6703` | — | a 16-bit checksum of the DNSKEY (RFC 4034 Appendix B): a hint for finding the key, not a hash |
-| none | [Cipher](../index.md#4-symmetric-ciphers) | nothing is encrypted; questions and answers cross the network in the clear |
+| none | [Cipher](../algorithms/table.md#4-symmetric-ciphers) | nothing is encrypted; questions and answers cross the network in the clear |
 
 **Why sign but not encrypt?** DNSSEC asks one thing: is this the record the
 zone's owner published? DNS data is public, and a signature made once can be

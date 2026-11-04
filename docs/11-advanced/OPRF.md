@@ -4,7 +4,7 @@
 learns nothing about $x$. A small two-party trick under OPAQUE, Privacy Pass
 and password breach checks.*
 
-**Status and standards:** see [Advanced primitives](../index.md#11-advanced-primitives) in the main table.
+**Status and standards:** see [Advanced primitives](../algorithms/table.md#11-advanced-primitives) in the main table.
 
 ## What it is
 

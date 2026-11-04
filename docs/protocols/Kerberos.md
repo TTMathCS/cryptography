@@ -36,13 +36,13 @@ and KDF:
 
 | Kerberos name | Category | Algorithm inside |
 |---|---|---|
-| `aes256-cts` | [Cipher](../index.md#4-symmetric-ciphers) | [AES](../04-symmetric-ciphers/AES.md)-256 in [CBC](../05-modes-aead/Classic-Modes.md#cbc) with ciphertext stealing, so nothing is padded; a random 16-byte confounder stands in for the IV |
-| `hmac-sha1-96` | [MAC](../index.md#6-mac) | [HMAC](../06-mac/HMAC.md)-SHA-1 cut to 12 bytes, computed over the plaintext |
-| `-sha1` | [Hash](../index.md#7-hash-functions) | [SHA-1](../07-hash/Retired.md#sha-1), only inside HMAC and PBKDF2, where collisions don't matter |
-| string-to-key | [KDF](../index.md#8-key-derivation-and-password-hashing) | [PBKDF2](../08-kdf-password-hashing/PBKDF2.md)-HMAC-SHA-1, 4,096 iterations, salt = realm + name (`EXAMPLE.ORGalice`), then DK with "kerberos" |
-| key usage | [KDF](../index.md#8-key-derivation-and-password-hashing) | DK: AES-encrypt a constant to give each message type its own Ke, Ki and Kc |
-| none | [Key exchange](../index.md#1-key-exchange) | no public key: the KDC picks every session key; PKINIT adds [DH](../01-key-exchange/Diffie-Hellman.md) or [ECDH](../01-key-exchange/ECDH.md#ecdh-on-the-nist-curves) |
-| none | [Signature](../index.md#2-digital-signatures) | none without PKINIT, which signs with [RSA](../02-signatures/RSA.md) or [ECDSA](../02-signatures/ECDSA.md) certificates |
+| `aes256-cts` | [Cipher](../algorithms/table.md#4-symmetric-ciphers) | [AES](../04-symmetric-ciphers/AES.md)-256 in [CBC](../05-modes-aead/Classic-Modes.md#cbc) with ciphertext stealing, so nothing is padded; a random 16-byte confounder stands in for the IV |
+| `hmac-sha1-96` | [MAC](../algorithms/table.md#6-mac) | [HMAC](../06-mac/HMAC.md)-SHA-1 cut to 12 bytes, computed over the plaintext |
+| `-sha1` | [Hash](../algorithms/table.md#7-hash-functions) | [SHA-1](../07-hash/Retired.md#sha-1), only inside HMAC and PBKDF2, where collisions don't matter |
+| string-to-key | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | [PBKDF2](../08-kdf-password-hashing/PBKDF2.md)-HMAC-SHA-1, 4,096 iterations, salt = realm + name (`EXAMPLE.ORGalice`), then DK with "kerberos" |
+| key usage | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | DK: AES-encrypt a constant to give each message type its own Ke, Ki and Kc |
+| none | [Key exchange](../algorithms/table.md#1-key-exchange) | no public key: the KDC picks every session key; PKINIT adds [DH](../01-key-exchange/Diffie-Hellman.md) or [ECDH](../01-key-exchange/ECDH.md#ecdh-on-the-nist-curves) |
+| none | [Signature](../algorithms/table.md#2-digital-signatures) | none without PKINIT, which signs with [RSA](../02-signatures/RSA.md) or [ECDSA](../02-signatures/ECDSA.md) certificates |
 
 **Why SHA-1 and not SHA-384?** The client's list decides, and MIT's default
 list (unchanged in 1.22.2, January 2026) puts the SHA-1 pair first. New MIT

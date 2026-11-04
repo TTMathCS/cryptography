@@ -31,13 +31,13 @@ Bob reads: hi Bob
 
 | MLS name | Category | Algorithm inside |
 |---|---|---|
-| `DHKEMX25519` | [Key exchange](../index.md#1-key-exchange) | [X25519](../01-key-exchange/ECDH.md#x25519-and-x448) as the KEM inside HPKE |
-| HPKE base mode | [Public-key encryption](../index.md#3-public-key-encryption) | [HPKE](../03-public-key-encryption/HPKE.md) (`0x0020`, `0x0001`, `0x0001`): path secrets to tree nodes, the joiner secret to a new member's init key |
-| `Ed25519` | [Signature](../index.md#2-digital-signatures) | [Ed25519](../02-signatures/EdDSA.md) signs KeyPackages, leaf nodes, GroupInfo and the content of every message |
-| `AES128GCM` | [Cipher](../index.md#5-cipher-modes-and-aead) | [AES](../04-symmetric-ciphers/AES.md)-128 in [GCM](../05-modes-aead/AEAD.md#aes-gcm) for each PrivateMessage and inside HPKE |
-| `SHA256` | [Hash](../index.md#7-hash-functions) | [SHA-256](../07-hash/SHA-2.md) for the transcript hash, the tree hash and KeyPackage references |
-| MAC | [MAC](../index.md#6-mac) | [HMAC](../06-mac/HMAC.md)-SHA256: a confirmation tag on every Commit, a membership tag on unencrypted messages |
-| KDF | [KDF](../index.md#8-key-derivation-and-password-hashing) | [HKDF](../08-kdf-password-hashing/HKDF.md)-SHA256, every label prefixed `MLS 1.0 ` |
+| `DHKEMX25519` | [Key exchange](../algorithms/table.md#1-key-exchange) | [X25519](../01-key-exchange/ECDH.md#x25519-and-x448) as the KEM inside HPKE |
+| HPKE base mode | [Public-key encryption](../algorithms/table.md#3-public-key-encryption) | [HPKE](../03-public-key-encryption/HPKE.md) (`0x0020`, `0x0001`, `0x0001`): path secrets to tree nodes, the joiner secret to a new member's init key |
+| `Ed25519` | [Signature](../algorithms/table.md#2-digital-signatures) | [Ed25519](../02-signatures/EdDSA.md) signs KeyPackages, leaf nodes, GroupInfo and the content of every message |
+| `AES128GCM` | [Cipher](../algorithms/table.md#5-cipher-modes-and-aead) | [AES](../04-symmetric-ciphers/AES.md)-128 in [GCM](../05-modes-aead/AEAD.md#aes-gcm) for each PrivateMessage and inside HPKE |
+| `SHA256` | [Hash](../algorithms/table.md#7-hash-functions) | [SHA-256](../07-hash/SHA-2.md) for the transcript hash, the tree hash and KeyPackage references |
+| MAC | [MAC](../algorithms/table.md#6-mac) | [HMAC](../06-mac/HMAC.md)-SHA256: a confirmation tag on every Commit, a membership tag on unencrypted messages |
+| KDF | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | [HKDF](../08-kdf-password-hashing/HKDF.md)-SHA256, every label prefixed `MLS 1.0 ` |
 
 **Why one suite for the whole group?** The creator picks the best suite all
 members' KeyPackages support (§11), and it never changes: it sits in the

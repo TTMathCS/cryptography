@@ -34,14 +34,14 @@ and the message lines are condensed from the RFC's notes on its packet dump:
 
 | OpenPGP name | Category | Algorithm inside |
 |---|---|---|
-| `Ed25519` (27), primary key | [Signature](../index.md#2-digital-signatures) | [Ed25519](../02-signatures/EdDSA.md) makes the self-signatures and message signatures |
-| `SHA2-512` (10) | [Hash](../index.md#7-hash-functions) | the [SHA-2](../07-hash/SHA-2.md) digest Ed25519 signs; a v6 signature also hashes in a 32-byte random salt |
-| `sha256` fingerprint | [Hash](../index.md#7-hash-functions) | SHA-256 over the key packet; v4 keys used [SHA-1](../07-hash/Retired.md#sha-1) |
-| `X25519` (25), subkey | [Key exchange](../index.md#1-key-exchange) | [X25519](../01-key-exchange/ECDH.md#x25519-and-x448) with a fresh ephemeral key; the result wraps the session key with [AES key wrap](../05-modes-aead/Key-Wrap.md) |
-| `AES128` (7) | [Cipher](../index.md#4-symmetric-ciphers) | [AES](../04-symmetric-ciphers/AES.md)-128 for the message |
-| `OCB` (2) | [Mode](../index.md#5-cipher-modes-and-aead) | [AES-OCB](../05-modes-aead/AEAD.md#aes-ocb) in 4 KiB chunks, a tag on each chunk and a final tag |
-| MAC | [MAC](../index.md#6-mac) | built into OCB |
-| HKDF | [KDF](../index.md#8-key-derivation-and-password-hashing) | [HKDF](../08-kdf-password-hashing/HKDF.md)-SHA256 for the X25519 wrapping key and for the message key and nonce |
+| `Ed25519` (27), primary key | [Signature](../algorithms/table.md#2-digital-signatures) | [Ed25519](../02-signatures/EdDSA.md) makes the self-signatures and message signatures |
+| `SHA2-512` (10) | [Hash](../algorithms/table.md#7-hash-functions) | the [SHA-2](../07-hash/SHA-2.md) digest Ed25519 signs; a v6 signature also hashes in a 32-byte random salt |
+| `sha256` fingerprint | [Hash](../algorithms/table.md#7-hash-functions) | SHA-256 over the key packet; v4 keys used [SHA-1](../07-hash/Retired.md#sha-1) |
+| `X25519` (25), subkey | [Key exchange](../algorithms/table.md#1-key-exchange) | [X25519](../01-key-exchange/ECDH.md#x25519-and-x448) with a fresh ephemeral key; the result wraps the session key with [AES key wrap](../05-modes-aead/Key-Wrap.md) |
+| `AES128` (7) | [Cipher](../algorithms/table.md#4-symmetric-ciphers) | [AES](../04-symmetric-ciphers/AES.md)-128 for the message |
+| `OCB` (2) | [Mode](../algorithms/table.md#5-cipher-modes-and-aead) | [AES-OCB](../05-modes-aead/AEAD.md#aes-ocb) in 4 KiB chunks, a tag on each chunk and a final tag |
+| MAC | [MAC](../algorithms/table.md#6-mac) | built into OCB |
+| HKDF | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | [HKDF](../08-kdf-password-hashing/HKDF.md)-SHA256 for the X25519 wrapping key and for the message key and nonce |
 
 ## How a message is sent
 

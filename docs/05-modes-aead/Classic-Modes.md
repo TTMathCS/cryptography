@@ -4,7 +4,7 @@
 long message. They hide data but don't protect it, and that gap fed years
 of attacks on TLS.*
 
-**Status and standards:** see [Cipher modes and AEAD](../index.md#5-cipher-modes-and-aead)
+**Status and standards:** see [Cipher modes and AEAD](../algorithms/table.md#5-cipher-modes-and-aead)
 in the main table.
 
 [AES](../04-symmetric-ciphers/AES.md) encrypts one 16-byte block; a mode

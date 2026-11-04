@@ -45,14 +45,14 @@ $ openssl cms -decrypt -in enc.eml -recip bob.crt -inkey bob.key | openssl cms -
 
 | CMS name | Category | Algorithm inside |
 |---|---|---|
-| `ecdsa-with-SHA256` | [Signature](../index.md#2-digital-signatures) | [ECDSA](../02-signatures/ECDSA.md) on P-256 signs a hash of the signed attributes, not of the body |
-| `sha256`, `messageDigest` | [Hash](../index.md#7-hash-functions) | [SHA-256](../07-hash/SHA-2.md) of the signed MIME part, kept as a signed attribute |
-| `rsaesOaep` | [Public-key encryption](../index.md#3-public-key-encryption) | [RSA](../02-signatures/RSA.md)-OAEP with SHA-256 encrypts the content key to Bob's key |
-| `dhSinglePass-stdDH-…` | [Key exchange](../index.md#1-key-exchange) | a fresh P-256 key does [ECDH](../01-key-exchange/ECDH.md#ecdh-on-the-nist-curves) with the key in Alice's certificate |
-| `…-sha256kdf-scheme` | [KDF](../index.md#8-key-derivation-and-password-hashing) | the [X9.63 KDF](../08-kdf-password-hashing/NIST-KDFs.md#x963-kdf) with SHA-256 turns the ECDH secret into a 256-bit key-encryption key |
-| `id-aes256-wrap` | [Mode](../index.md#5-cipher-modes-and-aead) | [AES key wrap](../05-modes-aead/Key-Wrap.md) seals the content key under that key |
-| `aes-256-gcm` | [Cipher](../index.md#4-symmetric-ciphers) | [AES](../04-symmetric-ciphers/AES.md)-256 in [GCM](../05-modes-aead/AEAD.md#aes-gcm): a 12-byte nonce, a 16-byte (hex `10`) tag |
-| `mac` | [MAC](../index.md#6-mac) | the GCM tag, stored in its own field after the ciphertext |
+| `ecdsa-with-SHA256` | [Signature](../algorithms/table.md#2-digital-signatures) | [ECDSA](../02-signatures/ECDSA.md) on P-256 signs a hash of the signed attributes, not of the body |
+| `sha256`, `messageDigest` | [Hash](../algorithms/table.md#7-hash-functions) | [SHA-256](../07-hash/SHA-2.md) of the signed MIME part, kept as a signed attribute |
+| `rsaesOaep` | [Public-key encryption](../algorithms/table.md#3-public-key-encryption) | [RSA](../02-signatures/RSA.md)-OAEP with SHA-256 encrypts the content key to Bob's key |
+| `dhSinglePass-stdDH-…` | [Key exchange](../algorithms/table.md#1-key-exchange) | a fresh P-256 key does [ECDH](../01-key-exchange/ECDH.md#ecdh-on-the-nist-curves) with the key in Alice's certificate |
+| `…-sha256kdf-scheme` | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | the [X9.63 KDF](../08-kdf-password-hashing/NIST-KDFs.md#x963-kdf) with SHA-256 turns the ECDH secret into a 256-bit key-encryption key |
+| `id-aes256-wrap` | [Mode](../algorithms/table.md#5-cipher-modes-and-aead) | [AES key wrap](../05-modes-aead/Key-Wrap.md) seals the content key under that key |
+| `aes-256-gcm` | [Cipher](../algorithms/table.md#4-symmetric-ciphers) | [AES](../04-symmetric-ciphers/AES.md)-256 in [GCM](../05-modes-aead/AEAD.md#aes-gcm): a 12-byte nonce, a 16-byte (hex `10`) tag |
+| `mac` | [MAC](../algorithms/table.md#6-mac) | the GCM tag, stored in its own field after the ciphertext |
 
 **Why GCM had to be asked for.** With no cipher named, this OpenSSL wrote
 EnvelopedData with 3DES and RSA PKCS#1 v1.5 (OpenSSL 3.5 switched to

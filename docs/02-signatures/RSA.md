@@ -486,7 +486,7 @@ discrete logarithms instead of factoring.
     | Encryption padding | OAEP (use it); PKCS#1 v1.5 (legacy, padding-oracle prone) |
     | Signature padding | PSS (recommended); PKCS#1 v1.5 (still common, acceptable) |
     | Key sizes | 2048 bits minimum (112-bit security), 3072 (128), 4096 (about 140) |
-    | Status | in the [main table](../index.md#2-digital-signatures); NIST IR 8547: deprecated after 2030, disallowed after 2035 |
+    | Status | in the [main table](../algorithms/table.md#2-digital-signatures); NIST IR 8547: deprecated after 2030, disallowed after 2035 |
 
 **See also:** [ECDSA](ECDSA.md) and [Ed25519](EdDSA.md) (smaller signatures),
 [Blind signatures](Blind-Signatures.md) (RSA signing without seeing the message),

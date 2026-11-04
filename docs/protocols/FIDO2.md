@@ -35,14 +35,14 @@ get:    flags 0x05, signCount 2, userHandle alice-0001, signature 72 bytes (DER)
 
 | WebAuthn / CTAP name | Category | Algorithm inside |
 |---|---|---|
-| `alg -7` (ES256) | [Signature](../index.md#2-digital-signatures) | [ECDSA](../02-signatures/ECDSA.md) on P-256 (`1: 2`, `-1: 1` in the COSE key) with SHA-256 over the authenticator data and the client data hash; DER-encoded, usually 70 to 72 bytes, not JOSE's fixed 64 |
-| `fmt packed`, `x5c` | [Signature](../index.md#2-digital-signatures) | attestation: a key shared by a batch of one model signs the new authenticator data and client data hash, and sends its certificate |
-| `rpIdHash`, client data hash | [Hash](../index.md#7-hash-functions) | [SHA-256](../07-hash/SHA-2.md) of the RP ID opens the authenticator data; SHA-256 of `clientDataJSON` is signed with it |
-| PIN/UV auth protocol | [Key exchange](../index.md#1-key-exchange) | [ECDH](../01-key-exchange/ECDH.md#ecdh-on-the-nist-curves) P-256 between a fresh browser key and the authenticator's key |
-| PIN/UV auth protocol 2 | [KDF](../index.md#8-key-derivation-and-password-hashing) | [HKDF](../08-kdf-password-hashing/HKDF.md)-SHA-256 (zero salt, info `CTAP2 HMAC key` and `CTAP2 AES key`); protocol 1 takes SHA-256 of the shared x |
-| PIN/UV auth protocol | [Cipher](../index.md#4-symmetric-ciphers) | [AES](../04-symmetric-ciphers/AES.md)-256 in [CBC](../05-modes-aead/Classic-Modes.md#cbc) for the PIN hash and secrets; random IV in protocol 2, all-zero IV in protocol 1 |
-| `pinUvAuthParam` | [MAC](../index.md#6-mac) | [HMAC](../06-mac/HMAC.md)-SHA-256 under the PIN token, cut to 16 bytes in protocol 1 |
-| `hmac-secret`, `prf` | [MAC](../index.md#6-mac) | HMAC-SHA-256 with a random 32-byte secret kept per credential, over a salt; `prf` (Level 3) makes the salt the SHA-256 of `WebAuthn PRF`, a zero byte and the site's input; the output can unlock encrypted data |
+| `alg -7` (ES256) | [Signature](../algorithms/table.md#2-digital-signatures) | [ECDSA](../02-signatures/ECDSA.md) on P-256 (`1: 2`, `-1: 1` in the COSE key) with SHA-256 over the authenticator data and the client data hash; DER-encoded, usually 70 to 72 bytes, not JOSE's fixed 64 |
+| `fmt packed`, `x5c` | [Signature](../algorithms/table.md#2-digital-signatures) | attestation: a key shared by a batch of one model signs the new authenticator data and client data hash, and sends its certificate |
+| `rpIdHash`, client data hash | [Hash](../algorithms/table.md#7-hash-functions) | [SHA-256](../07-hash/SHA-2.md) of the RP ID opens the authenticator data; SHA-256 of `clientDataJSON` is signed with it |
+| PIN/UV auth protocol | [Key exchange](../algorithms/table.md#1-key-exchange) | [ECDH](../01-key-exchange/ECDH.md#ecdh-on-the-nist-curves) P-256 between a fresh browser key and the authenticator's key |
+| PIN/UV auth protocol 2 | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | [HKDF](../08-kdf-password-hashing/HKDF.md)-SHA-256 (zero salt, info `CTAP2 HMAC key` and `CTAP2 AES key`); protocol 1 takes SHA-256 of the shared x |
+| PIN/UV auth protocol | [Cipher](../algorithms/table.md#4-symmetric-ciphers) | [AES](../04-symmetric-ciphers/AES.md)-256 in [CBC](../05-modes-aead/Classic-Modes.md#cbc) for the PIN hash and secrets; random IV in protocol 2, all-zero IV in protocol 1 |
+| `pinUvAuthParam` | [MAC](../algorithms/table.md#6-mac) | [HMAC](../06-mac/HMAC.md)-SHA-256 under the PIN token, cut to 16 bytes in protocol 1 |
+| `hmac-secret`, `prf` | [MAC](../algorithms/table.md#6-mac) | HMAC-SHA-256 with a random 32-byte secret kept per credential, over a salt; `prf` (Level 3) makes the salt the SHA-256 of `WebAuthn PRF`, a zero byte and the site's input; the output can unlock encrypted data |
 
 **Why -7 and not -9?** RFC 9864 (October 2025) marked COSE's ES256 (-7) and
 EdDSA (-8) Deprecated, as the key, not the number, names the curve, and added

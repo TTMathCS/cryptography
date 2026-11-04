@@ -131,6 +131,7 @@ nav:
       - Glossary: book/Glossary.md
   - Algorithms:
       - algorithms/index.md
+      - Full table: algorithms/table.md
       - Key exchange:
           - 01-key-exchange/Diffie-Hellman.md
           - 01-key-exchange/ECDH.md

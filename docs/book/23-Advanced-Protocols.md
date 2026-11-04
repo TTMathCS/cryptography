@@ -1325,7 +1325,7 @@ cipher, and their failures come from the parts.
 
 NIST began a call for threshold schemes (NIST IR 8214 and its follow-ups), and
 ISO is standardizing FHE as ISO/IEC 28033; the reference pages under
-[Advanced primitives](../index.md#11-advanced-primitives) track their status.
+[Advanced primitives](../algorithms/table.md#11-advanced-primitives) track their status.
 As with every chapter in this book: use audited libraries, never home-made
 protocols, and check what each one assumes about the other parties.
 

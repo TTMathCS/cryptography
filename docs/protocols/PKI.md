@@ -37,7 +37,7 @@ someone the client already trusts vouches for that, in these terms:
 
 **MACs and signatures both authenticate data**, but a [MAC](../06-mac/HMAC.md)
 makes and checks its tag with one shared key: every browser would share a key
-with every CA and could forge certificates. A [signature](../index.md#2-digital-signatures)
+with every CA and could forge certificates. A [signature](../algorithms/table.md#2-digital-signatures)
 ([ECDSA](../02-signatures/ECDSA.md), [RSA](../02-signatures/RSA.md), [ML-DSA](../02-signatures/ML-DSA.md))
 is checked with a public key, so anyone can verify a CA's work and only the CA can do it.
 
@@ -75,10 +75,10 @@ Verified peername: www.example.org
 
 | In the output | Category | Algorithm inside |
 |---|---|---|
-| `ecdsa-with-SHA384` (link 0) | [Signature](../index.md#2-digital-signatures) | the intermediate's [ECDSA](../02-signatures/ECDSA.md) P-384 key signed the leaf; the BRs pair P-384 with SHA-384 |
-| `RSA-SHA256` (link 1) | [Signature](../index.md#2-digital-signatures) | the root's [RSA](../02-signatures/RSA.md)-4096 key signed the intermediate, PKCS#1 v1.5: 512 bytes |
-| `SHA384`, `SHA256` | [Hash](../index.md#7-hash-functions) | [SHA-2](../07-hash/SHA-2.md) of each certificate's to-be-signed DER, inside those signatures |
-| `256 (bit)`, `Peer signature type` | [Signature](../index.md#2-digital-signatures) | the leaf's P-256 key signed this handshake (TLS 1.3 CertificateVerify), proving the server holds it |
+| `ecdsa-with-SHA384` (link 0) | [Signature](../algorithms/table.md#2-digital-signatures) | the intermediate's [ECDSA](../02-signatures/ECDSA.md) P-384 key signed the leaf; the BRs pair P-384 with SHA-384 |
+| `RSA-SHA256` (link 1) | [Signature](../algorithms/table.md#2-digital-signatures) | the root's [RSA](../02-signatures/RSA.md)-4096 key signed the intermediate, PKCS#1 v1.5: 512 bytes |
+| `SHA384`, `SHA256` | [Hash](../algorithms/table.md#7-hash-functions) | [SHA-2](../07-hash/SHA-2.md) of each certificate's to-be-signed DER, inside those signatures |
+| `256 (bit)`, `Peer signature type` | [Signature](../algorithms/table.md#2-digital-signatures) | the leaf's P-256 key signed this handshake (TLS 1.3 CertificateVerify), proving the server holds it |
 
 **Why the root isn't sent.** The server sent certificates 0 and 1; `depth=2`,
 the root, came from the client's own store, since trust can't come from the

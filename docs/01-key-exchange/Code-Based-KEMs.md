@@ -3,7 +3,7 @@
 *Post-quantum key exchange built on error-correcting codes instead of
 lattices. The fallback in case a lattice attack ever hurts ML-KEM.*
 
-**Status and standards:** see [Key exchange](../index.md#1-key-exchange) in the
+**Status and standards:** see [Key exchange](../algorithms/table.md#1-key-exchange) in the
 main table.
 
 ## What it is

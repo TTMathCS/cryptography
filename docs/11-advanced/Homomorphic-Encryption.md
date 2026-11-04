@@ -4,7 +4,7 @@
 and only the key holder sees the answer. Adding is old and cheap; doing
 anything at all became possible in 2009 and is still slow.*
 
-**Status and standards:** see [Advanced primitives](../index.md#11-advanced-primitives) in the main table.
+**Status and standards:** see [Advanced primitives](../algorithms/table.md#11-advanced-primitives) in the main table.
 
 ## What it is
 

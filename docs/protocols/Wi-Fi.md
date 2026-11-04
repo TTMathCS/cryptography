@@ -40,15 +40,15 @@ AKMSuiteSelector=00-0f-ac-8
 
 | WPA3 name | Category | Algorithm inside |
 |---|---|---|
-| `SAE`, `sae_group=19` | [Key exchange](../index.md#1-key-exchange) | [SAE](../01-key-exchange/PAKE.md) (Dragonfly): [ECDH on P-256](../01-key-exchange/ECDH.md#ecdh-on-the-nist-curves) with a base point derived from the password |
-| `WPA2-PSK` (AKM 2) | [KDF](../index.md#8-key-derivation-and-password-hashing) | no exchange: the PMK is [PBKDF2](../08-kdf-password-hashing/PBKDF2.md)-HMAC-SHA-1 of the passphrase, salted with the SSID, 4,096 rounds |
-| none | [Signature](../index.md#2-digital-signatures) | none in Personal mode; Enterprise relies on the RADIUS server's certificate inside EAP |
-| PTK derivation | [KDF](../index.md#8-key-derivation-and-password-hashing) | the 802.11 KDF, [HMAC](../06-mac/HMAC.md)-SHA-256 with a counter, for SAE; a PRF built on HMAC-SHA-1 for WPA2-PSK |
-| `CCMP` (00-0F-AC:4) | [Cipher](../index.md#5-cipher-modes-and-aead) | [AES](../04-symmetric-ciphers/AES.md)-128 in [CCM](../05-modes-aead/AEAD.md#aes-ccm) with an 8-byte MIC on every data frame, unicast (`pairwise`) and broadcast (`group`) |
-| EAPOL-Key MIC | [MAC](../index.md#6-mac) | [AES-CMAC](../06-mac/Block-Cipher-MACs.md#cmac) on handshake messages for SAE; HMAC-SHA-1 cut to 16 bytes for WPA2-PSK |
-| `BIP` (00-0F-AC:6) | [MAC](../index.md#6-mac) | BIP-CMAC-128: AES-128-CMAC on broadcast management frames such as deauthentication |
-| key data | [Key wrap](../index.md#5-cipher-modes-and-aead) | [AES key wrap](../05-modes-aead/Key-Wrap.md) under the KEK carries the group keys in message 3 |
-| (inside SAE and the KDF) | [Hash](../index.md#7-hash-functions) | [SHA-256](../07-hash/SHA-2.md); SHA-1 for WPA2-PSK |
+| `SAE`, `sae_group=19` | [Key exchange](../algorithms/table.md#1-key-exchange) | [SAE](../01-key-exchange/PAKE.md) (Dragonfly): [ECDH on P-256](../01-key-exchange/ECDH.md#ecdh-on-the-nist-curves) with a base point derived from the password |
+| `WPA2-PSK` (AKM 2) | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | no exchange: the PMK is [PBKDF2](../08-kdf-password-hashing/PBKDF2.md)-HMAC-SHA-1 of the passphrase, salted with the SSID, 4,096 rounds |
+| none | [Signature](../algorithms/table.md#2-digital-signatures) | none in Personal mode; Enterprise relies on the RADIUS server's certificate inside EAP |
+| PTK derivation | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | the 802.11 KDF, [HMAC](../06-mac/HMAC.md)-SHA-256 with a counter, for SAE; a PRF built on HMAC-SHA-1 for WPA2-PSK |
+| `CCMP` (00-0F-AC:4) | [Cipher](../algorithms/table.md#5-cipher-modes-and-aead) | [AES](../04-symmetric-ciphers/AES.md)-128 in [CCM](../05-modes-aead/AEAD.md#aes-ccm) with an 8-byte MIC on every data frame, unicast (`pairwise`) and broadcast (`group`) |
+| EAPOL-Key MIC | [MAC](../algorithms/table.md#6-mac) | [AES-CMAC](../06-mac/Block-Cipher-MACs.md#cmac) on handshake messages for SAE; HMAC-SHA-1 cut to 16 bytes for WPA2-PSK |
+| `BIP` (00-0F-AC:6) | [MAC](../algorithms/table.md#6-mac) | BIP-CMAC-128: AES-128-CMAC on broadcast management frames such as deauthentication |
+| key data | [Key wrap](../algorithms/table.md#5-cipher-modes-and-aead) | [AES key wrap](../05-modes-aead/Key-Wrap.md) under the KEK carries the group keys in message 3 |
+| (inside SAE and the KDF) | [Hash](../algorithms/table.md#7-hash-functions) | [SHA-256](../07-hash/SHA-2.md); SHA-1 for WPA2-PSK |
 
 **Why WPA2-Personal can be cracked offline and SAE can't.** The WPA2-PSK PMK
 depends only on passphrase and SSID, the nonces travel in the clear, and

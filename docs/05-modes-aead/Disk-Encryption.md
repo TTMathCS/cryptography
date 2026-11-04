@@ -3,7 +3,7 @@
 *XTS-AES and Adiantum: encryption that keeps a sector exactly its size,
 with no room for a nonce or a tag. What that costs, and where each runs.*
 
-**Status and standards:** see [Cipher modes and AEAD](../index.md#5-cipher-modes-and-aead)
+**Status and standards:** see [Cipher modes and AEAD](../algorithms/table.md#5-cipher-modes-and-aead)
 in the main table.
 
 ## What it is

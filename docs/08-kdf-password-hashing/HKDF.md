@@ -3,7 +3,7 @@
 *Turns a strong but lumpy secret, such as a Diffie-Hellman output, into as many
 clean keys as you need. Fast on purpose: the input is already unguessable.*
 
-**Status and standards:** see [Key derivation and password hashing](../index.md#8-key-derivation-and-password-hashing)
+**Status and standards:** see [Key derivation and password hashing](../algorithms/table.md#8-key-derivation-and-password-hashing)
 in the main table.
 
 ## What it is

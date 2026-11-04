@@ -4,7 +4,7 @@
 for speed. Paired with X25519, it was the first post-quantum key exchange
 OpenSSH turned on by default.*
 
-**Status and standards:** see [Key exchange](../index.md#1-key-exchange) in the
+**Status and standards:** see [Key exchange](../algorithms/table.md#1-key-exchange) in the
 main table.
 
 ## What it is

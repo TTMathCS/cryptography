@@ -4,7 +4,7 @@
 Camellia in Japan, ARIA in Korea, SM4 in China, Kuznyechik in Russia. Each
 has AES's 128-bit block, and none has a known practical attack.*
 
-**Status and standards:** see [Symmetric ciphers](../index.md#4-symmetric-ciphers)
+**Status and standards:** see [Symmetric ciphers](../algorithms/table.md#4-symmetric-ciphers)
 in the main table.
 
 ## What it is

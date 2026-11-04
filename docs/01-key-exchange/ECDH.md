@@ -5,7 +5,7 @@ public point by its own secret, and both land on the same point. X25519 is
 the modern default; the NIST and Brainpool curves are what FIPS modules and
 older standards use.*
 
-**Status and standards:** see [Key exchange](../index.md#1-key-exchange) in
+**Status and standards:** see [Key exchange](../algorithms/table.md#1-key-exchange) in
 the main table.
 
 ## What it is

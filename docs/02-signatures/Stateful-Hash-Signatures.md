@@ -4,7 +4,7 @@
 but each key signs a fixed number of times and the signer must never lose
 count.*
 
-**Status and standards:** see [Digital signatures](../index.md#2-digital-signatures)
+**Status and standards:** see [Digital signatures](../algorithms/table.md#2-digital-signatures)
 in the main table.
 
 ## What it is

@@ -3,7 +3,7 @@
 *The first memory-hard password hash. Still a good choice, and it's built into
 Python's standard library.*
 
-**Status and standards:** see [Key derivation and password hashing](../index.md#8-key-derivation-and-password-hashing)
+**Status and standards:** see [Key derivation and password hashing](../algorithms/table.md#8-key-derivation-and-password-hashing)
 in the main table.
 
 ## What it is

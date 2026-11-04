@@ -39,13 +39,13 @@ ESP in UDP on port 4500 (hence `TUNNEL-in-UDP`). The negotiation is the same.
 
 | IPsec name | Category | Algorithm inside |
 |---|---|---|
-| `ECP_256` (group 19) | [Key exchange](../index.md#1-key-exchange) | [ECDH on P-256](../01-key-exchange/ECDH.md#ecdh-on-the-nist-curves), a fresh key pair for each IKE SA |
-| pre-shared key | [Signature](../index.md#2-digital-signatures) | none: each side proves it knows the shared secret with an [HMAC](../06-mac/HMAC.md) over the handshake; with certificates this is an [RSA](../02-signatures/RSA.md) or [ECDSA](../02-signatures/ECDSA.md) signature |
-| `PRF_HMAC_SHA2_256` | [KDF](../index.md#8-key-derivation-and-password-hashing) | HMAC-SHA-256 as IKE's PRF, run as SKEYSEED and prf+: the same steps [HKDF](../08-kdf-password-hashing/HKDF.md) later named extract and expand |
-| `AES_CBC-128` | [Cipher](../index.md#4-symmetric-ciphers) | [AES](../04-symmetric-ciphers/AES.md)-128 in [CBC](../05-modes-aead/Classic-Modes.md#cbc) mode for IKE's own messages after the first exchange |
-| `HMAC_SHA2_256_128` | [MAC](../index.md#6-mac) | HMAC-SHA-256 cut to 16 bytes on each encrypted IKE message |
-| `ESP:AES_GCM_16-128` | [Cipher](../index.md#5-cipher-modes-and-aead) | [AES-GCM](../05-modes-aead/AEAD.md#aes-gcm) with a 128-bit key and a 16-byte tag for every data packet, so ESP needs no separate MAC |
-| (inside PRF and MAC) | [Hash](../index.md#7-hash-functions) | [SHA-256](../07-hash/SHA-2.md) |
+| `ECP_256` (group 19) | [Key exchange](../algorithms/table.md#1-key-exchange) | [ECDH on P-256](../01-key-exchange/ECDH.md#ecdh-on-the-nist-curves), a fresh key pair for each IKE SA |
+| pre-shared key | [Signature](../algorithms/table.md#2-digital-signatures) | none: each side proves it knows the shared secret with an [HMAC](../06-mac/HMAC.md) over the handshake; with certificates this is an [RSA](../02-signatures/RSA.md) or [ECDSA](../02-signatures/ECDSA.md) signature |
+| `PRF_HMAC_SHA2_256` | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | HMAC-SHA-256 as IKE's PRF, run as SKEYSEED and prf+: the same steps [HKDF](../08-kdf-password-hashing/HKDF.md) later named extract and expand |
+| `AES_CBC-128` | [Cipher](../algorithms/table.md#4-symmetric-ciphers) | [AES](../04-symmetric-ciphers/AES.md)-128 in [CBC](../05-modes-aead/Classic-Modes.md#cbc) mode for IKE's own messages after the first exchange |
+| `HMAC_SHA2_256_128` | [MAC](../algorithms/table.md#6-mac) | HMAC-SHA-256 cut to 16 bytes on each encrypted IKE message |
+| `ESP:AES_GCM_16-128` | [Cipher](../algorithms/table.md#5-cipher-modes-and-aead) | [AES-GCM](../05-modes-aead/AEAD.md#aes-gcm) with a 128-bit key and a 16-byte tag for every data packet, so ESP needs no separate MAC |
+| (inside PRF and MAC) | [Hash](../algorithms/table.md#7-hash-functions) | [SHA-256](../07-hash/SHA-2.md) |
 
 **Why AES-CBC and P-256 for IKE, but AES-GCM for ESP?** Both sides had the
 same default lists, so the first entry won. strongSwan lists cipher-plus-HMAC

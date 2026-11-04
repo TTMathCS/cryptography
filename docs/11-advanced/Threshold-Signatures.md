@@ -3,7 +3,7 @@
 *Any $t$ of $n$ key holders sign together and the key is never rebuilt. Out
 comes one ordinary signature under one public key.*
 
-**Status and standards:** see [Advanced primitives](../index.md#11-advanced-primitives) in the main table.
+**Status and standards:** see [Advanced primitives](../algorithms/table.md#11-advanced-primitives) in the main table.
 
 ## What it is
 

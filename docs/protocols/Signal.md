@@ -24,14 +24,14 @@ WhisperMessageKeys                               message key -> AES key, HMAC ke
 
 | Signal name | Category | Algorithm inside |
 |---|---|---|
-| identity, signed prekey, one-time prekey, ephemeral key | [Key exchange](../index.md#1-key-exchange) | [X25519](../01-key-exchange/ECDH.md#x25519-and-x448): three or four DH results, hashed together |
-| Kyber prekey (`CRYSTALS-KYBER-1024`) | [Key exchange](../index.md#1-key-exchange) | Kyber-1024, the round-3 version of [ML-KEM](../01-key-exchange/ML-KEM.md)-1024 |
-| SPQR | [Key exchange](../index.md#1-key-exchange) | ML-KEM-768, sent in pieces alongside ordinary messages |
-| prekey signatures | [Signature](../index.md#2-digital-signatures) | XEdDSA: an [Ed25519](../02-signatures/EdDSA.md)-compatible signature made with the X25519 identity key |
-| message body | [Cipher](../index.md#4-symmetric-ciphers) | [AES-256](../04-symmetric-ciphers/AES.md) in [CBC](../05-modes-aead/Classic-Modes.md#cbc) mode with PKCS#7 padding |
-| MAC | [MAC](../index.md#6-mac) | [HMAC](../06-mac/HMAC.md)-SHA256 over the message, cut to 8 bytes on the wire |
-| ratchet steps | [KDF](../index.md#8-key-derivation-and-password-hashing) | [HKDF](../08-kdf-password-hashing/HKDF.md)-SHA256 for root keys, HMAC-SHA256 for chain keys |
-| safety number | [Hash](../index.md#7-hash-functions) | [SHA-512](../07-hash/SHA-2.md), iterated over each identity key |
+| identity, signed prekey, one-time prekey, ephemeral key | [Key exchange](../algorithms/table.md#1-key-exchange) | [X25519](../01-key-exchange/ECDH.md#x25519-and-x448): three or four DH results, hashed together |
+| Kyber prekey (`CRYSTALS-KYBER-1024`) | [Key exchange](../algorithms/table.md#1-key-exchange) | Kyber-1024, the round-3 version of [ML-KEM](../01-key-exchange/ML-KEM.md)-1024 |
+| SPQR | [Key exchange](../algorithms/table.md#1-key-exchange) | ML-KEM-768, sent in pieces alongside ordinary messages |
+| prekey signatures | [Signature](../algorithms/table.md#2-digital-signatures) | XEdDSA: an [Ed25519](../02-signatures/EdDSA.md)-compatible signature made with the X25519 identity key |
+| message body | [Cipher](../algorithms/table.md#4-symmetric-ciphers) | [AES-256](../04-symmetric-ciphers/AES.md) in [CBC](../05-modes-aead/Classic-Modes.md#cbc) mode with PKCS#7 padding |
+| MAC | [MAC](../algorithms/table.md#6-mac) | [HMAC](../06-mac/HMAC.md)-SHA256 over the message, cut to 8 bytes on the wire |
+| ratchet steps | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | [HKDF](../08-kdf-password-hashing/HKDF.md)-SHA256 for root keys, HMAC-SHA256 for chain keys |
+| safety number | [Hash](../algorithms/table.md#7-hash-functions) | [SHA-512](../07-hash/SHA-2.md), iterated over each identity key |
 
 **Why Kyber and not ML-KEM?** PQXDH shipped in September 2023, a year before
 FIPS 203. libsignal's default `Kyber1024` key type still runs the round-3

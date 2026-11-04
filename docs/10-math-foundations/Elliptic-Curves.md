@@ -3,7 +3,7 @@
 *The groups under ECDH, ECDSA and EdDSA: how points add, the three ways to
 write a curve, and the named curves people actually use.*
 
-**Status and standards:** see [Math foundations](../index.md#10-math-foundations) in the main table.
+**Status and standards:** see [Math foundations](../algorithms/table.md#10-math-foundations) in the main table.
 
 ## What it is
 

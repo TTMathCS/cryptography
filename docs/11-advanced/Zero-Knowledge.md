@@ -4,7 +4,7 @@
 nothing else. The idea runs from Schnorr's smart-card login to proofs that
 check whole batches of transactions.*
 
-**Status and standards:** see [Advanced primitives](../index.md#11-advanced-primitives) in the main table.
+**Status and standards:** see [Advanced primitives](../algorithms/table.md#11-advanced-primitives) in the main table.
 
 ## What it is
 

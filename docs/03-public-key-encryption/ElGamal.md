@@ -4,7 +4,7 @@
 the message multiplied by the shared secret. Simple and homomorphic, but
 malleable, and the ciphertext is twice the size of the message.*
 
-**Status and standards:** see [Public-key encryption](../index.md#3-public-key-encryption)
+**Status and standards:** see [Public-key encryption](../algorithms/table.md#3-public-key-encryption)
 in the main table.
 
 ## What it is

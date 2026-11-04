@@ -4,7 +4,7 @@
 the message. Ed25519 is the modern default for signatures: fast, small,
 deterministic and hard to misuse.*
 
-**Status and standards:** see [Digital signatures](../index.md#2-digital-signatures)
+**Status and standards:** see [Digital signatures](../algorithms/table.md#2-digital-signatures)
 in the main table.
 
 ## What it is

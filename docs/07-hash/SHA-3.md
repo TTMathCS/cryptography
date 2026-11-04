@@ -3,7 +3,7 @@
 *NIST's second hash standard, built on a completely different design from SHA-2
 so that one break doesn't take out both.*
 
-**Status and standards:** see [Hash functions](../index.md#7-hash-functions) in
+**Status and standards:** see [Hash functions](../algorithms/table.md#7-hash-functions) in
 the main table.
 
 ## What it is

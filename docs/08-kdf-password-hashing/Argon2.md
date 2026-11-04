@@ -3,7 +3,7 @@
 *The first choice for storing passwords. Slow on purpose, and it eats memory,
 so guessing passwords on GPUs or custom chips stops being cheap.*
 
-**Status and standards:** see [Key derivation and password hashing](../index.md#8-key-derivation-and-password-hashing)
+**Status and standards:** see [Key derivation and password hashing](../algorithms/table.md#8-key-derivation-and-password-hashing)
 in the main table.
 
 ## What it is

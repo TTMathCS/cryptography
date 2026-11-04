@@ -22,11 +22,11 @@ Server Temp Key: ECDH, X25519, 253 bits
 
 | TLS name | Category | Algorithm inside |
 |---|---|---|
-| `x25519` key share | [Key exchange](../index.md#1-key-exchange) | Diffie-Hellman on Curve25519 |
-| certificate key | [Signature](../index.md#2-digital-signatures) | Google's certificate holds an ECDSA P-256 key |
-| `TLS_CHACHA20_POLY1305_SHA256` | [Cipher](../index.md#5-cipher-modes-and-aead) | ChaCha20-Poly1305 for the data |
-| (same suite) | [Hash](../index.md#7-hash-functions) / [KDF](../index.md#8-key-derivation-and-password-hashing) | SHA-256 for the transcript and HKDF |
-| MAC | [MAC](../index.md#6-mac) | Poly1305, built into the AEAD |
+| `x25519` key share | [Key exchange](../algorithms/table.md#1-key-exchange) | Diffie-Hellman on Curve25519 |
+| certificate key | [Signature](../algorithms/table.md#2-digital-signatures) | Google's certificate holds an ECDSA P-256 key |
+| `TLS_CHACHA20_POLY1305_SHA256` | [Cipher](../algorithms/table.md#5-cipher-modes-and-aead) | ChaCha20-Poly1305 for the data |
+| (same suite) | [Hash](../algorithms/table.md#7-hash-functions) / [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | SHA-256 for the transcript and HKDF |
+| MAC | [MAC](../algorithms/table.md#6-mac) | Poly1305, built into the AEAD |
 
 **Why X25519 and not post-quantum?** LibreSSL 3.3.6 is older than ML-KEM, so it
 never offers `X25519MLKEM768`. Chrome talking to the same server gets the

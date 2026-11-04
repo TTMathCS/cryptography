@@ -29,13 +29,13 @@ xW4BIPG4nyiDA1QFidwa49P29Mo0MPhee2/rG9HNinM
 
 | age name | Category | Algorithm inside |
 |---|---|---|
-| `X25519` stanza | [Key exchange](../index.md#1-key-exchange) | [X25519](../01-key-exchange/ECDH.md#x25519-and-x448) between a fresh ephemeral key (the argument) and the recipient's `age1…` key |
-| stanza body | [Cipher](../index.md#5-cipher-modes-and-aead) | [ChaCha20-Poly1305](../05-modes-aead/AEAD.md#chacha20-poly1305) with an all-zero nonce seals the 16-byte file key |
-| `age-encryption.org/v1/X25519` | [KDF](../index.md#8-key-derivation-and-password-hashing) | [HKDF](../08-kdf-password-hashing/HKDF.md)-SHA-256 turns the DH result into the wrap key, and the file key into the MAC and payload keys |
-| `---` line | [MAC](../index.md#6-mac) | [HMAC](../06-mac/HMAC.md)-SHA-256 over the header |
-| payload | [Cipher](../index.md#5-cipher-modes-and-aead) | ChaCha20-Poly1305 in 64 KiB chunks, a tag on each |
-| (inside HKDF and HMAC) | [Hash](../index.md#7-hash-functions) | [SHA-256](../07-hash/SHA-2.md) |
-| none | [Signature](../index.md#2-digital-signatures) | no signatures: decrypting proves nothing about who wrote the file |
+| `X25519` stanza | [Key exchange](../algorithms/table.md#1-key-exchange) | [X25519](../01-key-exchange/ECDH.md#x25519-and-x448) between a fresh ephemeral key (the argument) and the recipient's `age1…` key |
+| stanza body | [Cipher](../algorithms/table.md#5-cipher-modes-and-aead) | [ChaCha20-Poly1305](../05-modes-aead/AEAD.md#chacha20-poly1305) with an all-zero nonce seals the 16-byte file key |
+| `age-encryption.org/v1/X25519` | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | [HKDF](../08-kdf-password-hashing/HKDF.md)-SHA-256 turns the DH result into the wrap key, and the file key into the MAC and payload keys |
+| `---` line | [MAC](../algorithms/table.md#6-mac) | [HMAC](../06-mac/HMAC.md)-SHA-256 over the header |
+| payload | [Cipher](../algorithms/table.md#5-cipher-modes-and-aead) | ChaCha20-Poly1305 in 64 KiB chunks, a tag on each |
+| (inside HKDF and HMAC) | [Hash](../algorithms/table.md#7-hash-functions) | [SHA-256](../07-hash/SHA-2.md) |
+| none | [Signature](../algorithms/table.md#2-digital-signatures) | no signatures: decrypting proves nothing about who wrote the file |
 
 **Why there is nothing to choose.** `v1` on the first line fixes HKDF-SHA-256,
 HMAC-SHA-256 and the ChaCha20-Poly1305 payload, and each stanza type fixes its

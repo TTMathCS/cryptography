@@ -3,7 +3,7 @@
 *CMAC and GMAC: MACs built from AES instead of a hash. Why plain CBC-MAC
 isn't enough, and where these two run.*
 
-**Status and standards:** see [MAC](../index.md#6-mac) in the main table.
+**Status and standards:** see [MAC](../algorithms/table.md#6-mac) in the main table.
 
 ## What it is
 

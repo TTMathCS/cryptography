@@ -41,12 +41,12 @@ Digests:
 
 | LUKS2 name | Category | Algorithm inside |
 |---|---|---|
-| `aes-xts-plain64`, 512 bits | [Cipher](../index.md#5-cipher-modes-and-aead) | [AES](../04-symmetric-ciphers/AES.md)-256 in [XTS](../05-modes-aead/Disk-Encryption.md#xts-aes): two 256-bit keys, the 64-bit sector number as tweak, 4,096-byte sectors |
-| keyslot `argon2id` | [KDF](../index.md#8-key-derivation-and-password-hashing) | [Argon2id](../08-kdf-password-hashing/Argon2.md) turns passphrase and 32-byte salt into the key for the keyslot area (AES-XTS again): 1 GiB, 4 threads, passes tuned to 2 s |
-| `AF stripes: 4000` | [Hash](../index.md#7-hash-functions) | anti-forensic splitter: the 64-byte volume key is spread over 256,000 bytes with [SHA-256](../07-hash/SHA-2.md), and every byte is needed to rebuild it |
-| digest `pbkdf2` | [KDF](../index.md#8-key-derivation-and-password-hashing) | [PBKDF2](../08-kdf-password-hashing/PBKDF2.md)-[HMAC](../06-mac/HMAC.md)-SHA-256 of the volume key, iterations tuned to 125 ms: tells a right key from a wrong one |
-| none | [MAC](../index.md#6-mac) | no integrity: XTS keeps a sector its size, with no room for a tag ([why](../05-modes-aead/Disk-Encryption.md#what-it-is)) |
-| none | [Key exchange](../index.md#1-key-exchange) / [Signature](../index.md#2-digital-signatures) | no public-key crypto anywhere in the format |
+| `aes-xts-plain64`, 512 bits | [Cipher](../algorithms/table.md#5-cipher-modes-and-aead) | [AES](../04-symmetric-ciphers/AES.md)-256 in [XTS](../05-modes-aead/Disk-Encryption.md#xts-aes): two 256-bit keys, the 64-bit sector number as tweak, 4,096-byte sectors |
+| keyslot `argon2id` | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | [Argon2id](../08-kdf-password-hashing/Argon2.md) turns passphrase and 32-byte salt into the key for the keyslot area (AES-XTS again): 1 GiB, 4 threads, passes tuned to 2 s |
+| `AF stripes: 4000` | [Hash](../algorithms/table.md#7-hash-functions) | anti-forensic splitter: the 64-byte volume key is spread over 256,000 bytes with [SHA-256](../07-hash/SHA-2.md), and every byte is needed to rebuild it |
+| digest `pbkdf2` | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | [PBKDF2](../08-kdf-password-hashing/PBKDF2.md)-[HMAC](../06-mac/HMAC.md)-SHA-256 of the volume key, iterations tuned to 125 ms: tells a right key from a wrong one |
+| none | [MAC](../algorithms/table.md#6-mac) | no integrity: XTS keeps a sector its size, with no room for a tag ([why](../05-modes-aead/Disk-Encryption.md#what-it-is)) |
+| none | [Key exchange](../algorithms/table.md#1-key-exchange) / [Signature](../algorithms/table.md#2-digital-signatures) | no public-key crypto anywhere in the format |
 
 **Why a new passphrase doesn't re-encrypt the disk.** Only the volume key
 touches data; keyslots (32 in cryptsetup's LUKS2, 8 in LUKS1) hold wrapped

@@ -3,7 +3,7 @@
 *The post-quantum way to agree on a key. One side locks a fresh random secret
 to the other's public key; only the matching private key opens it.*
 
-**Status and standards:** see [Key exchange](../index.md#1-key-exchange) in the
+**Status and standards:** see [Key exchange](../algorithms/table.md#1-key-exchange) in the
 main table.
 
 ## What it is

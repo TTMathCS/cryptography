@@ -69,7 +69,7 @@ Certificate:
 | `Data:` | `tbsCertificate` | everything down to the extensions: the bytes the CA signs |
 | `Version: 3 (0x2)` | `version` | stored as 0, 1 or 2. v2 added `issuerUniqueID` and `subjectUniqueID`, which RFC 5280 CAs must not use; v3 added extensions |
 | `Serial Number` | `serialNumber` | positive, unique per CA, at most 20 octets. OpenSSL drew 159 random bits; public CAs must use at least 64 |
-| first `Signature Algorithm` | `signature` | the CA's [signature](../index.md#2-digital-signatures) algorithm, here [ECDSA](../02-signatures/ECDSA.md) with [SHA-256](../07-hash/SHA-2.md) |
+| first `Signature Algorithm` | `signature` | the CA's [signature](../algorithms/table.md#2-digital-signatures) algorithm, here [ECDSA](../02-signatures/ECDSA.md) with [SHA-256](../07-hash/SHA-2.md) |
 | `Issuer` | `issuer` | the CA's distinguished name, equal to the subject of the CA's own certificate |
 | `Validity` | `validity` | `notBefore` to `notAfter`, both included; UTCTime through 2049, GeneralizedTime from 2050. Public TLS leaves: 200 days at most since 15 March 2026, 100 from March 2027, 47 from March 2029 (BRs, ballot SC-081) |
 | `Subject` | `subject` | a distinguished name; for a server the CN is legacy |
@@ -122,11 +122,11 @@ signature until OpenSSL 1.0.1k rejected them (2015, CVE-2014-8275).
 
 | Category | In use | Standard | Legacy or retired |
 |---|---|---|---|
-| [Signature](../index.md#2-digital-signatures) (by the CA) | [RSA](../02-signatures/RSA.md) PKCS#1 v1.5 or PSS with SHA-256/384/512; [ECDSA](../02-signatures/ECDSA.md) P-256/384/521 with SHA-256/384/512 | RFC 3279 (2002), RFC 4055 (2005), RFC 5758 (2010) | [MD5](../07-hash/Retired.md#md5) (rogue CA, 2008) and [SHA-1](../07-hash/Retired.md#sha-1) (none in public TLS certificates or CRLs after 15 September 2026); DSA |
+| [Signature](../algorithms/table.md#2-digital-signatures) (by the CA) | [RSA](../02-signatures/RSA.md) PKCS#1 v1.5 or PSS with SHA-256/384/512; [ECDSA](../02-signatures/ECDSA.md) P-256/384/521 with SHA-256/384/512 | RFC 3279 (2002), RFC 4055 (2005), RFC 5758 (2010) | [MD5](../07-hash/Retired.md#md5) (rogue CA, 2008) and [SHA-1](../07-hash/Retired.md#sha-1) (none in public TLS certificates or CRLs after 15 September 2026); DSA |
 | Subject key | RSA 2048+ (`rsaEncryption`), EC P-256/384/521 (`id-ecPublicKey`) | RFC 3279, RFC 5480 (2009) | RSA under 2048 bits |
 | Edwards curves | [Ed25519 and Ed448](../02-signatures/EdDSA.md) keys and signatures; [X25519 and X448](../01-key-exchange/ECDH.md#x25519-and-x448) keys | RFC 8410 (2018) | not allowed in public TLS certificates (BRs §6.1.5) |
 | Post-quantum | [ML-DSA](../02-signatures/ML-DSA.md), [SLH-DSA](../02-signatures/SLH-DSA.md), [ML-KEM](../01-key-exchange/ML-KEM.md) keys; [HSS and XMSS](../02-signatures/Stateful-Hash-Signatures.md) for roots and firmware; ML-DSA paired with RSA, ECDSA or EdDSA ("composite") | RFC 9881 (2025), RFC 9909 (2025), RFC 9935 (2026), RFC 9802 (2025); composite: IETF draft | not yet in public TLS certificates; S/MIME CAs may issue ML-DSA and ML-KEM |
-| [Hash](../index.md#7-hash-functions) | [SHA-2](../07-hash/SHA-2.md) inside signatures; SHA-1 in key IDs (OpenSSL's `57:DF:…` is the SHA-1 of the CA's key) and many tools' fingerprints | FIPS 180-4, RFC 5280 §4.2.1.2 | MD5 and SHA-1 signatures |
+| [Hash](../algorithms/table.md#7-hash-functions) | [SHA-2](../07-hash/SHA-2.md) inside signatures; SHA-1 in key IDs (OpenSSL's `57:DF:…` is the SHA-1 of the CA's key) and many tools' fingerprints | FIPS 180-4, RFC 5280 §4.2.1.2 | MD5 and SHA-1 signatures |
 
 ## Seeing it on your machine
 

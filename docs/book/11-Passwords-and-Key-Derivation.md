@@ -1501,7 +1501,7 @@ unsalted MD4 of the password, which is why it falls so easily
 (PBKDF2), RFC 5869 (HKDF), SP 800-108 and SP 800-56C (NIST KDFs), SP 800-63B
 (password policy). NIST has decided to revise SP 800-132 to approve a
 memory-hard function. Status and parameters: the
-[key derivation and password hashing table](../index.md#8-key-derivation-and-password-hashing).
+[key derivation and password hashing table](../algorithms/table.md#8-key-derivation-and-password-hashing).
 Reference pages: [Argon2](../08-kdf-password-hashing/Argon2.md),
 [scrypt](../08-kdf-password-hashing/scrypt.md),
 [bcrypt](../08-kdf-password-hashing/bcrypt.md),

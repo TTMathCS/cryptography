@@ -36,18 +36,18 @@ The true sign of intelligence is not knowledge but imagination.
 
 | JOSE name | Category | Algorithm inside |
 |---|---|---|
-| `HS256` | [MAC](../index.md#6-mac) | [HMAC](../06-mac/HMAC.md)-SHA-256 over `header.payload` as sent (still base64url); the 32-byte tag is the third part |
-| `RS256`, `PS256` | [Signature](../index.md#2-digital-signatures) | [RSA](../02-signatures/RSA.md) PKCS#1 v1.5 or PSS with SHA-256; RS256 is the OpenID Connect default |
-| `ES256` | [Signature](../index.md#2-digital-signatures) | [ECDSA](../02-signatures/ECDSA.md) on P-256 with SHA-256, sent as 64 bytes: r then s |
-| `Ed25519` (was `EdDSA`) | [Signature](../index.md#2-digital-signatures) | [Ed25519](../02-signatures/EdDSA.md) with an `OKP` key (RFC 8037) |
-| `RSA-OAEP` | [Public-key encryption](../index.md#3-public-key-encryption) | [RSA](../02-signatures/RSA.md)-OAEP with SHA-1 and MGF1-SHA-1 encrypts the random content key (CEK), 256 bits for `A256GCM` |
-| `ECDH-ES` | [Key exchange](../index.md#1-key-exchange) | [ECDH](../01-key-exchange/ECDH.md#ecdh-on-the-nist-curves) between a fresh sender key (`epk` in the header) and the recipient's P-256, P-384, P-521 or X25519 key |
-| `A256KW`, `dir` | [Key wrap](../index.md#5-cipher-modes-and-aead) | [AES key wrap](../05-modes-aead/Key-Wrap.md) of the CEK under a shared key; `dir` uses the shared key as the CEK |
-| `A256GCM` | [Cipher](../index.md#5-cipher-modes-and-aead) | [AES](../04-symmetric-ciphers/AES.md)-256 in [GCM](../05-modes-aead/AEAD.md#aes-gcm), 96-bit IV, 128-bit tag; the encoded header is the AAD |
-| `A128CBC-HS256` | [Cipher](../index.md#5-cipher-modes-and-aead) and [MAC](../index.md#6-mac) | AES-128 in [CBC](../05-modes-aead/Classic-Modes.md#cbc), then HMAC-SHA-256 cut to 16 bytes; the 32-byte key is half MAC key, half AES key |
-| Concat KDF | [KDF](../index.md#8-key-derivation-and-password-hashing) | the [one-step KDF](../08-kdf-password-hashing/NIST-KDFs.md#one-step-kdf-sp-800-56c) with SHA-256 turns the ECDH secret into a key |
-| `PBES2-HS256+A128KW` | [KDF](../index.md#8-key-derivation-and-password-hashing) | [PBKDF2](../08-kdf-password-hashing/PBKDF2.md)-HMAC-SHA-256 from a password (salt `p2s`, count `p2c`), then AES key wrap |
-| `256` in the names, `kid` | [Hash](../index.md#7-hash-functions) | [SHA-256](../07-hash/SHA-2.md); a JWK thumbprint (RFC 7638) is the SHA-256 of a key's required fields, often used as its `kid` |
+| `HS256` | [MAC](../algorithms/table.md#6-mac) | [HMAC](../06-mac/HMAC.md)-SHA-256 over `header.payload` as sent (still base64url); the 32-byte tag is the third part |
+| `RS256`, `PS256` | [Signature](../algorithms/table.md#2-digital-signatures) | [RSA](../02-signatures/RSA.md) PKCS#1 v1.5 or PSS with SHA-256; RS256 is the OpenID Connect default |
+| `ES256` | [Signature](../algorithms/table.md#2-digital-signatures) | [ECDSA](../02-signatures/ECDSA.md) on P-256 with SHA-256, sent as 64 bytes: r then s |
+| `Ed25519` (was `EdDSA`) | [Signature](../algorithms/table.md#2-digital-signatures) | [Ed25519](../02-signatures/EdDSA.md) with an `OKP` key (RFC 8037) |
+| `RSA-OAEP` | [Public-key encryption](../algorithms/table.md#3-public-key-encryption) | [RSA](../02-signatures/RSA.md)-OAEP with SHA-1 and MGF1-SHA-1 encrypts the random content key (CEK), 256 bits for `A256GCM` |
+| `ECDH-ES` | [Key exchange](../algorithms/table.md#1-key-exchange) | [ECDH](../01-key-exchange/ECDH.md#ecdh-on-the-nist-curves) between a fresh sender key (`epk` in the header) and the recipient's P-256, P-384, P-521 or X25519 key |
+| `A256KW`, `dir` | [Key wrap](../algorithms/table.md#5-cipher-modes-and-aead) | [AES key wrap](../05-modes-aead/Key-Wrap.md) of the CEK under a shared key; `dir` uses the shared key as the CEK |
+| `A256GCM` | [Cipher](../algorithms/table.md#5-cipher-modes-and-aead) | [AES](../04-symmetric-ciphers/AES.md)-256 in [GCM](../05-modes-aead/AEAD.md#aes-gcm), 96-bit IV, 128-bit tag; the encoded header is the AAD |
+| `A128CBC-HS256` | [Cipher](../algorithms/table.md#5-cipher-modes-and-aead) and [MAC](../algorithms/table.md#6-mac) | AES-128 in [CBC](../05-modes-aead/Classic-Modes.md#cbc), then HMAC-SHA-256 cut to 16 bytes; the 32-byte key is half MAC key, half AES key |
+| Concat KDF | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | the [one-step KDF](../08-kdf-password-hashing/NIST-KDFs.md#one-step-kdf-sp-800-56c) with SHA-256 turns the ECDH secret into a key |
+| `PBES2-HS256+A128KW` | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | [PBKDF2](../08-kdf-password-hashing/PBKDF2.md)-HMAC-SHA-256 from a password (salt `p2s`, count `p2c`), then AES key wrap |
+| `256` in the names, `kid` | [Hash](../algorithms/table.md#7-hash-functions) | [SHA-256](../07-hash/SHA-2.md); a JWK thumbprint (RFC 7638) is the SHA-256 of a key's required fields, often used as its `kid` |
 
 **Who picks the algorithm?** In SSH and TLS the two sides negotiate. A token
 can't: the issuer writes `alg` (and `enc` for JWE) into the header, and the

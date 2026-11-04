@@ -1,6 +1,6 @@
 # Algorithm reference
 
-*One page for every algorithm family: its sizes, standards, status and closed "Going deeper" boxes. The [book](../book/index.md) teaches them in order; these pages are where you look things up. For everything on one screen, see the [full table](../index.md#algorithms-by-the-job-they-do).*
+*One page for every algorithm family: its sizes, standards, status and closed "Going deeper" boxes. The [book](../book/index.md) teaches them in order; these pages are where you look things up. For everything on one screen, see the [full table](table.md).*
 
 
 ## Key exchange

@@ -3,7 +3,7 @@
 *The simplest signature built on discrete logs. A patent kept it out of the
 big standards for years; it came back as EdDSA and, in 2021, in Bitcoin.*
 
-**Status and standards:** see [Digital signatures](../index.md#2-digital-signatures)
+**Status and standards:** see [Digital signatures](../algorithms/table.md#2-digital-signatures)
 in the main table.
 
 ## What it is

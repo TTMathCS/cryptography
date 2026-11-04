@@ -3,7 +3,7 @@
 *Split a secret into $n$ shares so that any $t$ of them rebuild it and fewer
 than $t$ tell you nothing. Shamir's 1979 scheme is still the one in use.*
 
-**Status and standards:** see [Advanced primitives](../index.md#11-advanced-primitives) in the main table.
+**Status and standards:** see [Advanced primitives](../algorithms/table.md#11-advanced-primitives) in the main table.
 
 ## What it is
 

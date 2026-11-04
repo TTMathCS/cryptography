@@ -4,7 +4,7 @@
 signature to the request. Chaum's idea for digital cash, now used for
 anonymous tokens on the web.*
 
-**Status and standards:** see [Digital signatures](../index.md#2-digital-signatures)
+**Status and standards:** see [Digital signatures](../algorithms/table.md#2-digital-signatures)
 in the main table.
 
 ## What it is

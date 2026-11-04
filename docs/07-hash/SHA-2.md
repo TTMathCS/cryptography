@@ -3,7 +3,7 @@
 *The everyday hash: any input in, a fixed-size fingerprint out. One-way, and a
 different fingerprint for any change to the input.*
 
-**Status and standards:** see [Hash functions](../index.md#7-hash-functions) in
+**Status and standards:** see [Hash functions](../algorithms/table.md#7-hash-functions) in
 the main table.
 
 ## What it is

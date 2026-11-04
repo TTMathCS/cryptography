@@ -4,7 +4,7 @@
 hashes, but FIPS-approved and available everywhere, so it is still all over
 the place.*
 
-**Status and standards:** see [Key derivation and password hashing](../index.md#8-key-derivation-and-password-hashing)
+**Status and standards:** see [Key derivation and password hashing](../algorithms/table.md#8-key-derivation-and-password-hashing)
 in the main table.
 
 ## What it is

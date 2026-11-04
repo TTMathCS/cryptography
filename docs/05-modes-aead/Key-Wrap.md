@@ -3,7 +3,7 @@
 *AES Key Wrap (KW) and Key Wrap with Padding (KWP): encrypt one key under
 another, with no nonce and a 64-bit check that the key came back intact.*
 
-**Status and standards:** see [Cipher modes and AEAD](../index.md#5-cipher-modes-and-aead)
+**Status and standards:** see [Cipher modes and AEAD](../algorithms/table.md#5-cipher-modes-and-aead)
 in the main table.
 
 ## What it is

@@ -3,7 +3,7 @@
 *FF1 and FF3: encrypt a card number into another card number, same
 length, same digits. Why small domains are its weak spot.*
 
-**Status and standards:** see [Cipher modes and AEAD](../index.md#5-cipher-modes-and-aead)
+**Status and standards:** see [Cipher modes and AEAD](../algorithms/table.md#5-cipher-modes-and-aead)
 in the main table.
 
 ## What it is

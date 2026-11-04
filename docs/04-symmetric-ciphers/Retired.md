@@ -3,7 +3,7 @@
 *DES, 3DES, the 64-bit block ciphers and RC4: what each one was, what broke
 it, and where it still turns up. Keep them only to read old data.*
 
-**Status and standards:** see [Symmetric ciphers](../index.md#4-symmetric-ciphers)
+**Status and standards:** see [Symmetric ciphers](../algorithms/table.md#4-symmetric-ciphers)
 in the main table.
 
 A cipher retires when its key can be searched (DES) or its design leaks

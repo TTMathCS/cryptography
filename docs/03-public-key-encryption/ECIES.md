@@ -4,7 +4,7 @@
 symmetric cipher and a MAC. Several standards, many options, and two
 implementations rarely interoperate.*
 
-**Status and standards:** see [Public-key encryption](../index.md#3-public-key-encryption)
+**Status and standards:** see [Public-key encryption](../algorithms/table.md#3-public-key-encryption)
 in the main table.
 
 ## What it is

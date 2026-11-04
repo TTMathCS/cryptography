@@ -3,7 +3,7 @@
 *The most compact NIST post-quantum signature, and the hardest to implement.
 Falcon, renamed FN-DSA, is still waiting for its standard.*
 
-**Status and standards:** see [Digital signatures](../index.md#2-digital-signatures)
+**Status and standards:** see [Digital signatures](../algorithms/table.md#2-digital-signatures)
 in the main table.
 
 ## What it is

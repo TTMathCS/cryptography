@@ -3,7 +3,7 @@
 *The SHA-3 finalist that lost to Keccak, and the faster hashes built
 from it: BLAKE2 in 2012, BLAKE3 in 2020.*
 
-**Status and standards:** see [Hash functions](../index.md#7-hash-functions) in
+**Status and standards:** see [Hash functions](../algorithms/table.md#7-hash-functions) in
 the main table.
 
 ## What it is

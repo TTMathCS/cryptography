@@ -3,7 +3,7 @@
 *The password hash most web frameworks grew up with. CPU-hard rather than
 memory-hard, but with a sensible cost setting it's still fine.*
 
-**Status and standards:** see [Key derivation and password hashing](../index.md#8-key-derivation-and-password-hashing)
+**Status and standards:** see [Key derivation and password hashing](../algorithms/table.md#8-key-derivation-and-password-hashing)
 in the main table.
 
 ## What it is

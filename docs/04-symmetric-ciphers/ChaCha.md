@@ -4,7 +4,7 @@
 nonce and a counter into keystream. Fast in plain software, with no tables
 to leak timing.*
 
-**Status and standards:** see [Symmetric ciphers](../index.md#4-symmetric-ciphers)
+**Status and standards:** see [Symmetric ciphers](../algorithms/table.md#4-symmetric-ciphers)
 in the main table.
 
 ## What it is

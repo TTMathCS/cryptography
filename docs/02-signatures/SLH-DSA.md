@@ -3,7 +3,7 @@
 *A signature built from nothing but a hash function. Signatures are big and
 signing is slow, but if lattices ever fall, this one still stands.*
 
-**Status and standards:** see [Digital signatures](../index.md#2-digital-signatures)
+**Status and standards:** see [Digital signatures](../algorithms/table.md#2-digital-signatures)
 in the main table.
 
 ## What it is

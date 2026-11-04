@@ -4,7 +4,7 @@
 with it, and how to spot it in `/etc/shadow`. Keep them only to check old
 hashes, and store a new hash the next time the user logs in.*
 
-**Status and standards:** see [Key derivation and password hashing](../index.md#8-key-derivation-and-password-hashing)
+**Status and standards:** see [Key derivation and password hashing](../algorithms/table.md#8-key-derivation-and-password-hashing)
 in the main table.
 
 A password hash retires when guessing gets cheap: too few rounds, a cost that

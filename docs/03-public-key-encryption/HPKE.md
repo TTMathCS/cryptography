@@ -4,7 +4,7 @@
 One spec with test vectors, under TLS Encrypted Client Hello, MLS and
 Oblivious HTTP.*
 
-**Status and standards:** see [Public-key encryption](../index.md#3-public-key-encryption)
+**Status and standards:** see [Public-key encryption](../algorithms/table.md#3-public-key-encryption)
 in the main table.
 
 ## What it is

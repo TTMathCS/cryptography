@@ -56,12 +56,12 @@ $ xxd demo.jks | head -1
 | What the output shows | Category | Algorithm inside |
 |---|---|---|
 | `BEGIN CERTIFICATE`, `3082 0185` | none: encoding | one 393-byte DER SEQUENCE (`30`, length `0185`), and PEM is it in base64. The certificate inside is signed with [ECDSA](../02-signatures/ECDSA.md) P-256 ([X.509](X.509.md)) |
-| `Proc-Type`, `DEK-Info` | [KDF](../index.md#8-key-derivation-and-password-hashing) | OpenSSL's legacy scheme: the AES key comes from [MD5](../07-hash/Retired.md#md5) over the passphrase and the IV's first 8 bytes, run once |
-| `PBES2`, `PBKDF2`, `hmacWithSHA256`, `0800` | [KDF](../index.md#8-key-derivation-and-password-hashing) | [PBKDF2](../08-kdf-password-hashing/PBKDF2.md)-[HMAC](../06-mac/HMAC.md)-[SHA-256](../07-hash/SHA-2.md), 2,048 (hex 0800) iterations, 8-byte salt; the same for both PKCS#12 bags (`Shrouded Keybag`: the key; `PKCS7 Encrypted data`: the certificates) |
-| `aes-256-cbc` | [Cipher](../index.md#4-symmetric-ciphers) | [AES](../04-symmetric-ciphers/AES.md)-256 in [CBC](../05-modes-aead/Classic-Modes.md#cbc), no MAC: a wrong passphrase shows only as bad padding or bad DER |
-| `MAC: sha256` | [MAC](../index.md#6-mac) | HMAC-SHA-256 over the contents, keyed by the PKCS#12 KDF (RFC 7292 App. B) with SHA-256 |
-| `pbeWithSHA1And40BitRC2-CBC`, `…3-KeyTripleDES-CBC` | [Cipher](../index.md#4-symmetric-ciphers) | 40-bit [RC2](../04-symmetric-ciphers/Retired.md#rc2) on the certificates, [3DES](../04-symmetric-ciphers/Retired.md#3des) on the key, keys from the PKCS#12 KDF with [SHA-1](../07-hash/Retired.md#sha-1) |
-| `feed feed` | [Hash](../index.md#7-hash-functions) | JKS magic, version 2, one entry. The key is XORed with a SHA-1 keystream; the file ends in a SHA-1 of password and contents |
+| `Proc-Type`, `DEK-Info` | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | OpenSSL's legacy scheme: the AES key comes from [MD5](../07-hash/Retired.md#md5) over the passphrase and the IV's first 8 bytes, run once |
+| `PBES2`, `PBKDF2`, `hmacWithSHA256`, `0800` | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | [PBKDF2](../08-kdf-password-hashing/PBKDF2.md)-[HMAC](../06-mac/HMAC.md)-[SHA-256](../07-hash/SHA-2.md), 2,048 (hex 0800) iterations, 8-byte salt; the same for both PKCS#12 bags (`Shrouded Keybag`: the key; `PKCS7 Encrypted data`: the certificates) |
+| `aes-256-cbc` | [Cipher](../algorithms/table.md#4-symmetric-ciphers) | [AES](../04-symmetric-ciphers/AES.md)-256 in [CBC](../05-modes-aead/Classic-Modes.md#cbc), no MAC: a wrong passphrase shows only as bad padding or bad DER |
+| `MAC: sha256` | [MAC](../algorithms/table.md#6-mac) | HMAC-SHA-256 over the contents, keyed by the PKCS#12 KDF (RFC 7292 App. B) with SHA-256 |
+| `pbeWithSHA1And40BitRC2-CBC`, `…3-KeyTripleDES-CBC` | [Cipher](../algorithms/table.md#4-symmetric-ciphers) | 40-bit [RC2](../04-symmetric-ciphers/Retired.md#rc2) on the certificates, [3DES](../04-symmetric-ciphers/Retired.md#3des) on the key, keys from the PKCS#12 KDF with [SHA-1](../07-hash/Retired.md#sha-1) |
+| `feed feed` | [Hash](../algorithms/table.md#7-hash-functions) | JKS magic, version 2, one entry. The key is XORed with a SHA-1 keystream; the file ends in a SHA-1 of password and contents |
 
 **Why AES-256 doesn't make a key file strong.** The password step is the weak
 part: OpenSSL's 2,048 PBKDF2 iterations (10,000 in keytool's PKCS#12) are far

@@ -195,7 +195,7 @@ Decoders differ in how strict they are, and that matters for security:
 - [Key and certificate files](File-Formats.md): PEM is DER in Base64 between BEGIN and END lines
 - [ASN.1 and DER](ASN.1-DER.md): the binary encoding under every certificate and key
 - [JWT](../protocols/JWT.md) / [TOTP](../protocols/TOTP.md) / [Bitcoin](../protocols/Bitcoin.md): base64url, Base32, and Base58Check and Bech32 in use
-- [Hash functions](../index.md#7-hash-functions): what to use when you need integrity, which no encoding gives
+- [Hash functions](../algorithms/table.md#7-hash-functions): what to use when you need integrity, which no encoding gives
 
 ## References
 

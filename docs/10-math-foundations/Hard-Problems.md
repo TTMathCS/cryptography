@@ -3,7 +3,7 @@
 *The math problems public-key cryptography rests on, the best known attack
 on each, and which ones a quantum computer would break.*
 
-**Status and standards:** see [Math foundations](../index.md#10-math-foundations) in the main table.
+**Status and standards:** see [Math foundations](../algorithms/table.md#10-math-foundations) in the main table.
 
 ## What it is
 

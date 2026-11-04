@@ -19,10 +19,10 @@ debug1: kex: server->client cipher: aes128-gcm@openssh.com MAC: <implicit> compr
 
 | SSH name | Category | Algorithm inside |
 |---|---|---|
-| `ecdh-sha2-nistp256` | [Key exchange](../index.md#1-key-exchange) | Diffie-Hellman on curve P-256, hashed with SHA-256 |
-| `ssh-ed25519` | [Signature](../index.md#2-digital-signatures) | Ed25519: the server proves it owns its host key |
-| `aes128-gcm@openssh.com` | [Cipher](../index.md#5-cipher-modes-and-aead) | AES-128 in GCM mode |
-| MAC `<implicit>` | [MAC](../index.md#6-mac) | built into GCM, so no separate MAC |
+| `ecdh-sha2-nistp256` | [Key exchange](../algorithms/table.md#1-key-exchange) | Diffie-Hellman on curve P-256, hashed with SHA-256 |
+| `ssh-ed25519` | [Signature](../algorithms/table.md#2-digital-signatures) | Ed25519: the server proves it owns its host key |
+| `aes128-gcm@openssh.com` | [Cipher](../algorithms/table.md#5-cipher-modes-and-aead) | AES-128 in GCM mode |
+| MAC `<implicit>` | [MAC](../algorithms/table.md#6-mac) | built into GCM, so no separate MAC |
 
 **Why P-256 and not post-quantum?** The client's list decides. RFC 4253 says the
 chosen algorithm is the first one on the *client's* list that the server also

@@ -4,7 +4,7 @@
 the output and nothing else, and no trusted party is needed. The price is
 rounds of messages between them.*
 
-**Status and standards:** see [Advanced primitives](../index.md#11-advanced-primitives) in the main table.
+**Status and standards:** see [Advanced primitives](../algorithms/table.md#11-advanced-primitives) in the main table.
 
 ## What it is
 

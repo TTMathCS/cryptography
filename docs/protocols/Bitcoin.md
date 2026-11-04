@@ -30,15 +30,15 @@ Taproot  witness    b4010dd48a617db0…83bfd6810f                         # BIP-
 
 | Bitcoin name | Category | Algorithm inside |
 |---|---|---|
-| `OP_CHECKSIG`, legacy and SegWit v0 | [Signature](../index.md#2-digital-signatures) | [ECDSA](../02-signatures/ECDSA.md) on [secp256k1](../10-math-foundations/Elliptic-Curves.md#the-named-curves), DER-encoded, low S, plus a sighash byte |
-| Taproot key path, tapscript | [Signature](../index.md#2-digital-signatures) | [Schnorr (BIP-340)](../02-signatures/Schnorr.md): 64-byte signatures, 32-byte x-only keys |
-| txid, block hash, proof of work, Merkle root, legacy and v0 sighash | [Hash](../index.md#7-hash-functions) | SHA-256d: [SHA-256](../07-hash/SHA-2.md) applied twice |
-| `TapSighash`, `TapLeaf`, `TapTweak` | [Hash](../index.md#7-hash-functions) | tagged hash: SHA-256(SHA-256(tag) ‖ SHA-256(tag) ‖ data) |
-| HASH160 (P2PKH, P2SH, P2WPKH) | [Hash](../index.md#7-hash-functions) | [RIPEMD-160](../07-hash/Retired.md#ripemd-160) of SHA-256, 20 bytes |
-| BIP-32 key tree | [KDF](../index.md#8-key-derivation-and-password-hashing) | [HMAC](../06-mac/HMAC.md)-SHA512; the master key is HMAC keyed with "Bitcoin seed" |
-| BIP-39 seed phrase | [KDF](../index.md#8-key-derivation-and-password-hashing) | [PBKDF2](../08-kdf-password-hashing/PBKDF2.md)-HMAC-SHA512, 2,048 iterations, salt "mnemonic" + passphrase |
-| BIP-324 handshake | [Key exchange](../index.md#1-key-exchange) | [ECDH](../01-key-exchange/ECDH.md) on secp256k1 with 64-byte ElligatorSwift keys, then [HKDF](../08-kdf-password-hashing/HKDF.md)-SHA256 |
-| BIP-324 packets | [Cipher](../index.md#5-cipher-modes-and-aead) | [ChaCha20-Poly1305](../05-modes-aead/AEAD.md#chacha20-poly1305); lengths with plain ChaCha20 |
+| `OP_CHECKSIG`, legacy and SegWit v0 | [Signature](../algorithms/table.md#2-digital-signatures) | [ECDSA](../02-signatures/ECDSA.md) on [secp256k1](../10-math-foundations/Elliptic-Curves.md#the-named-curves), DER-encoded, low S, plus a sighash byte |
+| Taproot key path, tapscript | [Signature](../algorithms/table.md#2-digital-signatures) | [Schnorr (BIP-340)](../02-signatures/Schnorr.md): 64-byte signatures, 32-byte x-only keys |
+| txid, block hash, proof of work, Merkle root, legacy and v0 sighash | [Hash](../algorithms/table.md#7-hash-functions) | SHA-256d: [SHA-256](../07-hash/SHA-2.md) applied twice |
+| `TapSighash`, `TapLeaf`, `TapTweak` | [Hash](../algorithms/table.md#7-hash-functions) | tagged hash: SHA-256(SHA-256(tag) ‖ SHA-256(tag) ‖ data) |
+| HASH160 (P2PKH, P2SH, P2WPKH) | [Hash](../algorithms/table.md#7-hash-functions) | [RIPEMD-160](../07-hash/Retired.md#ripemd-160) of SHA-256, 20 bytes |
+| BIP-32 key tree | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | [HMAC](../06-mac/HMAC.md)-SHA512; the master key is HMAC keyed with "Bitcoin seed" |
+| BIP-39 seed phrase | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | [PBKDF2](../08-kdf-password-hashing/PBKDF2.md)-HMAC-SHA512, 2,048 iterations, salt "mnemonic" + passphrase |
+| BIP-324 handshake | [Key exchange](../algorithms/table.md#1-key-exchange) | [ECDH](../01-key-exchange/ECDH.md) on secp256k1 with 64-byte ElligatorSwift keys, then [HKDF](../08-kdf-password-hashing/HKDF.md)-SHA256 |
+| BIP-324 packets | [Cipher](../algorithms/table.md#5-cipher-modes-and-aead) | [ChaCha20-Poly1305](../05-modes-aead/AEAD.md#chacha20-poly1305); lengths with plain ChaCha20 |
 
 **Why hash the key into the address?** A P2PKH or P2WPKH output holds 20
 bytes, not a 33-byte key, and the key stays unseen until the coins move.

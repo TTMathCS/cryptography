@@ -4,7 +4,7 @@
 why none of them should make a secret, and three times weak randomness
 gave keys away.*
 
-**Status and standards:** see [Random number generation](../index.md#9-random-number-generation)
+**Status and standards:** see [Random number generation](../algorithms/table.md#9-random-number-generation)
 in the main table.
 
 A generator is no good for secrets if its output gives away its state

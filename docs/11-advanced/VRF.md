@@ -4,7 +4,7 @@
 output, and anyone with the public key can check it. Proof-of-stake chains
 use it to pick leaders, and key directories use it to hide usernames.*
 
-**Status and standards:** see [Advanced primitives](../index.md#11-advanced-primitives) in the main table.
+**Status and standards:** see [Advanced primitives](../algorithms/table.md#11-advanced-primitives) in the main table.
 
 ## What it is
 

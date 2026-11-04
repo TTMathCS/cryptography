@@ -3,7 +3,7 @@
 *Poly1305 and UMAC: cheap arithmetic per block, a proven bound on
 forgery, and a key or nonce that must never be used twice.*
 
-**Status and standards:** see [MAC](../index.md#6-mac) in the main table.
+**Status and standards:** see [MAC](../algorithms/table.md#6-mac) in the main table.
 
 ## What it is
 

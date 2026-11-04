@@ -4,7 +4,7 @@
 the operating system, and the one your code should ask for keys, nonces and
 tokens.*
 
-**Status and standards:** see [Random number generation](../index.md#9-random-number-generation)
+**Status and standards:** see [Random number generation](../algorithms/table.md#9-random-number-generation)
 in the main table.
 
 ## What it is

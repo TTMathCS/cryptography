@@ -33,12 +33,12 @@ Counter: 0x1 (1)
 
 | TOTP name | Category | Algorithm inside |
 |---|---|---|
-| `TOTP mode: SHA1`, `Counter` | [MAC](../index.md#6-mac) | [HMAC](../06-mac/HMAC.md)-SHA-1 keyed with the secret, over the counter as 8 big-endian bytes. HOTP counts codes; TOTP counts 30-second steps since `Start time` |
-| `SHA1` | [Hash](../index.md#7-hash-functions) | [SHA-1](../07-hash/Retired.md#sha-1), only inside HMAC; TOTP may use [SHA-256 or SHA-512](../07-hash/SHA-2.md) instead |
-| `Digits: 8` | [MAC](../index.md#6-mac) | dynamic truncation: the low 4 bits of the last tag byte pick 4 bytes, the top bit is cleared, and the 31-bit number is taken mod $10^8$ (usually $10^6$) |
-| `Base32 secret` | [Random numbers](../index.md#9-random-number-generation) | drawn once by the server from its [OS RNG](../09-random/OS-RNG.md): at least 128 bits, 160 recommended |
-| none | [Key exchange](../index.md#1-key-exchange) / [KDF](../index.md#8-key-derivation-and-password-hashing) | the server shows the secret once, as a QR code on a TLS page; its bytes are the HMAC key as they are, and truncation only shortens the tag |
-| none | [Cipher](../index.md#4-symmetric-ciphers) / [Signature](../index.md#2-digital-signatures) | nothing is encrypted or signed: the code itself is the proof |
+| `TOTP mode: SHA1`, `Counter` | [MAC](../algorithms/table.md#6-mac) | [HMAC](../06-mac/HMAC.md)-SHA-1 keyed with the secret, over the counter as 8 big-endian bytes. HOTP counts codes; TOTP counts 30-second steps since `Start time` |
+| `SHA1` | [Hash](../algorithms/table.md#7-hash-functions) | [SHA-1](../07-hash/Retired.md#sha-1), only inside HMAC; TOTP may use [SHA-256 or SHA-512](../07-hash/SHA-2.md) instead |
+| `Digits: 8` | [MAC](../algorithms/table.md#6-mac) | dynamic truncation: the low 4 bits of the last tag byte pick 4 bytes, the top bit is cleared, and the 31-bit number is taken mod $10^8$ (usually $10^6$) |
+| `Base32 secret` | [Random numbers](../algorithms/table.md#9-random-number-generation) | drawn once by the server from its [OS RNG](../09-random/OS-RNG.md): at least 128 bits, 160 recommended |
+| none | [Key exchange](../algorithms/table.md#1-key-exchange) / [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | the server shows the secret once, as a QR code on a TLS page; its bytes are the HMAC key as they are, and truncation only shortens the tag |
+| none | [Cipher](../algorithms/table.md#4-symmetric-ciphers) / [Signature](../algorithms/table.md#2-digital-signatures) | nothing is encrypted or signed: the code itself is the proof |
 
 **Why SHA-1 and not SHA-256?** HMAC needs its hash to act as a pseudorandom
 function under a secret key, not to resist collisions. RFC 4226 (Appendix B)

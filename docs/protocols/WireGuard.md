@@ -23,15 +23,15 @@ Identifier    WireGuard v1 zx2c4 Jason@zx2c4.com
 
 | WireGuard name | Category | Algorithm inside |
 |---|---|---|
-| `IK` | [Key exchange](../index.md#1-key-exchange) | Noise IK pattern: the initiator already knows the responder's static key; four Diffie-Hellman results per handshake |
-| `25519` | [Key exchange](../index.md#1-key-exchange) | [X25519](../01-key-exchange/ECDH.md#x25519-and-x448) for static and ephemeral keys |
-| `psk2` | [Key exchange](../index.md#1-key-exchange) | optional 32-byte pre-shared key, mixed in after the second message (32 zero bytes when unused) |
-| none | [Signature](../index.md#2-digital-signatures) | no signatures: each side pins the other's public key, and only its owner can finish the DH |
-| `ChaChaPoly` | [Cipher](../index.md#5-cipher-modes-and-aead) | [ChaCha20-Poly1305](../05-modes-aead/AEAD.md#chacha20-poly1305) for handshake fields and every data packet, with a 64-bit counter as nonce |
-| cookie reply | [Cipher](../index.md#5-cipher-modes-and-aead) | XChaCha20-Poly1305 with a random 24-byte nonce (see [ChaCha](../04-symmetric-ciphers/ChaCha.md)) |
-| `BLAKE2s` | [Hash](../index.md#7-hash-functions) | [BLAKE2s](../07-hash/BLAKE.md#blake2)-256 for the running handshake hash |
-| `mac1`, `mac2` | [MAC](../index.md#6-mac) | keyed BLAKE2s with 16-byte tags on handshake messages; data packets rely on Poly1305 |
-| KDF | [KDF](../index.md#8-key-derivation-and-password-hashing) | [HKDF](../08-kdf-password-hashing/HKDF.md) built on HMAC-BLAKE2s |
+| `IK` | [Key exchange](../algorithms/table.md#1-key-exchange) | Noise IK pattern: the initiator already knows the responder's static key; four Diffie-Hellman results per handshake |
+| `25519` | [Key exchange](../algorithms/table.md#1-key-exchange) | [X25519](../01-key-exchange/ECDH.md#x25519-and-x448) for static and ephemeral keys |
+| `psk2` | [Key exchange](../algorithms/table.md#1-key-exchange) | optional 32-byte pre-shared key, mixed in after the second message (32 zero bytes when unused) |
+| none | [Signature](../algorithms/table.md#2-digital-signatures) | no signatures: each side pins the other's public key, and only its owner can finish the DH |
+| `ChaChaPoly` | [Cipher](../algorithms/table.md#5-cipher-modes-and-aead) | [ChaCha20-Poly1305](../05-modes-aead/AEAD.md#chacha20-poly1305) for handshake fields and every data packet, with a 64-bit counter as nonce |
+| cookie reply | [Cipher](../algorithms/table.md#5-cipher-modes-and-aead) | XChaCha20-Poly1305 with a random 24-byte nonce (see [ChaCha](../04-symmetric-ciphers/ChaCha.md)) |
+| `BLAKE2s` | [Hash](../algorithms/table.md#7-hash-functions) | [BLAKE2s](../07-hash/BLAKE.md#blake2)-256 for the running handshake hash |
+| `mac1`, `mac2` | [MAC](../algorithms/table.md#6-mac) | keyed BLAKE2s with 16-byte tags on handshake messages; data packets rely on Poly1305 |
+| KDF | [KDF](../algorithms/table.md#8-key-derivation-and-password-hashing) | [HKDF](../08-kdf-password-hashing/HKDF.md) built on HMAC-BLAKE2s |
 
 **Why nothing is negotiated.** The whitepaper calls WireGuard
 "cryptographically opinionated": no cipher agility, no protocol agility, and if

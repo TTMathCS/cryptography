@@ -1957,7 +1957,7 @@ and SHA-3, simply because fewer people have studied them.
 **Standards.** FIPS 180-4 (SHA-1 and SHA-2), FIPS 202 (SHA-3 and SHAKE),
 SP 800-185 (cSHAKE, KMAC, TupleHash), RFC 6234 (SHA-2 in C with test vectors),
 RFC 7693 (BLAKE2). NIST has decided to revise FIPS 180-4 to remove SHA-1. The
-full list with status is in the [hash functions table](../index.md#7-hash-functions),
+full list with status is in the [hash functions table](../algorithms/table.md#7-hash-functions),
 and the reference pages hold every parameter:
 [SHA-2](../07-hash/SHA-2.md), [SHA-3](../07-hash/SHA-3.md),
 [BLAKE](../07-hash/BLAKE.md) and [retired hashes](../07-hash/Retired.md).

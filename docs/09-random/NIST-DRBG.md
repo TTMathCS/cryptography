@@ -4,7 +4,7 @@
 the rules for the entropy that seeds them, and Dual_EC_DRBG, the one NIST
 pulled.*
 
-**Status and standards:** see [Random number generation](../index.md#9-random-number-generation)
+**Status and standards:** see [Random number generation](../algorithms/table.md#9-random-number-generation)
 in the main table.
 
 ## What it is

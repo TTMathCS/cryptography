@@ -1766,8 +1766,8 @@ competition then chose Ascon in 2023.
 **Standards.** RFC 2104 and FIPS 198-1 (HMAC), SP 800-38B and RFC 4493 (CMAC),
 SP 800-38D (GCM and GMAC), RFC 8439 (ChaCha20-Poly1305), RFC 5116 (the AEAD
 interface), RFC 8452 (AES-GCM-SIV), SP 800-185 (KMAC). Status and parameters:
-the [MAC table](../index.md#6-mac) and the
-[modes and AEAD table](../index.md#5-cipher-modes-and-aead). Reference pages:
+the [MAC table](../algorithms/table.md#6-mac) and the
+[modes and AEAD table](../algorithms/table.md#5-cipher-modes-and-aead). Reference pages:
 [HMAC](../06-mac/HMAC.md), [Block-cipher MACs](../06-mac/Block-Cipher-MACs.md),
 [Universal hash MACs](../06-mac/Universal-Hash-MACs.md),
 [KMAC](../06-mac/KMAC.md), [SipHash](../06-mac/SipHash.md) and

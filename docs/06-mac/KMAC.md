@@ -3,7 +3,7 @@
 *SHA-3's own MAC. The key goes in front of the message and the sponge
 does the rest, with no HMAC-style second pass.*
 
-**Status and standards:** see [MAC](../index.md#6-mac) in the main table.
+**Status and standards:** see [MAC](../algorithms/table.md#6-mac) in the main table.
 
 ## What it is
 

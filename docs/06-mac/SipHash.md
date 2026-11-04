@@ -3,7 +3,7 @@
 *A keyed hash for short inputs, fast enough for hash tables and built to
 stop hash flooding.*
 
-**Status and standards:** see [MAC](../index.md#6-mac) in the main table.
+**Status and standards:** see [MAC](../algorithms/table.md#6-mac) in the main table.
 
 ## What it is
 

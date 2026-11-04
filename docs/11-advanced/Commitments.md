@@ -4,7 +4,7 @@
 about the value, and it can't be opened to anything else. Pedersen's 1991
 scheme sits inside many zero-knowledge proofs and private payments.*
 
-**Status and standards:** see [Advanced primitives](../index.md#11-advanced-primitives) in the main table.
+**Status and standards:** see [Advanced primitives](../algorithms/table.md#11-advanced-primitives) in the main table.
 
 ## What it is
 

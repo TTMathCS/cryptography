@@ -3,7 +3,7 @@
 *The post-quantum signature for everyday use. Same job as ECDSA or Ed25519,
 with keys and signatures a few kilobytes long.*
 
-**Status and standards:** see [Digital signatures](../index.md#2-digital-signatures)
+**Status and standards:** see [Digital signatures](../algorithms/table.md#2-digital-signatures)
 in the main table.
 
 ## What it is
