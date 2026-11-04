@@ -92,6 +92,14 @@ not_in_nav: |
 
 nav:
   - Home: index.md
+  - Start:
+      - start/index.md
+      - start/01-Why-Secrets.md
+      - start/02-Caesar.md
+      - start/03-Cracking-Caesar.md
+      - start/04-One-Time-Pad.md
+      - start/05-Locks-and-Keys.md
+      - start/06-Passwords.md
   - Topics:
       - topics/index.md
       - SSH: topics/SSH.md

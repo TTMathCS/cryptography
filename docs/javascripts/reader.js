@@ -162,7 +162,7 @@
   }) : [];
   var chNo = 0;
   chapter.forEach(function (n, i) { if (n.path === here) chNo = i + 1; });
-  var kind = !chNo ? "Page" : /\/topics\//.test(here) ? "Lesson" : "Chapter";
+  var kind = !chNo ? "Page" : /\/(topics|start|first-steps)\//.test(here) ? "Lesson" : "Chapter";
 
   var top = el("nav", "reader-top");
   top.setAttribute("aria-label", "Where you are");
