@@ -94,6 +94,10 @@ nav:
   - Topics:
       - topics/index.md
       - SSH: topics/SSH.md
+      - HTTPS and certificates: topics/HTTPS.md
+      - Passwords: topics/Passwords.md
+      - Encrypting files: topics/Encrypting-files.md
+      - Moving to post-quantum: topics/Post-quantum.md
   - Book:
       - Start here: book/index.md
       - I. Foundations:

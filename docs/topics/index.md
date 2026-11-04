@@ -16,3 +16,7 @@ Each guide stays short and links to the [Book](../book/index.md) for the why and
 | Guide | The job |
 |---|---|
 | [SSH](SSH.md) | log in to a server, use Git over SSH, make and manage SSH keys |
+| [HTTPS and certificates](HTTPS.md) | the padlock in the browser; certificates for your own server |
+| [Passwords](Passwords.md) | choose them well; store them safely in your software |
+| [Encrypting files](Encrypting-files.md) | lock a file, a folder or a disk |
+| [Moving to post-quantum](Post-quantum.md) | what quantum computers break, and what to do now |
