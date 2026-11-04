@@ -7,16 +7,32 @@ title: Cryptography
 
 # Learn cryptography
 
+<div class="start-band" markdown>
+
+New here? Start with secret codes
+
+Six short lessons, about five minutes each, with something to try on paper. No math needed.
+
+1. [**Why keep secrets?** *hiding and checking*](start/01-Why-Secrets.md)
+2. [**The Caesar shift** *make a code wheel*](start/02-Caesar.md)
+3. [**Cracking Caesar** *break a code by counting letters*](start/03-Cracking-Caesar.md)
+4. [**A code nobody can break** *perfect secrets with dice*](start/04-One-Time-Pad.md)
+5. [**Locks and keys** *a secret for someone you never met*](start/05-Locks-and-Keys.md)
+6. [**Strong passwords** *roll dice for a password*](start/06-Passwords.md)
+
+[Begin lesson 1 →](start/01-Why-Secrets.md)
+
+</div>
+
 A book in 23 chapters, from no background at all to the
 algorithms being standardized now. [Start here](book/index.md) shows the
 contents and how to use them; the **Next** link at the foot of every page
 takes you through in order.
 
-## Three ways in
+## Already know the basics?
 
 | | For whom | Where |
 |---|---|---|
-| **New to secret codes** | young beginners, a class | [Start](start/index.md): six five-minute lessons with something to try |
 | **Learn it in order** | new to cryptography, students | the [Book](book/index.md), from chapter 1 |
 | **Find a topic** | you have a job to do: SSH, HTTPS, passwords, encrypting files, post-quantum | [Topics](topics/index.md): one page each, from a one-minute summary to expert detail |
 | **Look something up** | you know the name of the algorithm | [Algorithms](algorithms/index.md), or [every algorithm in one table](algorithms/table.md) |

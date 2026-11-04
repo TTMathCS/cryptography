@@ -135,3 +135,42 @@
 .md-typeset .katex { position: relative; }
 .md-typeset math[display="block"] { display: block; max-width: 100%; overflow-x: auto; overflow-y: hidden; }
 .md-typeset .uoft .step, .md-typeset .uoft .block { max-width: 100%; overflow-x: auto; }
+
+/* --- homepage Start band: the beginner lessons, first thing under the title (index.md on each site) --- */
+.md-typeset .start-band {
+  margin: 0 0 2rem; padding: 1.1rem 1.2rem 1.2rem; border-radius: .8rem;
+  border: 2px solid var(--md-accent-fg-color);
+  background: color-mix(in srgb, var(--md-accent-fg-color) 9%, var(--md-default-bg-color));
+}
+.md-typeset .start-band > p:first-child { margin: 0 0 .2rem; font-size: 1.15em; font-weight: 700; }
+.md-typeset .start-band > p:first-child + p { margin: 0 0 .9rem; color: var(--md-default-fg-color--light); }
+.md-typeset .start-band ol {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem;
+  margin: 0 0 1rem; padding: 0; list-style: none; counter-reset: sb;
+}
+.md-typeset .start-band ol li { margin: 0; counter-increment: sb; }
+.md-typeset .start-band ol li a {
+  display: flex; flex-direction: column; gap: .1rem; height: 100%; box-sizing: border-box;
+  padding: .6rem .75rem .65rem 2.6rem; position: relative; border-radius: .55rem; text-decoration: none;
+  color: var(--md-default-fg-color); background: var(--md-default-bg-color);
+  border: 1px solid var(--md-default-fg-color--lightest); line-height: 1.35;
+}
+.md-typeset .start-band ol li a::before {
+  content: counter(sb); position: absolute; left: .7rem; top: .62rem; width: 1.4rem; height: 1.4rem;
+  border-radius: 50%; display: grid; place-items: center; font-size: .8em; font-weight: 700;
+  color: #1a100c; background: #eea66f;
+}
+.md-typeset .start-band ol li a:hover, .md-typeset .start-band ol li a:focus-visible { border-color: var(--md-accent-fg-color); }
+.md-typeset .start-band ol li a strong { font-weight: 700; }
+.md-typeset .start-band ol li a em { font-style: normal; font-size: .86em; color: var(--md-default-fg-color--light); }
+.md-typeset .start-band > p:last-child { margin: 0; }
+.md-typeset .start-band > p:last-child a {
+  display: inline-block; padding: .55rem 1.2rem; border-radius: 999px; font-weight: 700; text-decoration: none;
+  color: #1a100c; background: #eea66f;
+}
+@media screen and (max-width: 59.9375em) { .md-typeset .start-band ol { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media screen and (max-width: 33em) {
+  .md-typeset .start-band { padding: .9rem .8rem 1rem; }
+  .md-typeset .start-band ol { grid-template-columns: 1fr; gap: .4rem; }
+  .md-typeset .start-band ol li a { padding: .5rem .7rem .5rem 2.4rem; }
+}
