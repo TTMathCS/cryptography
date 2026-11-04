@@ -91,6 +91,9 @@ not_in_nav: |
 
 nav:
   - Home: index.md
+  - Topics:
+      - topics/index.md
+      - SSH: topics/SSH.md
   - Book:
       - Start here: book/index.md
       - I. Foundations:
