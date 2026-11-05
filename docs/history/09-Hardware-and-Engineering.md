@@ -272,6 +272,8 @@ The lesson of the side-channel era: a cipher's security proof covers the
 mathematics, not the machine. Implementations now have to be designed,
 and tested, to leak nothing through time, power or memory access.
 
+<figure class="play" data-play="timingleak"><span class="ai-tag">AI-created</span><figcaption>Try it: a timing attack on a careless PIN check. Simulated times, a random PIN: time the ten digits, keep the slowest, and find all four in about 40 guesses.</figcaption></figure>
+
 ## Machines that crack
 
 ### Deep Crack
