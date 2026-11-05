@@ -17,6 +17,8 @@ PHHW PH DW WKH SDUN
 ??? question "Answer"
     `H` appears four times, more than any other letter. `H` is three places after `E`, so the key is 3: `MEET ME AT THE PARK`.
 
+<figure class="play" data-play="freq"><span class="ai-tag">AI-created</span><figcaption><b>Crack one yourself.</b> The bars count the letters of the secret message; the blue line is how often each letter turns up in ordinary English (Lewand, <i>Cryptological Mathematics</i>, 2000). Slide the shift until the bars fit the line, and the message reads. Paste in your own Caesar message to try it on that.</figcaption></figure>
+
 ## What's happening
 
 Way 1 is called **brute force**: try every key. It works when there are only a few keys. Real codes today have more keys than there are grains of sand on Earth, so trying them all is impossible.

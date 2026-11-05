@@ -18,6 +18,8 @@ Which is harder to guess?
 2. Look up `43162` in a dice word list (the EFF list has 7,776 words, one for each roll).
 3. Do it four or five times. Put the words together.
 
+<figure class="play" data-play="guess"><span class="ai-tag">AI-created</span><figcaption><b>Try it.</b> Choose how many dice words and who is guessing. The two guessing speeds are round numbers for illustration: a website that lets through about ten tries a second, and a stolen file of fast hashes tried at a hundred billion a second. A site that stores passwords with a slow hash such as bcrypt or Argon2 cuts the second rate many thousands of times.</figcaption></figure>
+
 ## What's happening
 
 A guesser doesn't try every letter one by one; it tries likely passwords first: names, pets, `123456`, words with `@` for `a`. What protects you is how many **equally likely** choices there were. Dice make every choice equally likely, and each extra word multiplies the guesses needed by 7,776.

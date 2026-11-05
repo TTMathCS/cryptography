@@ -1,0 +1,21 @@
+/* (5 Nov 2026) things that move, to try or to hear (javascripts/play.js): a dark stage, then its buttons and sliders.
+   The same file on cs, math, cryptography, networks and puzzles. */
+.md-typeset figure.play { position: relative; display: block; width: 100%; max-width: 760px; margin: 1.6em auto; }
+.md-typeset figure.play .stage { position: relative; width: 100%; background: #1b110d; border: 1px solid rgba(244, 230, 212, 0.16); border-radius: 8px; overflow: hidden; }
+.md-typeset figure.play .stage canvas { display: block; width: 100%; height: 100%; }
+.md-typeset figure.play .ai-tag { position: absolute; bottom: 8px; right: 8px; z-index: 1; pointer-events: none; font: 500 10px/1 "IBM Plex Mono", ui-monospace, Menlo, monospace; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(241, 228, 211, 0.82); background: rgba(18, 11, 9, 0.5); border: 1px solid rgba(244, 230, 212, 0.16); border-radius: 999px; padding: 4px 7px 3px; }
+.md-typeset figure.play .ctl { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; text-align: left; }
+.md-typeset figure.play .film { display: flex; align-items: center; gap: 12px; }
+.md-typeset figure.play .film input { flex: 1; }
+.md-typeset figure.play button { margin: 0; padding: 6px 14px; min-height: 36px; border: 1px solid var(--md-default-fg-color--lighter); border-radius: 999px; background: transparent; color: var(--md-default-fg-color); font: 600 0.72rem var(--md-text-font-family, sans-serif); letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; }
+.md-typeset figure.play button:hover, .md-typeset figure.play button[aria-pressed="true"] { border-color: var(--md-accent-fg-color); color: var(--md-accent-fg-color); }
+.md-typeset figure.play .film .pp { min-width: 84px; }
+.md-typeset figure.play .btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.md-typeset figure.play .sl { display: grid; grid-template-columns: minmax(90px, auto) 1fr auto; align-items: center; gap: 10px; font-size: 0.75rem; }
+.md-typeset figure.play .sl b { font-family: var(--md-code-font-family, monospace); min-width: 7ch; text-align: right; }
+.md-typeset figure.play input[type=range] { accent-color: var(--md-accent-fg-color); width: 100%; min-height: 28px; }
+.md-typeset figure.play input[type=text] { width: 100%; padding: 6px 8px; font: 0.8rem var(--md-code-font-family, monospace); border: 1px solid var(--md-default-fg-color--lighter); border-radius: 6px; background: var(--md-code-bg-color); color: var(--md-default-fg-color); }
+.md-typeset figure.play .out { margin: 0; font-size: 0.78rem; min-height: 1.5em; }
+.md-typeset figure.play figcaption { max-width: none; margin-top: 8px; font-size: 0.72rem; text-align: left; }
+@media (max-width: 520px) { .md-typeset figure.play .sl { grid-template-columns: 1fr auto; } .md-typeset figure.play .sl input { grid-column: 1 / -1; grid-row: 2; } }
+.md-typeset figure.play .sl.tx { grid-template-columns: minmax(90px, auto) 1fr; }

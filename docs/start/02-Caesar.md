@@ -29,6 +29,8 @@ Julius Caesar used this code about 2,000 years ago to send orders to his general
 
 Make a **code wheel**: cut two paper circles, one a little smaller, write the alphabet around the edge of each, and pin them together in the middle. Turn the inner one to choose a key.
 
+<figure class="play" data-play="caesar"><span class="ai-tag">AI-created</span><figcaption><b>A code wheel to turn.</b> Slide the key to turn the inner ring and type a message: the outer ring is the plain letter, the inner ring the secret one under it.</figcaption></figure>
+
 ??? question "There are only 25 useful keys. Is that a problem?"
     Yes. Someone could just try all 25 in a few minutes. That is the subject of the next lesson.
 

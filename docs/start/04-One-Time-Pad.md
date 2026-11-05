@@ -20,6 +20,8 @@ secret:   K  J  J  G
 ??? question "Notice anything about the two J's?"
     They stand for different letters (I and D). Counting letters is useless now: the pattern is gone.
 
+<figure class="play" data-play="otp"><span class="ai-tag">AI-created</span><figcaption><b>Try it.</b> Type a message and roll the dice again and again: the secret changes every time, and the same secret letter can stand for different message letters.</figcaption></figure>
+
 ## What's happening
 
 This is the **one-time pad**. If the key is truly random, as long as the message, and **never used again**, it cannot be broken, ever. Not by a computer, not by anyone. Claude Shannon proved this in 1949.
