@@ -5,10 +5,10 @@
   {{ super() }}
   <script>try{var r=JSON.parse(localStorage.getItem("akadian-reader"))||{};if(r.scale)document.documentElement.style.setProperty("--reader-scale",r.scale);if(r.focus)document.documentElement.classList.add("reader-mode")}catch(e){}</script>
   {#- Light or dark, the same on every akadian.ca site (Mars-Requirements site/theme.md; Jim, 5 Nov 2026): the choice is one cookie
-      for all of akadian.ca (Mars-Home theme.js writes it on www), so it is set here before the page is drawn; with none, the
-      device's own setting. Pressing the sun/moon (or Light/Dark under Aa) writes the cookie for every site. -#}
+      for all of akadian.ca (Mars-Home theme.js writes it on www), so it is set here before the page is drawn; with none, dark
+      (Jim, 5 Nov 2026: dark by default until the visitor picks light). Pressing the sun/moon (or Light/Dark under Aa) writes the cookie for every site. -#}
   <script>(function(){var P={{ (config.theme.palette or []) | tojson }},d=document.documentElement,m=document.cookie.match(/(?:^|;\s*)theme=(light|dark)\b/);
-  var t=m?m[1]:(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");
+  var t=m?m[1]:"dark";
   function pal(t){for(var i=0;i<P.length;i++)if((P[i].scheme==="slate")===(t==="dark"))return{index:i,color:{media:P[i].media,scheme:P[i].scheme,primary:P[i].primary,accent:P[i].accent}}}
   var p=pal(t);if(p&&window.__md_set)__md_set("__palette",p);d.setAttribute("data-theme",t);d.style.colorScheme=t;
   function keep(t){var ak=/(^|\.)akadian\.ca$/.test(location.hostname);document.cookie="theme="+t+"; path=/; max-age=31536000; samesite=lax"+(location.protocol==="https:"?"; secure":"")+(ak?"; domain=akadian.ca":"")}
