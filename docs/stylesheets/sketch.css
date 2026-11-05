@@ -1,0 +1,13 @@
+/* Pencil sketches on paper (5 Nov 2026), the same file on cs, math, cryptography, networks and puzzles (copy it to all five).
+   The drawings are made by Mars-Art tools/sketches (mdsk.py); still, no motion: the wobble is an SVG filter. */
+@font-face { font-family: "Cormorant Garamond"; font-style: italic; font-weight: 600; font-display: swap; src: url("../fonts/cormorant-garamond/CormorantGaramond-SemiBoldItalic-Latin.woff2") format("woff2"); unicode-range: U+0000-017F, U+2000-206F, U+2190-2193, U+2212; }
+.md-typeset figure.sketch { position: relative; display: block; width: 100%; max-width: 680px; margin: 1.6em 0; }
+.md-typeset figure.sketch svg { display: block; width: 100%; height: auto; background: #f3ead8; border-radius: 6px; }
+.md-typeset figure.sketch figcaption { margin: 0.5em 0 0; max-width: none; font-size: 0.8em; font-style: normal; opacity: 0.75; text-align: left; }
+.md-typeset figure.sketch .ai-tag { position: absolute; top: 10px; right: 10px; z-index: 1; pointer-events: none; font: 500 9px/1 "IBM Plex Mono", ui-monospace, Menlo, monospace; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(241, 228, 211, 0.85); background: rgba(18, 11, 9, 0.5); border-radius: 999px; padding: 3px 6px 2px; }
+.sketch text { font-family: "Cormorant Garamond", Georgia, serif; font-style: italic; font-weight: 600; fill: #3a2a1e; }
+.sketch .h { font-size: 30px; } .sketch .l { font-size: 19px; } .sketch .s { font-size: 16px; } .sketch .b { font-size: 21px; }
+.sketch .p { fill: none; stroke: #3a2a1e; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.sketch .f { opacity: 0.5; } .sketch .dash { stroke-dasharray: 5 6; opacity: 0.7; } .sketch .soft { opacity: 0.7; }
+.sketch .room { fill: #f7efdf; } .sketch .rust { fill: #c97a52; fill-opacity: 0.35; } .sketch .ice { fill: #9cc9ea; fill-opacity: 0.45; } .sketch .gold { fill: #e8b54a; fill-opacity: 0.5; }
+.sketch .red { stroke: #a8432a; } .sketch .blue { stroke: #3d6f95; }

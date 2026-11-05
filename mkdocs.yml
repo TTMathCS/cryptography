@@ -41,6 +41,7 @@ extra_css:
   - stylesheets/mars.css
   - stylesheets/ask.css
   - stylesheets/reader.css
+  - stylesheets/sketch.css
   - katex/katex.min.css
 
 extra:
