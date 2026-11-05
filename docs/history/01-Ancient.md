@@ -333,6 +333,8 @@ Only one row length gives Greek, or here English. Transposition did not
 die with Sparta: shuffling the order of bits is one of the two basic moves
 inside every modern block cipher, including [AES](../04-symmetric-ciphers/AES.md).
 
+<figure class="play" data-play="skytale"><span class="ai-tag">AI-created</span><figcaption>Try it: a skytale strip with a made-up message. Only a rod of the right thickness lines the letters up again.</figcaption></figure>
+
 ## Greece: Polybius and his square
 
 ### Torches on a wall

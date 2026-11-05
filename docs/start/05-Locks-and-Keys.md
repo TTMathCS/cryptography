@@ -19,6 +19,8 @@ Think about it for a minute before you look.
 ??? question "A simpler way"
     Bob sends Alice an **open** padlock and keeps the key. Alice snaps it shut on the box and sends it. Anyone can close Bob's padlock; only Bob can open it.
 
+<figure class="play" data-play="padlocks"><span class="ai-tag">AI-created</span><figcaption>The two-padlock trick, step by step. Press Play.</figcaption></figure>
+
 ## What's happening
 
 The second way is **public-key cryptography**, the big idea of the 1970s. Bob's open padlock is his **public key**: he can hand out as many as he likes. His **private key** never leaves him. Anyone can lock a message for Bob; only Bob can unlock it.

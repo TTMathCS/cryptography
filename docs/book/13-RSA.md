@@ -319,6 +319,8 @@ one: $588^{17} \bmod 3233 = 65$, which matches, so the signature is good.
 <figcaption>Figure 13.4. The two directions of the toy key. Highlighted arrows use the private exponent; the same pair of powers undoes itself in either order.</figcaption>
 </figure>
 
+<figure class="play" data-play="tinyrsa"><span class="ai-tag">AI-created</span><figcaption>Try it: RSA with the numbers above, n = 3233, e = 17, d = 2753. Lock any message number and open it again.</figcaption></figure>
+
 ## 13.4 Why it works, and why it is hard to break
 
 Decrypting raises to $e$ and then to $d$, so it computes $m^{ed}$. We chose

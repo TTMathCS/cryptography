@@ -59,6 +59,8 @@ The same five bytes in Base58, Bitcoin's alphabet, are `9jMQ9yz`.
 | base64url | `A-Z a-z 0-9 - _` (64) | 6 | 43 characters, padding usually left off | optional | RFC 4648 §5 |
 | Percent-encoding | `%` and two hex digits for each unsafe byte | 8 for safe bytes | up to 96 characters | none | RFC 3986 §2.1 |
 
+<figure class="play" data-play="encode"><span class="ai-tag">AI-created</span><figcaption>Try it: type a message and see its UTF-8 bytes in hex, in Base64 and in URL percent-encoding. Anyone can turn each one back.</figcaption></figure>
+
 ## How each one works
 
 ### Hex (Base16)
