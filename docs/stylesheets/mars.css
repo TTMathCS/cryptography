@@ -456,7 +456,7 @@
 }
 /* the Akadian name in gold, like a star, with a warm halo, as on akadian.ca (Jim, 5 Nov 2026: "bright golden to jump out") */
 [data-md-color-scheme="slate"] .md-logo img {
-  content: url("../assets/akadian-logo-night.png");
+  content: url("../assets/akadian-logo-gold.png");
   filter: drop-shadow(0 0 7px rgba(255, 212, 120, 0.6)) drop-shadow(0 0 22px rgba(255, 176, 64, 0.38));
 }
 [data-md-color-scheme="slate"] .md-logo:hover img,
