@@ -25,15 +25,15 @@ theme:
       primary: custom
       accent: custom
       toggle:
-        icon: material/weather-sunset-up
-        name: Mars dawn
+        icon: material/white-balance-sunny
+        name: Light colours
     - media: "(prefers-color-scheme: light)"
       scheme: default
       primary: custom
       accent: custom
       toggle:
         icon: material/weather-night
-        name: Mars night
+        name: Dark colours
   font: false
 
 extra_css:

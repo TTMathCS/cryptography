@@ -19,29 +19,29 @@
 /* Mars night: the homepage's own colours */
 [data-md-color-scheme="slate"] {
   color-scheme: dark;
-  --mars-bg: #120b09;
-  --mars-bg-fade: rgba(18, 11, 9, 0.5);
-  --mars-bg-soft: rgba(18, 11, 9, 0.82);
-  --mars-panel: #1c110e;
+  --mars-bg: #1d130e;
+  --mars-bg-fade: rgba(29, 19, 14, 0.5);
+  --mars-bg-soft: rgba(29, 19, 14, 0.82);
+  --mars-panel: #271913;
   --mars-rust: #eea66f;
   --mars-photo: url("../images/21-starlit-city.webp");
 
   --md-default-bg-color: var(--mars-bg);
-  --md-default-bg-color--light: rgba(18, 11, 9, 0.7);
-  --md-default-bg-color--lighter: rgba(18, 11, 9, 0.3);
-  --md-default-bg-color--lightest: rgba(18, 11, 9, 0.12);
-  --md-default-fg-color: #f4e6d4;
-  --md-default-fg-color--light: #cdb096;
-  --md-default-fg-color--lighter: rgba(244, 230, 212, 0.32);
-  --md-default-fg-color--lightest: rgba(244, 230, 212, 0.16);
-  --md-typeset-color: #f4e6d4;
+  --md-default-bg-color--light: rgba(29, 19, 14, 0.7);
+  --md-default-bg-color--lighter: rgba(29, 19, 14, 0.3);
+  --md-default-bg-color--lightest: rgba(29, 19, 14, 0.12);
+  --md-default-fg-color: #fbf1e4;
+  --md-default-fg-color--light: #e8d2ba;
+  --md-default-fg-color--lighter: rgba(251, 241, 228, 0.32);
+  --md-default-fg-color--lightest: rgba(251, 241, 228, 0.26);
+  --md-typeset-color: #fbf1e4;
   --md-typeset-a-color: #9cc9ea;
   --md-accent-fg-color: var(--mars-rust);
   --md-accent-fg-color--transparent: rgba(238, 166, 111, 0.12);
   --md-code-bg-color: var(--mars-panel);
-  --md-code-fg-color: #f4e6d4;
-  --md-typeset-table-color: rgba(244, 230, 212, 0.16);
-  --md-typeset-table-color--light: rgba(244, 230, 212, 0.05);
+  --md-code-fg-color: #fbf1e4;
+  --md-typeset-table-color: rgba(251, 241, 228, 0.26);
+  --md-typeset-table-color--light: rgba(251, 241, 228, 0.08);
 
   --st-good: #7ccf7f;
   --st-old: #ffb74d;
@@ -81,23 +81,23 @@
 
 /* both: the bar stays a dark band, like the homepage's top bar over its picture */
 [data-md-color-scheme] {
-  --md-primary-fg-color: #1a100c;
+  --md-primary-fg-color: #251811;
   --md-primary-fg-color--light: #5b3624;
-  --md-primary-fg-color--dark: #120b09;
-  --md-primary-bg-color: #f4e6d4;
-  --md-primary-bg-color--light: rgba(244, 230, 212, 0.7);
-  --md-accent-bg-color: #1a100c;
-  --md-footer-bg-color: #120b09;
+  --md-primary-fg-color--dark: #1d130e;
+  --md-primary-bg-color: #fbf1e4;
+  --md-primary-bg-color--light: rgba(251, 241, 228, 0.7);
+  --md-accent-bg-color: #251811;
+  --md-footer-bg-color: #1d130e;
   --md-footer-bg-color--dark: #0a0605;
-  --md-footer-fg-color: #f4e6d4;
-  --md-footer-fg-color--light: #cdb096;
-  --md-footer-fg-color--lighter: rgba(244, 230, 212, 0.45);
+  --md-footer-fg-color: #fbf1e4;
+  --md-footer-fg-color--light: #e8d2ba;
+  --md-footer-fg-color--lighter: rgba(251, 241, 228, 0.45);
 }
 
 .md-header {
-  background: rgba(18, 11, 9, 0.82);
+  background: rgba(29, 19, 14, 0.82);
   backdrop-filter: blur(8px);
-  box-shadow: 0 1px 0 rgba(244, 230, 212, 0.1);
+  box-shadow: 0 1px 0 rgba(251, 241, 228, 0.16);
 }
 
 .md-header__title {
@@ -179,7 +179,7 @@
   font-weight: 600;
   font-size: clamp(2.2rem, 5.5vw, 4rem);
   line-height: 1;
-  color: #f4e6d4;
+  color: #fbf1e4;
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
 }
 
@@ -193,9 +193,9 @@
 /* the text stays in the blurred strip left of the picture (picture width = height x 16/9) */
 .mars-hero .mars-hero__title,
 .mars-hero .mars-hero__lead { max-width: max(16rem, calc(100vw - var(--mars-hero-h) * 16 / 9 - 2.4rem)); }
-.mars-hero .mars-pill { color: #f4e6d4; border-color: rgba(244, 230, 212, 0.55); background: rgba(10, 8, 6, 0.35); }
+.mars-hero .mars-pill { color: #fbf1e4; border-color: rgba(251, 241, 228, 0.55); background: rgba(10, 8, 6, 0.35); }
 .mars-hero .mars-pill:hover { color: #fff; border-color: #eea66f; }
-.mars-hero__title, [data-md-color-scheme="default"] .mars-hero__title { color: #f4e6d4; text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6); }
+.mars-hero__title, [data-md-color-scheme="default"] .mars-hero__title { color: #fbf1e4; text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6); }
 
 .mars-hero__lead {
   max-width: 36rem;
