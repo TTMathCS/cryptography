@@ -1,6 +1,6 @@
 // Reading aids, the same file on cs.akadian.ca, math.akadian.ca and cryptography.akadian.ca (copy it to all three).
 //  1. A bar at the top of every page: where you are (Books > Algorithms > Chapter 5 of 25) and Previous / Next.
-//  2. Long chapters and lessons are read in parts of about 5 to 10 minutes: "Part 2 of 5", a progress bar, and
+//  2. Long chapters and lessons are read in parts of about 5 to 6 minutes: "Part 2 of 5", a progress bar, and
 //     Previous part / Next part at the bottom. Each part has its own address (?part=2), so links, search results
 //     (#section) and the Back button all work. The page text is never changed; the parts are made here.
 //  3. Reading settings (the "Aa" button in the header): text size, reading mode (no menus, a narrow column),
@@ -10,7 +10,7 @@
   "use strict";
   var KEY = "akadian-reader";
   var pageable = false;
-  var MIN_WORDS = 450, MAX_WORDS = 1800, PAGE_WORDS = 3000, WPM = 220;
+  var MIN_WORDS = 400, MAX_WORDS = 1350, PAGE_WORDS = 1550, WPM = 220;   // parts of five to six minutes (Jim, 5 Nov 2026)
 
   function load(k) { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch (e) { return {}; } }
   function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* private window */ } }
@@ -220,7 +220,7 @@
   body.forEach(function (k) {
     if (k.tagName === "H2") {
       if (cur.nodes.length) secs.push(cur);
-  // a very long section is cut at its sub-headings, so no part runs much over 10 minutes
+  // a very long section is cut at its sub-headings, or between paragraphs, so no part runs much over 6 minutes
   secs = secs.reduce(function (out, s) {
     if (s.words <= MAX_WORDS) { out.push(s); return out; }
     var c = { nodes: [], words: 0, title: s.title };
@@ -228,6 +228,9 @@
       if (n.tagName === "H3" && c.words >= MIN_WORDS / 2) {
         out.push(c);
         c = { nodes: [], words: 0, title: n.textContent.replace(/¶/g, "").trim() };
+      } else if (c.words >= MIN_WORDS && c.words + words(n) > MAX_WORDS && !/^H[2-6]$/.test(n.tagName)) {
+        out.push(c);
+        c = { nodes: [], words: 0, title: s.title + " (continued)" };
       }
       c.nodes.push(n);
       c.words += words(n);
