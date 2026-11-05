@@ -436,3 +436,29 @@
 .md-tabs__item--active .md-tabs__link { opacity: 1; color: #eea66f; }
 .md-tabs__item--active { box-shadow: inset 0 -3px 0 #eea66f; }
 .md-tabs__link:hover { color: #eea66f; opacity: 1; }
+
+/* Mars night: every word bright against the brown (Jim, 5 Nov 2026: "when it is getting dark, all fonts need to be jump
+   out and really bright"; "akadian ... very bright like stars"; "when during day background is bright, the fonts ...
+   don't need to be so bright"). Only the slate scheme; Mars dawn keeps its ink. On #1d130e: ink #fffaf3 17.6:1, the
+   lighter ink #f6e7d4 15:1, links #b4dcf7 12.6:1. Mars-Requirements site/theme.md */
+[data-md-color-scheme="slate"] {
+  --md-default-fg-color: #fffaf3;
+  --md-default-fg-color--light: #f6e7d4;
+  --md-default-fg-color--lighter: rgba(255, 250, 243, 0.45);
+  --md-typeset-color: #fffaf3;
+  --md-typeset-a-color: #b4dcf7;
+  --md-code-fg-color: #fffaf3;
+  --md-primary-bg-color: #fffaf3;
+  --md-primary-bg-color--light: rgba(255, 250, 243, 0.85);
+  --md-footer-fg-color: #fffaf3;
+  --md-footer-fg-color--light: #f6e7d4;
+  --md-footer-fg-color--lighter: rgba(255, 250, 243, 0.7);
+}
+/* the Akadian name in white (its orange dot kept) with a soft warm halo, as on akadian.ca */
+[data-md-color-scheme="slate"] .md-logo img {
+  content: url("../assets/akadian-logo-night.png");
+  filter: drop-shadow(0 0 5px rgba(255, 246, 232, 0.5)) drop-shadow(0 0 16px rgba(255, 226, 188, 0.28));
+}
+[data-md-color-scheme="slate"] .md-logo:hover img,
+[data-md-color-scheme="slate"] .md-logo:focus-visible img { filter: drop-shadow(0 0 8px rgba(238, 166, 111, 0.6)); }
+[data-md-color-scheme="slate"] .md-header__button.md-logo::after { color: #f0dcc6; }
