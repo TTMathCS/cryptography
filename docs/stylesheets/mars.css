@@ -454,11 +454,11 @@
   --md-footer-fg-color--light: #f6e7d4;
   --md-footer-fg-color--lighter: rgba(255, 250, 243, 0.7);
 }
-/* the Akadian name in white (its orange dot kept) with a soft warm halo, as on akadian.ca */
+/* the Akadian name in gold, like a star, with a warm halo, as on akadian.ca (Jim, 5 Nov 2026: "bright golden to jump out") */
 [data-md-color-scheme="slate"] .md-logo img {
   content: url("../assets/akadian-logo-night.png");
-  filter: drop-shadow(0 0 5px rgba(255, 246, 232, 0.5)) drop-shadow(0 0 16px rgba(255, 226, 188, 0.28));
+  filter: drop-shadow(0 0 7px rgba(255, 212, 120, 0.6)) drop-shadow(0 0 22px rgba(255, 176, 64, 0.38));
 }
 [data-md-color-scheme="slate"] .md-logo:hover img,
 [data-md-color-scheme="slate"] .md-logo:focus-visible img { filter: drop-shadow(0 0 8px rgba(238, 166, 111, 0.6)); }
-[data-md-color-scheme="slate"] .md-header__button.md-logo::after { color: #f0dcc6; }
+[data-md-color-scheme="slate"] .md-header__button.md-logo::after { color: #ffd87e; }
