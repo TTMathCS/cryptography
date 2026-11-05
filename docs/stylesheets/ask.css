@@ -1,13 +1,17 @@
-/* the "Ask" button and the guide's panel (javascripts/ask.js), the same look as on www.akadian.ca (Mars-Home nav.css) */
-.ask-bubble { position: fixed; z-index: 50; right: calc(env(safe-area-inset-right, 0px) + 16px); bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
-  height: 44px; min-width: 44px; padding: 0 11px; box-sizing: border-box; display: flex; align-items: center;
+/* the guide's chat button and panel (javascripts/ask.js), the same file on all six course sites and the same look as on
+   www.akadian.ca (Mars-Home nav.css). The corner row (.dock) is shared with the song's buttons (Mars-Home home-music.js):
+   one row in the bottom right corner, the chat button rightmost */
+.dock { position: fixed; right: calc(env(safe-area-inset-right, 0px) + 16px); bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  z-index: 50; display: flex; flex-direction: row-reverse; align-items: center; gap: 8px; pointer-events: none; }
+.dock > * { pointer-events: auto; }
+.ask-bubble { order: 0; height: 44px; min-width: 44px; padding: 0 11px; box-sizing: border-box; display: flex; align-items: center;
   border-radius: 999px; background: #1f9a55; color: #fff; text-decoration: none; white-space: nowrap;
   border: 1px solid rgba(255, 255, 255, 0.18); box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
   font: 600 15px/1 "Saira Condensed", "Arial Narrow", system-ui, sans-serif; letter-spacing: 0.04em; transition: background 0.2s; }
 .md-typeset .ask-bubble, .ask-bubble:hover, .ask-bubble:focus { color: #fff; }
 .ask-bubble svg { flex: none; }
 .ask-bubble .ask-say { max-width: 0; overflow: hidden; opacity: 0; transition: max-width 0.45s ease, opacity 0.3s ease, margin 0.45s ease; }
-.ask-bubble:hover .ask-say, .ask-bubble:focus-visible .ask-say { max-width: 12em; opacity: 1; margin: 0 2px 0 8px; }
+.ask-bubble.tell .ask-say, .ask-bubble:hover .ask-say, .ask-bubble:focus-visible .ask-say { max-width: 12em; opacity: 1; margin: 0 2px 0 8px; }
 .ask-bubble:hover { background: #24b062; }
 .ask-bubble:focus-visible { outline: 2px solid #9cc9ea; outline-offset: 3px; }
 
@@ -23,11 +27,12 @@
 .guide-panel.ready iframe { opacity: 1; }
 
 @media (max-width: 640px) {
-  .ask-bubble { right: calc(env(safe-area-inset-right, 0px) + 12px); bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); height: 40px; min-width: 40px; padding: 0 9px; }
+  .dock { right: calc(env(safe-area-inset-right, 0px) + 12px); bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); }
+  .ask-bubble { height: 40px; min-width: 40px; padding: 0 9px; }
   .ask-bubble .ask-more { display: none; }
   .guide-panel { inset: 0; width: auto; height: auto; border-radius: 0; border: 0; }
   html.guide-open, html.guide-open body { overflow: hidden; }
-  html.guide-open .ask-bubble { display: none; }
+  html.guide-open .dock { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .ask-bubble .ask-say, .guide-panel, .guide-panel.open { transition: none; } }
-@media print { .ask-bubble, .guide-panel { display: none; } }
+@media print { .dock, .guide-panel { display: none; } }
