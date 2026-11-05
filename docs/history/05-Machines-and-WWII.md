@@ -196,6 +196,8 @@ million years to try them all. But as on the
 page, nobody broke Enigma by trying every key. They broke it by finding
 ways to ignore most of the key.
 
+<figure class="play" data-play="rotor"><span class="ai-tag">AI-created</span><figcaption>Try it: a simplified Enigma with one rotor (historical rotor I) and reflector B. Press the same key again and again.</figcaption></figure>
+
 ## Poland: the first break
 
 ### Mathematicians, not linguists

@@ -498,6 +498,8 @@ HMAC-SHA-256. A password is not a key ([Chapter 11](11-Passwords-and-Key-Derivat
     were never practically broken, but they are retired with their hashes; HMAC-SHA-256 is the
     default.
 
+<figure class="play" data-play="hmactag"><span class="ai-tag">AI-created</span><figcaption>Try it: an HMAC-SHA-256 tag made in your browser with a made-up key. Change one letter and the whole tag changes.</figcaption></figure>
+
 ## 10.4 MACs from a block cipher: CBC-MAC and CMAC
 
 *Level: intermediate.*

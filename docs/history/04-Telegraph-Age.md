@@ -380,6 +380,8 @@ it could be used to hide things. Ruth Finnegan notes that during the
 Nigerian civil war (1967–1970) drum language went out over the radio to
 reach some listeners and not others.
 
+<figure class="play" data-play="playfair"><span class="ai-tag">AI-created</span><figcaption>Try it: the Playfair square. Type a keyword and a message and tap each pair to see which rule moves it.</figcaption></figure>
+
 ## Kerckhoffs's rules
 
 In 1883 Auguste Kerckhoffs (1835–1903), a Dutch-born professor of

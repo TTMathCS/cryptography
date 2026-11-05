@@ -464,6 +464,8 @@ with HMAC-SHA-256 if PBKDF2 must be used.
     hash · **Status:** current and still NIST-approved, but costs only time, so GPUs crack it far
     more cheaply than memory-hard functions.
 
+<figure class="play" data-play="pbkdf2time"><span class="ai-tag">AI-created</span><figcaption>Try it: your own browser runs PBKDF2-HMAC-SHA-256 and times it. This chapter's example uses 600,000 rounds; every guess an attacker makes costs the same.</figcaption></figure>
+
 ## 11.5 bcrypt
 
 *Level: intermediate.*

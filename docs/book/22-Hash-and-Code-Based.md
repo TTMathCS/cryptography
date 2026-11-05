@@ -236,6 +236,8 @@ systems.
     nothing but a one-way function · **Helped:** the building block of Winternitz, Merkle, LMS, XMSS and
     SLH-DSA · **Status:** still secure, one message per key; used today only inside its descendants
 
+<figure class="play" data-play="lamport"><span class="ai-tag">AI-created</span><figcaption>Try it: this chapter's 4-bit Lamport key. Sign 1011, then 0110, and count the messages anyone could now forge.</figcaption></figure>
+
 ## 22.3 Winternitz chains
 
 *Level: intermediate.* Winternitz's trick signs several bits at once with a

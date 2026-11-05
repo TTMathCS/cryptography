@@ -1186,6 +1186,8 @@ keys, in exchange for a key you can actually manage.
 as the **nonce rule**: never use the same key and nonce twice. Breaking it has
 broken WEP Wi-Fi and WPA2 (the KRACK attack of 2017), among many others.
 
+<figure class="play" data-play="cribdrag"><span class="ai-tag">AI-created</span><figcaption>Try it: crib dragging on this chapter's two messages, sent with one key. Slide a guessed word along c1 ⊕ c2 and watch the other message show through.</figcaption></figure>
+
 ## 4.9 Where random numbers come from
 
 *Level: intermediate.* There are two kinds of generator, and real systems use

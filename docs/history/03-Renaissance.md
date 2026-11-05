@@ -510,6 +510,8 @@ something faster, and the nomenclator, with its quick code symbols for
 whole words, was faster. Strong ciphers stayed in books while diplomats
 used weaker systems, and the black chambers took full advantage.
 
+<figure class="play" data-play="vigenere"><span class="ai-tag">AI-created</span><figcaption>Try it: Bellaso's keyword cipher. Type a message and a keyword; each letter is shifted by the keyword letter above it.</figcaption></figure>
+
 ## Mary, Queen of Scots
 
 ### A prisoner's secret post
