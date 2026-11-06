@@ -6,7 +6,7 @@ builds the two oldest alternatives, both from 1978 and 1979, the same years as
 RSA: signatures that need nothing but a hash function, and encryption hidden in
 the errors of an error-correcting code. Along the way it shows why a signing key
 that keeps a counter is dangerous, how SLH-DSA got rid of the counter, and what
-two broken competition finalists, SIKE and Rainbow, teach about trusting new
+two broken competition entries, Rainbow (a finalist) and SIKE (a fourth-round candidate), teach about trusting new
 mathematics.*
 
 !!! abstract "In this chapter"

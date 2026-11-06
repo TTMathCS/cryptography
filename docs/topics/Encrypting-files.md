@@ -68,7 +68,7 @@ More commands: [age](../tools/age.md), [gpg](../tools/gpg.md).
 
 Disk encryption is a different job (no room for a tag on a fixed-size sector): AES-XTS (IEEE 1619, SP 800-38E) in LUKS2, BitLocker and FileVault; Adiantum on low-end Android phones. See [Disk encryption](../protocols/Disk-Encryption.md).
 
-Standards: age v1 (C2SP spec, post-quantum in v1.1.0, 2025); OpenPGP RFC 9580 (2024), replacing RFC 4880; post-quantum OpenPGP RFC 9980 (2026); GnuPG follows its own LibrePGP draft. Full tables: [age](../protocols/age.md), [OpenPGP](../protocols/OpenPGP.md).
+Standards: age v1 (C2SP spec, post-quantum in spec v1.1.0 and the age tool 1.3.0, December 2025); OpenPGP RFC 9580 (2024), replacing RFC 4880; post-quantum OpenPGP RFC 9980 (2026); GnuPG follows its own LibrePGP draft. Full tables: [age](../protocols/age.md), [OpenPGP](../protocols/OpenPGP.md).
 
 ### Implementations
 

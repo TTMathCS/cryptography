@@ -17,7 +17,7 @@ like SymPy and many big-integer libraries.
 - **Who made it:** Robert Baillie, Carl Pomerance, John Selfridge and Samuel Wagstaff, 1980.
 - **What for:** A prime test with no known false answer.
 - **What it solved:** Fermat and Lucas tests fail on different numbers, so together they are much stronger than either.
-- **Where it stands:** Used in SymPy, PARI, Mathematica and many libraries. Pomerance, Selfridge and Wagstaff offered $620 for a counterexample, and it is still unclaimed.
+- **Where it stands:** Used in SymPy, PARI, Mathematica and many libraries. In 1980 Pomerance, Selfridge and Wagstaff offered $30 for a counterexample, and it is still unclaimed (the $620 often quoted belongs to a related test of Selfridge's).
 - **Incidents:** None.
 
 ## How it works

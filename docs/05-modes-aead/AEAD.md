@@ -52,7 +52,7 @@ Sizes are in bits.
 
 ### ChaCha20-Poly1305 {#story-chacha20-poly1305}
 
-- **Who made it:** Bernstein's ChaCha20 and Poly1305 (2005), combined by Adam Langley and Yoav Nir in RFC 7539 (2015).
+- **Who made it:** Bernstein's ChaCha20 (2008) and Poly1305 (2005), combined by Adam Langley and Yoav Nir in RFC 7539 (2015).
 - **What for:** An AEAD that is fast without AES hardware.
 - **What it solved:** Phones and small devices got authenticated encryption without timing leaks.
 - **Where it stands:** Recommended, in TLS 1.3, SSH, WireGuard and QUIC.

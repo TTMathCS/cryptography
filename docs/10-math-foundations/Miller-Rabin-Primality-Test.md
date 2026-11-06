@@ -121,8 +121,8 @@ Each part below starts closed; open the ones you want.
     a^{d} \equiv 1 \pmod{n} \quad\text{or}\quad a^{2^{j} d} \equiv -1 \pmod{n} \ \text{ for some } 0 \le j < r
     $$
 
-    - **Error bound (Rabin, Monier, 1980):** for odd composite $n$, at most $\varphi(n)/4$ bases in $1, \ldots, n-1$
-      pass, so $k$ random bases leave an error of at most $4^{-k}$. For random large candidates the real error is far smaller.
+    - **Error bound (Rabin, Monier, 1980):** for odd composite $n > 9$, at most $\varphi(n)/4$ bases in $1, \ldots, n-1$
+      pass ($n = 9$ has 2 of 8, still a quarter), so $k$ random bases leave an error of at most $4^{-k}$. For random large candidates the real error is far smaller.
     - **Fixed bases:** the first 13 primes as bases (2 through 41) give a correct answer for every
       $n < 3.3 \cdot 10^{24}$ (Sorenson and Webster, 2017).
     - **Cost:** one modular exponentiation per round, about $\log_2 n$ squarings.
