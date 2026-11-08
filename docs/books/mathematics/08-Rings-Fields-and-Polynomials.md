@@ -449,7 +449,7 @@ a power of $x$, which is convenient for tables of logarithms. This theorem is wh
 Diffie-Hellman can work in $\mathbb{F}_p^*$ (Chapter 4's primitive roots are its
 generators), and why discrete logarithms in $\mathbb{F}_{2^n}^*$ were studied, and
 then abandoned for cryptography after the quasi-polynomial algorithms of 2013 and
-2014 (*Cryptanalysis*, chapter 12).
+2014 (*Cryptanalysis*, [chapter 12](../cryptanalysis/12-Discrete-Logarithms.md)).
 
 ## 8.7 $\mathrm{GF}(2^8)$: the field inside AES
 

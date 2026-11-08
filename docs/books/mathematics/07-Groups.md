@@ -619,7 +619,7 @@ built on them use that deliberately.
 
 How hard can the discrete logarithm be? It depends on the representation:
 in $(\mathbb{Z}/q\mathbb{Z}, +)$ it is free; modulo a prime, index calculus
-solves it in subexponential time (*Cryptanalysis*, chapter 12); on good elliptic
+solves it in subexponential time (*Cryptanalysis*, [chapter 12](../cryptanalysis/12-Discrete-Logarithms.md)); on good elliptic
 curves nothing better than about $\sqrt q$ operations is known. Victor Shoup
 (1997), building on Vasilii Nechaev (1994), proved that $\sqrt q$ is the best
 possible for any algorithm that does not look at the representation.
@@ -717,7 +717,7 @@ print(q, bsgs(g, pow(g, 777777, p), p, q))
 
 Both time and memory are about $\sqrt q$. Pollard's rho method (1978) needs the
 same time but almost no memory, and is what attackers actually run; it belongs
-to *Cryptanalysis*, chapter 12, with the index-calculus methods that beat
+to *Cryptanalysis*, [chapter 12](../cryptanalysis/12-Discrete-Logarithms.md), with the index-calculus methods that beat
 $\sqrt q$ in groups that are not generic.
 
 ## 7.9 Where groups hide in symmetric cryptography

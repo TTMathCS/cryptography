@@ -44,7 +44,7 @@ to check that a point is on the curve.*
 
 Every message between Arcadia City's habitats starts with a Diffie-Hellman key
 exchange. In Chapter 4 it ran in the units modulo a prime. To resist the
-index-calculus attacks of *Cryptanalysis* chapter 12, that prime has to be at least
+index-calculus attacks of *Cryptanalysis* [chapter 12](../cryptanalysis/12-Discrete-Logarithms.md), that prime has to be at least
 3,072 bits long for 128-bit security, which makes each key exchange slow and each
 public key 384 bytes. On a rover's radio link, every byte costs power.
 

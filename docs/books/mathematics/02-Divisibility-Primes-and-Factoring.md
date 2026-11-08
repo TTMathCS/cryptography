@@ -71,7 +71,7 @@ The first four have classical answers, from Euclid around 300 BC to the prime
 number theorem of 1896. The fifth is where this book hands over to the
 cryptanalysts. The modern factoring algorithms (Pollard's methods, the elliptic
 curve method, the quadratic and number field sieves) are attacks, and book 2 of
-this shelf, *Cryptanalysis*, runs them in its Chapter 11. Here we build the
+this shelf, *Cryptanalysis*, runs them in its [Chapter 11](../cryptanalysis/11-Factoring.md). Here we build the
 number theory they rest on and stop at the two simplest methods, which are
 already enough to break badly made keys.
 
@@ -737,7 +737,7 @@ convergents of $x$, and there are only about $\log x$ of them to try. In
 Wiener's attack, $x = e/N$ is public, and when the private exponent $d$ is
 smaller than about $N^{1/4}$, the unknown fraction $k/d$ satisfies Legendre's
 condition, so $d$ appears among the convergents of $e/N$. *Cryptanalysis*,
-Chapter 13, carries out the attack; Exercise 9 lets you try the idea.
+[Chapter 13](../cryptanalysis/13-Attacks-on-RSA.md), carries out the attack; Exercise 9 lets you try the idea.
 
 ## 2.9 Factoring: the two simplest methods
 
@@ -835,7 +835,7 @@ seed of every fast factoring algorithm. If $a^2 \equiv b^2 \pmod n$ but $a
 factor, so $\gcd(a - b, n)$ is a proper factor of $n$. Chapter 5 proves this
 carefully, because it also shows why taking square roots modulo $n$ is as hard
 as factoring. The quadratic sieve and the number field sieve are machines for
-manufacturing such congruences; *Cryptanalysis*, Chapter 11, builds them.
+manufacturing such congruences; *Cryptanalysis*, [Chapter 11](../cryptanalysis/11-Factoring.md), builds them.
 
 ## 2.10 In the real world
 
@@ -958,7 +958,7 @@ functions), because nobody knows how to compute their size quickly.
     begin $0/1, 1/5, 29/146, \dots$. The second convergent, $1/5$, is the guess
     $k = 1$, $d = 5$. For $N = 90581 = 239 \cdot 379$ and $e = 17993$, it is
     right: $ed - 1 = 89964 = (239 - 1)(379 - 1)$, so $d = 5$ is the private
-    exponent. *Cryptanalysis*, Chapter 13, does the full attack.
+    exponent. *Cryptanalysis*, [Chapter 13](../cryptanalysis/13-Attacks-on-RSA.md), does the full attack.
 
 ??? question "10. Two RSA moduli $N_1, N_2$ share a prime $p$. How does an attacker find it, and how much work is it?"
 

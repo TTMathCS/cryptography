@@ -908,7 +908,7 @@ primes are made for U.S. government use, and most libraries follow it:
 
 Older versions required "strong primes" ($p - 1$ and $p + 1$ each with a large
 prime factor) to stop Pollard's $p - 1$ method and its relatives
-(*Cryptanalysis*, chapter 11). For random primes of 1,024 bits or more, such
+(*Cryptanalysis*, [chapter 11](../cryptanalysis/11-Factoring.md)). For random primes of 1,024 bits or more, such
 factors are present with overwhelming probability anyway, and the requirement is
 now optional.
 
@@ -1017,7 +1017,7 @@ public key in microseconds and know it came from the library.
 and the order of 65537 modulo $M$ is small. The attackers chose a divisor $M'$
 of $M$ that keeps the unknown part small enough, guessed $a$ modulo the order,
 and for each guess ran Coppersmith's lattice method (Chapter 14 and
-*Cryptanalysis*, chapter 15) to find $k$. They estimated the worst case for a
+*Cryptanalysis*, [chapter 15](../cryptanalysis/15-Lattices-as-a-Weapon.md)) to find $k$. They estimated the worst case for a
 1,024-bit key at about 97 CPU-days and for a 2,048-bit key at about 140
 CPU-years: expensive, but feasible for a single valuable key and trivially
 parallel.
@@ -1109,7 +1109,7 @@ boot, many devices produce the same first prime, and two moduli that share a
 prime are factored by one gcd; Nadia Heninger, Zakir Durumeric, Eric Wustrow and
 J. Alex Halderman found tens of thousands of such keys on the Internet in 2012.
 That story, and the Debian OpenSSL bug of 2008, belong to *Cryptanalysis*
-(chapters on random numbers and on attacks on RSA). What this chapter adds is
+(chapters on [random numbers](../cryptanalysis/18-Random-Numbers-Gone-Wrong.md) and on [attacks on RSA](../cryptanalysis/13-Attacks-on-RSA.md)). What this chapter adds is
 that the prime itself must also be generated the simple way: random candidate,
 sieve, Miller-Rabin or Baillie-PSW, and nothing clever.
 

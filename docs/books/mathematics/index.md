@@ -56,14 +56,14 @@ can skim the first sections of each chapter and start at the intermediate ones.
 | | [13. Elliptic curves: counting points, choosing curves, pairings](13-Counting-Points-and-Pairings.md) | expert |
 | | [14. Lattices](14-Lattices.md) | intermediate to expert |
 | | [15. Polynomial rings and learning with errors](15-Learning-with-Errors.md) | expert |
-| **IV. Chance, information and codes** | 16. Probability for cryptographers *(coming next)* | intermediate |
-| | 17. Information and entropy *(coming)* | intermediate |
-| | 18. Error-correcting codes *(coming)* | intermediate to expert |
-| **V. Hardness** | 19. Complexity, reductions and hard problems *(coming)* | expert |
-| | 20. The mathematics of quantum algorithms *(coming)* | expert |
+| **IV. Chance, information and codes** | [16. Probability for cryptographers](16-Probability.md) | intermediate |
+| | [17. Information and entropy](17-Information-and-Entropy.md) | intermediate |
+| | [18. Error-correcting codes](18-Error-Correcting-Codes.md) | intermediate to expert |
+| **V. Hardness** | [19. Complexity, reductions and hard problems](19-Complexity-and-Reductions.md) | expert |
+| | [20. The mathematics of quantum algorithms](20-Quantum-Algorithms.md) | expert |
 
-The chapters are published a few at a time; the ones without links are being
-written.
+All twenty chapters are published. The [Glossary](Glossary.md) defines every term the
+book puts in bold, with a link to the section that teaches it.
 
 ## Where each chapter is used
 

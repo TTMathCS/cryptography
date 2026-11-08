@@ -1064,7 +1064,7 @@ parameters by the best known attack (BKZ with sieving), and leave a margin.
   key is the solution of a *hidden number problem*, a CVP instance (Dan Boneh and
   Ramarathnam Venkatesan, 1996; Nick Howgrave-Graham and Nigel Smart, 2001). TPM-Fail
   (2019) and Minerva (2020) recovered keys from smart cards and TPMs this way, from
-  timing leaks of a few bits. *Cryptanalysis* tells the full story.
+  timing leaks of a few bits. *Cryptanalysis* tells the full story in [chapter 15](../cryptanalysis/15-Lattices-as-a-Weapon.md).
 - **Coppersmith's method** (Don Coppersmith, 1996) uses LLL to find small roots of
   polynomials modulo $N$; it breaks RSA with small public exponent in stereotyped
   messages, and with partly known factors (the ROCA attack on Infineon keys in 2017

@@ -460,7 +460,7 @@ scaling factor of the inverse. A full product through the NTT (two forward
 transforms, the base multiplications and one inverse) costs about 3,584
 multiplications against 65,536 for the schoolbook method. In ML-KEM the matrix
 $\hat{A}$ is generated directly in NTT form and the secret is kept in NTT form, so
-most products cost even less. The *Post-quantum cryptography* book shows the
+most products cost even less. The *Post-quantum cryptography* book ([chapter 7](../post-quantum/07-Rings-Modules-and-the-NTT.md)) shows the
 reduction tricks (Montgomery and Barrett) that make each of these multiplications
 cheap in hardware, in its [chapter 7](../post-quantum/07-Rings-Modules-and-the-NTT.md).
 
@@ -1050,7 +1050,7 @@ in *Post-quantum cryptography*,
   $n = 256$, $q = 3329$, $k = 2, 3, 4$; 3329 is the smallest NTT-friendly prime that
   leaves room for the noise.
 
-**Next:** Chapter 16 (coming in the next part of this book), probability for
+**Next:** [Chapter 16](16-Probability.md), probability for
 cryptographers: the birthday bound, statistical distance and the advantage
 calculations behind every security proof.
 

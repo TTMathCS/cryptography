@@ -307,6 +307,14 @@ nav:
               - books/mathematics/13-Counting-Points-and-Pairings.md
               - books/mathematics/14-Lattices.md
               - books/mathematics/15-Learning-with-Errors.md
+          - IV. Chance, information and codes:
+              - books/mathematics/16-Probability.md
+              - books/mathematics/17-Information-and-Entropy.md
+              - books/mathematics/18-Error-Correcting-Codes.md
+          - V. Hardness:
+              - books/mathematics/19-Complexity-and-Reductions.md
+              - books/mathematics/20-Quantum-Algorithms.md
+          - Glossary: books/mathematics/Glossary.md
       - Protocols:
           - Start here: books/protocols/index.md
           - I. The secure channel:

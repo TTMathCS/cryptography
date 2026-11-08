@@ -614,7 +614,7 @@ $$L_N\!\left[\tfrac13, \sqrt[3]{64/9}\right] = \exp\!\left( (1.923 + o(1)) \, (\
 
 which is called **subexponential**: slower than any polynomial in $n = \log_2
 N$, faster than any $2^{cn}$. Chapter 2 says more, and book 2 of this shelf,
-*Cryptanalysis*, runs the sieves. For now the point is only that the attacker's
+[*Cryptanalysis*](../cryptanalysis/11-Factoring.md), runs the sieves. For now the point is only that the attacker's
 best method grows much faster than the user's.
 
 <figure class="mars-fig">

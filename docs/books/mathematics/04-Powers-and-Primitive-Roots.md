@@ -570,7 +570,7 @@ in the same subexponential time as factoring. That is why finite-field
 Diffie-Hellman needs moduli as long as RSA's (3,072 bits for 128-bit security).
 In a group with no such special structure, such as a well-chosen elliptic curve,
 the best methods take about $\sqrt{q}$ steps for a group of prime order $q$
-(Chapter 7). *Cryptanalysis*, Chapter 12, runs all these algorithms. Here we
+(Chapter 7). *Cryptanalysis*, [Chapter 12](../cryptanalysis/12-Discrete-Logarithms.md), runs all these algorithms. Here we
 look at the one piece of structure that makes the problem *easy*, because
 avoiding it is the main rule for choosing groups.
 

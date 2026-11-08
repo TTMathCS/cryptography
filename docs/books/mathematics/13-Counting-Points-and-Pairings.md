@@ -477,7 +477,7 @@ $$
 
 for a suitable auxiliary point $S$. Gerhard Frey and Hans-Georg Rück gave the same
 reduction with the Tate pairing in 1994. Discrete logarithms in finite fields fall to
-the index-calculus and number field sieve methods of *Cryptanalysis* chapter 12,
+the index-calculus and number field sieve methods of *Cryptanalysis* [chapter 12](../cryptanalysis/12-Discrete-Logarithms.md),
 which are subexponential; on a curve, only the generic $\sqrt{r}$ methods are known.
 So if $k$ is small, the curve is only as strong as the field $\mathbb{F}_{p^k}$.
 
@@ -1051,7 +1051,7 @@ coefficient $b$ is derived from a SHA-1 hash of a **seed**, so that the designer
 supposedly could not choose $b$. For P-256 the seed is
 `c49d360886e704936a6678e1139d26b7819f7e90`. The method proves that $b$ came from the
 seed, but nothing explains where the seed came from. After the Dual_EC_DRBG affair
-(told in *Cryptanalysis*), that gap mattered to many people. No attack on P-256 is
+(told in *Cryptanalysis*, [chapter 18](../cryptanalysis/18-Random-Numbers-Gone-Wrong.md)), that gap mattered to many people. No attack on P-256 is
 known, and it remains the most widely deployed curve on the internet; but "verifiably
 random" is weaker than it sounds. The 2015 paper "How to Manipulate Curve Standards"
 by Bernstein and colleagues (the "BADA55" paper) generated curves that pass such
@@ -1228,5 +1228,5 @@ behind post-quantum cryptography, with LLL in full.
 - Craig Costello, "Pairings for Beginners" (2012), a free tutorial with worked examples.
 - Daniel Bernstein and Tanja Lange, SafeCurves, safecurves.cr.yp.to.
 - RFC 9380, Hashing to Elliptic Curves (2023).
-- In *Cryptanalysis*: chapter 12, for the index calculus and number field sieve that
+- In *Cryptanalysis*: [chapter 12](../cryptanalysis/12-Discrete-Logarithms.md), for the index calculus and number field sieve that
   the MOV attack hands the problem to.

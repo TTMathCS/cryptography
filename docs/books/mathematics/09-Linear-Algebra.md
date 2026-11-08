@@ -216,7 +216,7 @@ The third row of $B$ is the xor of the first two, so the rank is 2 and the kerne
 has dimension $4 - 2 = 2$: the four vectors $0000$, $1110$, $0101$ and $1011$.
 
 Kernels over $\mathbb{F}_2$ have a famous use. In the quadratic sieve and the
-number field sieve (*Cryptanalysis*, chapter 11), each relation found gives a
+number field sieve (*Cryptanalysis*, [chapter 11](../cryptanalysis/11-Factoring.md)), each relation found gives a
 vector of exponent parities, and a kernel vector picks out a set of relations whose
 product is a perfect square, $x^2 \equiv y^2 \pmod N$. Then $\gcd(x - y, N)$ is
 often a factor. The hard part of factoring is collecting relations; the last step
