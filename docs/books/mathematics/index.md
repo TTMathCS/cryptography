@@ -51,12 +51,12 @@ can skim the first sections of each chapter and start at the intermediate ones.
 | | [8. Rings, fields and polynomials](08-Rings-Fields-and-Polynomials.md) | intermediate |
 | | [9. Linear algebra over finite fields](09-Linear-Algebra.md) | intermediate |
 | | [10. Boolean functions and S-boxes](10-Boolean-Functions-and-S-Boxes.md) | intermediate to expert |
-| | 11. Polynomials at work *(coming next)* | intermediate to expert |
-| **III. Curves and lattices** | 12. Elliptic curves: the group *(coming)* | intermediate |
-| | 13. Elliptic curves: counting points, choosing curves, pairings *(coming)* | expert |
-| | 14. Lattices *(coming)* | intermediate to expert |
-| | 15. Polynomial rings and learning with errors *(coming)* | expert |
-| **IV. Chance, information and codes** | 16. Probability for cryptographers *(coming)* | intermediate |
+| | [11. Polynomials at work](11-Polynomials-at-Work.md) | intermediate to expert |
+| **III. Curves and lattices** | [12. Elliptic curves: the group](12-Elliptic-Curve-Group.md) | intermediate |
+| | [13. Elliptic curves: counting points, choosing curves, pairings](13-Counting-Points-and-Pairings.md) | expert |
+| | [14. Lattices](14-Lattices.md) | intermediate to expert |
+| | [15. Polynomial rings and learning with errors](15-Learning-with-Errors.md) | expert |
+| **IV. Chance, information and codes** | 16. Probability for cryptographers *(coming next)* | intermediate |
 | | 17. Information and entropy *(coming)* | intermediate |
 | | 18. Error-correcting codes *(coming)* | intermediate to expert |
 | **V. Hardness** | 19. Complexity, reductions and hard problems *(coming)* | expert |

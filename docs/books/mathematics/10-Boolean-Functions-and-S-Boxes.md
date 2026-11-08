@@ -900,7 +900,7 @@ multiplications as possible.
   open problem. The DES S-boxes were designed against a differential attack kept
   secret for twenty years.
 
-**Next:** Chapter 11 (coming in the next part of this book), polynomials at work:
+**Next:** [Chapter 11](11-Polynomials-at-Work.md), polynomials at work:
 interpolation, secret sharing, the fast Fourier and number-theoretic transforms,
 and why zero-knowledge proofs are polynomial tricks.
 

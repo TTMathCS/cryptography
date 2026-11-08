@@ -302,6 +302,12 @@ nav:
               - books/mathematics/08-Rings-Fields-and-Polynomials.md
               - books/mathematics/09-Linear-Algebra.md
               - books/mathematics/10-Boolean-Functions-and-S-Boxes.md
+              - books/mathematics/11-Polynomials-at-Work.md
+          - III. Curves and lattices:
+              - books/mathematics/12-Elliptic-Curve-Group.md
+              - books/mathematics/13-Counting-Points-and-Pairings.md
+              - books/mathematics/14-Lattices.md
+              - books/mathematics/15-Learning-with-Errors.md
       - Protocols:
           - Start here: books/protocols/index.md
           - I. The secure channel:
