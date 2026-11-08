@@ -276,6 +276,13 @@ nav:
               - books/protocols/03-TLS-1.3-Message-by-Message.md
               - books/protocols/04-Thirty-Years-of-TLS-Attacks.md
               - books/protocols/05-TLS-in-Practice.md
+      - Post-quantum cryptography:
+          - Start here: books/post-quantum/index.md
+          - I. The threat and the yardsticks:
+              - books/post-quantum/01-The-Quantum-Threat-Measured.md
+              - books/post-quantum/02-Security-Levels.md
+              - books/post-quantum/03-KEMs-and-Signatures.md
+              - books/post-quantum/04-A-Field-Guide-to-Hard-Problems.md
       - History of secret writing:
           - history/index.md
           - history/01-Ancient.md
