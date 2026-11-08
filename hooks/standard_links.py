@@ -25,7 +25,7 @@ TAG_NAME = re.compile(r"<\s*(/?)\s*([a-zA-Z0-9]+)")
 PATTERN = re.compile(
     r"(?P<rfc>RFCs? ?(?P<rfcn>\d{3,5})(?P<rsec>(?: §| [Ss]ection )(?P<secn>\d+(?:\.\d+)*))?)"
     r"(?P<range>[–-](?P<rfc2>\d{3,5}))?"
-    r"|(?P<nist>(?:SP ?800-\d+[A-Z]?(?:-\d)?|FIPS ?\d{2,3}(?:-\d)?)(?: Rev\. ?\d)?|NIST ?IR ?\d+)"
+    r"|(?P<nist>(?:SP ?800-\d+[A-Z]?(?:-\d)?|FIPS ?\d{2,3}(?:-\d)?)(?: Rev\. ?\d)?|NIST ?IR ?\d+(?:[A-Z]\b)?)"
     r"|(?P<draft>draft-[a-z0-9]+(?:-[a-z0-9]+)*)"
     r"|(?P<bip>BIP[- ]?0*(?P<bipn>\d{1,4}))(?![\d-])"
     r"|(?P<sec>SEC (?P<secv>[12]))(?![\d.])"

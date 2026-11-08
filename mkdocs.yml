@@ -352,6 +352,13 @@ nav:
               - books/post-quantum/17-Implementing-Post-Quantum-Safely.md
               - books/post-quantum/18-Hybrids-and-the-Migration.md
           - Glossary: books/post-quantum/Glossary.md
+      - Advanced protocols and privacy:
+          - Start here: books/advanced/index.md
+          - I. Sharing and committing:
+              - books/advanced/01-Computing-With-Secrets.md
+              - books/advanced/02-Secret-Sharing.md
+              - books/advanced/03-Commitments.md
+              - books/advanced/04-Threshold-Cryptography.md
       - History of secret writing:
           - history/index.md
           - history/01-Ancient.md
