@@ -1467,7 +1467,7 @@ the messages were already sent and nothing could be done about them.
 The project, given the cover name **Venona** late in its life, ran until 1980.
 About 2,900 messages were read, most only in part, out of the hundreds of
 thousands collected; only the duplicated pages were ever breakable. The
-decrypts were released to the public in 1995 and 1996.
+decrypts were released to the public in a series that began in July 1995.
 
 The lesson is the clean one. The cipher was perfect. The key distribution, a
 factory under wartime pressure, was not. Every modern stream cipher and every
@@ -1481,7 +1481,7 @@ failure, as [Chapter 8](08-Attacks-on-Stream-Ciphers.md) and
     traffic enciphered with one-time pad pages that had been printed twice in
     1942 · **Helped:** exposed Soviet espionage in the United States, Britain
     and Australia, including the atomic spies · **Status:** closed in 1980;
-    about 2,900 messages released in 1995 and 1996; the standard example of a
+    about 2,900 messages released from 1995; the standard example of a
     two-time pad
 
 ## 3.11 The other side of the war
@@ -1613,8 +1613,8 @@ more general clauses.
 
 **Banburismus and the deciban.** For the naval Enigma, Turing compared pairs of
 messages offset against each other and counted repeats. Two messages in depth
-(the same rotor positions) repeat letters at the plaintext rate, about $0.076$
-for German, against $1/26 \approx 0.038$ for unrelated text. Turing scored evidence in
+(the same rotor positions) repeat letters at the plaintext rate, about $1/17 \approx 0.059$
+for German naval messages, against $1/26 \approx 0.038$ for unrelated text. Turing scored evidence in
 **bans** and **decibans**, units of $\log_{10}$ of a Bayes factor, so that
 evidence from independent observations simply added. The sheets were printed
 in Banbury, hence the name. Jack Good, who worked with Turing, went on to

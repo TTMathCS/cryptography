@@ -1840,7 +1840,7 @@ $2^{-128}$; none exists past three rounds.
 
 Two cautions keep this honest. The bound is on **characteristics**, and the
 attack in §5.4 used a **differential**, which sums trails. Bounding the
-differential needs more work: Sangwoo Park and colleagues proved in 2003 that
+differential needs more work: Sangwoo Park and colleagues proved in 2002 that
 no four-round AES differential, averaged over keys, exceeds about $2^{-96}$,
 and later work tightened that. Either way, ordinary differential cryptanalysis
 is far out of reach. And the bound says nothing about the variants of §5.7,
@@ -1995,7 +1995,7 @@ between two encryptions.
 
 ??? question "10. AES has at least 25 active S-boxes in any 4-round characteristic. Why does that not, by itself, prove AES secure against every differential-style attack?"
     The bound is on single characteristics. Differentials sum many of them
-    (bounds exist, near $2^{-96}$ for four rounds, but need separate proofs).
+    (bounds exist, about $2^{-96}$ and later $2^{-111}$ for four rounds, but need separate proofs).
     It also says nothing about boomerangs, which use two short differentials;
     impossible differentials, which use probability 0; truncated and integral
     properties; or related-key attacks, which put differences in the key
