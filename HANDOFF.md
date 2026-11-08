@@ -201,6 +201,11 @@ Copy the layout, never their text.
   this work; still tell him what is about to go live.
 - Commits: author `Jim C <cntourit@gmail.com>` (`git config user.name/user.email` in the clone); the Claude
   model trailer lines may follow (Jim, 8 Nov 2026; Mars-Requirements RULES.md).
+- Commits without permission prompts (Jim is tired of them, 8 Nov 2026): write the commit message to a file with
+  the Write tool, then run plain, separate commands, no `&&` chains, redirects or heredocs: `git add <paths>`;
+  `git -c user.name="Jim C" -c user.email=cntourit@gmail.com commit -q -F /path/msg.txt`; `git pull --rebase origin
+  main`; `git push origin HEAD:main`. The tracked `hooks/__pycache__/*.pyc` changes on every build; `git checkout
+  hooks/__pycache__/` before the pull.
 - `hooks/standard_links.py` turns names like "RFC 8446" or "FIPS 197" into links
   at build time; NIST names must be in `hooks/standards.json`, and
   `tools/check-standards.sh` lists missing ones.
