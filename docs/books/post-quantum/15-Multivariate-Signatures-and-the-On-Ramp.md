@@ -527,7 +527,7 @@ structure added for efficiency is a new place for an attack to grip. The SIKE st
 multivariate family: **HFE** (Hidden Field Equations, Patarin 1996). Its central map is a
 single polynomial of low degree over a large extension field, which the signer can solve with
 root finding; viewed over the base field it becomes a system of quadratics. GeMSS had
-signatures of about 33 bytes and public keys of hundreds of kilobytes. In 2021, Chengdong Tao,
+signatures of about 32 bytes and public keys of hundreds of kilobytes. In 2021, Chengdong Tao,
 Albrecht Petzoldt and Jintai Ding published "Efficient Key Recovery for All HFE Signature
 Variants" (CRYPTO 2021), and later MinRank work lowered GeMSS's security further. It was not
 selected.

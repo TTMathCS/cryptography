@@ -353,7 +353,7 @@ systems around 2030, finish everything by 2035.
 | NIST (US federal) | NIST IR 8547 (final 27 October 2026) | quantum-vulnerable algorithms deprecated after 2030 and disallowed after 2035 |
 | UK NCSC | migration timelines (March 2025) | discovery and planning by 2028; highest-priority migrations by 2031; complete by 2035 |
 | European Union | coordinated implementation roadmap (June 2025) | first steps by end of 2026; high-risk systems by end of 2030; as many systems as feasible by 2035 |
-| Canada | Canadian Centre for Cyber Security roadmap (June 2025) | departmental plans by April 2026; high-priority systems by end of 2031; the rest by end of 2035 |
+| Canada | Canadian Centre for Cyber Security roadmap (June 2025) | high-priority systems by end of 2031; the rest by end of 2035 (non-classified federal systems) |
 
 *Table 18.1. National migration timelines as of November 2026. Each document has more detail,
 exceptions and categories than one line can show; read the source before planning against it.*
