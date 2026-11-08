@@ -853,7 +853,7 @@ group action in CSIDH (2018), grows directly from this theory.
 - In the full group mod $p$, the Legendre symbol leaks one bit of every
   Diffie-Hellman exponent; prime-order subgroups remove the leak.
 
-**Next:** Chapter 6 (coming soon), how to tell whether a 1,024-bit
+**Next:** [Chapter 6](06-Primality-Testing.md), how to tell whether a 1,024-bit
 number is prime, and how keys are made.
 
 ## Further reading

@@ -46,12 +46,12 @@ can skim the first sections of each chapter and start at the intermediate ones.
 | | [3. Modular arithmetic](03-Modular-Arithmetic.md) | beginner to intermediate |
 | | [4. Powers, orders and primitive roots](04-Powers-and-Primitive-Roots.md) | beginner to intermediate |
 | | [5. Squares and square roots](05-Square-Roots-Mod-p.md) | intermediate |
-| | 6. Primality testing and making primes *(coming next)* | intermediate |
-| **II. Algebra** | 7. Groups *(coming)* | intermediate |
-| | 8. Rings, fields and polynomials *(coming)* | intermediate |
-| | 9. Linear algebra over finite fields *(coming)* | intermediate |
-| | 10. Boolean functions and S-boxes *(coming)* | intermediate to expert |
-| | 11. Polynomials at work *(coming)* | intermediate to expert |
+| | [6. Primality testing and making primes](06-Primality-Testing.md) | intermediate |
+| **II. Algebra** | [7. Groups](07-Groups.md) | intermediate |
+| | [8. Rings, fields and polynomials](08-Rings-Fields-and-Polynomials.md) | intermediate |
+| | [9. Linear algebra over finite fields](09-Linear-Algebra.md) | intermediate |
+| | [10. Boolean functions and S-boxes](10-Boolean-Functions-and-S-Boxes.md) | intermediate to expert |
+| | 11. Polynomials at work *(coming next)* | intermediate to expert |
 | **III. Curves and lattices** | 12. Elliptic curves: the group *(coming)* | intermediate |
 | | 13. Elliptic curves: counting points, choosing curves, pairings *(coming)* | expert |
 | | 14. Lattices *(coming)* | intermediate to expert |

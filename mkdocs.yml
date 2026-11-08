@@ -283,6 +283,12 @@ nav:
               - books/mathematics/03-Modular-Arithmetic.md
               - books/mathematics/04-Powers-and-Primitive-Roots.md
               - books/mathematics/05-Square-Roots-Mod-p.md
+              - books/mathematics/06-Primality-Testing.md
+          - II. Algebra:
+              - books/mathematics/07-Groups.md
+              - books/mathematics/08-Rings-Fields-and-Polynomials.md
+              - books/mathematics/09-Linear-Algebra.md
+              - books/mathematics/10-Boolean-Functions-and-S-Boxes.md
       - Protocols:
           - Start here: books/protocols/index.md
           - I. The secure channel:
