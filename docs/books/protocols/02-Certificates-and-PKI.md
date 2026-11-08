@@ -1153,11 +1153,11 @@ Rivest, Butler Lampson and others) proposed local names and authorization
 certificates instead of global names. The web of trust (PGP,
 Chapter 15) lets users vouch for each other.
 DANE (RFC 6698, 2012) puts a server's key in DNSSEC-signed DNS records
-(Chapter 10); it is used for email between
+([Chapter 10](10-DNSSEC-and-Private-DNS.md)); it is used for email between
 servers but no browser enforces it. HTTP Public Key Pinning (RFC 7469, 2015)
 let sites pin their own keys in browsers; it locked out sites that lost their
 keys, was deprecated in Chrome in 2018 and was removed in 2019. Trust on first use, as SSH does it,
-remains the main alternative (Chapter 6).
+remains the main alternative ([Chapter 6](06-SSH.md)).
 
 ## Check yourself
 

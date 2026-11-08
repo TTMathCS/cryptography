@@ -43,12 +43,12 @@ sections. Each chapter marks its sections *beginner*, *intermediate* or
 | | [3. TLS 1.3, message by message](03-TLS-1.3-Message-by-Message.md) | intermediate |
 | | [4. Thirty years of TLS attacks](04-Thirty-Years-of-TLS-Attacks.md) | intermediate |
 | | [5. TLS in practice: QUIC, DTLS and the web](05-TLS-in-Practice.md) | intermediate |
-| **II. Links and networks** | 6. SSH | coming next |
-| | 7. IPsec and IKEv2 | |
-| | 8. WireGuard and the Noise framework | |
-| | 9. Wi-Fi security | |
-| | 10. DNSSEC and private DNS | |
-| **III. Identity and access** | 11. One-time codes and password protocols | |
+| **II. Links and networks** | [6. SSH](06-SSH.md) | intermediate |
+| | [7. IPsec and IKEv2](07-IPsec-and-IKEv2.md) | intermediate |
+| | [8. WireGuard and the Noise framework](08-WireGuard-and-Noise.md) | intermediate |
+| | [9. Wi-Fi security](09-Wi-Fi-Security.md) | beginner to intermediate |
+| | [10. DNSSEC and private DNS](10-DNSSEC-and-Private-DNS.md) | intermediate |
+| **III. Identity and access** | 11. One-time codes and password protocols | coming next |
 | | 12. Kerberos | |
 | | 13. Passkeys: FIDO2 and WebAuthn | |
 | | 14. OAuth, OpenID Connect and JSON Web Tokens | |
@@ -65,6 +65,7 @@ chapter is out, the short page on that protocol under
 chapter appears, the old page forwards to it.
 
 **Where to start:** new to protocols, read chapters 1 to 3 in order. Running a
-web server: chapters 2, 3 and 5. Interested in attacks: chapter 4, then book 2,
+web server: chapters 2, 3 and 5. Running servers, VPNs or a network:
+chapters 6 to 10. Interested in attacks: chapter 4, then book 2,
 *Cryptanalysis*. The short tour of the same ground is
 [Chapter 19 of book 1](../../book/19-Protocols.md).

@@ -315,7 +315,7 @@ compression altogether.
     1994 · **Purpose:** a fast stream cipher, and in 2011-2013 the advice
     against BEAST and Lucky Thirteen · **Helped:** carried a large share of
     HTTPS traffic for years, and protected WEP and early WPA
-    (Chapter 9) · **Retired:** prohibited in TLS by
+    ([Chapter 9](09-Wi-Fi-Security.md)) · **Retired:** prohibited in TLS by
     RFC 7465 (February 2015); removed from browsers in 2016 · **Replaced
     by:** AES-GCM and ChaCha20-Poly1305
 

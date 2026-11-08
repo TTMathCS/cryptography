@@ -281,7 +281,7 @@ the same; the record layer must change:
   number is encrypted, much like QUIC's header protection.
 - **A replay window.** Datagrams arrive out of order, so the receiver keeps a
   sliding window of recently seen sequence numbers and drops duplicates. The
-  same mechanism protects IPsec, and is coded in Chapter 7.
+  same mechanism protects IPsec, and is coded in [Chapter 7](07-IPsec-and-IKEv2.md).
 - **Retransmission of the handshake.** Handshake messages are numbered and
   resent on a timer if no answer comes; large ones are fragmented.
 - **Cookies.** As in QUIC's Retry, a DTLS server answers a first ClientHello
@@ -714,7 +714,7 @@ proofs.
 - Good configuration (TLS 1.2 and 1.3 only, AEAD, hybrid groups, automated
   certificates, rotated ticket keys) prevents most real problems.
 
-**Next:** Chapter 6, the other great secure channel, which trusts
+**Next:** [Chapter 6](06-SSH.md), the other great secure channel, which trusts
 keys without any certificate authority at all.
 
 ## Further reading

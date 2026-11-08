@@ -97,6 +97,11 @@ not_in_nav: |
   /learn/
   /protocols/PKI.md
   /protocols/TLS-1.3.md
+  /protocols/SSH.md
+  /protocols/IPsec.md
+  /protocols/WireGuard.md
+  /protocols/Wi-Fi.md
+  /protocols/DNSSEC.md
 
 nav:
   # Five tabs at most, the same on every course site (cntourit, 8 Nov 2026: "messy and confusing", "same format and similar categories"):
@@ -202,12 +207,8 @@ nav:
       - Protocols, formats and tools:
           - Protocols:
               - protocols/index.md
-              - protocols/SSH.md
               - protocols/Signal.md
               - protocols/MLS.md
-              - protocols/WireGuard.md
-              - protocols/IPsec.md
-              - protocols/Wi-Fi.md
               - protocols/OpenPGP.md
               - protocols/S-MIME.md
               - protocols/age.md
@@ -215,7 +216,6 @@ nav:
               - protocols/Kerberos.md
               - protocols/FIDO2.md
               - protocols/TOTP.md
-              - protocols/DNSSEC.md
               - protocols/Disk-Encryption.md
               - protocols/Bitcoin.md
           - Formats:
@@ -291,6 +291,12 @@ nav:
               - books/protocols/03-TLS-1.3-Message-by-Message.md
               - books/protocols/04-Thirty-Years-of-TLS-Attacks.md
               - books/protocols/05-TLS-in-Practice.md
+          - II. Links and networks:
+              - books/protocols/06-SSH.md
+              - books/protocols/07-IPsec-and-IKEv2.md
+              - books/protocols/08-WireGuard-and-Noise.md
+              - books/protocols/09-Wi-Fi-Security.md
+              - books/protocols/10-DNSSEC-and-Private-DNS.md
       - Post-quantum cryptography:
           - Start here: books/post-quantum/index.md
           - I. The threat and the yardsticks:

@@ -26,7 +26,7 @@ The file is an `OPENSSH PRIVATE KEY` ([file formats](../formats/File-Formats.md#
 public key in the clear, the rest under AES-256-CTR keyed by [bcrypt_pbkdf](../08-kdf-password-hashing/bcrypt.md),
 whose cost grows linearly with `-a`: 24 rounds in 9.6 (its man page says 16), 32 in 10.6. `-sk` keys
 need the device (here: `device not found`) and keep their secret in it ([FIDO2](../protocols/FIDO2.md)).
-Which type: [SSH](../protocols/SSH.md#choosing-ssh-keys). 9.6 still makes `-t dsa` keys; 10.0 (2025) removed DSA.
+Which type: [SSH, choosing a key type](../books/protocols/06-SSH.md#choosing-a-key-type). 9.6 still makes `-t dsa` keys; 10.0 (2025) removed DSA.
 10.4 (2026) added `-t mldsa44-ed25519` ([ML-DSA](../02-signatures/ML-DSA.md)-44 with Ed25519), off by
 default; 10.6 renamed it `ssh-mldsa44-ed25519` (remake `@openssh.com` keys) and enabled it.
 Post-quantum key exchange is `ssh`'s (`mlkem768x25519-sha256`, 10.0) and needs no new keys.

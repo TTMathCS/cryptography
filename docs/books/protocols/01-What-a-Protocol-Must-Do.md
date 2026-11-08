@@ -606,7 +606,7 @@ carry counters. They need state on both sides and break if the state is lost:
 a device that restarts and starts counting from zero again is replaying its own
 numbers. Over unreliable transports the receiver keeps a **sliding window** of
 recently seen numbers rather than demanding strict order; you code one in
-Chapter 7.
+[Chapter 7](07-IPsec-and-IKEv2.md).
 
 !!! note "Life story: the Denning-Sacco attack"
     **Born:** 1981, Dorothy Denning and Giovanni Sacco, "Timestamps in key
@@ -629,7 +629,7 @@ covers less than the designers thought.
   as another. (Several TLS attacks in [Chapter 4](04-Thirty-Years-of-TLS-Attacks.md)
   are of this kind.)
 - Encryption without authentication lets the attacker change ciphertexts in
-  predictable ways; WEP (Chapter 9) and early SSH
+  predictable ways; WEP ([Chapter 9](09-Wi-Fi-Security.md)) and early SSH
   modes both suffered.
 - A negotiation whose offers are not authenticated lets the attacker delete the
   strong offers: the **downgrade attack**.
@@ -746,7 +746,7 @@ There are four families, and they recur through the book.
    key, from configuration or from a first contact it chose to trust, and mixes
    it into the key derivation. SSH's `known_hosts`, WireGuard's configured peer
    keys and Signal's identity keys work this way
-   (Chapters 6, 8, 16).
+   ([Chapters 6](06-SSH.md), [8](08-WireGuard-and-Noise.md), 16).
 3. **Pre-shared symmetric keys.** Both sides already share a secret, and MAC
    the exchange with it. TLS resumption, WPA2-Personal and Kerberos tickets work
    this way.
@@ -1156,7 +1156,7 @@ own place later in the book.
 - **KRACK** (2017, Mathy Vanhoef and Frank Piessens). The WPA2 handshake had
   been proved secure; the proof didn't model *when* keys were installed, and
   replaying one handshake message made clients reinstall a key and reuse
-  nonces (Chapter 9).
+  nonces ([Chapter 9](09-Wi-Fi-Security.md)).
 - **5G authentication** (2018). A Tamarin analysis of the 3GPP 5G
   authentication protocol by David Basin, Cas Cremers and colleagues found that
   some of its security goals were not stated precisely and some properties were
