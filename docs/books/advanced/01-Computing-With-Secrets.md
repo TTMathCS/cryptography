@@ -80,7 +80,7 @@ two people who had just divorced could flip a fair coin over the phone
 ([Chapter 3](03-Commitments.md)), and Michael Rabin introduced a strange
 primitive called oblivious transfer. In 1985 Shafi Goldwasser, Silvio Micali and
 Charles Rackoff showed how to prove a statement while revealing nothing but its
-truth (Chapter 5). Then in 1987 Oded Goldreich,
+truth ([Chapter 5](05-Zero-Knowledge-Proofs.md)). Then in 1987 Oded Goldreich,
 Silvio Micali and Avi Wigderson published "How to Play Any Mental Game", whose
 title nods to mental poker and whose theorem settles the question in general:
 for any function at all, any number of parties can compute it on their private
@@ -525,7 +525,7 @@ anything at all: send malformed or inconsistent messages, choose its messages
 after seeing the honest ones, stop halfway, or run several sessions at once and
 mix their messages. Protection against malicious parties needs extra machinery,
 usually commitments ([Chapter 3](03-Commitments.md)) to fix values in advance,
-zero-knowledge proofs (Chapter 5) that each
+zero-knowledge proofs ([Chapter 5](05-Zero-Knowledge-Proofs.md)) that each
 message was computed correctly, or message authentication codes on shared
 values (Chapter 10). In 1987
 Goldreich, Micali and Wigderson showed a general **compiler** that turns any
@@ -587,7 +587,7 @@ trusted party for the whole computation:
 
 - a **common reference string**, public random-looking values generated before
   the protocol by someone who then forgets the secret randomness used to make
-  them. The zero-knowledge SNARKs of Chapter 7 need one, and the
+  them. The zero-knowledge SNARKs of [Chapter 7](07-SNARKs.md) need one, and the
   famous **ceremonies** of [Chapter 3](03-Commitments.md) (Zcash in 2016,
   Ethereum's KZG ceremony in 2023) spread the generation across many
   participants so that one honest participant is enough;
@@ -847,8 +847,8 @@ adversary $A$ inside itself, feeding it fake honest messages, and from what
 $A$ sends it must work out which input $A$ is effectively using, then hand that
 input to Trent. This step is called **extraction**, and it is why so many
 protocols in this book make each party commit to its input or prove it knows
-it ([Chapters 3](03-Commitments.md), 5 and
-6). Second, what must match is not the
+it ([Chapters 3](03-Commitments.md), [5](05-Zero-Knowledge-Proofs.md) and
+[6](06-Sigma-Protocols-and-Fiat-Shamir.md)). Second, what must match is not the
 adversary's view alone but the **joint** distribution of the adversary's view
 and the honest parties' outputs:
 
@@ -1157,7 +1157,7 @@ except for what the output implies. It is what secure computation
 10), homomorphic encryption
 (Chapter 12), private set intersection
 (Chapter 11) and zero-knowledge
-proofs (where the hidden input is a witness, Chapter 5)
+proofs (where the hidden input is a witness, [Chapter 5](05-Zero-Knowledge-Proofs.md))
 provide.
 
 ### Output privacy
@@ -1414,7 +1414,7 @@ and $t$.
   would refuse any vote other than 0 or 1, so this protocol is not secure
   against a malicious member. The fix is a zero-knowledge proof, attached to the
   shares or to an encrypted ballot, that the vote is 0 or 1 without saying which
-  (Chapter 6's OR-proof, used in
+  ([Chapter 6](06-Sigma-Protocols-and-Fiat-Shamir.md)'s OR-proof, used in
   Chapter 16).
 - **Coercion.** A member under pressure could show the shares they sent to a
   district boss, who could check them against the tellers. Making a vote
@@ -1555,14 +1555,14 @@ of trust.
 **Part II. Proving without revealing.** Zero knowledge, from the first
 interactive proofs to the short proofs that check blockchains.
 
-- Chapter 5, zero-knowledge proofs: completeness,
+- [Chapter 5](05-Zero-Knowledge-Proofs.md), zero-knowledge proofs: completeness,
   soundness and the simulator, with graph isomorphism coded in full.
-- Chapter 6, sigma protocols and
+- [Chapter 6](06-Sigma-Protocols-and-Fiat-Shamir.md), sigma protocols and
   Fiat-Shamir: Schnorr's protocol, extractors, AND and OR proofs, and how weak
   hashing broke real systems. Mars: an airlock badge that names nobody.
-- Chapter 7, SNARKs: turning a program into polynomials,
+- [Chapter 7](07-SNARKs.md), SNARKs: turning a program into polynomials,
   Groth16 and PLONK in outline, and the Zcash counterfeiting flaw.
-- Chapter 8, STARKs, Bulletproofs and
+- [Chapter 8](08-STARKs-Bulletproofs-and-Recursion.md), STARKs, Bulletproofs and
   recursion: proofs with no trusted setup, and proofs that check proofs.
 
 **Part III. Computing on hidden data.** The general tools for secure
@@ -1705,7 +1705,7 @@ The proofs need care too: simulators often **rewind** the adversary, running it
 again from an earlier point, and a quantum adversary's state cannot simply be
 copied and rerun. John Watrous showed in 2006 how to rewind in some important
 cases, and the question shapes the post-quantum proof systems of
-Chapter 8.
+[Chapter 8](08-STARKs-Bulletproofs-and-Recursion.md).
 
 ## Check yourself
 

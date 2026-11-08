@@ -34,7 +34,7 @@ dozen organizations at once, and a housing lottery on Mars that nobody can rig.*
     from book 1, [Chapter 14](../../book/14-Discrete-Log-Systems.md), and RSA from
     [Chapter 13](../../book/13-RSA.md). The proofs that partial results are correct
     are Chaum-Pedersen proofs, taught in
-    Chapter 6; here they are used, not
+    [Chapter 6](06-Sigma-Protocols-and-Fiat-Shamir.md); here they are used, not
     re-derived. Book 1's [Chapter 23](../../book/23-Advanced-Protocols.md) gives a
     one-section summary of this whole chapter.
 
@@ -348,7 +348,7 @@ $$
 two discrete logarithms that are equal. The holder attaches a **Chaum-Pedersen
 proof** of exactly that statement: a three-move proof, made non-interactive with a
 hash, that convinces anyone the two exponents are the same without revealing
-$x_i$. Chapter 6 builds this proof from
+$x_i$. [Chapter 6](06-Sigma-Protocols-and-Fiat-Shamir.md) builds this proof from
 the Schnorr proof and codes it; §4.9 and §4.11 below use it as a black box. With
 the proofs, the combiner throws away bad partial results and uses any $t$ good
 ones, so the scheme is robust: up to $t - 1$ liars cannot stop it or corrupt it,
@@ -743,7 +743,7 @@ half the holders are corrupt.
 ### Practical details
 
 Real DKGs add a few more pieces. Each dealer attaches a **proof of knowledge** of
-its $a_{i0}$ (a Schnorr proof, Chapter 6),
+its $a_{i0}$ (a Schnorr proof, [Chapter 6](06-Sigma-Protocols-and-Fiat-Shamir.md)),
 so that nobody can choose $A_{i0}$ as a function of others' commitments, a rogue
 key of the kind §4.6 attacks; Komlo and Goldberg's FROST paper does exactly this.
 Every share index must be checked to be nonzero and distinct, because a share at
@@ -1409,7 +1409,7 @@ for rounds in (1, 2, 4, 8, 16, 128):
 ```
 
 A cheater who can retry offline, because the challenge comes from a hash it can
-recompute (Fiat-Shamir, Chapter 6), needs
+recompute (Fiat-Shamir, [Chapter 6](06-Sigma-Protocols-and-Fiat-Shamir.md)), needs
 about $2^{r}$ attempts for $r$ rounds: trivial for 16, impossible for 128. The
 attacks did not break the mathematics; they found where code stopped short of it.
 
@@ -1954,7 +1954,7 @@ be added up across signers instead of rejection sampling.
   key holder, threshold BLS beacons such as drand for a group, and the same tools
   allocate homes in a lottery that every family can audit.
 
-**Next:** Chapter 5, where the proofs used here as
+**Next:** [Chapter 5](05-Zero-Knowledge-Proofs.md), where the proofs used here as
 black boxes become the subject: how to convince someone of a fact while telling them
 nothing else.
 

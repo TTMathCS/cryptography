@@ -359,6 +359,11 @@ nav:
               - books/advanced/02-Secret-Sharing.md
               - books/advanced/03-Commitments.md
               - books/advanced/04-Threshold-Cryptography.md
+          - II. Proving without revealing:
+              - books/advanced/05-Zero-Knowledge-Proofs.md
+              - books/advanced/06-Sigma-Protocols-and-Fiat-Shamir.md
+              - books/advanced/07-SNARKs.md
+              - books/advanced/08-STARKs-Bulletproofs-and-Recursion.md
       - History of secret writing:
           - history/index.md
           - history/01-Ancient.md

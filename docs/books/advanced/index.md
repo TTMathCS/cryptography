@@ -60,10 +60,10 @@ privacy statistics, from first idea to current research.
 | | [2. Secret sharing](02-Secret-Sharing.md) | beginner to intermediate |
 | | [3. Commitments and coin flipping](03-Commitments.md) | beginner to intermediate |
 | | [4. Threshold cryptography and shared randomness](04-Threshold-Cryptography.md) | intermediate to expert |
-| **II. Proving without revealing** | 5. Zero-knowledge proofs | intermediate |
-| | 6. Sigma protocols and Fiat-Shamir | intermediate |
-| | 7. SNARKs: short proofs about any computation | expert |
-| | 8. STARKs, Bulletproofs and recursion | expert |
+| **II. Proving without revealing** | [5. Zero-knowledge proofs](05-Zero-Knowledge-Proofs.md) | intermediate |
+| | [6. Sigma protocols and Fiat-Shamir](06-Sigma-Protocols-and-Fiat-Shamir.md) | intermediate |
+| | [7. SNARKs: short proofs about any computation](07-SNARKs.md) | expert |
+| | [8. STARKs, Bulletproofs and recursion](08-STARKs-Bulletproofs-and-Recursion.md) | expert |
 | **III. Computing on hidden data** | 9. Oblivious transfer and garbled circuits | intermediate |
 | | 10. Multi-party computation in practice | intermediate to expert |
 | | 11. Private set intersection, OPRFs and private information retrieval | intermediate |

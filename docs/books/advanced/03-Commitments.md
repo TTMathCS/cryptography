@@ -73,7 +73,7 @@ you reveal $m$ and $r$, and anyone can recompute $C$ and check it.
 
 Commitments sound modest, yet they are among the most used tools in this book.
 Every zero-knowledge proof in Part II begins with a commitment
-(Chapter 5); verifiable secret sharing
+([Chapter 5](05-Zero-Knowledge-Proofs.md)); verifiable secret sharing
 ([Chapter 2](02-Secret-Sharing.md)) works because the dealer commits to the
 polynomial; confidential payments hide every amount in one; transparency logs
 commit to huge directories so a server cannot show different people different
@@ -765,9 +765,9 @@ The books balance and 100 units have appeared from nowhere. Every system that
 adds hidden amounts must therefore attach to each output a **range proof**, a
 zero-knowledge proof that the committed value lies between 0 and, say, $2^{64}$.
 Bulletproofs, the compact range proofs Monero adopted in 2018, are in
-Chapter 8. The Zcash counterfeiting
+[Chapter 8](08-STARKs-Bulletproofs-and-Recursion.md). The Zcash counterfeiting
 flaw found in 2018 was a different bug with the same possible effect, coins
-from nothing, and it is told in Chapter 7.
+from nothing, and it is told in [Chapter 7](07-SNARKs.md).
 
 **Reused randomness.** Two commitments with the same $r$ give
 $C_1 / C_2 = g^{m_1 - m_2}$: the $h$ part cancels. If the difference is small,
@@ -789,7 +789,7 @@ out of Pedersen commitments. The privacy coins and their limits are
 Chapter 18.
 
 **Inside proofs.** Pedersen commitments are the first message of many
-zero-knowledge proofs (Chapter 6), the
+zero-knowledge proofs ([Chapter 6](06-Sigma-Protocols-and-Fiat-Shamir.md)), the
 building block of Bulletproofs, and the commitments to coefficients in Pedersen
 and Feldman verifiable secret sharing ([Chapter 2](02-Secret-Sharing.md)).
 
@@ -1109,7 +1109,7 @@ interpolation, [Chapter 11 of the mathematics book](../mathematics/11-Polynomial
 a polynomial commitment is also a vector commitment with constant-size
 openings. And since almost every succinct proof system turns a computation into
 polynomial identities, polynomial commitments are the engine room of the SNARKs
-in Chapter 7.
+in [Chapter 7](07-SNARKs.md).
 
 The scheme in use today was published in 2010 by Aniket Kate, Gregory Zaverucha
 and Ian Goldberg, then at the University of Waterloo, and is known by their
@@ -1255,7 +1255,7 @@ Reed-Solomon code and gives each cell its own KZG proof, so that a node can chec
 a random sample of cells instead of downloading every blob.
 
 PLONK (2019) and the many proof systems built on it use KZG to commit to the
-polynomials that encode a computation (Chapter 7); Groth16 does
+polynomials that encode a computation ([Chapter 7](07-SNARKs.md)); Groth16 does
 not use KZG but needs a trusted setup of the same kind.
 
 !!! note "Life story: KZG polynomial commitments"
@@ -1267,7 +1267,7 @@ not use KZG but needs a trusted setup of the same kind.
     and its data-availability sampling since December 2025; verifiable
     secret sharing and vector commitments · **Status:** current; needs a
     trusted setup and pairings, and is not post-quantum, so hash-based
-    commitments (FRI, Chapter 8)
+    commitments (FRI, [Chapter 8](08-STARKs-Bulletproofs-and-Recursion.md))
     compete with it
 
 ## 3.7 Trusted-setup ceremonies
@@ -1310,7 +1310,7 @@ So each participant publishes $g_2^{\tau}$ alongside the new powers, and anyone
 can check with pairings that (a) the new first power is the old one raised to
 the $\tau$ behind $g_2^{\tau}$, and (b) the list is still a chain of powers of
 one number: $e(P_{i+1}, g_2) = e(P_i, g_2^{s})$ for each $i$. A short proof of
-knowledge of $\tau$ (a Schnorr proof, Chapter 6)
+knowledge of $\tau$ (a Schnorr proof, [Chapter 6](06-Sigma-Protocols-and-Fiat-Shamir.md))
 stops a participant from building on someone else's contribution as if it were
 their own.
 
@@ -1408,7 +1408,7 @@ whenever their turn comes, and the number of participants is unlimited. **Phase
 November 2017 to April 2018 and accepted 87 contributions; the Sapling phase 2
 that followed in 2018 accepted more than 90. Since its Orchard upgrade of 2022,
 Zcash uses Halo 2, which needs no trusted setup at all
-(Chapter 8,
+([Chapter 8](08-STARKs-Bulletproofs-and-Recursion.md),
 Chapter 18).
 
 There is a coda that shows why the setup is more than ceremony. In March 2018
@@ -1416,7 +1416,7 @@ Ariel Gabizon found that the parameters generated in 2016 contained extra
 elements that should never have been published, and that with them anyone could
 have forged proofs and minted coins. The flaw was quietly fixed with the Sapling
 upgrade and disclosed in February 2019; nobody is known to have used it. The
-story belongs to Chapter 7.
+story belongs to [Chapter 7](07-SNARKs.md).
 
 !!! note "Life story: the Zcash parameter ceremony"
     **Born:** October 2016, six participants in separate places, using the
@@ -1774,7 +1774,7 @@ cheating: Mars forfeits
 | FRI (hash-based) | with salting | collisions | 32 bytes; proofs tens of KB | none | believed safe |
 
 FRI, the hash-based commitment behind STARKs, is in
-Chapter 8. The failures in this chapter were almost never in the mathematics of the
+[Chapter 8](08-STARKs-Bulletproofs-and-Recursion.md). The failures in this chapter were almost never in the mathematics of the
 commitment. They were a missing nonce (taxi data), an ambiguous encoding
 (Bitcoin's tree), a parameter that should not have existed (Zcash 2016), or a
 commitment someone could copy.
@@ -1809,7 +1809,7 @@ years of proposed protocols.
 **Trapdoor commitments.** Pedersen's scheme is **equivocal**: whoever knows
 $\log_g h$ can open anything. That is a bug for binding, but a feature in
 proofs: simulators in zero-knowledge proofs use exactly this trapdoor to "open"
-commitments after seeing the challenge (Chapter 5).
+commitments after seeing the challenge ([Chapter 5](05-Zero-Knowledge-Proofs.md)).
 Krawczyk and Rabin (2000) turned the idea into **chameleon hashes**, collision-
 resistant hashes with a trapdoor for finding collisions, used in signatures that
 only the intended recipient can be convinced by.
