@@ -211,3 +211,12 @@
 /* the line that says what the menu tick means, and the one-time note when a page is first finished (8 Nov 2026) */
 .md-nav .reader-legend { margin: .5rem .6rem .2rem; font-size: .62rem; line-height: 1.4; opacity: .7; }
 .md-typeset .reader-ticknote { margin: 1rem 0 .5rem; font-size: .9em; font-weight: 600; color: var(--md-typeset-a-color); }
+
+/* Books fold in the side menu on wide screens (reader.js): a book is a row with an arrow, its chapters open below */
+.md-nav__item.reader-book > .md-nav__link { margin-top: .35em; }
+.md-nav__item.reader-book.md-nav__item--active > .md-nav__link > a.md-nav__link,
+.md-nav__item.reader-book.md-nav__item--active > a.md-nav__link,
+.md-nav__item.reader-book.md-nav__item--active > label.md-nav__link { color: var(--md-typeset-a-color); font-weight: 700; }
+.md-nav__item.reader-book > .md-nav > .md-nav__list { padding-left: .6rem; }
+.reader-bookcount { margin-left: .4em; font-size: .85em; font-weight: 400; opacity: .7; white-space: nowrap; }
+.md-nav__item.reader-book > .md-nav__toggle:not(:checked) ~ .md-nav > .reader-legend { display: none; }

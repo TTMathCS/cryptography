@@ -1,4 +1,4 @@
-// Reading aids, the same file on cs.akadian.ca, math.akadian.ca and cryptography.akadian.ca (copy it to all three).
+// Reading aids, the same file on cs, math, networks and cryptography.akadian.ca (copy it to all four).
 //  1. A bar at the top of every page: where you are (Books > Algorithms > Chapter 5 of 25) and Previous / Next.
 //  2. Long chapters and lessons are read in parts of about 5 to 6 minutes: "Part 2 of 5", a progress bar, and
 //     Previous part / Next part at the bottom. Each part has its own address (?part=2), so links, search results
@@ -73,6 +73,57 @@
     ul.parentNode.insertBefore(p, ul.nextSibling);
   }
   nav.forEach(function (n) { if (done[n.path]) tick(n.a); });
+
+  // ---- books fold in the side menu (cntourit, 8 Nov 2026: "by default I like left panels to be collapsed,
+  // listing only books. when clicked it will expand, and it will remember my choice") ----
+  // On wide screens the Books (or Book) menu lists only the books (the parts, for the one-book site); the arrow
+  // beside a book opens or closes its chapters, and the choice is remembered per book in this browser only.
+  // A book you never opened or closed starts closed, except the book you are reading now, which starts open
+  // so the page you are on shows in the menu. Clicking a book's name opens its front page with the book open.
+  // Phones and tablets keep their own menu, which already shows the books first and a book's chapters on a tap.
+  (function () {
+    if (!window.matchMedia || !window.matchMedia("(min-width: 76.25em)").matches) return;
+    var FOLD = KEY + "-books", folds = load(FOLD);
+    function head(li) {
+      for (var c = li.firstElementChild; c; c = c.nextElementSibling) if (c.classList.contains("md-nav__link")) return c;
+      return null;
+    }
+    document.querySelectorAll(".md-nav--primary > .md-nav__list > li.md-nav__item--nested").forEach(function (shelf) {
+      var h = head(shelf);
+      if (!h || !/^Books?$/.test(label(h))) return;
+      var list = shelf.querySelector(":scope > nav > .md-nav__list");
+      if (!list) return;
+      list.querySelectorAll(":scope > li.md-nav__item--nested").forEach(function (li) {
+        var box = li.querySelector(":scope > input.md-nav__toggle"), top = head(li), sub = li.querySelector(":scope > nav.md-nav");
+        if (!box || !top || !sub) return;
+        var link = top.tagName === "A" ? top : top.querySelector("a[href]");
+        var arrow = top.tagName === "LABEL" ? top : top.querySelector("label");
+        var key = link ? norm(link.href) : label(top);
+        li.classList.remove("md-nav__item--section");
+        li.classList.add("reader-book");
+        function show(open) {
+          box.checked = open;
+          sub.setAttribute("aria-expanded", open ? "true" : "false");
+          if (arrow) arrow.title = open ? "Hide the chapters" : "Show the chapters";
+        }
+        show(key in folds ? !!folds[key] : li.classList.contains("md-nav__item--active"));
+        box.addEventListener("change", function () { show(box.checked); folds[key] = box.checked; save(FOLD, folds); });
+        if (link) link.addEventListener("click", function () { folds[key] = true; save(FOLD, folds); });
+        // how much of this book is read, so the ticks stay in sight while the book is closed
+        var pages = sub.querySelectorAll("a.md-nav__link[href]"), n = 0, m = 0, met = {};
+        pages.forEach(function (a) {
+          var p = norm(a.href), s = p.replace(/\/$/, "").split("/").pop();
+          if (met[p] || !/^\d{1,3}-/.test(s)) return;
+          met[p] = 1; m++; if (done[p]) n++;
+        });
+        if (n) {
+          var c = el("span", "reader-bookcount", "✓ " + n + " of " + m);
+          c.title = n + " of " + m + " chapters read to the end (remembered in this browser only)";
+          (link || top).appendChild(c);
+        }
+      });
+    });
+  })();
 
   // ---- reading settings ----
   var header = document.querySelector(".md-header__inner");
