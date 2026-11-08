@@ -65,8 +65,8 @@ the cipher lets through, and pays only for the part of the key that structure
 does not reveal.** Frequency analysis gets a substitution key letter by letter.
 Kasiski's method gets a Vigenère key's length, then each letter separately, so
 a 7-letter key costs $7 \times 26$ trials, not $26^7$. The differential and
-linear attacks of Chapter 5 and
-Chapter 6 do the same thing to modern ciphers,
+linear attacks of [Chapter 5](05-Differential-Cryptanalysis.md) and
+[Chapter 6](06-Linear-Cryptanalysis.md) do the same thing to modern ciphers,
 with XOR differences and parities in place of letter counts.
 
 Book 1 showed each of these ciphers being built and then broken in a short
@@ -738,7 +738,7 @@ leaving fewer letters in each column.
     moved to codebooks, transposition and, by the 1920s, machines · **Status:**
     still the first test on a polyalphabetic ciphertext; its idea, that a
     repeat in the key shows as a repeat in the ciphertext, returns in the
-    keystream-reuse attacks of Chapter 8
+    keystream-reuse attacks of [Chapter 8](08-Attacks-on-Stream-Ciphers.md)
 
 Kasiski's book made little noise when it appeared. Its author went back to his
 other interest, archaeology, and the method spread slowly through military
@@ -981,7 +981,7 @@ or in unfamiliar languages.
     **Status:** in every solver's toolkit;
     the idea of a statistic that separates "right key" from "wrong key" is the
     basis of the scores in §2.6 and of the correlation attacks of
-    Chapter 8
+    [Chapter 8](08-Attacks-on-Stream-Ciphers.md)
 
 Friedman had trained as a geneticist, and he came to ciphers through a
 millionaire's private research estate, where he also met the codebreaker
@@ -1834,7 +1834,7 @@ attacker would write down are never true for the whole cipher.
     **Helped:** kept the Hill cipher out of serious use; it became the textbook
     example of why linearity is fatal · **Status:** current as a principle:
     every modern cipher includes a non-linear step, and the algebraic attacks
-    of Chapter 7 are this
+    of [Chapter 7](07-Algebraic-Integral-and-Structural-Attacks.md) are this
     attack's descendants, trying to solve the much harder non-linear equations
 
 ## 2.10 Unicity distance

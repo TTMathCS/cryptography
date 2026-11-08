@@ -819,7 +819,7 @@ custom chips would find an MD5 collision in about 24 days by brute force alone.
 Nobody built it. A volunteer project, MD5CRK, set out in 2004 to show the same
 thing with idle PCs, and stopped in August 2004 when Xiaoyun Wang's team
 announced real MD5 collisions found by cryptanalysis in hours
-(Chapter 9). The cryptanalysts got there first,
+([Chapter 9](09-Breaking-Hash-Functions.md)). The cryptanalysts got there first,
 but the generic attack had already made the point: 64 bits of collision security
 is not enough.
 
@@ -890,7 +890,7 @@ using 64-bit blocks: browsers and servers dropped triple DES, NIST limited tripl
 DES to $2^{20}$ blocks per key in SP 800-67 (revision 2, 2017) and disallowed it
 for encryption after 2023, and modes on 128-bit blocks such as AES-GCM push the
 same bound out to $2^{64}$ blocks. The full attack, with the other modes it
-applies to, is in Chapter 10; book 1's
+applies to, is in [Chapter 10](10-Attacks-on-Modes-and-MACs.md); book 1's
 [Chapter 6](../../book/06-Block-Ciphers.md) has the Life story card.
 
 Notice the pattern. For keys, the generic attack costs $2^k$ and the defender
@@ -1062,8 +1062,8 @@ into two parts that depend on different secrets. It breaks preimage resistance
 of hash functions built from a weak compression function: guess forward from
 the start and backward from the target and match in the middle (the 2009 MD5
 preimage attack of Yu Sasaki and Kazumaro Aoki, at $2^{123.4}$, is of this kind;
-see Chapter 9). It is the outer layer of the
-**biclique** attacks on full AES (Chapter 7),
+see [Chapter 9](09-Breaking-Hash-Functions.md)). It is the outer layer of the
+**biclique** attacks on full AES ([Chapter 7](07-Algebraic-Integral-and-Structural-Attacks.md)),
 which recover an AES key about four times faster than brute force. It solves the
 subset-sum and knapsack problems in $2^{n/2}$ instead of $2^n$ (Horowitz and Sahni,
 1974; Schroeppel and Shamir, 1981). And it is the baby-step giant-step algorithm
@@ -1368,7 +1368,7 @@ encrypts predictable control messages) identify it. In 2009 and 2010 Karsten Noh
 A5/1 Security Project computed and published tables of about two terabytes,
 combining distinguished points with rainbow-style column functions, and the
 Kraken software that searched them appeared in 2010. With them, a recorded
-conversation could be decrypted on a PC in minutes. Chapter 8
+conversation could be decrypted on a PC in minutes. [Chapter 8](08-Attacks-on-Stream-Ciphers.md)
 gives the details of A5/1 and of the data-time-memory trade-offs that apply to
 stream ciphers.
 
@@ -1879,7 +1879,7 @@ T M^2 D^2 = N^2, \qquad D^2 \le T, \qquad \text{precomputation } \approx N/D.
 $$
 
 It is this curve that A5/1's 64-bit state could not survive
-(Chapter 8), and the reason stream cipher
+([Chapter 8](08-Attacks-on-Stream-Ciphers.md)), and the reason stream cipher
 designers now take the state to be at least twice the key length. The same
 formula applies to block ciphers with many targets. For AES-128 and
 $D = 2^{32}$ keys encrypting a common block, $TM^2 = 2^{192}$, so
@@ -1998,7 +1998,7 @@ memory of about $2^{n/5}$ and nothing like the hardware to run it.
   the exponent. Both point the same way: 256-bit keys for long-term and
   large-scale systems.
 
-**Next:** Chapter 5 leaves generic attacks
+**Next:** [Chapter 5](05-Differential-Cryptanalysis.md) leaves generic attacks
 behind and looks inside the cipher, following differences through its S-boxes.
 
 ## Further reading

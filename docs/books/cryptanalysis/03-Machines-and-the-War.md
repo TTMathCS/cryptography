@@ -942,7 +942,7 @@ international teleprinter code (ITA2). Bletchley wrote a 0 as a dot and a 1 as
 a cross. The Lorenz machine added a key character to each plaintext character,
 bit by bit, with XOR: the cipher of book 1's
 [Chapter 4](../../book/04-Randomness-and-Perfect-Secrecy.md) and of
-Chapter 8 of this book, a stream cipher
+[Chapter 8](08-Attacks-on-Stream-Ciphers.md) of this book, a stream cipher
 built from wheels. Twelve wheels made the key, each with a pattern of cams set
 up or down around its rim:
 
@@ -1065,7 +1065,7 @@ The right side is a dot (0) more often than a cross. If $\Pr[\Delta P_1 \oplus
 \Delta P_2 = 0] = \tfrac12 + \varepsilon_P$ and $\Pr[\Delta\psi'_1 \oplus
 \Delta\psi'_2 = 0] = \tfrac12 + \varepsilon_\psi$, the two being nearly
 independent, then the piling-up rule (the same rule that drives
-linear cryptanalysis) gives
+[linear cryptanalysis](06-Linear-Cryptanalysis.md)) gives
 
 $$
 \Pr[\text{right side} = 0] = \tfrac12 + 2\,\varepsilon_P\,\varepsilon_\psi .
@@ -1472,8 +1472,8 @@ decrypts were released to the public in 1995 and 1996.
 The lesson is the clean one. The cipher was perfect. The key distribution, a
 factory under wartime pressure, was not. Every modern stream cipher and every
 nonce-based mode (GCM, ChaCha20-Poly1305) inherits the same rule and the same
-failure, as Chapter 8 and
-Chapter 10 show.
+failure, as [Chapter 8](08-Attacks-on-Stream-Ciphers.md) and
+[Chapter 10](10-Attacks-on-Modes-and-MACs.md) show.
 
 !!! note "Life story: Venona"
     **Born:** 1 February 1943, Arlington Hall; Gene Grabeel, Richard Hallock,
@@ -1608,7 +1608,7 @@ prunes. Each loop in the menu closes with probability about $1/26$ at a wrong
 position, so with $L$ independent loops the expected false stops per wheel
 order are about $17{,}576 \times 26^{\,1-L}$; the diagonal board adds
 implications that behave like extra loops. Modern SAT-based attacks on ciphers
-(Chapter 7) do the same with
+([Chapter 7](07-Algebraic-Integral-and-Structural-Attacks.md)) do the same with
 more general clauses.
 
 **Banburismus and the deciban.** For the naval Enigma, Turing compared pairs of

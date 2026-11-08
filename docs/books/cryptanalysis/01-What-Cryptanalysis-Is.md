@@ -106,7 +106,7 @@ read. A distinguisher on a block cipher sounds harmless: no key, no message. But
 the security proofs of the modes that use the cipher assume there is no
 distinguisher at all, and history shows that distinguishers grow. RC4's first
 published biases in 1995 and 2001 were distinguishers; by 2013 they had become
-plaintext recovery of cookies sent over TLS (Chapter 8).
+plaintext recovery of cookies sent over TLS ([Chapter 8](08-Attacks-on-Stream-Ciphers.md)).
 
 ### What this book does
 
@@ -380,7 +380,7 @@ link-layer header byte, 0xAA.
 **Chosen plaintext** comes from any system that encrypts what an outsider
 supplies. A web page that runs the attacker's script makes the victim's browser
 send requests the attacker chose, under the victim's TLS keys; that is how the
-BEAST (2011) and CRIME (2012) attacks worked (Chapter 10).
+BEAST (2011) and CRIME (2012) attacks worked ([Chapter 10](10-Attacks-on-Modes-and-MACs.md)).
 In 1942 the US Navy made Midway radio a false water shortage so the Japanese
 would encrypt it. In public-key encryption it is free: anyone can encrypt
 anything under the public key.
@@ -403,12 +403,12 @@ sounds artificial, and for a well-designed protocol it is. But it happens. WEP
 built each packet's RC4 key by putting a 24-bit counter, sent in the clear, in
 front of the secret key, so every packet used a related key with a known
 difference; Scott Fluhrer, Itsik Mantin and Adi Shamir's 2001 attack used
-exactly that (Chapter 8). Hash functions built
+exactly that ([Chapter 8](08-Attacks-on-Stream-Ciphers.md)). Hash functions built
 from block ciphers feed message blocks into the key input, so a related-key
 weakness in the cipher can become a collision in the hash. That is why the 2009
 related-key attacks on AES-256 were taken seriously even though no sane protocol
 gives an attacker AES-256 under four related keys
-(Chapter 7).
+([Chapter 7](07-Algebraic-Integral-and-Structural-Attacks.md)).
 
 !!! note "Life story: the related-key attack"
     **Born:** 1993, Eli Biham's "New types of cryptanalytic attacks using related
@@ -1360,8 +1360,8 @@ key bits that hold slightly more or less often than half the time, and in 1994 h
 ran it against DES (§1.4). DES had not been designed against it as carefully, and
 it is the best known attack on DES that uses only known plaintext. Together the
 two methods became the test every new block cipher must pass, and AES was built
-around a proof that it passes them (Chapter 5,
-Chapter 6).
+around a proof that it passes them ([Chapter 5](05-Differential-Cryptanalysis.md),
+[Chapter 6](06-Linear-Cryptanalysis.md)).
 
 !!! note "Life story: differential cryptanalysis"
     **Born:** 1990, Eli Biham and Adi Shamir (CRYPTO 1990); known in secret at
@@ -1371,7 +1371,7 @@ Chapter 6).
     the first attack on full DES faster than brute force (1992); every cipher
     since, including AES, is designed with a bound against it · **Status:**
     current, with many descendants (truncated, impossible, boomerang
-    differentials); the subject of Chapter 5
+    differentials); the subject of [Chapter 5](05-Differential-Cryptanalysis.md)
 
 ### Competitions as tournaments
 
@@ -1407,7 +1407,7 @@ ran from there.
     certificates (2008), Flame (2012) and SHAttered (2017) built on her
     method; NIST's SHA-3 competition (2007) was a direct response · **Status:**
     MD5 and SHA-1 are retired for signatures everywhere that follows advice; the
-    subject of Chapter 9
+    subject of [Chapter 9](09-Breaking-Hash-Functions.md)
 
 ### The post-quantum tournament
 

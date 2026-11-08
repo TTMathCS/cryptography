@@ -52,12 +52,12 @@ system under attack, so you can read the two side by side.
 | | [2. Breaking classical ciphers](02-Breaking-Classical-Ciphers.md) | beginner |
 | | [3. Machines and the war](03-Machines-and-the-War.md) | beginner to intermediate |
 | | [4. Brute force, birthdays and trade-offs](04-Brute-Force-Birthdays-and-Trade-offs.md) | intermediate |
-| **II. Breaking secret-key cryptography** | 5. Differential cryptanalysis | intermediate to expert |
-| | 6. Linear cryptanalysis and its relatives | intermediate to expert |
-| | 7. Algebraic, integral and structural attacks | expert |
-| | 8. Attacks on stream ciphers | intermediate to expert |
-| | 9. Breaking hash functions | intermediate to expert |
-| | 10. Attacks on modes and message authentication | intermediate |
+| **II. Breaking secret-key cryptography** | [5. Differential cryptanalysis](05-Differential-Cryptanalysis.md) | intermediate to expert |
+| | [6. Linear cryptanalysis and its relatives](06-Linear-Cryptanalysis.md) | intermediate to expert |
+| | [7. Algebraic, integral and structural attacks](07-Algebraic-Integral-and-Structural-Attacks.md) | expert |
+| | [8. Attacks on stream ciphers](08-Attacks-on-Stream-Ciphers.md) | intermediate to expert |
+| | [9. Breaking hash functions](09-Breaking-Hash-Functions.md) | intermediate to expert |
+| | [10. Attacks on modes and message authentication](10-Attacks-on-Modes-and-MACs.md) | intermediate |
 | **III. Breaking public-key cryptography** | 11. Factoring | intermediate |
 | | 12. Discrete logarithms | intermediate to expert |
 | | 13. Attacks on RSA | intermediate to expert |
