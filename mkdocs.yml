@@ -102,6 +102,10 @@ not_in_nav: |
   /protocols/WireGuard.md
   /protocols/Wi-Fi.md
   /protocols/DNSSEC.md
+  /protocols/TOTP.md
+  /protocols/Kerberos.md
+  /protocols/FIDO2.md
+  /protocols/JWT.md
 
 nav:
   # Five tabs at most, the same on every course site (cntourit, 8 Nov 2026: "messy and confusing", "same format and similar categories"):
@@ -212,10 +216,6 @@ nav:
               - protocols/OpenPGP.md
               - protocols/S-MIME.md
               - protocols/age.md
-              - protocols/JWT.md
-              - protocols/Kerberos.md
-              - protocols/FIDO2.md
-              - protocols/TOTP.md
               - protocols/Disk-Encryption.md
               - protocols/Bitcoin.md
           - Formats:
@@ -316,6 +316,11 @@ nav:
               - books/protocols/08-WireGuard-and-Noise.md
               - books/protocols/09-Wi-Fi-Security.md
               - books/protocols/10-DNSSEC-and-Private-DNS.md
+          - III. Identity and access:
+              - books/protocols/11-One-Time-Codes-and-Password-Protocols.md
+              - books/protocols/12-Kerberos.md
+              - books/protocols/13-Passkeys-FIDO2-and-WebAuthn.md
+              - books/protocols/14-OAuth-OpenID-Connect-and-JWT.md
       - Post-quantum cryptography:
           - Start here: books/post-quantum/index.md
           - I. The threat and the yardsticks:

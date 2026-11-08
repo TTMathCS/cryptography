@@ -48,11 +48,11 @@ sections. Each chapter marks its sections *beginner*, *intermediate* or
 | | [8. WireGuard and the Noise framework](08-WireGuard-and-Noise.md) | intermediate |
 | | [9. Wi-Fi security](09-Wi-Fi-Security.md) | beginner to intermediate |
 | | [10. DNSSEC and private DNS](10-DNSSEC-and-Private-DNS.md) | intermediate |
-| **III. Identity and access** | 11. One-time codes and password protocols | coming next |
-| | 12. Kerberos | |
-| | 13. Passkeys: FIDO2 and WebAuthn | |
-| | 14. OAuth, OpenID Connect and JSON Web Tokens | |
-| **IV. Messages, data and ledgers** | 15. Email: OpenPGP and S/MIME | |
+| **III. Identity and access** | [11. One-time codes and password protocols](11-One-Time-Codes-and-Password-Protocols.md) | beginner to intermediate |
+| | [12. Kerberos](12-Kerberos.md) | intermediate |
+| | [13. Passkeys: FIDO2 and WebAuthn](13-Passkeys-FIDO2-and-WebAuthn.md) | beginner to intermediate |
+| | [14. OAuth, OpenID Connect and JSON Web Tokens](14-OAuth-OpenID-Connect-and-JWT.md) | intermediate |
+| **IV. Messages, data and ledgers** | 15. Email: OpenPGP and S/MIME | coming next |
 | | 16. Signal and the double ratchet | |
 | | 17. Group messaging: MLS | |
 | | 18. Encrypting files and disks | |
@@ -66,6 +66,7 @@ chapter appears, the old page forwards to it.
 
 **Where to start:** new to protocols, read chapters 1 to 3 in order. Running a
 web server: chapters 2, 3 and 5. Running servers, VPNs or a network:
-chapters 6 to 10. Interested in attacks: chapter 4, then book 2,
+chapters 6 to 10. Logins, single sign-on and tokens: chapters 11 to 14.
+Interested in attacks: chapter 4, then book 2,
 *Cryptanalysis*. The short tour of the same ground is
 [Chapter 19 of book 1](../../book/19-Protocols.md).

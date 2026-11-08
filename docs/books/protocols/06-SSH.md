@@ -925,8 +925,8 @@ leaves the device, and each signature requires a touch, so malware on the
 laptop cannot use the key silently. The key file on disk is only a handle.
 
 **Keyboard-interactive** is a general challenge-response method used for
-one-time codes and other prompts (Chapter 11).
-**GSSAPI** lets SSH use Kerberos tickets (Chapter 12).
+one-time codes and other prompts ([Chapter 11](11-One-Time-Codes-and-Password-Protocols.md)).
+**GSSAPI** lets SSH use Kerberos tickets ([Chapter 12](12-Kerberos.md)).
 
 `authorized_keys` lines can carry restrictions in front of the key:
 `from="10.0.0.0/8"` limits where it may be used, `command="backup.sh"` forces

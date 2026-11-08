@@ -978,7 +978,7 @@ sizes to reduce the first leak.
 - DoT, DoH and DoQ encrypt the questions; ODoH splits who sees the asker and
   the question; only DNSSEC proves the answer.
 
-**Next:** Chapter 11, proving who
+**Next:** [Chapter 11](11-One-Time-Codes-and-Password-Protocols.md), proving who
 you are with a code from your phone, and with passwords that are never sent.
 
 ## Further reading

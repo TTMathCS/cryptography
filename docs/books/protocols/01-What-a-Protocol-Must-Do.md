@@ -538,7 +538,7 @@ general, is how protocols are checked today (Chapter 20).
     *Communications of the ACM* · **Purpose:** mutual authentication and a
     shared secret between two parties who know each other's public keys ·
     **Helped:** set the shape of every challenge-response protocol after it;
-    its secret-key sibling became Kerberos (Chapter 12) ·
+    its secret-key sibling became Kerberos ([Chapter 12](12-Kerberos.md)) ·
     **Retired:** 1995, when Gavin Lowe found the man-in-the-middle attack with
     the FDR model checker · **Replaced by:** Needham-Schroeder-Lowe in
     teaching; in practice by signed Diffie-Hellman designs (§1.7)
@@ -752,7 +752,7 @@ There are four families, and they recur through the book.
    this way.
 4. **Passwords.** Both sides know a low-entropy password, and a special
    protocol (a PAKE) lets them use it without exposing it to offline guessing
-   (Chapter 11).
+   ([Chapter 11](11-One-Time-Codes-and-Password-Protocols.md)).
 
 ## 1.7 Authenticated key exchange: signing it right
 
@@ -1140,7 +1140,7 @@ own place later in the book.
 - **Kerberos replay windows** (1988 onward). Kerberos took Denning and Sacco's
   timestamps and has needed clock agreement within five minutes ever since; an
   attacker who can shift a server's clock gets a longer replay window
-  (Chapter 12).
+  ([Chapter 12](12-Kerberos.md)).
 - **SSL 2.0 downgrade** (1995). SSL 2's negotiation was not covered by its
   final MAC, so an attacker could delete the strong cipher suites from the
   client's offer and force 40-bit export encryption. SSL 3.0 (1996) added a MAC
@@ -1209,7 +1209,7 @@ the channel for a value that identifies this channel uniquely (in TLS 1.3, the
 `tls-exporter` value of RFC 9266), and mix it into its own authentication. This
 stops a man in the middle who terminates two separate channels from relaying the
 application's authentication between them. SCRAM and OAuth's bound tokens
-(Chapter 14) use it.
+([Chapter 14](14-OAuth-OpenID-Connect-and-JWT.md)) use it.
 
 **Open problems.** Proofs of post-quantum key exchange in the quantum random
 oracle model; tight reductions for many-session security, so that parameters do

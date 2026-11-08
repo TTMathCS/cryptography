@@ -788,7 +788,7 @@ Every request the client sends to the CA is itself signed with the account key
 as a JSON Web Signature, with a fresh **nonce** from the CA in the protected
 header (Chapter 1's freshness, again) and the URL of the request, so that a
 request cannot be replayed or sent to a different endpoint. JWS is the same
-format as the JSON Web Tokens of Chapter 14.
+format as the JSON Web Tokens of [Chapter 14](14-OAuth-OpenID-Connect-and-JWT.md).
 
 ### Break it: fool the CA's view of the network
 
