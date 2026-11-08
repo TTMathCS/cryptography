@@ -199,7 +199,8 @@ Copy the layout, never their text.
 - **A push to `main` publishes at once** (GitHub Pages workflow
   `.github/workflows/pages.yml`). Jim asked for direct pushes to `main` for
   this work; still tell him what is about to go live.
-- Commit messages: no "Co-Authored-By" lines.
+- Commits: author `Jim C <cntourit@gmail.com>` (`git config user.name/user.email` in the clone); the Claude
+  model trailer lines may follow (Jim, 8 Nov 2026; Mars-Requirements RULES.md).
 - `hooks/standard_links.py` turns names like "RFC 8446" or "FIPS 197" into links
   at build time; NIST names must be in `hooks/standards.json`, and
   `tools/check-standards.sh` lists missing ones.
@@ -209,3 +210,23 @@ Copy the layout, never their text.
   Both do nothing until the reader presses Play or Step.
 - `tools/sync-from-mars.sh` syncs fonts and holiday themes from akadian.ca;
   don't edit those files by hand.
+
+## The shelf, 8 November 2026: eight books
+
+Jim chose (8 Nov 2026) to complete cryptography first, one subject at a time, deep until complete. This book stays
+as book 1, the main road. Seven more books follow, one at a time, each about 20 chapters in the same format, under
+`docs/books/<slug>/` (this book keeps `docs/book/`), listed under `Books:` in `mkdocs.yml` after it:
+
+2. Cryptanalysis: how ciphers are broken (`books/cryptanalysis/`, 20)
+3. The mathematics of cryptography (`books/mathematics/`, 20)
+4. Protocols (`books/protocols/`, 20; the pages in `docs/protocols/` fold in and redirect)
+5. Post-quantum cryptography (`books/post-quantum/`, 18)
+6. Advanced protocols and privacy (`books/advanced/`, 18)
+7. Cryptographic engineering (`books/engineering/`, 18; `docs/formats/` and `docs/tools/` fold in)
+8. History of cryptography (`books/history/`, 20; the ten pages in `docs/history/` become its chapters)
+
+The brief every writer follows and one outline per book are in the project files, `cryptography/books/`
+(`book-brief.md`, `cryptanalysis-outline.md`, ...). The requirements log is Mars-Requirements
+`site/review/2026-11-08-school-books.md`. Pace: a part of 4 to 5 chapters at a time, published when
+`mkdocs build --strict` is clean and every code block has run; about one book a week, starting after Jim's weekly
+budget resets on 9 Nov 2026.
