@@ -233,5 +233,12 @@ as book 1, the main road. Seven more books follow, one at a time, each about 20 
 The brief every writer follows and one outline per book are in the project files, `cryptography/books/`
 (`book-brief.md`, `cryptanalysis-outline.md`, ...). The requirements log is Mars-Requirements
 `site/review/2026-11-08-school-books.md`. Pace: a part of 4 to 5 chapters at a time, published when
-`mkdocs build --strict` is clean and every code block has run; about one book a week, starting after Jim's weekly
-budget resets on 9 Nov 2026.
+`mkdocs build --strict` is clean and every code block has run.
+
+Status, 8 Nov 2026 16:24Z: Jim chose to write in parallel instead of one at a time. Book 2 (Cryptanalysis) is complete and
+live: 20 chapters, Glossary and Start here page, commit c9b7431. Books 3, 4 and 5 are being written in their own threads,
+part by part, and books 6 (Advanced protocols and privacy) and 7 (Cryptographic engineering) started at 16:24Z. Book 8 follows as
+threads finish.
+Each thread owns only its own `docs/books/<slug>/` folder and its block under `Books:` in `mkdocs.yml`, and runs
+`git pull --rebase origin main` before every push. The chapter sources, the check script and the publish script of each
+finished book are backed up in the project files under `cryptography/books/src/<slug>/`.
