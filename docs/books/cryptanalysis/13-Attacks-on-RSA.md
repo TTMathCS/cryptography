@@ -1200,7 +1200,7 @@ structure leaves far fewer unknown bits than a random prime. Guessing $a$
 polynomial modulo the unknown $p$, exactly the known-high-bits problem above,
 and Howgrave-Graham's lattice finds it. A fingerprint test on the public key
 tells instantly whether a key is affected. The researchers estimated the work
-for a 2048-bit key at around a hundred CPU-years, expensive for one key but
+for a 2048-bit key at about 140 CPU-years in the worst case, expensive for one key but
 affordable for a valuable one, and Estonia suspended the certificates of about
 750,000 ID cards. The full story of ROCA, as a story about how keys are
 generated, is in [Chapter 18](18-Random-Numbers-Gone-Wrong.md).

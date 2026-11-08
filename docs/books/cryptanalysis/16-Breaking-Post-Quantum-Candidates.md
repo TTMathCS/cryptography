@@ -779,7 +779,7 @@ first oil set; the second layer treats all of those as vinegar and adds a second
 oil set. For the round 2 category 1 parameters this meant 32 vinegar variables,
 two oil sets of 32, so 96 variables and 64 equations over the field of 16
 elements. The layers let Rainbow use fewer variables than UOV for the same
-security, so its public keys (about 160 kilobytes) and signatures (66 bytes) were
+security, so its public keys (about 150 kilobytes) and signatures (64 bytes) were
 smaller. Rainbow became a round 3 finalist in 2020.
 
 The layers also left more shape for an attacker. There is now a nested pair of
@@ -1048,7 +1048,7 @@ added **directional** failure boosting: once one failure is found, it points
 towards the secret, and later failures come much faster.
 
 The defense is arithmetic. ML-KEM's failure probabilities are about $2^{-139}$,
-$2^{-164}$ and $2^{-174}$ for its three parameter sets. With NIST's assumption of
+$2^{-165}$ and $2^{-175}$ for its three parameter sets. With NIST's assumption of
 at most $2^{64}$ decapsulation queries per key, an attacker cannot expect to see
 even one failure, and failure boosting does not change that by enough. Schemes
 with failure rates of $2^{-60}$ or $2^{-80}$, as several round 1 and round 2

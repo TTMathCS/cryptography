@@ -405,8 +405,8 @@ choose independently.
 
 *Level: beginner.*
 
-In 1975 John Pollard, a British mathematician working at the Plessey company's
-research laboratories, published a method that finds a factor $p$ in about
+In 1975 John Pollard, a British mathematician working at the research
+laboratories of the British Post Office (later British Telecom), published a method that finds a factor $p$ in about
 $\sqrt p$ steps instead of $p$, using almost no memory. It rests on the birthday
 paradox, which this book derived in
 [Chapter 4](04-Brute-Force-Birthdays-and-Trade-offs.md): among about $\sqrt p$

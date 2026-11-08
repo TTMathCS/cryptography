@@ -1564,8 +1564,8 @@ often enough to be observed, each one is correlated with the private key,
 and an attacker who learns which honestly encrypted messages failed can
 reconstruct it. The repair was to make failures astronomically rare and to
 add a padding that makes modified ciphertexts useless. Both lessons carried straight into ML-KEM,
-whose stated failure probabilities are about $2^{-139}$, $2^{-164}$ and
-$2^{-174}$ for its three sizes, and whose Fujisaki-Okamoto transform rejects
+whose stated failure probabilities are about $2^{-139}$, $2^{-165}$ and
+$2^{-175}$ for its three sizes, and whose Fujisaki-Okamoto transform rejects
 modified ciphertexts. NTRU itself, with modern parameters, was never broken:
 it reached the third round of the NIST competition as a finalist in 2020 and
 was not chosen mainly because Kyber, now ML-KEM, did the same job.
@@ -1728,9 +1728,9 @@ ML-DSA-65      624             182.2           160.4
 ML-DSA-87      863             252.0           221.8
 ```
 
-Twenty lines reproduce the published analysis. The block sizes 406, 623 and
-873 for ML-KEM are the ones the Kyber team reported for the primal attack in
-its third-round documentation, with core-SVP 118, 182 and 254 or so; the
+Twenty lines come close to the published analysis. The block sizes 406, 623 and
+873 for ML-KEM are within a few units of the ones the Kyber team reported for the primal attack in
+its third-round documentation, where core-SVP is about 118, 183 and 256; the
 ML-DSA numbers land within a unit or two of the Dilithium team's for key
 recovery (forging an ML-DSA signature is a different lattice problem, SIS,
 with its own estimate). The program uses the 2021 quantum exponent $0.257$
