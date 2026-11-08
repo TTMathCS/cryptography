@@ -219,4 +219,6 @@
 .md-nav__item.reader-book.md-nav__item--active > label.md-nav__link { color: var(--md-typeset-a-color); font-weight: 700; }
 .md-nav__item.reader-book > .md-nav > .md-nav__list { padding-left: .6rem; }
 .reader-bookcount { margin-left: .4em; font-size: .85em; font-weight: 400; opacity: .7; white-space: nowrap; }
-.md-nav__item.reader-book > .md-nav__toggle:not(:checked) ~ .md-nav > .reader-legend { display: none; }
+/* the tick legend sits under the first list with a tick; hide it while that list's book or part is closed,
+   or it holds open an empty gap under the closed part */
+.md-nav__item:not(.md-nav__item--section) > .md-nav__toggle:not(:checked) ~ .md-nav > .reader-legend { display: none; }
