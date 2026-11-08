@@ -41,11 +41,11 @@ all the way to the standards themselves, line by line.
 | | [7. Rings, modules and the number-theoretic transform](07-Rings-Modules-and-the-NTT.md) | intermediate |
 | | [8. ML-KEM, FIPS 203](08-ML-KEM.md) | intermediate |
 | | [9. ML-DSA, FIPS 204](09-ML-DSA.md) | intermediate |
-| | 10. NTRU, Falcon and FN-DSA (coming) | intermediate to expert |
-| **III. Hashes, codes and the rest** | 11. Stateful hash-based signatures: LMS and XMSS (coming) | intermediate |
-| | 12. SLH-DSA, FIPS 205 (coming) | intermediate |
-| | 13. Code-based encryption: McEliece (coming) | intermediate |
-| | 14. HQC and BIKE (coming) | intermediate |
+| | [10. NTRU, Falcon and FN-DSA](10-NTRU-Falcon-and-FN-DSA.md) | intermediate to expert |
+| **III. Hashes, codes and the rest** | [11. Stateful hash-based signatures: LMS and XMSS](11-Stateful-Hash-Based-Signatures.md) | intermediate |
+| | [12. SLH-DSA, FIPS 205](12-SLH-DSA.md) | intermediate |
+| | [13. Code-based encryption: McEliece](13-Code-Based-Encryption-McEliece.md) | intermediate |
+| | [14. HQC and BIKE](14-HQC-and-BIKE.md) | intermediate |
 | | 15. Multivariate signatures and the on-ramp (coming) | intermediate |
 | | 16. Isogenies: SIKE's fall and what lived (coming) | intermediate to expert |
 | **IV. Into the real world** | 17. Implementing post-quantum safely (coming) | intermediate |

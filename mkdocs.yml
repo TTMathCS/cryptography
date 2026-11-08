@@ -334,6 +334,12 @@ nav:
               - books/post-quantum/07-Rings-Modules-and-the-NTT.md
               - books/post-quantum/08-ML-KEM.md
               - books/post-quantum/09-ML-DSA.md
+              - books/post-quantum/10-NTRU-Falcon-and-FN-DSA.md
+          - III. Hashes, codes and the rest:
+              - books/post-quantum/11-Stateful-Hash-Based-Signatures.md
+              - books/post-quantum/12-SLH-DSA.md
+              - books/post-quantum/13-Code-Based-Encryption-McEliece.md
+              - books/post-quantum/14-HQC-and-BIKE.md
       - History of secret writing:
           - history/index.md
           - history/01-Ancient.md

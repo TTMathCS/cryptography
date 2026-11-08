@@ -952,7 +952,7 @@ door-lock firmware is no use to anyone trying to install it on the air plant.
 - Security rests on Module-LWE and SelfTargetMSIS in the QROM; side channels and size are the
   practical challenges.
 
-**Next:** Chapter 10, NTRU, Falcon and FN-DSA, where a lattice with a trapdoor gives much
+**Next:** [Chapter 10](10-NTRU-Falcon-and-FN-DSA.md), NTRU, Falcon and FN-DSA, where a lattice with a trapdoor gives much
 smaller signatures at the price of harder arithmetic.
 
 ## Further reading
