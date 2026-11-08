@@ -75,13 +75,15 @@
   nav.forEach(function (n) { if (done[n.path]) tick(n.a); });
 
   // ---- books fold in the side menu (cntourit, 8 Nov 2026: "by default I like left panels to be collapsed,
-  // listing only books. when clicked it will expand, and it will remember my choice"; again 8 Nov 2026 15:11Z:
-  // "all books by default need to be collapsed in the left menu navigation") ----
+  // listing only books. when clicked it will expand, and it will remember my choice"; 15:11Z: "all books by default
+  // need to be collapsed in the left menu navigation"; 16:26Z: "click one time, I need to expand, and one click again
+  // it should collapse. now any click just refresh and stay collapsed") ----
   // Every book starts closed, the one you are reading too: the Books (or Book) menu lists only the book names,
-  // and the book you are on is highlighted. On wide screens the arrow beside a book opens or closes its chapters,
-  // and that choice is remembered per book in this browser only. Clicking a book's name opens its front page and
-  // leaves the book as it was. On phones and tablets the menu opens at the list of books; a tap on a book shows
-  // its chapters. A book that has read chapters shows "✓ n of m" beside its name.
+  // and the book you are on is highlighted. A click on a book's name or on its arrow opens its chapters in place;
+  // a second click closes them; nothing is loaded. On wide screens that choice is remembered per book in this
+  // browser only. The book's own front page is the first line inside the open book ("Start here"), since the name
+  // no longer leads there. On phones and tablets the menu opens at the list of books; a tap on a book slides into
+  // its chapters, as the arrow always did. A book that has read chapters shows "✓ n of m" beside its name.
   (function () {
     var wide = window.matchMedia && window.matchMedia("(min-width: 76.25em)").matches;
     // a new name for the saved choices: the old ones were partly written automatically (a book opened by itself
@@ -104,18 +106,42 @@
         var key = link ? norm(link.href) : label(top);
         li.classList.remove("md-nav__item--section");
         li.classList.add("reader-book");
+        var show = function (open) {
+          box.checked = open;
+          sub.setAttribute("aria-expanded", open ? "true" : "false");
+          var say = open ? "Hide the chapters" : "Show the chapters";
+          if (arrow) arrow.title = say;
+          if (link) { link.title = say; link.setAttribute("aria-expanded", open ? "true" : "false"); }
+        };
+        var remember = function () { if (!wide) return; folds[key] = box.checked; save(FOLD, folds); };
         if (wide) {
-          var show = function (open) {
-            box.checked = open;
-            sub.setAttribute("aria-expanded", open ? "true" : "false");
-            if (arrow) arrow.title = open ? "Hide the chapters" : "Show the chapters";
-          };
           show(!!folds[key]);
-          box.addEventListener("change", function () { show(box.checked); folds[key] = box.checked; save(FOLD, folds); });
         } else {
           // the phone menu slides into every open level, so close this book and the parts inside it
-          box.checked = false;
+          show(false);
           sub.querySelectorAll("input.md-nav__toggle").forEach(function (b) { b.checked = false; });
+        }
+        // the arrow is a label for the checkbox: the browser toggles it, we only remember the choice
+        box.addEventListener("change", function () { show(box.checked); remember(); });
+        if (link) {
+          // the name toggles the book in place instead of loading its front page
+          link.addEventListener("click", function (e) {
+            if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;   // a new tab still works
+            e.preventDefault();
+            show(!box.checked);
+            remember();
+          });
+          // the front page itself moves inside the book, as its first line
+          var ul = sub.querySelector(":scope > .md-nav__list");
+          if (ul && !ul.querySelector(":scope > li > a.reader-bookhome")) {
+            var fli = el("li", "md-nav__item"), fa = el("a", "md-nav__link reader-bookhome");
+            fa.href = link.href;
+            fa.appendChild(el("span", "md-ellipsis", "Start here"));
+            fa.title = "The front page of this book";
+            if (norm(link.href) === here) { fa.classList.add("md-nav__link--active"); fa.setAttribute("aria-current", "page"); }
+            fli.appendChild(fa);
+            ul.insertBefore(fli, ul.firstChild);
+          }
         }
         // how much of this book is read, so the ticks stay in sight while the book is closed
         var pages = sub.querySelectorAll("a.md-nav__link[href]"), n = 0, m = 0, met = {};
