@@ -371,14 +371,23 @@ nav:
               - books/engineering/03-ASN1-DER-and-Key-Files.md
               - books/engineering/04-Randomness-in-Practice.md
       - History of secret writing:
-          - history/index.md
-          - history/01-Ancient.md
-          - history/02-Arab-Cryptanalysis.md
-          - history/03-Renaissance.md
-          - history/04-Telegraph-Age.md
-          - history/05-Machines-and-WWII.md
-          - history/06-Shannon-to-DES.md
-          - history/07-Public-Key.md
-          - history/08-Internet-Era.md
-          - history/09-Hardware-and-Engineering.md
-          - history/10-Quantum-and-Post-Quantum.md
+          - Start here: books/history/index.md
+          - I. Beginnings:
+              - books/history/01-Why-People-Hid-Writing.md
+              - books/history/02-Egypt-Mesopotamia-and-the-Bible.md
+              - books/history/03-Greece-and-Rome.md
+              - books/history/04-Baghdad-and-Cairo.md
+          - II. Europe's courts and the wider world:
+              - books/history/05-The-Medieval-World.md
+          - The earlier history pages (until the book replaces them):
+              - history/index.md
+              - history/01-Ancient.md
+              - history/02-Arab-Cryptanalysis.md
+              - history/03-Renaissance.md
+              - history/04-Telegraph-Age.md
+              - history/05-Machines-and-WWII.md
+              - history/06-Shannon-to-DES.md
+              - history/07-Public-Key.md
+              - history/08-Internet-Era.md
+              - history/09-Hardware-and-Engineering.md
+              - history/10-Quantum-and-Post-Quantum.md
