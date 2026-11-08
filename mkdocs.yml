@@ -94,6 +94,10 @@ validation:
 
 # The book first, then the appendices. The old lessons in learn/ forward to their chapters.
 not_in_nav: |
+  /formats/X.509.md
+  /formats/File-Formats.md
+  /formats/ASN.1-DER.md
+  /formats/Encoding.md
   /learn/
   /protocols/PKI.md
   /protocols/TLS-1.3.md
@@ -218,11 +222,6 @@ nav:
               - protocols/age.md
               - protocols/Disk-Encryption.md
               - protocols/Bitcoin.md
-          - Formats:
-              - formats/Encoding.md
-              - formats/ASN.1-DER.md
-              - formats/X.509.md
-              - formats/File-Formats.md
           - Tools:
               - tools/openssl.md
               - tools/ssh-keygen.md
@@ -364,6 +363,13 @@ nav:
               - books/advanced/06-Sigma-Protocols-and-Fiat-Shamir.md
               - books/advanced/07-SNARKs.md
               - books/advanced/08-STARKs-Bulletproofs-and-Recursion.md
+      - Cryptographic engineering:
+          - Start here: books/engineering/index.md
+          - I. Bytes and randomness:
+              - books/engineering/01-What-Cryptographic-Engineering-Is.md
+              - books/engineering/02-Bytes-Encodings-and-Text.md
+              - books/engineering/03-ASN1-DER-and-Key-Files.md
+              - books/engineering/04-Randomness-in-Practice.md
       - History of secret writing:
           - history/index.md
           - history/01-Ancient.md

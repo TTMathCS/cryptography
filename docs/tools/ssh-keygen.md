@@ -22,7 +22,7 @@ ssh-keygen -t ed25519-sk -O resident -O verify-required -O application=ssh:work 
 ssh-keygen -K                                         # download resident keys into the current directory
 ```
 
-The file is an `OPENSSH PRIVATE KEY` ([file formats](../formats/File-Formats.md#how-it-is-built)):
+The file is an `OPENSSH PRIVATE KEY` ([file formats](../books/engineering/03-ASN1-DER-and-Key-Files.md#the-key-structures)):
 public key in the clear, the rest under AES-256-CTR keyed by [bcrypt_pbkdf](../08-kdf-password-hashing/bcrypt.md),
 whose cost grows linearly with `-a`: 24 rounds in 9.6 (its man page says 16), 32 in 10.6. `-sk` keys
 need the device (here: `device not found`) and keep their secret in it ([FIDO2](../protocols/FIDO2.md)).
