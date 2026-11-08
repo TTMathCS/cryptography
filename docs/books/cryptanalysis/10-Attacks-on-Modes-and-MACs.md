@@ -356,7 +356,7 @@ Tibor Jager and Juraj Somorovsky broke the W3C's XML Encryption the same way.
 Daniel Bleichenbacher had found the same kind of oracle in RSA encryption four
 years earlier, in 1998: a server that says whether a decrypted RSA message had
 valid PKCS#1 v1.5 padding lets an attacker decrypt with about a million
-questions. That attack belongs to Chapter 13, but the
+questions. That attack belongs to [Chapter 13](13-Attacks-on-RSA.md), but the
 lesson is the same. **Any** observable difference in how a receiver handles a
 malformed ciphertext is an oracle, and an oracle about decrypted data is
 usually enough to read that data.
@@ -1742,7 +1742,7 @@ included, offer little there.
   misuse-resistant modes such as AES-GCM-SIV where nonces cannot be
   guaranteed.
 
-**Next:** Chapter 11 leaves secret-key cryptography and
+**Next:** [Chapter 11](11-Factoring.md) leaves secret-key cryptography and
 turns to the problems under public keys, starting with factoring.
 
 ## Further reading

@@ -755,7 +755,7 @@ They are always $i$ steps apart, a whole number of laps, so they first stand on
 the same value at the junction, and the step before that gives $a$ and $b$. John
 Pollard used exactly this walk in 1975 to factor integers and in 1978 to compute
 discrete logarithms, which is why it is called **Pollard's rho**; Chapters
-11 and 12 use it again.
+[11](11-Factoring.md) and [12](12-Discrete-Logarithms.md) use it again.
 
 **Code it.** A collision in SHA-256 cut to 40 bits, $N = 2^{40}$, with memory for
 two values. The birthday bound says about $2^{20}$ steps, and Floyd's method
@@ -1068,7 +1068,7 @@ which recover an AES key about four times faster than brute force. It solves the
 subset-sum and knapsack problems in $2^{n/2}$ instead of $2^n$ (Horowitz and Sahni,
 1974; Schroeppel and Shamir, 1981). And it is the baby-step giant-step algorithm
 for discrete logarithms, where the two halves are $g^{i}$ and $h \cdot g^{-jm}$
-(Chapter 12). Whenever you see a cipher whose key
+([Chapter 12](12-Discrete-Logarithms.md)). Whenever you see a cipher whose key
 splits cleanly into parts used in separate stages, ask what meet in the middle
 would cost.
 
@@ -1830,7 +1830,7 @@ needs so much quantum memory that it does no better than the classical rho metho
 of §4.5 at equal hardware cost. The net effect on this chapter's table is one
 line: long-lived symmetric keys go to 256 bits, which multi-target attacks had
 already recommended, and hash outputs stay at 256 bits or more.
-Chapter 16 returns to the quantum
+[Chapter 16](16-Breaking-Post-Quantum-Candidates.md) returns to the quantum
 attacker's real costs.
 
 ## 4.12 Going deeper

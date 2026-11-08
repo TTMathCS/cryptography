@@ -434,7 +434,7 @@ own, and Chapter 17 is about it.
 laser flash or a Rowhammer bit flip, and compares the wrong output with the
 right one. A single faulty RSA signature computed with the Chinese remainder
 theorem can reveal the factorization of the modulus (Boneh, DeMillo and Lipton,
-1997; Chapter 13).
+1997; [Chapter 13](13-Attacks-on-RSA.md)).
 
 ### Which model should a cipher survive?
 
@@ -704,7 +704,7 @@ Three rules of thumb cover most comparisons.
 The comparison is always against the best attack known **for that goal**. For
 public-key systems the generic attack is not key search at all: nobody breaks RSA
 by trying private keys, but by factoring the modulus, and the yardstick is the
-best factoring algorithm (Chapter 11). That is why a 3072-bit
+best factoring algorithm ([Chapter 11](11-Factoring.md)). That is why a 3072-bit
 RSA key and a 128-bit AES key are rated alike at 128 bits of security
 (SP 800-57).
 
@@ -1322,13 +1322,13 @@ In April 1994 Derek Atkins, Michael Graff, Arjen Lenstra and Paul Leyland,
 coordinating about 600 volunteers' computers over the internet with the
 quadratic sieve, factored RSA-129 and read the message: "The magic words are
 squeamish ossifrage." Rivest's estimate had been honest; what changed was the
-algorithms, not just the hardware (Chapter 11).
+algorithms, not just the hardware ([Chapter 11](11-Factoring.md)).
 
 Another public-key system fell much faster. Ralph Merkle and Martin Hellman's
 knapsack cryptosystem of 1978 hid an easy subset-sum problem inside a hard-looking
 one. In 1982 Adi Shamir showed how to undo the disguise in polynomial time, and
 over the next decade almost every knapsack variant was broken the same way, with
-lattice methods (Chapter 15).
+lattice methods ([Chapter 15](15-Lattices-as-a-Weapon.md)).
 
 !!! note "Life story: RSA-129"
     **Born:** August 1977, the RSA challenge in Martin Gardner's "Mathematical
@@ -1338,7 +1338,7 @@ lattice methods (Chapter 15).
     power of better algorithms and of the internet as a computer; it led to the
     RSA Factoring Challenge (1991 to 2007) and its numbered records ·
     **Status:** closed; the record today is RSA-250, factored in 2020
-    (Chapter 11)
+    ([Chapter 11](11-Factoring.md))
 
 ### Differential and linear cryptanalysis
 
@@ -1428,7 +1428,7 @@ SIKE's secret key on a single computer core, about an hour for the smallest
 parameter set. Their attack used a 1997 theorem of Ernst Kani about products of
 elliptic curves, a piece of pure mathematics that nobody had connected to SIKE.
 Ten years of analysis had found no weakness, and the scheme fell in one paper.
-Chapter 16 tells both stories.
+[Chapter 16](16-Breaking-Post-Quantum-Candidates.md) tells both stories.
 
 !!! note "Life story: the fall of SIKE"
     **Born:** late July 2022, Wouter Castryck and Thomas Decru (KU Leuven), with
@@ -1601,7 +1601,7 @@ the same known plaintext, finds one in about $2^k / M$ trials, so a billion user
 of a 64-bit key give up about 30 bits ([Chapter 4](04-Brute-Force-Birthdays-and-Trade-offs.md)).
 And a quantum attacker running Grover's algorithm searches $2^k$ keys in about
 $2^{k/2}$ sequential steps, though the steps are slow and do not parallelize well
-(Chapter 16).
+([Chapter 16](16-Breaking-Post-Quantum-Candidates.md)).
 
 ### The attacker's advantage
 

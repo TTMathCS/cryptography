@@ -58,12 +58,12 @@ system under attack, so you can read the two side by side.
 | | [8. Attacks on stream ciphers](08-Attacks-on-Stream-Ciphers.md) | intermediate to expert |
 | | [9. Breaking hash functions](09-Breaking-Hash-Functions.md) | intermediate to expert |
 | | [10. Attacks on modes and message authentication](10-Attacks-on-Modes-and-MACs.md) | intermediate |
-| **III. Breaking public-key cryptography** | 11. Factoring | intermediate |
-| | 12. Discrete logarithms | intermediate to expert |
-| | 13. Attacks on RSA | intermediate to expert |
-| | 14. Attacks on signatures and nonces | intermediate to expert |
-| | 15. Lattices as a weapon | expert |
-| | 16. Breaking post-quantum candidates | expert |
+| **III. Breaking public-key cryptography** | [11. Factoring](11-Factoring.md) | intermediate |
+| | [12. Discrete logarithms](12-Discrete-Logarithms.md) | intermediate to expert |
+| | [13. Attacks on RSA](13-Attacks-on-RSA.md) | intermediate to expert |
+| | [14. Attacks on signatures and nonces](14-Attacks-on-Signatures-and-Nonces.md) | intermediate to expert |
+| | [15. Lattices as a weapon](15-Lattices-as-a-Weapon.md) | expert |
+| | [16. Breaking post-quantum candidates](16-Breaking-Post-Quantum-Candidates.md) | expert |
 | **IV. Breaking implementations and systems** | 17. Side channels, the attacker's view | intermediate to expert |
 | | 18. Random numbers gone wrong | intermediate |
 | | 19. Protocol breaks | intermediate |

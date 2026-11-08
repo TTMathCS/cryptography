@@ -275,6 +275,13 @@ nav:
               - books/cryptanalysis/08-Attacks-on-Stream-Ciphers.md
               - books/cryptanalysis/09-Breaking-Hash-Functions.md
               - books/cryptanalysis/10-Attacks-on-Modes-and-MACs.md
+          - III. Breaking public-key cryptography:
+              - books/cryptanalysis/11-Factoring.md
+              - books/cryptanalysis/12-Discrete-Logarithms.md
+              - books/cryptanalysis/13-Attacks-on-RSA.md
+              - books/cryptanalysis/14-Attacks-on-Signatures-and-Nonces.md
+              - books/cryptanalysis/15-Lattices-as-a-Weapon.md
+              - books/cryptanalysis/16-Breaking-Post-Quantum-Candidates.md
       - The mathematics of cryptography:
           - Start here: books/mathematics/index.md
           - I. Numbers:

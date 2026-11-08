@@ -1147,7 +1147,7 @@ some other algebraic method could exploit AES's structure is open, which is why
 "AES is unbroken" describes the public record, not a proof (§7.10). The episode
 left a habit of testing algebraic claims on toy versions first, and better
 solvers, which now break real targets such as the multivariate signature
-candidates of Chapter 16.
+candidates of [Chapter 16](16-Breaking-Post-Quantum-Candidates.md).
 
 !!! note "Life story: the XSL claim"
     **Born:** 2002, Nicolas Courtois and Josef Pieprzyk (ASIACRYPT 2002),
