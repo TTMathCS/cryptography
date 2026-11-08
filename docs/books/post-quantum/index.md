@@ -46,12 +46,12 @@ all the way to the standards themselves, line by line.
 | | [12. SLH-DSA, FIPS 205](12-SLH-DSA.md) | intermediate |
 | | [13. Code-based encryption: McEliece](13-Code-Based-Encryption-McEliece.md) | intermediate |
 | | [14. HQC and BIKE](14-HQC-and-BIKE.md) | intermediate |
-| | 15. Multivariate signatures and the on-ramp (coming) | intermediate |
-| | 16. Isogenies: SIKE's fall and what lived (coming) | intermediate to expert |
-| **IV. Into the real world** | 17. Implementing post-quantum safely (coming) | intermediate |
-| | 18. Hybrids and the migration (coming) | intermediate |
+| | [15. Multivariate signatures and the on-ramp](15-Multivariate-Signatures-and-the-On-Ramp.md) | intermediate |
+| | [16. Isogenies: SIKE's fall and what lived](16-Isogenies.md) | intermediate to expert |
+| **IV. Into the real world** | [17. Implementing post-quantum safely](17-Implementing-Post-Quantum-Safely.md) | intermediate |
+| | [18. Hybrids and the migration](18-Hybrids-and-the-Migration.md) | intermediate |
 
-Chapters are published in parts of four or five as they are finished and checked.
+All 18 chapters are published, with a [glossary](Glossary.md) of the terms they use.
 
 ## Where this book fits
 

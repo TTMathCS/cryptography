@@ -441,7 +441,7 @@ backup channel too.
 - HQC's keys and ciphertexts are several times ML-KEM's; FIPS 207 had no public draft as of
   8 November 2026.
 
-**Next:** Chapter 15, multivariate signatures and the "on-ramp" of new signature candidates.
+**Next:** [Chapter 15](15-Multivariate-Signatures-and-the-On-Ramp.md), multivariate signatures and the "on-ramp" of new signature candidates.
 
 ## Further reading
 

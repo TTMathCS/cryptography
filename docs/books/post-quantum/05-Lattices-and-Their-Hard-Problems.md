@@ -27,7 +27,7 @@ Arora-Ge attack when a scheme hands out too many samples with too little noise.*
     **You need:** [Chapters 2](02-Security-Levels.md) and [4](04-A-Field-Guide-to-Hard-Problems.md);
     vectors, matrices and arithmetic modulo $q$. Book 1's
     [Chapter 21](../../book/21-Lattice-Cryptography.md) is a gentler first look.
-    Chapter 14 of the mathematics book proves the lattice
+    [Chapter 14 of the mathematics book](../mathematics/14-Lattices.md) proves the lattice
     facts used here and builds LLL in full; this chapter uses them.
 
     **Levels:** §5.1 to §5.3 are for beginners, §5.4 to §5.10 are intermediate, §5.11 is
@@ -492,7 +492,7 @@ lattice cryptography. For some ideal lattices with unusually small errors, quant
 are known (Cramer, Ducas, Peikert and Regev, 2016, and follow-ups), but they do not reach
 Ring-LWE or Module-LWE at the parameters used. Module-LWE, with its smaller degree of
 symmetry, was chosen partly as a hedge. Chapter 7 builds the rings, and
-Chapter 15 of the mathematics book proves their
+[Chapter 15 of the mathematics book](../mathematics/15-Learning-with-Errors.md) proves their
 properties.
 
 ## 5.9 Break it: the Arora-Ge attack

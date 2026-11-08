@@ -23,7 +23,7 @@ why experts argued about them in public.*
 
     **You need:** [Chapter 5](05-Lattices-and-Their-Hard-Problems.md) and
     [Chapter 2](02-Security-Levels.md), §2.5.
-    Chapter 14 of the mathematics book proves LLL's
+    [Chapter 14 of the mathematics book](../mathematics/14-Lattices.md) proves LLL's
     guarantees.
 
     **Levels:** §6.1 to §6.3 are for beginners, §6.4 to §6.10 are intermediate, §6.11 is

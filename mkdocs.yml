@@ -346,6 +346,12 @@ nav:
               - books/post-quantum/12-SLH-DSA.md
               - books/post-quantum/13-Code-Based-Encryption-McEliece.md
               - books/post-quantum/14-HQC-and-BIKE.md
+              - books/post-quantum/15-Multivariate-Signatures-and-the-On-Ramp.md
+              - books/post-quantum/16-Isogenies.md
+          - IV. Into the real world:
+              - books/post-quantum/17-Implementing-Post-Quantum-Safely.md
+              - books/post-quantum/18-Hybrids-and-the-Migration.md
+          - Glossary: books/post-quantum/Glossary.md
       - History of secret writing:
           - history/index.md
           - history/01-Ancient.md

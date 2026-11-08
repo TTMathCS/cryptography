@@ -25,8 +25,8 @@ overflows.*
 
     **You need:** [Chapter 5](05-Lattices-and-Their-Hard-Problems.md) (LWE and its forms);
     polynomials and arithmetic modulo $q$. The theory of cyclotomic rings and the proofs
-    behind Ring-LWE are in Chapter 15 of the
-    mathematics book; this chapter uses the results.
+    behind Ring-LWE are in [Chapter 15 of the
+    mathematics book](../mathematics/15-Learning-with-Errors.md); this chapter uses the results.
 
     **Levels:** §7.1 to §7.3 are for beginners, §7.4 to §7.8 are intermediate, §7.9 is
     expert.
