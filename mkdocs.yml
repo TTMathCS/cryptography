@@ -261,6 +261,13 @@ nav:
               - book/22-Hash-and-Code-Based.md
               - book/23-Advanced-Protocols.md
           - Glossary: book/Glossary.md
+      - "Cryptanalysis: how ciphers are broken":
+          - Start here: books/cryptanalysis/index.md
+          - I. The craft:
+              - books/cryptanalysis/01-What-Cryptanalysis-Is.md
+              - books/cryptanalysis/02-Breaking-Classical-Ciphers.md
+              - books/cryptanalysis/03-Machines-and-the-War.md
+              - books/cryptanalysis/04-Brute-Force-Birthdays-and-Trade-offs.md
       - History of secret writing:
           - history/index.md
           - history/01-Ancient.md
