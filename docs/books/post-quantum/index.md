@@ -36,11 +36,11 @@ all the way to the standards themselves, line by line.
 | | [2. Security levels and how they are measured](02-Security-Levels.md) | beginner to intermediate |
 | | [3. KEMs, signatures and what "secure" means now](03-KEMs-and-Signatures.md) | intermediate |
 | | [4. A field guide to hard problems](04-A-Field-Guide-to-Hard-Problems.md) | beginner to intermediate |
-| **II. Lattices** | 5. Lattices and their hard problems (coming) | intermediate |
-| | 6. Lattice reduction and the estimator (coming) | intermediate to expert |
-| | 7. Rings, modules and the number-theoretic transform (coming) | intermediate |
-| | 8. ML-KEM, FIPS 203 (coming) | intermediate |
-| | 9. ML-DSA, FIPS 204 (coming) | intermediate |
+| **II. Lattices** | [5. Lattices and their hard problems](05-Lattices-and-Their-Hard-Problems.md) | intermediate |
+| | [6. Lattice reduction and the estimator](06-Lattice-Reduction-and-the-Estimator.md) | intermediate to expert |
+| | [7. Rings, modules and the number-theoretic transform](07-Rings-Modules-and-the-NTT.md) | intermediate |
+| | [8. ML-KEM, FIPS 203](08-ML-KEM.md) | intermediate |
+| | [9. ML-DSA, FIPS 204](09-ML-DSA.md) | intermediate |
 | | 10. NTRU, Falcon and FN-DSA (coming) | intermediate to expert |
 | **III. Hashes, codes and the rest** | 11. Stateful hash-based signatures: LMS and XMSS (coming) | intermediate |
 | | 12. SLH-DSA, FIPS 205 (coming) | intermediate |

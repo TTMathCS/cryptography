@@ -304,6 +304,12 @@ nav:
               - books/post-quantum/02-Security-Levels.md
               - books/post-quantum/03-KEMs-and-Signatures.md
               - books/post-quantum/04-A-Field-Guide-to-Hard-Problems.md
+          - II. Lattices:
+              - books/post-quantum/05-Lattices-and-Their-Hard-Problems.md
+              - books/post-quantum/06-Lattice-Reduction-and-the-Estimator.md
+              - books/post-quantum/07-Rings-Modules-and-the-NTT.md
+              - books/post-quantum/08-ML-KEM.md
+              - books/post-quantum/09-ML-DSA.md
       - History of secret writing:
           - history/index.md
           - history/01-Ancient.md

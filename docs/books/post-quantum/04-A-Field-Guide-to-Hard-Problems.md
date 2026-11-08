@@ -876,8 +876,8 @@ at the cost of size.
 - The standards deliberately spread their bets across families, and systems should be built
   to switch algorithms.
 
-**Next:** Part II begins with Chapter 5, the lattice problems in detail (coming in the
-next part of this book).
+**Next:** Part II begins with [Chapter 5](05-Lattices-and-Their-Hard-Problems.md), the
+lattice problems in detail.
 
 ## Further reading
 
