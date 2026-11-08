@@ -58,7 +58,21 @@
 
   // ---- ticks for finished chapters ----
   var done = load(KEY + "-done"), pos = load(KEY + "-pos");
-  nav.forEach(function (n) { if (done[n.path]) n.a.classList.add("reader-done"); });
+  // The tick explains itself (cntourit, 8 Nov 2026: "for users don't know this they might be confused"):
+  // pointing at it says what it means, and a quiet line under any menu list holding a tick says it on phones too.
+  var TICK_SAYS = "You have read this page to the end (remembered in this browser only)";
+  function tick(a) {
+    a.classList.add("reader-done"); a.title = TICK_SAYS;
+    // on phones and tablets the open page is shown by a label next to the link: tick that too
+    var lab = a.parentNode && a.parentNode.querySelector(":scope > label.md-nav__link");
+    if (lab) { lab.classList.add("reader-done"); lab.title = TICK_SAYS; }
+    var ul = a.closest("ul");
+    if (!ul || (ul.nextElementSibling && ul.nextElementSibling.classList.contains("reader-legend"))) return;
+    var p = document.createElement("p"); p.className = "reader-legend";
+    p.textContent = "✓ = read to the end, remembered in this browser only";
+    ul.parentNode.insertBefore(p, ul.nextSibling);
+  }
+  nav.forEach(function (n) { if (done[n.path]) tick(n.a); });
 
   // ---- reading settings ----
   var header = document.querySelector(".md-header__inner");
@@ -266,8 +280,14 @@
     if (!("IntersectionObserver" in window) || !target) return;
     var io = new IntersectionObserver(function (es) {
       if (!es[0].isIntersecting) return;
+      var first = !done[here];
       done[here] = 1; save(KEY + "-done", done);
-      if (at >= 0) nav[at].a.classList.add("reader-done");
+      if (first && at >= 0) {
+        var note = el("p", "reader-ticknote", "✓ Finished. This page now has a tick in the menu, so you can see what you have read.");
+        var fin = document.querySelector(".reader-finished");
+        if (fin) fin.parentNode.replaceChild(note, fin); else article.appendChild(note);
+      }
+      if (at >= 0) tick(nav[at].a);
       io.disconnect();
     });
     io.observe(target);
