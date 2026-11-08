@@ -333,7 +333,7 @@ finite-field Diffie-Hellman parameters, because the signature in TLS 1.2 covered
 the parameters but not *which kind* of key exchange they were for. JSON Web
 Tokens had the same disease in 2015, when libraries accepted a token "signed"
 with HMAC using the server's public RSA key as the HMAC key (the Protocols book,
-[Chapter 14](../protocols/index.md)).
+[Chapter 14](../protocols/14-OAuth-OpenID-Connect-and-JWT.md)).
 
 The cures are **tagging** (every message and field carries its type, so that
 parsing as the wrong type fails) and **unambiguous encoding** (lengths and

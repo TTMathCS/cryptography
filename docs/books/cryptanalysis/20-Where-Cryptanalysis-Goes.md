@@ -215,9 +215,9 @@ could factor RSA-2048 with 372 qubits. Its experiments had factored a 48-bit
 number; the paper itself did not estimate the running time for 2048 bits, and
 other researchers argued that the method would not scale at all. In April 2024
 Yilei Chen posted a quantum algorithm for the learning-with-errors problem that,
-if correct, would have threatened lattice cryptography; within about nine days
-he found a bug himself, with help from other researchers, and withdrew the
-claim. All three were serious people, all three claims were checked in public,
+if correct, would have threatened lattice cryptography; about a week later
+two other researchers, Hongxun Wu and Thomas Vidick, independently found a bug
+in it, and he withdrew the claim. All three were serious people, all three claims were checked in public,
 and the checking worked.
 
 The opposite case is the claim that arrives with evidence. On 30 July 2022
@@ -948,7 +948,7 @@ Microsoft, Apple and most large software companies run programs, and platforms
 such as HackerOne and Bugcrowd run them for others. Typical payments for serious
 web and application flaws are in the thousands to tens of thousands of dollars;
 the top published categories, for a remote, no-click compromise of a phone,
-reached \$1 million at Apple from 2019. Cryptographic flaws are paid like any
+reached \$1 million at Apple in 2019 and \$2 million in late 2025. Cryptographic flaws are paid like any
 other: by impact, not elegance. A beautiful attack on a mode that needs a
 billion chosen ciphertexts earns less than a dull missing check that lets anyone
 forge a token.
