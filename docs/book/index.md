@@ -19,10 +19,11 @@ with exercises.*
 - **Run the code.** Every example is short Python 3.8 or later, using only the
   standard library unless it says otherwise. These are toy versions to show
   the math, never to protect real data.
-- **The other tabs are the reference.** *Algorithms* has one page per
-  algorithm with sizes, standards, status and closed "Going deeper" boxes;
-  *Protocols* covers protocols, formats and tools; *History* tells the whole
-  story. The chapters link to them.
+- **The reference is under Topics.** The [Algorithm reference](../algorithms/index.md)
+  has one page per algorithm with sizes, standards, status and closed "Going
+  deeper" boxes; [Protocols, formats and tools](../protocols/index.md) covers the
+  rest. The [history of secret writing](../history/index.md), next to this book
+  under Books, tells the whole story. The chapters link to them.
 
 ## Contents
 
