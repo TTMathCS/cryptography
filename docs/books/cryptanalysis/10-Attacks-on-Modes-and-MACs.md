@@ -883,7 +883,7 @@ Reused keystreams are among the most repeated mistakes in cryptography. In
 of a protected document with the same RC4 keystream. WEP's 24-bit IV repeated
 within hours on a busy network ([Chapter 8](08-Attacks-on-Stream-Ciphers.md)).
 In 2017 Mathy Vanhoef's KRACK made WPA2 devices reset their nonce counters by
-replaying a handshake message (Chapter 19). The mode
+replaying a handshake message ([Chapter 19](19-Protocol-Breaks.md)). The mode
 was never at fault; the promise it asks for was broken.
 
 !!! note "Life story: the two-time pad"
@@ -1639,7 +1639,7 @@ repaired it with weaker bounds.
 
 **Implementations.** Lucky Thirteen's fixes show that having no oracle is a
 property of machine code, not of specifications.
-Chapter 17 treats timing attacks
+[Chapter 17](17-Side-Channels-the-Attackers-View.md) treats timing attacks
 from the attacker's side.
 
 **Key commitment.** GCM does not bind a ciphertext to one key. Since GHASH is

@@ -544,7 +544,7 @@ were at risk. Google confirmed that Java's `SecureRandom` on Android had
 not been seeded properly in some cases, so different signatures, even in
 different apps, could get the same "random" $k$. Wallets were patched to
 read the kernel's generator directly, and users had to move their coins to
-new keys. Chapter 18 tells the full
+new keys. [Chapter 18](18-Random-Numbers-Gone-Wrong.md) tells the full
 story, with the generator bug itself; for this chapter it is the second
 great example after the PS3, with the difference that the victims were
 thousands of ordinary users rather than one company.
@@ -1151,7 +1151,7 @@ a conditional subtraction in the modular arithmetic of the signing
 equation, which happened or not depending on the size of a value tied
 linearly to the key, and so gave hidden-number samples of its own. Power and electromagnetic
 measurements of smart cards give the same kind of data at closer range
-(Chapter 17 treats them from
+([Chapter 17](17-Side-Channels-the-Attackers-View.md) treats them from
 the attacker's side). And a weak generator need not be biased in the top
 bits: the "shared prefix" nonces of §14.5 give the HNP with a different
 known part. Wherever any bits of $k$ are known, likely, or related across
@@ -1612,7 +1612,7 @@ can compute the next nonce and, from one signature, the key, by §14.2's
 first formula. No repeat, no bias and no lattice are needed, and nobody
 else can detect the weakness from the signatures. Book 1
 ([§15.8](../../book/15-Elliptic-Curves.md)) shows the backdoor in one
-equation; Chapter 18 tells the whole
+equation; [Chapter 18](18-Random-Numbers-Gone-Wrong.md) tells the whole
 story, with Juniper. Deterministic or hedged nonces make a signer immune to
 this, whatever its generator.
 
@@ -1622,7 +1622,7 @@ The Android `SecureRandom` failure of 2013 (§14.5) belongs here too, as the
 accidental version of the same thing: the platform's generator, which every
 app trusted, gave some apps the same output. It differs from Dual_EC in
 who could exploit it (anyone watching the blockchain) and in how it was
-found (by the thefts). Chapter 18 has
+found (by the thefts). [Chapter 18](18-Random-Numbers-Gone-Wrong.md) has
 the details of the bug.
 
 ### RSA signatures fail differently

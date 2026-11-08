@@ -157,7 +157,7 @@ $\gcd(N_1, N_2) = p$, one Euclid's algorithm away; with Daniel Bernstein's batch
 gcd, millions of keys can be checked against each other in hours. The keys came
 mostly from routers and firewalls that generated them at first boot, before
 they had gathered any randomness. That story, with the batch gcd coded, is in
-Chapter 18.
+[Chapter 18](18-Random-Numbers-Gone-Wrong.md).
 
 Keep the roles straight as you read. **Beginner** attacks need only
 arithmetic: Euclid, inverses, the Chinese remainder theorem, a cube root.
@@ -1067,7 +1067,7 @@ help even more directly: for small $e$, the top half of $d$ can be computed
 from the public key alone, since $d \approx (1 + k(N + 1))/e$ for the right
 $k < e$, so the secret really lives in the bottom half. These results are why
 side-channel attacks on RSA aim to leak only a fraction of the key bits and
-leave the rest to a lattice (Chapter 17).
+leave the rest to a lattice ([Chapter 17](17-Side-Channels-the-Attackers-View.md)).
 
 **Code it.** The block reduces lattices with a short LLL (a black box, slow
 but fine in dimension 3 and 4), turns the short vectors back into
@@ -1203,7 +1203,7 @@ tells instantly whether a key is affected. The researchers estimated the work
 for a 2048-bit key at around a hundred CPU-years, expensive for one key but
 affordable for a valuable one, and Estonia suspended the certificates of about
 750,000 ID cards. The full story of ROCA, as a story about how keys are
-generated, is in Chapter 18.
+generated, is in [Chapter 18](18-Random-Numbers-Gone-Wrong.md).
 
 !!! note "Life story: Coppersmith's method"
     **Born:** EUROCRYPT 1996, Don Coppersmith of IBM (two papers: a small root
@@ -1404,7 +1404,7 @@ connections and $2^{50}$ computation, under eight hours and a few hundred
 dollars of cloud computing in the authors' estimate. With an old OpenSSL bug
 ("special DROWN") it took under a minute. At disclosure in March 2016, about a
 third of HTTPS servers were vulnerable, most of them through key reuse. The
-protocol side of the story is in Chapter 19.
+protocol side of the story is in [Chapter 19](19-Protocol-Breaks.md).
 
 **ROBOT (2017).** Hanno Böck, Juraj Somorovsky and Craig Young went back to
 basics in December 2017 with the "Return Of Bleichenbacher's Oracle Threat".
@@ -1763,7 +1763,7 @@ did the same for SSH, where the signed value is not known to an observer, and
 used a lattice (the partial-knowledge idea of §13.7) to recover 189 RSA host
 keys from faulty signatures in years of scan data. Deliberate faults, by
 voltage, clock or laser, are the attacker's tool against smart cards
-(Chapter 17).
+([Chapter 17](17-Side-Channels-the-Attackers-View.md)).
 
 **Fix it.** Verify every signature with the public key before releasing it:
 one exponentiation with $e = 65537$, a few percent of the cost of signing.

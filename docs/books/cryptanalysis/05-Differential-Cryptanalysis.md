@@ -1908,7 +1908,7 @@ paths become collision recipes: Wang's attacks on MD5 and SHA-1 are
 differential cryptanalysis with message modification, in
 [Chapter 9](09-Breaking-Hash-Functions.md). The same method run backwards on a
 faulty chip, comparing a correct and a corrupted ciphertext, is differential
-fault analysis (Chapter 17).
+fault analysis ([Chapter 17](17-Side-Channels-the-Attackers-View.md)).
 
 **Provable security, and its limit.** Kaisa Nyberg and Lars Knudsen proved in
 1992 that a Feistel cipher with an almost perfect nonlinear round function has
@@ -1923,7 +1923,7 @@ ciphertext pairs of round-reduced Speck32/64 from random pairs, and they beat
 the best classical differential distinguisher he compared against, then
 recovered keys for 11 rounds. Later work explained what the networks learned
 in terms of differentials and their dependencies. It is the subject of
-Chapter 20; the target is still a difference
+[Chapter 20](20-Where-Cryptanalysis-Goes.md); the target is still a difference
 between two encryptions.
 
 ## Check yourself

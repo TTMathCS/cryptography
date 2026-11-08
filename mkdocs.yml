@@ -282,6 +282,12 @@ nav:
               - books/cryptanalysis/14-Attacks-on-Signatures-and-Nonces.md
               - books/cryptanalysis/15-Lattices-as-a-Weapon.md
               - books/cryptanalysis/16-Breaking-Post-Quantum-Candidates.md
+          - IV. Breaking implementations and systems:
+              - books/cryptanalysis/17-Side-Channels-the-Attackers-View.md
+              - books/cryptanalysis/18-Random-Numbers-Gone-Wrong.md
+              - books/cryptanalysis/19-Protocol-Breaks.md
+              - books/cryptanalysis/20-Where-Cryptanalysis-Goes.md
+          - Glossary: books/cryptanalysis/Glossary.md
       - The mathematics of cryptography:
           - Start here: books/mathematics/index.md
           - I. Numbers:

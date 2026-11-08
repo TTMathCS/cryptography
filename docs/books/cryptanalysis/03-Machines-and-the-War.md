@@ -1583,8 +1583,8 @@ message, the reused pad and the delayed codebook were not flaws of the
 machines. A design that is secure only if every operator is careful every day
 is not secure. Today: let the protocol, not people, choose nonces, keys and
 formats. The cost of getting it wrong is the subject of
-Chapter 18 and
-Chapter 19.
+[Chapter 18](18-Random-Numbers-Gone-Wrong.md) and
+[Chapter 19](19-Protocol-Breaks.md).
 
 ## 3.13 Going deeper
 

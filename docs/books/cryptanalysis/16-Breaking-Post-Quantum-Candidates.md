@@ -1062,7 +1062,7 @@ distribution, not a Gaussian approximation.
 *Level: expert.*
 
 The lattice standards were never broken on paper, but their code was. This is the
-attacker's summary; Chapter 17 teaches
+attacker's summary; [Chapter 17](17-Side-Channels-the-Attackers-View.md) teaches
 the side-channel methods themselves, and the Post-quantum book's
 [chapter 17](../post-quantum/index.md) is the
 defender's guide.
@@ -1585,7 +1585,7 @@ dual attack can be made rigorous and how much it really gains; how cheaply a
 masked ML-KEM implementation can be broken by learned models on unseen devices;
 and whether any classical algorithm improves on the $2^{0.292\beta}$ sieving
 exponent, which has stood since 2016 (Anja Becker, Léo Ducas, Nicolas Gama and
-Thijs Laarhoven). Chapter 20 returns to these.
+Thijs Laarhoven). [Chapter 20](20-Where-Cryptanalysis-Goes.md) returns to these.
 
 **The record of competitions.** Bernstein's 2023 paper compares the NIST process
 with earlier selections and argues that a process with more public scrutiny per
@@ -1701,7 +1701,7 @@ first posted.
   its age, the attacks costed, the cost model, quantum assumptions, margin, what
   is revealed, implementation, and who has attacked it.
 
-**Next:** Chapter 17, side channels from
+**Next:** [Chapter 17](17-Side-Channels-the-Attackers-View.md), side channels from
 the attacker's side: timing, caches, power and faults, with a correlation power
 attack on AES coded on simulated traces.
 

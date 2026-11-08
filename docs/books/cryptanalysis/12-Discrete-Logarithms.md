@@ -1263,7 +1263,7 @@ some clients. Logjam did the same for Diffie-Hellman, and then asked what the
 same arithmetic meant for 1,024-bit groups. The protocol half, the downgrade, is
 drawn in book 1's
 [§12.8](../../book/12-Diffie-Hellman.md#attack-4-logjam-weak-and-shared-primes)
-and analyzed in Chapter 19. This section is the
+and analyzed in [Chapter 19](19-Protocol-Breaks.md). This section is the
 cryptanalysis half.
 
 ### The downgrade, in one paragraph

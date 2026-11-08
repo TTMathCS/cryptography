@@ -64,10 +64,10 @@ system under attack, so you can read the two side by side.
 | | [14. Attacks on signatures and nonces](14-Attacks-on-Signatures-and-Nonces.md) | intermediate to expert |
 | | [15. Lattices as a weapon](15-Lattices-as-a-Weapon.md) | expert |
 | | [16. Breaking post-quantum candidates](16-Breaking-Post-Quantum-Candidates.md) | expert |
-| **IV. Breaking implementations and systems** | 17. Side channels, the attacker's view | intermediate to expert |
-| | 18. Random numbers gone wrong | intermediate |
-| | 19. Protocol breaks | intermediate |
-| | 20. Where cryptanalysis goes | intermediate |
+| **IV. Breaking implementations and systems** | [17. Side channels, the attacker's view](17-Side-Channels-the-Attackers-View.md) | intermediate to expert |
+| | [18. Random numbers gone wrong](18-Random-Numbers-Gone-Wrong.md) | intermediate |
+| | [19. Protocol breaks](19-Protocol-Breaks.md) | intermediate |
+| | [20. Where cryptanalysis goes](20-Where-Cryptanalysis-Goes.md) | intermediate |
 
 ## Three ways in
 
@@ -82,5 +82,5 @@ system under attack, so you can read the two side by side.
   stolen in practice are lost to side channels, bad random numbers and protocol
   mistakes, not to clever mathematics, and those chapters say how.
 
-**Look things up:** the glossary for every term of the trade, and
+**Look things up:** the [glossary](Glossary.md) for every term of the trade, and
 [the cryptography book](../../book/index.md), book 1, for how each system is built.

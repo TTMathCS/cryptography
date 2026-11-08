@@ -1990,7 +1990,7 @@ attacks such as quantum slides (§7.6) do not apply to AES, whose rounds differ.
 
 **Implementations have been broken many times.** Cache-timing attacks on table
 lookups, power analysis of smart cards, fault attacks: these recover AES keys in
-practice (Chapter 17, and book 1's
+practice ([Chapter 17](17-Side-Channels-the-Attackers-View.md), and book 1's
 [Chapter 18](../../book/18-Side-Channels.md)). They are attacks on the way AES is
 computed, not on the cipher, and constant-time code or hardware instructions stop
 most of them.

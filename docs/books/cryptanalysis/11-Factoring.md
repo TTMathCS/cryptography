@@ -1954,7 +1954,7 @@ not laws of nature; no comparable breakthrough has come for integers.
 - Keys that are badly made fall to cheaper methods than any in this chapter:
   shared primes across many keys to batch gcd, and partly known or structured
   primes to Coppersmith's lattice method (ROCA). These are the subject of
-  [Chapter 13](13-Attacks-on-RSA.md) and Chapter 18,
+  [Chapter 13](13-Attacks-on-RSA.md) and [Chapter 18](18-Random-Numbers-Gone-Wrong.md),
   and the lattice machinery is in [Chapter 15](15-Lattices-as-a-Weapon.md).
 
 ### The hardware question

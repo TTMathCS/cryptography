@@ -428,7 +428,7 @@ Two more ways in do not fit the boxes of Figure 1.2.
 questions: its running time, power draw, electromagnetic noise, cache behavior,
 even sound. The model is "known or chosen plaintext, plus a measurement". Paul
 Kocher's 1996 timing attack and his 1998 power analysis made this a field of its
-own, and Chapter 17 is about it.
+own, and [Chapter 17](17-Side-Channels-the-Attackers-View.md) is about it.
 
 **Faults.** The attacker makes the device miscompute, with a voltage glitch, a
 laser flash or a Rowhammer bit flip, and compares the wrong output with the
@@ -1542,7 +1542,7 @@ where the gap can be measured is differential cryptanalysis: IBM and, by
 implication, the NSA knew it in 1974, sixteen years before Biham and Shamir.
 Whether the gap is still that wide is unknown and disputed. Documents leaked by
 Edward Snowden in 2013 showed that the NSA had worked to weaken a standard random
-number generator (Dual_EC_DRBG, Chapter 18) and
+number generator (Dual_EC_DRBG, [Chapter 18](18-Random-Numbers-Gone-Wrong.md)) and
 budgeted for cryptanalytic capabilities without saying what they were. The 2015
 Logjam paper argued that a state-level attacker could break a few widely shared
 1024-bit Diffie-Hellman groups by precomputation, and that this could explain
