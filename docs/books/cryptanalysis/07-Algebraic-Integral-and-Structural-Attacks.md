@@ -2005,7 +2005,7 @@ What there is: an open design, chosen in public over three years from fifteen
 candidates; a structure that makes resistance to differential and linear
 attacks provable; and more than 25 years of attack by the best people in the
 field, with the results above. The NSA has approved AES for classified
-information since 2003 (AES-256 for TOP SECRET), which is a judgment from the one
+information since 2003 (AES-192 or AES-256 for TOP SECRET), which is a judgment from the one
 organization whose own cryptanalysis is secret. Whether anyone knows more than
 the public does is, by its nature, unknown, and should be said so.
 

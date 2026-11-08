@@ -1367,7 +1367,7 @@ found its real time complexity lower than Matsui's own estimate. Alex Biryukov,
 Christophe De Cannière and Michaël Quisquater (2004) used several approximations
 at once (§6.10) to bring the data down a little further. Andrey Bogdanov and
 Philip Vejre (2017) exploited asymmetries in the distribution of the key-guess
-statistic and reported an attack with a little over $2^{41}$ known plaintexts.
+statistic and reported attacks with $2^{41}$ to about $2^{42.8}$ known plaintexts, trading data against time.
 Thirty years on, linear cryptanalysis is still the best known-plaintext attack on
 DES, and the full key search is still cheaper in practice, because it needs only
 one known block.
@@ -2140,7 +2140,7 @@ assumed. For ARX ciphers, built from addition, rotation and XOR, the method is
 now among the strongest available: Gaëtan Leurent (2016) used it on the MAC
 Chaskey, and Christof Beierle, Leander and Yosuke Todo (2020) on ChaCha, where
 the best attacks on 7 of its 20 rounds are differential-linear, at a cost around
-$2^{230}$, far from practical and far from the full cipher. The pattern is the
+$2^{230}$ in their paper and lower in later work, far from practical and far from the full cipher. The pattern is the
 one Langford and Hellman found: a few rounds of near-certain difference, a few
 rounds of strong correlation, and a careful seam.
 

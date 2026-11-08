@@ -1167,9 +1167,9 @@ weak keys, first byte = K[2] + 3: 0.131
 ```
 
 The first cells match their prediction more than a third of the time, 95 times
-more often than chance, and the bias has nearly faded by cell 48. Roos estimated the weak
-key probability at about 13.8%; this run measures 13.1%, inside the sampling
-error. Goutam Paul and Subhamoy Maitra proved the general form of these biases
+more often than chance, and the bias has nearly faded by cell 48. Roos estimated this
+probability for weak keys at about 13.8%; this run measures 13.1%, close to
+it. Goutam Paul and Subhamoy Maitra proved the general form of these biases
 in 2007 and showed how to reconstruct the key from the permutation the KSA
 leaves.
 
@@ -1996,7 +1996,8 @@ treating the bits that hardly matter as "probabilistic neutral". Jean-Philippe
 Aumasson, Simon Fischer, Shahram Khazaei, Willi Meier and Christian Rechberger
 (FSE 2008) used it on 8 rounds of Salsa20 and 7 rounds of ChaCha, and later
 papers have lowered the cost on 7 rounds of ChaCha step by step, from about
-$2^{248}$ in 2008 to figures in the low $2^{200}$s in the 2020s (papers differ in
+$2^{248}$ in 2008 to about $2^{207}$ in 2023, with a 2025 paper claiming a much
+larger drop (papers differ in
 what they count, so the exact record should be checked against the current
 literature). No attack reaches 8 rounds. ChaCha20 runs 20, so the margin is 13
 rounds, nearly two thirds of the cipher. Aumasson argued in 2019, in "Too Much
