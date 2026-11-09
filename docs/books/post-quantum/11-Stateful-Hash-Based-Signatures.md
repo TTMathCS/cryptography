@@ -608,7 +608,7 @@ proof (Hülsing, 2013, and the XMSS papers) reduces forgery to finding a second 
 keyed hash family, a weaker and better-understood assumption with no birthday attack. The
 price is hashing: one F call per step becomes three calls (key, bitmask, F), each on a 96-byte input.
 SLH-DSA kept the addresses but dropped the bitmasks in its final form (the "simple"
-tweakable hash of Chapter 12, §12.5), trading the tighter proof for speed.
+tweakable hash of [Chapter 12, §12.5](12-SLH-DSA.md#125-tweakable-hashes-and-addresses)), trading the tighter proof for speed.
 
 ## 11.9 XMSS in code
 
