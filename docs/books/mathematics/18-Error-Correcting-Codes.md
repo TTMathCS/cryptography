@@ -9,9 +9,11 @@ core idea, and its modern form, Classic McEliece, is a leading post-quantum
 candidate. This chapter is the book's coding-theory reference. It builds Hamming
 distance, the Hamming and Golay codes, linear codes with generator and parity-check
 matrices, syndromes, the Singleton, Hamming and Gilbert-Varshamov bounds,
-Reed-Solomon decoding with the Berlekamp-Welch algorithm, binary Goppa codes with a
-working decoder, a toy McEliece, the information-set decoding attack, and the
-quasi-cyclic codes of HQC and BIKE.*
+weight enumerators and the MacWilliams identity, Reed-Solomon decoding with the
+Berlekamp-Welch algorithm, binary Goppa codes with two working decoders (Patterson's
+among them), a toy McEliece, the information-set decoding attack, the quasi-cyclic
+codes of HQC and BIKE with the Reed-Muller codes inside HQC, and list decoding past
+half the minimum distance.*
 
 !!! abstract "In this chapter"
     **You will learn:**
@@ -19,21 +21,27 @@ quasi-cyclic codes of HQC and BIKE.*
     - Hamming distance, decoding radius, and the Hamming [7, 4] code, by hand;
     - linear codes: generator and parity-check matrices, syndromes, duals, and why
       the minimum distance is a property of the columns of $H$;
-    - the Singleton, Hamming and Gilbert-Varshamov bounds, with proofs, and the
-      perfect Golay code;
+    - weight distributions and the MacWilliams identity, worked for the Hamming code;
+    - the Singleton, Hamming and Gilbert-Varshamov bounds, with proofs, the perfect
+      Golay code, and why a random code meets the Gilbert-Varshamov bound;
     - Reed-Solomon codes decoding errors at unknown places (Berlekamp-Welch);
-    - binary Goppa codes over $GF(2^m)$, with a decoder that corrects $t$ errors;
+    - binary Goppa codes over $GF(2^m)$, and Patterson's decoder step by step: why it
+      corrects $t$ errors where a generic decoder manages $t/2$;
     - McEliece and Niederreiter, Classic McEliece's parameters, and a working toy;
     - syndrome decoding as an NP-hard problem, and Prange's information-set decoding;
-    - quasi-cyclic codes and the schemes HQC and BIKE.
+    - quasi-cyclic codes as polynomials modulo $x^r - 1$, and the schemes HQC and BIKE;
+    - Reed-Muller codes and Reed's majority-logic decoder;
+    - list decoding (Sudan, Guruswami-Sudan) and the Johnson bound.
 
     **You need:** [Chapter 8](08-Rings-Fields-and-Polynomials.md) (finite fields
     $GF(2^m)$, polynomials), [Chapter 9](09-Linear-Algebra.md) (matrices over
     $GF(2)$, elimination) and [Chapter 11](11-Polynomials-at-Work.md) (Reed-Solomon
-    codes and interpolation).
+    codes and interpolation); [Chapter 10](10-Boolean-Functions-and-S-Boxes.md) (the
+    Walsh-Hadamard transform) and [Chapter 14](14-Lattices.md) (lattice reduction) help
+    in §18.4, §18.11 and §18.12.
 
-    **Levels:** §18.1 to §18.3 are for beginners, §18.4 to §18.6 are intermediate,
-    §18.7 to §18.10 are expert.
+    **Levels:** §18.1 to §18.3 are for beginners, §18.4 to §18.6 and §18.11 are
+    intermediate, §18.7 to §18.10, §18.12 and §18.13 are expert.
 
 ## 18.1 The problem
 
@@ -188,6 +196,97 @@ dependent, three are (e.g. $001 + 010 = 011$), so $d = 3$. Taking all $2^r - 1$
 nonzero columns of length $r$ gives the Hamming code $[2^r - 1, 2^r - 1 - r, 3]$ for
 every $r$.
 
+### Weight distribution and the MacWilliams identity
+
+The **weight distribution** $A_0, \ldots, A_n$ counts the codewords of each weight $w$,
+packed into the **weight enumerator**
+
+$$
+W_C(x, y) = \sum_{c \in C} x^{\,n - \mathrm{wt}(c)}\, y^{\,\mathrm{wt}(c)} = \sum_{w=0}^{n} A_w\, x^{n-w} y^w .
+$$
+
+The Hamming $[7, 4]$ code has $W_C = x^7 + 7x^4y^3 + 7x^3y^4 + y^7$. Its dual, spanned
+by the rows of $H$, is the **simplex code** $[7, 3, 4]$: the zero word and seven words of
+weight 4.
+
+Jessie MacWilliams proved in 1963 that the weight distribution of a linear code fixes
+that of its dual:
+
+$$
+W_{C^\perp}(x, y) = \frac{1}{|C|}\, W_C(x + y,\; x - y).
+$$
+
+*Proof.* For a fixed word $u$, the sum $\sum_{c \in C} (-1)^{u \cdot c}$ equals $|C|$ if
+$u \in C^\perp$ and 0 otherwise: if some $c_0 \in C$ has $u \cdot c_0 = 1$, then adding
+$c_0$ pairs the codewords off with opposite signs. Hence
+$\sum_{u \in C^\perp} f(u) = \frac{1}{|C|} \sum_{c \in C} \sum_{u} (-1)^{u \cdot c} f(u)$
+for any function $f$. Take $f(u) = x^{n - \mathrm{wt}(u)} y^{\mathrm{wt}(u)}$. The inner sum
+splits coordinate by coordinate: a position where $c_i = 0$ contributes $x + y$ (from
+$u_i = 0$ and $u_i = 1$) and a position where $c_i = 1$ contributes $x - y$. So the inner
+sum is $(x + y)^{n - \mathrm{wt}(c)} (x - y)^{\mathrm{wt}(c)}$, and summing over $c$ gives
+the identity. $\blacksquare$ It is the Walsh-Hadamard transform of
+[Chapter 10](10-Boolean-Functions-and-S-Boxes.md) applied to a whole code.
+
+**By hand.** Apply it to the Hamming code, $|C| = 16$:
+
+$$
+W_{C^\perp} = \tfrac{1}{16}\bigl[(x+y)^7 + 7(x+y)^4(x-y)^3 + 7(x+y)^3(x-y)^4 + (x-y)^7\bigr].
+$$
+
+The coefficient of $x^7$ is $(1 + 7 + 7 + 1)/16 = 1$: the zero word. The coefficient of
+$x^6 y$ takes $7$ from the first term, $7 \cdot (4 - 3) = 7$ from the second, $7 \cdot (3 -
+4) = -7$ from the third and $-7$ from the last: total 0, so the dual has no word of weight
+1. For $x^3 y^4$: $(x+y)^7$ gives $\binom74 = 35$; $(x+y)^4(x-y)^3$ gives
+$1 - 12 + 18 - 4 = 3$ (take $y$ from $4 - i$ factors of the first bracket and from $i$ of
+the second, with sign $(-1)^i$); $(x+y)^3(x-y)^4$ gives 3 the same way; $(x-y)^7$ gives
+$+35$. So $A^\perp_4 = (35 + 7 \cdot 3 + 7 \cdot 3 + 35)/16 = 112/16 = 7$: the seven
+weight-4 words of the simplex code, counted without listing one of them.
+
+```python
+# Uses itertools, encode(), G and H from the Hamming listing above.
+# Weight distributions, and the MacWilliams identity checked both ways.
+from math import comb
+
+def weight_distribution(Gm):
+    A = [0] * (len(Gm[0]) + 1)
+    for m in itertools.product([0, 1], repeat=len(Gm)):
+        A[sum(encode(list(m), Gm))] += 1
+    return A
+
+def krawtchouk(n, j, w):
+    """Coefficient of x^(n-j) y^j in (x + y)^(n-w) (x - y)^w."""
+    return sum((-1) ** i * comb(w, i) * comb(n - w, j - i) for i in range(j + 1))
+
+def macwilliams(A):
+    n, size = len(A) - 1, sum(A)
+    return [sum(A[w] * krawtchouk(n, j, w) for w in range(n + 1)) // size for j in range(n + 1)]
+
+A, B = weight_distribution(G), weight_distribution(H)     # Hamming [7,4] and simplex [7,3]
+print(A, B, macwilliams(A) == B, macwilliams(B) == A)
+p = 0.01                                          # chance that noise turns one codeword into another
+print("%.3e" % sum(A[w] * p**w * (1 - p)**(7 - w) for w in range(1, 8)))
+```
+
+It prints:
+
+```text
+[1, 0, 0, 7, 7, 0, 0, 1] [1, 0, 0, 0, 7, 0, 0, 0] True True
+6.792e-06
+```
+
+The sums $\sum_i (-1)^i \binom{w}{i}\binom{n-w}{j-i}$ are **Krawtchouk polynomials**. The
+last line is a use: with each bit flipped with probability $1/100$, an error goes
+*undetected* only if it is a nonzero codeword, with probability $\sum_w A_w p^w
+(1-p)^{7-w} \approx 6.8 \times 10^{-6}$.
+
+The dual's weights matter in cryptography through a theorem of Philippe Delsarte
+(1973): if $C^\perp$ has minimum distance $d^\perp$, any $d^\perp - 1$ coordinates of a
+uniformly random codeword of $C$ are independent and uniform. For the Hamming code
+$d^\perp = 4$, so any 3 of the 7 bits of a random codeword are uniform and independent.
+That is how codes stretch a few random bits into many $k$-wise independent ones, for
+masking against side channels and for code-based secret sharing (James Massey, 1993,
+tied who can recover the secret to the minimal codewords of the dual).
+
 ## 18.5 Bounds, and a perfect code
 
 *Level: intermediate.*
@@ -287,6 +386,117 @@ The columns are $n$, $d$, and the largest $k$ allowed by Singleton, by Hamming, 
 guaranteed by Gilbert-Varshamov. For $[23, \cdot, 7]$ the Hamming bound gives 12, and
 the Golay code reaches it. For binary codes the Singleton bound is weak; the truth
 lies between the last two columns, and for long codes the exact answer is unknown.
+
+### Why a random code meets the Gilbert-Varshamov bound
+
+Varshamov's proof builds a good code greedily. A second proof, the one cryptography
+needs, shows that almost any code is that good. Choose $H$ uniformly at random. For a fixed nonzero word $x$, the syndrome
+$Hx^T$ is a uniformly random vector of length $n - k$ (some column of $H$ that $x$
+selects is uniform and independent of the rest), so $x$ is a codeword with probability
+exactly $2^{-(n-k)}$. By linearity of expectation, the number of nonzero codewords of
+weight below $d$ has mean
+
+$$
+\mathbb{E}\bigl[\#\{c \in C: 0 < \mathrm{wt}(c) < d\}\bigr] = \frac{\sum_{i=1}^{d-1} \binom{n}{i}}{2^{\,n-k}},
+$$
+
+and when this is below 1, some code (indeed most codes, by Markov's inequality, when it
+is well below 1) has minimum distance at least $d$. For long codes write $\delta = d/n$ and
+$R = k/n$; since $\sum_{i \le \delta n} \binom{n}{i} \approx 2^{n H(\delta)}$ with the binary
+entropy $H(\delta) = -\delta \log_2 \delta - (1 - \delta)\log_2(1-\delta)$ of
+[Chapter 17](17-Information-and-Entropy.md), the condition becomes
+
+$$
+R < 1 - H(\delta).
+$$
+
+That is the asymptotic Gilbert-Varshamov bound: random linear codes reach the curve
+$R = 1 - H(\delta)$ with probability tending to 1. Above it nobody has found a family of
+long binary codes, random or explicit; whether any exists is one of the oldest open
+questions in coding theory. (For alphabets of 49 or more symbols, the algebraic-geometry
+codes of Michael Tsfasman, Serge Vlăduţ and Thomas Zink, 1982, beat it.) Binary Goppa
+codes sit near the curve too: there are long Goppa codes that meet it, and the designed
+distance $2t + 1$ of Classic McEliece's codes puts them right beside it (Figure 18.2).
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="Rate against relative distance for binary codes: the Singleton line on top, the Hamming bound curve below it, and the Gilbert-Varshamov curve lowest; random codes lie on the GV curve and the mceliece348864 Goppa code lies just above it" fill="currentColor" font-size="13">
+<g stroke="currentColor" fill="none">
+<path d="M70 30 V250 H590" stroke-width="1.2"/>
+<path d="M70 30 L590 140" stroke-width="1.2" stroke-dasharray="6 4"/>
+<polyline stroke-width="1.5" points="70,30 96,51 122,67 148,81 174,93 200,104 226,115 252,124 278,133 304,142 330,150 356,157 382,164 408,171 434,177 460,183 486,189 512,194 538,199 564,204 590,208"/>
+<polyline stroke-width="2.5" points="70,30 96,67 122,93 148,115 174,133 200,150 226,164 252,177 278,189 304,199 330,208 356,217 382,224 408,230 434,235 460,240 486,244 512,246 538,248 564,250 590,250"/>
+</g>
+<circle cx="108" cy="78" r="5"/>
+<path d="M110 84 L150 172" stroke="currentColor" stroke-dasharray="3 3"/>
+<text x="130" y="186" font-size="12">mceliece348864</text>
+<text x="130" y="201" font-size="12">δ = 0.037, R = 0.78</text>
+<text x="360" y="82" font-size="12">Singleton: R = 1 − δ</text>
+<text x="420" y="160" font-size="12">Hamming: R = 1 − H(δ/2)</text>
+<text x="420" y="216" font-size="12" font-weight="700">GV: R = 1 − H(δ)</text>
+<text x="420" y="231" font-size="12" fill-opacity=".7">random codes land here</text>
+<text x="70" y="270" text-anchor="middle" font-size="12">0</text>
+<text x="330" y="270" text-anchor="middle" font-size="12">0.25</text>
+<text x="590" y="270" text-anchor="middle" font-size="12">0.5</text>
+<text x="330" y="290" text-anchor="middle">relative distance δ = d/n</text>
+<text x="60" y="34" text-anchor="end" font-size="12">1</text>
+<text x="60" y="254" text-anchor="end" font-size="12">0</text>
+<text x="40" y="145" text-anchor="middle" transform="rotate(-90 40 145)">rate R = k/n</text>
+</svg>
+<figcaption>Figure 18.2. What is possible for long binary codes. Nothing exists above the Hamming curve; random linear codes land on the Gilbert-Varshamov curve. Classic McEliece's smallest Goppa code, with d = 2t + 1 = 129, sits on it.</figcaption>
+</figure>
+
+**Why this makes decoding hard.** For a syndrome $s$ and weight $w$, the expected number
+of $e$ of weight $w$ with $He^T = s$ is $\binom{n}{w} / 2^{n-k}$. Below the
+**Gilbert-Varshamov weight** $w_{GV}$, where $\binom{n}{w} = 2^{n-k}$, a random syndrome
+has at most one such $e$; above it, exponentially many. A planted error of weight $t <
+w_{GV}$ is the unique answer, hidden in a code that looks random. Information-set
+decoding (§18.9) is hardest near $w_{GV}$; McEliece sits at $t \approx w_{GV}/2$, where
+decoding is unique and still exponentially hard.
+
+```python
+# Uses comb from the listing above.
+# Random codes against the Gilbert-Varshamov bound: the first moment, and an experiment.
+import random
+from collections import Counter
+from math import lgamma, log
+
+def min_weight(rows):                             # rows as n-bit integers; a Gray code walks all 2^k - 1 sums
+    best, cw = None, 0
+    for i in range(1, 1 << len(rows)):
+        cw ^= rows[(i & -i).bit_length() - 1]
+        w = bin(cw).count("1")
+        best = w if best is None else min(best, w)
+    return best
+
+n, k = 24, 12
+print([round(comb(n, w) / 2 ** (n - k), 2) for w in range(1, 7)])   # expected codewords of weight w
+rng = random.Random(1952)
+print(sorted(Counter(min_weight([rng.getrandbits(n) for _ in range(k)]) for _ in range(1000)).items()))
+
+def log2_binom(a, b):
+    return (lgamma(a + 1) - lgamma(b + 1) - lgamma(a - b + 1)) / log(2)
+for name, mm, nn, tt in (("mceliece348864", 12, 3488, 64), ("mceliece6688128", 13, 6688, 128)):
+    r = mm * tt                                   # n - k
+    w_gv = next(w for w in range(nn) if log2_binom(nn, w) >= r)
+    print(name, w_gv, 2 * tt + 1, round(log2_binom(nn, tt) - r, 1))
+```
+
+It prints:
+
+```text
+[0.01, 0.07, 0.49, 2.59, 10.38, 32.86]
+[(1, 5), (2, 67), (3, 366), (4, 531), (5, 31)]
+mceliece348864 125 129 -311.7
+mceliece6688128 279 257 -755.4
+```
+
+For random $[24, 12]$ codes the first moment predicts half a codeword of weight 3 and
+two or three of weight 4, so a minimum distance of 3 or 4; 897 of 1,000 random codes
+have exactly that. (Short random codes are not the best: the extended Golay code
+reaches 8.) For Classic McEliece the designed distance $2t + 1$ is close to the GV weight
+(129 against 125, 257 against 279), and with $t$ errors the expected number of *other*
+solutions to the syndrome equation is $2^{-312}$ and $2^{-755}$: the planted error is the
+only one.
 
 ## 18.6 Reed-Solomon codes: decoding errors
 
@@ -431,7 +641,8 @@ the syndrome $S(x) = \sum_{i \in \text{errors}} 1/(x - \alpha_i)$ it computes a 
 root modulo $g$ and runs a half extended Euclidean algorithm to find the error
 locator. A simpler route, used below, decodes $\Gamma(L, g^2)$ as an alternant code:
 solve the key equation $\sigma(x) S(x) \equiv \omega(x) \pmod{g^2}$ with the extended
-Euclidean algorithm, and find the roots of $\sigma$.
+Euclidean algorithm, and find the roots of $\sigma$. Section 18.12 works Patterson's
+algorithm in full.
 
 ### Code it
 
@@ -658,7 +869,7 @@ $H'e^T$. It is equivalent in security and has much shorter ciphertexts. **Classi
 McEliece**, submitted to NIST's competition in 2017 by Daniel Bernstein, Tung Chou,
 Tanja Lange and others, is Niederreiter with binary Goppa codes and a
 chosen-ciphertext-secure KEM wrapper. It reached the final round; NIST did not select
-it in 2025, and it is being standardized by ISO.
+it in 2025, and ISO added it to ISO/IEC 18033-2 in an amendment published in 2026.
 
 ```python
 # A toy McEliece: public key G' = S G P (scrambled, permuted); ciphertext = m G' + e with weight t.
@@ -744,6 +955,15 @@ The keys are huge, a quarter of a megabyte at the lowest level, and the cipherte
 are tiny. That trade-off suits some uses (long-lived static keys, VPN servers
 distributing a key once) and not others (TLS handshakes).
 
+The security argument behind those parameters is that the scrambled Goppa code cannot be
+told from a random one, so the best attack is generic decoding (§18.9). In 2026 a series
+of preprints found new distinguishers for binary Goppa codes, one running in
+quasipolynomial time, with conditional key-recovery estimates below the parameter sets'
+targets but no full-size key recovered, and in October 2026 Germany's BSI advised against
+using Classic McEliece in new developments; the *Post-quantum cryptography* book tells
+the story and how to read it in
+[§13.10](../post-quantum/13-Code-Based-Encryption-McEliece.md#1310-standards-and-the-attacks-of-2026).
+
 <figure class="mars-fig">
 <svg viewBox="0 0 640 230" width="640" role="img" aria-label="The McEliece key: the public matrix G prime equals S times G times P, where S scrambles rows and P permutes columns of the secret Goppa generator matrix G; encryption adds a weight t error" fill="currentColor" font-size="13">
 <g stroke="currentColor" stroke-width="1.5" fill="none">
@@ -764,7 +984,7 @@ distributing a key once) and not others (TLS handshakes).
 <text x="530" y="170" text-anchor="middle" font-size="12">n × n permutation</text>
 <text x="320" y="210" text-anchor="middle">ciphertext c = m G′ + e, with wt(e) = t: only the owner of g and L can find e</text>
 </svg>
-<figcaption>Figure 18.2. The McEliece public key is a disguised Goppa code. Without the disguise removed, decrypting means decoding t errors in what looks like a random linear code, the syndrome decoding problem.</figcaption>
+<figcaption>Figure 18.3. The McEliece public key is a disguised Goppa code. Without the disguise removed, decrypting means decoding t errors in what looks like a random linear code, the syndrome decoding problem.</figcaption>
 </figure>
 
 ## 18.9 Syndrome decoding and information-set decoding
@@ -772,8 +992,7 @@ distributing a key once) and not others (TLS handshakes).
 *Level: expert.*
 
 The **syndrome decoding problem**: given a parity-check matrix $H$, a syndrome $s$
-and a weight $w$, find $e$ with $He^T = s$ and $\mathrm{wt}(e) \le w$. Elwyn Berlekamp,
-Elwyn Berlekamp, Robert McEliece and Henk van Tilborg proved in 1978 that it is NP-complete. As with
+and a weight $w$, find $e$ with $He^T = s$ and $\mathrm{wt}(e) \le w$. Elwyn Berlekamp, Robert McEliece and Henk van Tilborg proved in 1978 that it is NP-complete. As with
 lattices (Chapter 14), NP-hardness of the worst case is not what cryptography needs;
 the evidence that matters is sixty years of attacks on random instances, all
 exponential.
@@ -830,120 +1049,32 @@ mceliece8192128 6528 1357824 208 300.1
 
 <figure class="mars-fig">
 <svg viewBox="0 0 640 220" width="640" role="img" aria-label="Information-set decoding: three random choices of 17 of the 32 positions; the first two include an error position and fail, the third avoids all three errors and recovers the message" fill="currentColor" font-size="13">
-<rect x="40" y="30" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="55" y="30" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="70" y="30" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="85" y="30" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
+<g stroke="currentColor" stroke-width=".8">
+<path class="acc-fill" fill="currentColor" fill-opacity=".45" d="M40 30h13v22h-13zM55 30h13v22h-13zM70 30h13v22h-13zM85 30h13v22h-13zM100 30h13v22h-13zM145 30h13v22h-13zM175 30h13v22h-13zM205 30h13v22h-13zM220 30h13v22h-13zM265 30h13v22h-13zM280 30h13v22h-13zM295 30h13v22h-13zM385 30h13v22h-13zM400 30h13v22h-13zM445 30h13v22h-13zM490 30h13v22h-13zM505 30h13v22h-13z
+M40 85h13v22h-13zM70 85h13v22h-13zM85 85h13v22h-13zM115 85h13v22h-13zM130 85h13v22h-13zM160 85h13v22h-13zM175 85h13v22h-13zM205 85h13v22h-13zM295 85h13v22h-13zM310 85h13v22h-13zM340 85h13v22h-13zM370 85h13v22h-13zM400 85h13v22h-13zM415 85h13v22h-13zM430 85h13v22h-13zM460 85h13v22h-13zM475 85h13v22h-13z
+M70 140h13v22h-13zM100 140h13v22h-13zM130 140h13v22h-13zM145 140h13v22h-13zM160 140h13v22h-13zM190 140h13v22h-13zM205 140h13v22h-13zM235 140h13v22h-13zM265 140h13v22h-13zM280 140h13v22h-13zM295 140h13v22h-13zM310 140h13v22h-13zM325 140h13v22h-13zM355 140h13v22h-13zM385 140h13v22h-13zM400 140h13v22h-13zM475 140h13v22h-13z"/>
+<path fill="none" d="M115 30h13v22h-13zM130 30h13v22h-13zM160 30h13v22h-13zM190 30h13v22h-13zM235 30h13v22h-13zM250 30h13v22h-13zM310 30h13v22h-13zM325 30h13v22h-13zM340 30h13v22h-13zM355 30h13v22h-13zM370 30h13v22h-13zM415 30h13v22h-13zM430 30h13v22h-13zM460 30h13v22h-13zM475 30h13v22h-13z
+M55 85h13v22h-13zM100 85h13v22h-13zM145 85h13v22h-13zM190 85h13v22h-13zM220 85h13v22h-13zM235 85h13v22h-13zM250 85h13v22h-13zM265 85h13v22h-13zM280 85h13v22h-13zM325 85h13v22h-13zM355 85h13v22h-13zM385 85h13v22h-13zM445 85h13v22h-13zM490 85h13v22h-13zM505 85h13v22h-13z
+M40 140h13v22h-13zM55 140h13v22h-13zM85 140h13v22h-13zM115 140h13v22h-13zM175 140h13v22h-13zM220 140h13v22h-13zM250 140h13v22h-13zM340 140h13v22h-13zM370 140h13v22h-13zM415 140h13v22h-13zM430 140h13v22h-13zM445 140h13v22h-13zM460 140h13v22h-13zM490 140h13v22h-13zM505 140h13v22h-13z"/>
+</g>
 <text x="91" y="46" text-anchor="middle" font-size="13" font-weight="700">×</text>
-<rect x="100" y="30" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="115" y="30" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="130" y="30" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="145" y="30" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="160" y="30" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="175" y="30" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="190" y="30" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="205" y="30" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="220" y="30" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="235" y="30" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="250" y="30" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
 <text x="256" y="46" text-anchor="middle" font-size="13" font-weight="700">×</text>
-<rect x="265" y="30" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="280" y="30" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="295" y="30" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="310" y="30" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="325" y="30" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="340" y="30" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="355" y="30" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="370" y="30" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="385" y="30" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="400" y="30" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="415" y="30" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="430" y="30" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="445" y="30" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
 <text x="451" y="46" text-anchor="middle" font-size="13" font-weight="700">×</text>
-<rect x="460" y="30" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="475" y="30" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="490" y="30" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="505" y="30" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
 <text x="530" y="45" font-size="12">try 1</text>
 <text x="530" y="60" font-size="11">hits an error</text>
-<rect x="40" y="85" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="55" y="85" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="70" y="85" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="85" y="85" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
 <text x="91" y="101" text-anchor="middle" font-size="13" font-weight="700">×</text>
-<rect x="100" y="85" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="115" y="85" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="130" y="85" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="145" y="85" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="160" y="85" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="175" y="85" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="190" y="85" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="205" y="85" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="220" y="85" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="235" y="85" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="250" y="85" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
 <text x="256" y="101" text-anchor="middle" font-size="13" font-weight="700">×</text>
-<rect x="265" y="85" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="280" y="85" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="295" y="85" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="310" y="85" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="325" y="85" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="340" y="85" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="355" y="85" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="370" y="85" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="385" y="85" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="400" y="85" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="415" y="85" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="430" y="85" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="445" y="85" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
 <text x="451" y="101" text-anchor="middle" font-size="13" font-weight="700">×</text>
-<rect x="460" y="85" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="475" y="85" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="490" y="85" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="505" y="85" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
 <text x="530" y="100" font-size="12">try 2</text>
 <text x="530" y="115" font-size="11">hits an error</text>
-<rect x="40" y="140" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="55" y="140" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="70" y="140" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="85" y="140" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
 <text x="91" y="156" text-anchor="middle" font-size="13" font-weight="700">×</text>
-<rect x="100" y="140" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="115" y="140" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="130" y="140" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="145" y="140" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="160" y="140" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="175" y="140" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="190" y="140" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="205" y="140" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="220" y="140" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="235" y="140" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="250" y="140" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
 <text x="256" y="156" text-anchor="middle" font-size="13" font-weight="700">×</text>
-<rect x="265" y="140" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="280" y="140" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="295" y="140" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="310" y="140" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="325" y="140" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="340" y="140" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="355" y="140" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="370" y="140" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="385" y="140" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="400" y="140" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="415" y="140" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="430" y="140" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="445" y="140" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
 <text x="451" y="156" text-anchor="middle" font-size="13" font-weight="700">×</text>
-<rect x="460" y="140" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="475" y="140" width="13" height="22" class="acc-fill" fill-opacity=".45" stroke="currentColor" stroke-width=".8" fill="currentColor"/>
-<rect x="490" y="140" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
-<rect x="505" y="140" width="13" height="22" stroke="currentColor" stroke-width=".8" fill="none"/>
 <text x="530" y="155" font-size="12">try 3</text>
 <text x="530" y="170" font-size="11">no error inside: success</text>
 <text x="40" y="205" font-size="12">× = error position (t = 3) · shaded = the k = 17 positions chosen as the information set</text>
 </svg>
-<figcaption>Figure 18.3. Information-set decoding. Choose k positions at random and trust them; the attempt succeeds when none of the t errors falls among them, with probability C(n − t, k)/C(n, k). For the toy code that is about 1 in 11; for Classic McEliece about 1 in 2¹⁴³.</figcaption>
+<figcaption>Figure 18.4. Information-set decoding. Choose k positions at random and trust them; the attempt succeeds when none of the t errors falls among them, with probability C(n − t, k)/C(n, k). For the toy code that is about 1 in 11; for Classic McEliece about 1 in 2¹⁴³.</figcaption>
 </figure>
 
 On the toy public key, Prange's attack recovers the message in about 22 tries on
@@ -982,6 +1113,118 @@ NIST selected HQC in March 2025 as a second post-quantum KEM, based on codes rat
 than lattices, so that a break of lattices would not leave the world without a
 standard. BIKE was not selected. Both have keys and ciphertexts of a few kilobytes.
 
+### Quasi-cyclic codes as polynomials modulo $x^r - 1$
+
+An $r \times r$ circulant matrix is fixed by its first row, and shifting a row one place
+is multiplying $a(x) = \sum a_i x^i$ by $x$ in the ring
+
+$$
+\mathcal{R} = GF(2)[x]/(x^r - 1),
+$$
+
+where $x^r = 1$ sends the last coefficient back to the front. Sums and products of
+circulants are circulants, and the map from a circulant to its polynomial respects
+both, so the matrices *are* the ring (the [Post-quantum book](../post-quantum/14-HQC-and-BIKE.md#circulants-by-hand)
+checks a product both ways). A **quasi-cyclic** code of index 2 has a
+parity-check matrix $[\,H_0 \mid H_1\,]$ of two circulant blocks, and the syndrome of an
+error $(e_0, e_1)$ is the ring element $s = e_0 h_0 + e_1 h_1$. BIKE publishes
+$h = h_1 h_0^{-1}$, so a syndrome is $e_0 + e_1 h$; HQC publishes $h$ and $s = x + h y$
+with sparse secrets $x$ and $y$, the code-based twin of Ring-LWE's $b = as + e$.
+
+The shape of this ring decides what an attacker can do. For odd $r$, $x^r - 1$
+has no repeated factors (its derivative $r x^{r-1}$ shares none with it), so by the
+Chinese remainder theorem ([Chapter 3](03-Modular-Arithmetic.md),
+[Chapter 8](08-Rings-Fields-and-Polynomials.md)) $\mathcal{R}$ is a product of fields, one
+for each irreducible factor. The factors are found without factoring. The roots of
+$x^r - 1$ are the powers $\zeta^i$ of a primitive $r$-th root of unity, and squaring
+(the Frobenius map) permutes them, $\zeta^i \mapsto \zeta^{2i}$. An irreducible factor
+over $GF(2)$ collects one orbit, a **cyclotomic coset** $\{i, 2i, 4i, \ldots\} \bmod r$.
+
+**By hand, $r = 7$.** The cosets are $\{0\}$, $\{1, 2, 4\}$ and $\{3, 6, 5\}$, so $x^7 - 1$
+has one factor of degree 1 and two of degree 3:
+
+$$
+x^7 + 1 = (x + 1)(x^3 + x + 1)(x^3 + x^2 + 1).
+$$
+
+Check the last two: $x^3(x^3 + x^2 + 1) + x(x^3 + x^2 + 1) + (x^3 + x^2 + 1) = x^6 + x^5 +
+x^4 + x^3 + x^2 + x + 1$, since three $x^3$ terms leave one; times $x + 1$ that is $x^7 +
+1$. So $\mathcal{R} \cong GF(2) \times GF(8) \times GF(8)$, and an element is invertible
+exactly when its three components are nonzero: $1 \cdot 7 \cdot 7 = 49$ units among the
+128 elements. The component in $GF(2)$ is $a(1)$, the parity of the weight, so no
+even-weight element is ever invertible; that is why BIKE's secret blocks have odd
+weight.
+
+Each small factor $f$ gives a ring map $\mathcal{R} \to GF(2)[x]/(f)$ that folds the
+whole public key into a problem of size $\deg f$. So designers pick a prime $r$ with 2 a
+primitive root: the cosets are then $\{0\}$ and everything else, $x^r - 1 = (x + 1)\,\Phi_r(x)$ with $\Phi_r = 1 + x + \cdots +
+x^{r-1}$ irreducible, and $\mathcal{R} \cong GF(2) \times GF(2^{r-1})$. The only small
+image is the parity, which is public anyway. The units are then the odd-weight elements
+except $\Phi_r$ itself, $2^{r-1} - 1$ of them.
+
+```python
+# The ring GF(2)[x]/(x^r - 1), polynomials stored as integers (bit i = coefficient of x^i).
+def pmod2(a, m):                                  # remainder of a modulo m in GF(2)[x]
+    while a and a.bit_length() >= m.bit_length():
+        a ^= m << (a.bit_length() - m.bit_length())
+    return a
+
+def pgcd2(a, b):
+    while b:
+        a, b = b, pmod2(a, b)
+    return a
+
+def cyclotomic_cosets(r):                         # orbits of i -> 2i mod r: one factor of x^r - 1 each
+    seen, out = set(), []
+    for i in range(r):
+        if i not in seen:
+            c, j = [], i
+            while j not in c:
+                c.append(j)
+                j = 2 * j % r
+            seen.update(c)
+            out.append(c)
+    return out
+
+for r in (7, 9, 11, 15, 17):
+    sizes = [len(c) for c in cyclotomic_cosets(r)]
+    predicted = 1
+    for s in sizes:
+        predicted *= 2 ** s - 1                   # CRT: units of a product of fields GF(2^s)
+    units = sum(pgcd2((1 << r) | 1, a) == 1 for a in range(1, 1 << r))
+    print(r, sizes, predicted, units)
+
+def order_of_2(r):
+    k, v = 1, 2 % r
+    while v != 1:
+        k, v = k + 1, 2 * v % r
+    return k
+
+print([(r, order_of_2(r) == r - 1) for r in (12323, 24659, 40973, 17669, 35851, 57637)])
+```
+
+It prints:
+
+```text
+7 [1, 3, 3] 49 49
+9 [1, 6, 2] 189 189
+11 [1, 10] 1023 1023
+15 [1, 4, 4, 2, 4] 10125 10125
+17 [1, 8, 8] 65025 65025
+[(12323, True), (24659, True), (40973, True), (17669, True), (35851, True), (57637, True)]
+```
+
+The brute-force count of units agrees with the coset prediction for every $r$, and the
+bad cases show at once: $r = 17$ splits into two fields of $2^8$ elements. The last line
+checks that 2 is a primitive root modulo BIKE's three block lengths and HQC's three.
+
+One symmetry cannot be removed: multiplying by $x^i$ turns a solution $(e_0, e_1)$ for
+$s$ into $(x^i e_0, x^i e_1)$ for $x^i s$, so an attacker gets $r$ instances for one.
+Nicolas Sendrier's "decoding one out of many" (2011) turns $N$ instances into a speedup
+of about $\sqrt N$, so a quasi-cyclic syndrome is about $\sqrt r$ easier to decode, and the
+secret key, any of whose $r$ shifts will do, about $r$ times easier to find. BIKE's parameters are chosen with both factors counted: about 7 and 14 bits at
+its smallest block length, $r = 12{,}323$.
+
 ### Break it: structure that leaks
 
 - **Reed-Solomon codes in McEliece.** Niederreiter's original 1986 proposal used
@@ -1005,25 +1248,529 @@ standard. BIKE was not selected. Both have keys and ciphertexts of a few kilobyt
 - For decoders that can fail, prove the failure rate below $2^{-128}$, or design so
   failures do not depend on the secret.
 
+## 18.11 Reed-Muller codes and majority logic
+
+*Level: intermediate.*
+
+HQC's inner code, which must survive a channel flipping about a third of the bits, is
+a Reed-Muller code: the family David Muller found in 1954 while studying switching
+circuits, and for which Irving Reed, the same year, gave a decoder that only counts
+votes. In 1971 Mariner 9, the first spacecraft to orbit Mars, sent its pictures home in
+$RM(1, 5)$, 32 bits for every 6-bit pixel.
+
+**The code.** A Boolean function of $m$ variables has an algebraic normal form, a
+polynomial over $GF(2)$ in which no variable appears squared
+([Chapter 10](10-Boolean-Functions-and-S-Boxes.md)). The **Reed-Muller code**
+$RM(r, m)$ is the set of truth tables, of length $n = 2^m$, of all such polynomials of
+degree at most $r$. Its dimension is the number of monomials of degree at most $r$, and
+its minimum distance is $2^{m-r}$:
+
+$$
+RM(r, m) = \Bigl[\, 2^m,\; \sum_{i=0}^{r} \binom{m}{i},\; 2^{m-r} \Bigr].
+$$
+
+*Proof of the distance.* Write a polynomial of degree at most $r$ as $f = g + x_{m-1} h$,
+with $g$ of degree at most $r$ and $h$ of degree at most $r - 1$, neither involving
+$x_{m-1}$. On the half of the inputs where $x_{m-1} = 0$ the truth table of $f$ is that of
+$g$; on the other half it is that of $g + h$. If $h = 0$ the weight is $2\,\mathrm{wt}(g)$,
+at least $2 \cdot 2^{m-1-r}$ by induction. Otherwise $\mathrm{wt}(g) + \mathrm{wt}(g + h)
+\ge \mathrm{wt}(h) \ge 2^{(m-1)-(r-1)}$, by the triangle inequality and induction. The
+monomial $x_0 x_1 \cdots x_{r-1}$ has weight exactly $2^{m-r}$, so the bound is
+reached. $\blacksquare$
+
+$RM(0, m)$ is the repetition code, $RM(m-2, m)$ the extended Hamming code, and the dual
+of $RM(r, m)$ is $RM(m-r-1, m)$; $RM(1, 3)$, the $[8, 4, 4]$ extended Hamming code, is
+its own dual.
+
+**Reed's decoder.** Sum a codeword over a **subcube**: fix all variables outside a set
+$S$ of $r$ variables and let those in $S$ run through all $2^r$ values. Every monomial
+that misses some variable of $S$ is counted an even number of times and drops out;
+every monomial of degree $r$ other than $x_S = \prod_{i \in S} x_i$ misses one. So the sum
+is the coefficient of $x_S$. The $2^{m-r}$ subcubes are disjoint, so fewer than
+$2^{m-r-1}$ errors leave most votes right. Decode the top-degree coefficients, subtract
+that part, and repeat at degree $r - 1$. This corrects up to $2^{m-r-1} - 1$ errors.
+
+**By hand.** In $RM(1, 3)$ number the positions $j = 0, \ldots, 7$ and let bit $i$ of $j$
+be the value of $x_i$. The message $f = 1 + x_0 + x_1$ gives the codeword $1001\,1001$.
+Flip position 5: $1001\,1101$ arrives. The coefficient of $x_0$ is voted on by the four
+pairs that differ only in $x_0$, positions $(0,1), (2,3), (4,5), (6,7)$: sums $1, 1, 0,
+1$, so three votes say 1. For $x_1$ the pairs $(0,2), (1,3), (4,6), (5,7)$ give $1, 1, 1,
+0$: 1. For $x_2$ the pairs $(0,4), (1,5), (2,6), (3,7)$ give $0, 1, 0, 0$: 0. Subtract
+$x_0 + x_1$, whose table is $0110\,0110$, to get $1111\,1011$; seven of eight bits say the
+constant is 1. The decoder returns $1 + x_0 + x_1$.
+
+```python
+# Reed-Muller RM(r, m): truth tables of Boolean polynomials of degree <= r; Reed's majority decoder.
+import itertools, random
+from math import comb
+
+def rm_encode(coeffs, m):
+    """coeffs maps a monomial (tuple of variables) to a bit; position j is the point with x_i = bit i of j."""
+    return [sum(c for S, c in coeffs.items() if all(j >> v & 1 for v in S)) % 2 for j in range(2 ** m)]
+
+def rm_decode(word, r, m):
+    word, coeffs = word[:], {}
+    for d in range(r, -1, -1):
+        for S in itertools.combinations(range(m), d):
+            rest = [v for v in range(m) if v not in S]
+            votes = 0
+            for b in range(2 ** len(rest)):       # one subcube: the variables outside S fixed to b
+                base = sum((b >> i & 1) << v for i, v in enumerate(rest))
+                pts = [base | sum((a >> i & 1) << v for i, v in enumerate(S)) for a in range(2 ** d)]
+                votes += sum(word[q] for q in pts) % 2
+            coeffs[S] = int(2 * votes > 2 ** len(rest))
+        top = rm_encode({S: c for S, c in coeffs.items() if len(S) == d}, m)
+        word = [a ^ b for a, b in zip(word, top)] # peel off the degree-d part
+    return coeffs
+
+rng = random.Random(1954)
+for r, m in ((1, 3), (2, 5), (1, 7)):
+    n, k, d = 2 ** m, sum(comb(m, i) for i in range(r + 1)), 2 ** (m - r)
+    t, ok = d // 2 - 1, 0
+    for _ in range(200):
+        msg = {S: rng.getrandbits(1) for d in range(r + 1) for S in itertools.combinations(range(m), d)}
+        y = rm_encode(msg, m)
+        for i in rng.sample(range(n), t):
+            y[i] ^= 1
+        ok += rm_decode(y, r, m) == msg
+    print((n, k, d), t, ok)
+```
+
+It prints:
+
+```text
+(8, 4, 4) 1 200
+(32, 16, 8) 3 200
+(128, 8, 64) 31 200
+```
+
+All 200 random messages come back for $RM(1, 3)$ with one error, $RM(2, 5)$ with three
+and $RM(1, 7)$ with 31. $RM(1, 7)$ is HQC's inner code, repeated three or five times;
+31 sure corrections in 128 bits are too few there, so HQC decodes by **maximum
+likelihood**, scoring all 256 codewords at once with the fast Walsh-Hadamard transform
+([Post-quantum book](../post-quantum/14-HQC-and-BIKE.md#the-inner-code-reed-muller-rm17)).
+
+## 18.12 Patterson's algorithm
+
+*Level: expert.*
+
+A binary Goppa code with $g$ of degree $t$ has a syndrome $S(x) \bmod g$ of $t$
+coefficients in $GF(2^m)$. A generic decoder that sees $t$ syndrome coefficients
+corrects only $\lfloor t/2 \rfloor$ errors, because each error brings two unknowns, a
+position and a value. In a binary code every value is 1, so $t$ equations should do.
+Section 18.7 got the factor of two back by working modulo $g^2$; Nicholas Patterson's
+algorithm of 1975 gets it modulo $g$ alone.
+
+### Why it works
+
+Let $E$ be the set of error positions and $\sigma(x) = \prod_{i \in E}(x - \alpha_i)$ the
+**error locator**. Its derivative is $\sigma' = \sum_{i \in E} \prod_{j \ne i}(x - \alpha_j)$,
+so the syndrome is a logarithmic derivative:
+
+$$
+S(x) = \sum_{i \in E} \frac{1}{x - \alpha_i} = \frac{\sigma'(x)}{\sigma(x)}, \qquad
+\sigma(x) S(x) \equiv \sigma'(x) \pmod{g}.
+$$
+
+Now characteristic 2 does the work. Every polynomial over $GF(2^m)$ splits into even
+and odd parts, $\sigma = a(x)^2 + x\,b(x)^2$, because every element of $GF(2^m)$ is a square
+($c = (c^{2^{m-1}})^2$). Then $\sigma' = b^2$, since $(a^2)' = 2aa' = 0$ and $(xb^2)' = b^2$.
+Put this into the key equation and multiply by $T = S^{-1} \bmod g$:
+
+$$
+(a^2 + x b^2)\,S \equiv b^2 \;\Longrightarrow\; a^2 \equiv b^2\,(T + x)
+\;\Longrightarrow\; a \equiv b\,R \pmod g, \qquad R^2 \equiv T + x .
+$$
+
+The square root $R$ exists and is unique because $GF(2^m)[x]/(g)$, for irreducible $g$,
+is a field of $2^{mt}$ elements, where squaring is a bijection. If there are $e \le t$
+errors, $\deg a \le \lfloor t/2 \rfloor$ and $\deg b \le \lfloor (t-1)/2 \rfloor$.
+
+**The lattice step.** The pairs $(a, b)$ with $a \equiv bR \pmod g$ form a lattice over
+the polynomial ring, with basis $(g, 0)$ and $(R, 1)$; the decoder needs a vector of low
+degree in it. One exists: the conditions are $t$ linear
+equations over $GF(2^m)$ in the $(\lfloor t/2 \rfloor + 1) + (\lfloor (t-1)/2 \rfloor + 1)
+= t + 1$ coefficients of $a$ and $b$, more unknowns than equations. It is unique up to a
+constant: if $(a, b)$ and $(a', b')$ are both short, then $ab' - a'b \equiv bRb' - b'Rb =
+0 \pmod g$, and its degree is below $t$, so $ab' = a'b$. The extended Euclidean
+algorithm on $g$ and $R$, stopped as soon as the remainder has degree at most $t/2$,
+finds it: each division subtracts a multiple of one basis vector from the other, which
+is Gauss-Lagrange reduction ([Chapter 14](14-Lattices.md)) with degree in place of
+length. Then $\sigma = a^2 + x b^2$, and its roots are the error positions.
+
+**Square roots modulo $g$.** Either $\sqrt{u} = u^{2^{mt-1}}$, $mt - 1$ squarings, or
+faster: split $u = u_0(x)^2 + x\, u_1(x)^2$ as above and use $\sqrt u = u_0 + \sqrt{x}\,
+u_1$, with $\sqrt{x} \bmod g$ computed once per key.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 250" width="640" role="img" aria-label="Patterson's algorithm as six boxes: syndrome modulo g, its inverse T, the square root R of T plus x, reduction of the lattice basis to a short pair a and b, the locator sigma equals a squared plus x b squared, and its roots; under each box the value from the GF(16) example" fill="currentColor" font-size="13">
+<defs><marker id="pat18" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z"/></marker></defs>
+<g fill="none" stroke="currentColor" stroke-width="1.5">
+<rect x="10" y="20" width="180" height="46" rx="5"/><rect x="230" y="20" width="180" height="46" rx="5"/><rect x="450" y="20" width="180" height="46" rx="5"/>
+<rect x="450" y="150" width="180" height="46" rx="5"/><rect x="230" y="150" width="180" height="46" rx="5"/><rect x="10" y="150" width="180" height="46" rx="5"/>
+</g>
+<g stroke="currentColor" stroke-width="1.5" marker-end="url(#pat18)">
+<line x1="190" y1="43" x2="226" y2="43"/><line x1="410" y1="43" x2="446" y2="43"/>
+<line x1="540" y1="104" x2="540" y2="146"/><line x1="450" y1="173" x2="414" y2="173"/><line x1="230" y1="173" x2="194" y2="173"/>
+</g>
+<g text-anchor="middle">
+<text x="100" y="48">1. S(x) mod g</text>
+<text x="320" y="48">2. T = 1/S mod g</text>
+<text x="540" y="48">3. R = √(T + x)</text>
+<text x="540" y="170">4. reduce (g, 0), (R, 1)</text><text x="540" y="188" font-size="11">short (a, b): a ≡ bR</text>
+<text x="320" y="170">5. σ = a² + x b²</text><text x="320" y="188" font-size="11">deg σ = number of errors</text>
+<text x="100" y="178">6. roots of σ</text>
+<g font-size="12" fill-opacity=".7">
+<text x="100" y="88">α¹²x² + α⁹x + α⁷</text><text x="320" y="88">α³x² + α⁶x + α¹³</text><text x="540" y="88">α¹⁴x² + α⁴x + α¹⁴</text>
+<text x="540" y="218">a = α¹⁰x + α¹⁰, b = αx + α⁶</text><text x="320" y="218">α²x³ + α⁵x² + α¹²x + α⁵</text><text x="100" y="218">α², α⁴, α¹²</text>
+</g>
+</g>
+</svg>
+<figcaption>Figure 18.5. Patterson's pipeline. Steps 1 to 3 work in the field GF(2^m)[x]/(g), step 4 is a two-dimensional lattice reduction by the Euclidean algorithm; grey values are the GF(16) example below.</figcaption>
+</figure>
+
+### By hand over GF(16)
+
+Build $GF(16)$ from $z^4 + z + 1$, with $\alpha = z$. Each element is 4 bits, adding is
+XOR, and multiplying adds exponents modulo 15:
+
+| $i$ | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| $\alpha^i$ | 0001 | 0010 | 0100 | 1000 | 0011 | 0110 | 1100 | 1011 | 0101 | 1010 | 0111 | 1110 | 1111 | 1101 | 1001 |
+
+Take $g(x) = x^3 + x + 1$. Its roots lie in $GF(8)$, which is not inside $GF(16)$, so
+$g$ is irreducible over $GF(16)$ and the support is all 16 elements: $n = 16$, $t = 3$,
+$k \ge 16 - 4 \cdot 3 = 4$. Two short cuts come from $g$. Since
+$g(x) + g(a) = (x + a)(x^2 + ax + a^2 + 1)$,
+
+$$
+\frac{1}{x + a} \equiv \frac{x^2 + a x + a^2 + 1}{g(a)} \pmod g,
+$$
+
+and since $x^3 \equiv x + 1$ gives $x^4 \equiv x^2 + x$, we get $(x^2 + x)^2 = x^4 + x^2
+\equiv x$: so $\sqrt{x} = x^2 + x$. Square roots of field elements halve the exponent
+modulo 15: $\sqrt{\alpha^{13}} = \alpha^{14}$, $\sqrt{\alpha^3} = \alpha^9$.
+
+Errors hit the positions of $\alpha^2$, $\alpha^4$ and $\alpha^{12}$.
+
+<div class="mars-steps" markdown>
+
+1. **Syndrome.** For $a = \alpha^2$: $g(\alpha^2) = \alpha^6 + \alpha^2 + 1 = 1001 =
+   \alpha^{14}$ and $a^2 + 1 = \alpha^4 + 1 = \alpha$, so the term is $\alpha(x^2 + \alpha^2
+   x + \alpha) = \alpha x^2 + \alpha^3 x + \alpha^2$. Likewise $\alpha^4$ gives $\alpha^2
+   x^2 + \alpha^6 x + \alpha^4$ and $\alpha^{12}$ gives $\alpha^{14} x^2 + \alpha^{11} x +
+   \alpha^6$. Adding the columns with the table: $S = \alpha^{12} x^2 + \alpha^9 x +
+   \alpha^7$.
+2. **Inverse.** The extended Euclidean algorithm gives $T = \alpha^3 x^2 + \alpha^6 x +
+   \alpha^{13}$; multiplying back and reducing with $x^3 = x + 1$ returns 1.
+3. **Square root.** $T + x = \alpha^3 x^2 + \alpha^{13} x + \alpha^{13}$, since $\alpha^6 + 1
+   = \alpha^{13}$. The even part $\alpha^3 x^2 + \alpha^{13}$ has root $\alpha^9 x +
+   \alpha^{14}$; the odd part $\alpha^{13} x$ has root $\alpha^{14}\sqrt{x} = \alpha^{14}(x^2
+   + x)$. Sum: $R = \alpha^{14} x^2 + \alpha^4 x + \alpha^{14}$.
+4. **Lattice step.** One division: $(\alpha x + \alpha^6) R = x^3 + \alpha^5 x + \alpha^5$,
+   and adding $g$ leaves $\alpha^{10} x + \alpha^{10}$, of degree $1 \le t/2$. So
+   $(g, 0) - (\alpha x + \alpha^6)(R, 1)$ is the short vector $a = \alpha^{10} x +
+   \alpha^{10}$, $b = \alpha x + \alpha^6$.
+5. **Locator.** $\sigma = a^2 + x b^2 = \alpha^{20} x^2 + \alpha^{20} + \alpha^2 x^3 +
+   \alpha^{12} x = \alpha^2 x^3 + \alpha^5 x^2 + \alpha^{12} x + \alpha^5$.
+6. **Roots.** Compare with $\alpha^2 (x + \alpha^2)(x + \alpha^4)(x + \alpha^{12})$: its
+   $x^2$ coefficient is $\alpha^2(\alpha^2 + \alpha^4 + \alpha^{12}) = \alpha^2 \cdot
+   \alpha^3$, its constant $\alpha^2 \cdot \alpha^{18} = \alpha^5$. All three errors found.
+
+</div>
+
+```python
+# Patterson's algorithm over GF(16) for the Goppa code with g(x) = x^3 + x + 1, t = 3,
+# support = all 16 field elements. Polynomials are coefficient lists, lowest degree first.
+import itertools
+EXP, LOG = [0] * 30, [0] * 16                     # GF(16) from z^4 + z + 1; alpha = z = 2
+v = 1
+for i in range(15):
+    EXP[i] = EXP[i + 15] = v
+    LOG[v] = i
+    v = (v << 1) ^ (0b10011 if v & 8 else 0)
+def mul(a, b): return 0 if a == 0 or b == 0 else EXP[LOG[a] + LOG[b]]
+def inv(a):    return EXP[15 - LOG[a]]
+def trim(p):
+    while p and p[-1] == 0:
+        p = p[:-1]
+    return p
+def padd(p, q):
+    return trim([(p[i] if i < len(p) else 0) ^ (q[i] if i < len(q) else 0) for i in range(max(len(p), len(q)))])
+def pmul(p, q):
+    r = [0] * (len(p) + len(q))
+    for i, a in enumerate(p):
+        for j, b in enumerate(q):
+            r[i + j] ^= mul(a, b)
+    return trim(r)
+def pdivmod(p, q):
+    p, quo = trim(p[:]), [0] * max(1, len(p))
+    while len(p) >= len(q):
+        c, s = mul(p[-1], inv(q[-1])), len(p) - len(q)
+        quo[s] = c
+        p = padd(p, [0] * s + [mul(c, x) for x in q])
+    return trim(quo), p
+def peval(p, x):
+    r = 0
+    for c in reversed(p):
+        r = mul(r, x) ^ c
+    return r
+def show(p):
+    return " + ".join("a^%d" % LOG[c] + ("x^%d" % i if i > 1 else "x" * i) for i, c in reversed(list(enumerate(p))) if c)
+
+G, T, L = [1, 1, 0, 1], 3, [0] + EXP[:15]         # g = x^3 + x + 1; support 0, 1, a, ..., a^14
+def euclid(r0, r1, stop):                         # extended Euclid on (g, r1) until deg r1 <= stop
+    s0, s1 = [], [1]
+    while len(r1) - 1 > stop:
+        q, r = pdivmod(r0, r1)
+        r0, r1, s0, s1 = r1, r, s1, padd(s0, pmul(q, s1))
+    return r1, s1                                 # r1 = s1 * (input r1) mod g
+def pinv(p):
+    r, s = euclid(G, pdivmod(p, G)[1], 0)
+    return pmul([inv(r[0])], s)
+def syndrome(y):
+    S = []
+    for j, bit in enumerate(y):
+        if bit:
+            S = padd(S, pinv([L[j], 1]))          # 1/(x - alpha_j) mod g
+    return S
+def fsqrt(c):                                     # in GF(16), sqrt(a^i) = a^(8i)
+    return EXP[LOG[c] * 8 % 15] if c else 0
+def psqrt(p):                                     # p = A^2 + x B^2, so sqrt(p) = A + sqrt(x) B
+    A, B = trim([fsqrt(c) for c in p[0::2]]), trim([fsqrt(c) for c in p[1::2]])
+    return pdivmod(padd(A, pmul([0, 1, 1], B)), G)[1]   # sqrt(x) = x^2 + x mod g
+
+def patterson(y, verbose=False):
+    S = syndrome(y)
+    if not S:
+        return y
+    Tinv = pinv(S)
+    R = psqrt(padd(Tinv, [0, 1]))                 # R^2 = T + x mod g
+    a, b = euclid(G, R, T // 2)                   # the short vector (a, b) with a = b R mod g
+    sigma = padd(pmul(a, a), pmul([0, 1], pmul(b, b)))
+    if verbose:
+        print("S =", show(S), "| T =", show(Tinv), "| R =", show(R))
+        print("a =", show(a), "| b =", show(b), "| sigma =", show(sigma))
+    return [bit ^ (peval(sigma, L[j]) == 0) for j, bit in enumerate(y)]
+
+def key_equation_mod_g(y):                        # the generic decoder: sigma S = omega mod g
+    sigma = euclid(G, syndrome(y), (T - 1) // 2)[1]
+    return [bit ^ (peval(sigma, L[j]) == 0) for j, bit in enumerate(y)]
+
+words = [c for c in itertools.product([0, 1], repeat=16) if not syndrome(c)]
+print(len(words), "codewords, minimum weight", min(sum(c) for c in words if any(c)))
+c = list(words[5])
+y = [bit ^ (j in (3, 5, 13)) for j, bit in enumerate(c)]     # errors at a^2, a^4, a^12
+print("".join(map(str, c)), "->", "".join(map(str, y)), patterson(y, True) == c)
+for w in (1, 2, 3):
+    errs = [[int(j in E) for j in range(16)] for E in itertools.combinations(range(16), w)]
+    print(w, len(errs), sum(not any(patterson(e)) for e in errs), sum(not any(key_equation_mod_g(e)) for e in errs))
+```
+
+It prints:
+
+```text
+16 codewords, minimum weight 7
+S = a^12x^2 + a^9x + a^7 | T = a^3x^2 + a^6x + a^13 | R = a^14x^2 + a^4x + a^14
+a = a^10x + a^10 | b = a^1x + a^6 | sigma = a^2x^3 + a^5x^2 + a^12x + a^5
+0101000101111001 -> 0100010101111101 True
+1 16 16 16
+2 120 120 0
+3 560 560 0
+```
+
+The code has 16 codewords and minimum distance $7 = 2t + 1$, and the listing
+reproduces every value of the hand computation. On every error pattern of weight 1, 2
+and 3 (on the zero codeword, enough for a linear code) Patterson corrects all 696. The
+key-equation decoder modulo $g$, which ignores that the code is binary, corrects the 16
+single errors and none of the 680 others: $\lfloor t/2 \rfloor = 1$. The splitting
+$\sigma = a^2 + x b^2$ is the whole difference. Patterson's running time depends on the
+error pattern, which is why constant-time code prefers the $g^2$ route with a fixed
+number of Berlekamp-Massey steps
+([Post-quantum book, §13.6](../post-quantum/13-Code-Based-Encryption-McEliece.md#decoding-in-constant-time)).
+
+## 18.13 List decoding and the Johnson bound
+
+*Level: expert.*
+
+Every decoder so far stops at half the minimum distance: a word halfway between two
+codewords is equally far from both. But such words are rare. Peter Elias (1957) and
+John Wozencraft (1958) let the decoder answer with a short **list** of all codewords
+within a larger radius; a checksum or a signature then picks the right one.
+
+### The Johnson bound
+
+When is the list guaranteed short? Selmer Johnson's bound of 1962, in a form that holds
+for any alphabet: let $C$ have length $n$ and minimum distance $d$, let $y$ be any word,
+and let $c_1, \ldots, c_L$ be codewords that each agree with $y$ in at least $A$
+positions. If $A^2 > n(n - d)$, then
+
+$$
+L \le \frac{n\,(A - n + d)}{A^2 - n(n - d)} \le n d .
+$$
+
+*Proof.* Let $N_x$ be the number of the $c_i$ that agree with $y$ at position $x$. Then
+$\sum_x N_x \ge LA$. Two codewords that both agree with $y$ at $x$ agree with each other
+there, and two codewords agree in at most $n - d$ places, so $\sum_x \binom{N_x}{2} \le
+\binom{L}{2}(n - d)$. By the Cauchy-Schwarz inequality $\sum_x N_x^2 \ge (LA)^2/n$, so
+$L^2A^2/n - LA \le L(L-1)(n-d)$. Divide by $L$ and solve for $L$. $\blacksquare$ So every
+ball of radius $e < n - \sqrt{n(n-d)}$ holds only polynomially many codewords. In
+relative terms the radius is $1 - \sqrt{1 - \delta} \approx \delta/2 + \delta^2/8$: a little
+past half the distance for small $\delta$, far past it for large $\delta$. For binary codes
+the sharper form $\tfrac12\bigl(1 - \sqrt{1 - 2\delta}\bigr)$ holds.
+
+### Sudan and Guruswami-Sudan
+
+For a Reed-Solomon code, $d = n - k + 1$, so the Johnson radius is about $n -
+\sqrt{n(k-1)}$, a fraction $1 - \sqrt R$ at rate $R$. Madhu Sudan (1997) decoded past
+half the distance at low rates, and Venkatesan Guruswami and Sudan (1999) reached the
+Johnson radius at every rate. Both extend Berlekamp-Welch (§18.6) from the curve
+$E(x)y = Q(x)$ to a general curve:
+
+1. **Interpolate.** Find a nonzero $Q(x, y) = \sum_{j=0}^{\ell} Q_j(x)\,y^j$ with $\deg
+   Q_j \le D - j(k-1)$ and $Q(x_i, y_i) = 0$ for every received point. This is a linear
+   system, solvable when the unknown coefficients outnumber the $n$ points.
+2. **Factor.** If a message polynomial $f$ of degree below $k$ agrees with the word in
+   more than $D$ places, then $Q(x, f(x))$ has degree at most $D$ and more than $D$
+   roots, so it is zero: $y - f(x)$ divides $Q$, at most $\ell$ such factors.
+
+Guruswami and Sudan make $Q$ vanish at each point with **multiplicity** $s$, so each
+agreement counts $s$ times; as $s$ grows the radius rises to $n - \sqrt{n(k-1)}$,
+exactly the Johnson bound. Beyond it the
+limit for any code is the **list-decoding capacity** $1 - R$; the folded Reed-Solomon
+codes of Guruswami and Atri Rudra (2008) reach it.
+
+**Code it.** Take $n = 31$ points of $\mathbb{F}_{31}$ and $k = 2$: the codewords are
+lines, $d = 30$, and unique decoding stops at 14 errors. With $\ell = 2$ and $D = 11$
+there are $12 + 11 + 10 = 33$ unknowns for 31 equations, so every line agreeing in 12
+places is found. The received word mixes 12 points of each of two lines and 7 random
+values.
+
+```python
+# Sudan's list decoder (1997) for the Reed-Solomon code of lines (degree < 2) over F_31, n = 31.
+import random
+p = 31
+
+def kernel_vector(M):                             # a nonzero v with M v = 0 mod p, by Gauss-Jordan
+    R, piv, r = [row[:] for row in M], [], 0
+    for c in range(len(M[0])):
+        k = next((i for i in range(r, len(R)) if R[i][c]), None)
+        if k is None:
+            continue
+        R[r], R[k] = R[k], R[r]
+        iv = pow(R[r][c], -1, p)
+        R[r] = [x * iv % p for x in R[r]]
+        for i in range(len(R)):
+            if i != r and R[i][c]:
+                f = R[i][c]
+                R[i] = [(a - f * b) % p for a, b in zip(R[i], R[r])]
+        piv.append(c)
+        r += 1
+    free = next(c for c in range(len(M[0])) if c not in piv)
+    v = [0] * len(M[0])
+    v[free] = 1
+    for i, c in enumerate(piv):
+        v[c] = -R[i][free] % p
+    return v
+
+def sudan(xs, ys, D=11, ell=2):
+    mons = [(a, j) for j in range(ell + 1) for a in range(D - j + 1)]       # monomials x^a y^j
+    Q = dict(zip(mons, kernel_vector([[pow(x, a, p) * pow(y, j, p) % p for a, j in mons]
+                                      for x, y in zip(xs, ys)])))
+    found = []
+    for f0 in range(p):                           # root finding by brute force: try every line
+        for f1 in range(p):                       # (Q(x, f(x)) has degree <= D < 31, so 31 zeros = zero)
+            if all(sum(c * pow(x, a, p) * pow(f0 + f1 * x, j, p) for (a, j), c in Q.items()) % p == 0
+                   for x in xs):
+                found.append((f0, f1))
+    return len(mons), found
+
+rng = random.Random(1997)
+xs = list(range(p))
+ys = [rng.randrange(p) for _ in xs]
+order = rng.sample(xs, p)
+for x in order[:12]:
+    ys[x] = (5 + 3 * x) % p                       # 12 values on the line 5 + 3x
+for x in order[12:24]:
+    ys[x] = (17 + 22 * x) % p                     # 12 values on the line 17 + 22x
+agree = lambda f0, f1: sum((f0 + f1 * x) % p == y for x, y in zip(xs, ys))
+print(sorted(agree(a, b) for a in range(p) for b in range(p))[-4:])
+print(sudan(xs, ys))
+```
+
+It prints:
+
+```text
+[4, 5, 12, 13]
+(33, [(5, 3), (17, 22)])
+```
+
+Brute force over all 961 lines finds two that agree with the word in 12 and 13 places
+(a random value fell on the second) and none other in more than 5. The decoder returns
+exactly those two, at distance 19 and 18, past the unique radius of 14; the Johnson
+bound with $A = 12$ allows at most $31 \cdot 11/(144 - 31) \approx 3$. Real decoders find
+the factors $y - f(x)$ with the algorithm of Ron Roth and Gitit Ruckenstein (2000).
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="Fraction of errors corrected against rate for Reed-Solomon codes: unique decoding (1 minus R) over 2, the Guruswami-Sudan and Johnson curve 1 minus the square root of R, and list-decoding capacity 1 minus R; the toy example sits between the unique and Johnson curves" fill="currentColor" font-size="13">
+<g stroke="currentColor" fill="none">
+<path d="M70 30 V250 H590" stroke-width="1.2"/>
+<path d="M70 30 L590 250" stroke-width="1.2" stroke-dasharray="6 4"/>
+<path d="M70 140 L590 250" stroke-width="1.5"/>
+<polyline stroke-width="2.5" points="70,30 96,79 122,100 148,115 174,128 200,140 226,150 252,160 278,169 304,178 330,186 356,193 382,200 408,207 434,214 460,221 486,227 512,233 538,239 564,244 590,250"/>
+</g>
+<circle cx="104" cy="115" r="5"/>
+<path d="M106 122 L130 188 M240 82 L180 126" stroke="currentColor" stroke-dasharray="3 3"/>
+<text x="110" y="202" font-size="12">toy: 19 of 31 errors, R = 2/31</text>
+<text x="430" y="150" font-size="12">capacity: 1 − R</text>
+<text x="245" y="78" font-size="12" font-weight="700">Johnson, Guruswami-Sudan: 1 − √R</text>
+<text x="300" y="232" font-size="12">unique decoding: (1 − R)/2</text>
+<text x="70" y="270" text-anchor="middle" font-size="12">0</text>
+<text x="330" y="270" text-anchor="middle" font-size="12">0.5</text>
+<text x="590" y="270" text-anchor="middle" font-size="12">1</text>
+<text x="330" y="290" text-anchor="middle">rate R = k/n</text>
+<text x="60" y="34" text-anchor="end" font-size="12">1</text>
+<text x="60" y="254" text-anchor="end" font-size="12">0</text>
+<text x="40" y="145" text-anchor="middle" transform="rotate(-90 40 145)">errors / n</text>
+</svg>
+<figcaption>Figure 18.6. How far a Reed-Solomon code can be decoded. Unique decoding stops at half the distance; list decoding with a short list reaches the Johnson radius 1 − √R (Guruswami-Sudan), and no code can be list-decoded past 1 − R.</figcaption>
+</figure>
+
+### Where cryptography meets lists
+
+- **Hard-core bits.** The Goldreich-Levin theorem (1989), the hard-core bit of any
+  one-way function ([Chapter 19](19-Complexity-and-Reductions.md)), is a list decoder
+  for the Hadamard code, essentially $RM(1, m)$ of §18.11.
+- **Polynomial reconstruction.** Moni Naor and Benny Pinkas (1999) built oblivious
+  polynomial evaluation on noisy polynomial interpolation being hard; Daniel
+  Bleichenbacher and Phong Nguyen (2000) broke some parameter choices with
+  Guruswami-Sudan and with lattice reduction.
+- **Goppa codes.** Daniel Bernstein (2011) list-decodes binary Goppa codes up to about
+  $n - \sqrt{n(n - 2t - 2)}$ errors: about 65 instead of 64 for mceliece348864, too
+  little to matter; "wild McEliece" (Bernstein, Tanja Lange, Christiane Peters, 2010)
+  gains more over larger fields.
+
 ## In the real world
 
 - **Error correction everywhere**: Reed-Solomon in QR codes, discs, RAID-6 and deep
   space; LDPC and polar codes in 5G and Wi-Fi; Hamming-style SECDED codes in server
   memory.
 - **Classic McEliece** is used in some post-quantum VPN designs (Rosenpass, for
-  example) for long-term keys; ISO standardization is under way.
-- **HQC** is being standardized by NIST after its 2025 selection.
+  example) for long-term keys. ISO/IEC 18033-2 added it in 2026; in October 2026 BSI
+  advised against it for new developments (§18.8).
+- **HQC**, with its Reed-Muller and Reed-Solomon codes (§18.11), is being standardized by
+  NIST after its 2025 selection; as of November 2026 no draft standard had appeared.
 - **Fuzzy extractors and PUFs** use BCH and Reed-Muller codes to turn noisy readings
   into stable keys (Chapter 17).
 
 ## Going deeper
 
-- *BCH codes and Reed-Muller codes*: the classical algebraic families; BCH codes are
-  subfield subcodes of Reed-Solomon codes, as Goppa codes are of generalized RS codes.
+- *BCH codes*: the other classical algebraic family; BCH codes are subfield subcodes
+  of Reed-Solomon codes, as Goppa codes are of generalized RS codes.
 - *Distinguishers for high-rate Goppa codes*: Jean-Charles Faugère, Valérie
   Gauthier-Umaña, Ayoub Otmani, Ludovic Perret and Jean-Pierre Tillich (2011) showed
-  that Goppa codes of very high rate can be told apart from random codes, though no
-  key recovery follows for the parameters in use.
+  that Goppa codes of very high rate can be told apart from random codes; the 2026
+  distinguishers mentioned in §18.8 reach the rates actually used.
 - *Rank-metric codes* (Gabidulin codes) give another family of code-based schemes,
   with their own attacks and repairs.
 - *Shannon's channel coding theorem*: random codes achieve capacity; turbo codes,
@@ -1031,35 +1778,41 @@ standard. BIKE was not selected. Both have keys and ciphertexts of a few kilobyt
 
 ## Check yourself
 
-??? question "1. What are the distance and decoding radius of the 5-fold repetition code?"
-
-    $d = 5$, $t = 2$.
-
-??? question "2. Decode the Hamming [7, 4] word $0110\,011$."
+??? question "1. Decode the Hamming [7, 4] word $0110\,011$."
 
     Checks: $d_1 + d_2 + d_4 + p_1 = 0 + 1 + 0 + 0 = 1$, $d_1 + d_3 + d_4 + p_2 = 0 + 1 +
     0 + 1 = 0$, $d_2 + d_3 + d_4 + p_3 = 1 + 1 + 0 + 1 = 1$. Syndrome $(1, 0, 1)$
     points to $d_2$ (in checks 1 and 3 only). Corrected: $0010\,011$, message $0010$.
 
-??? question "3. Why is the minimum distance of a linear code equal to its minimum nonzero weight?"
+??? question "2. The repetition code $\{000, 111\}$ has $W = x^3 + y^3$. Use the MacWilliams identity to find its dual."
 
-    $d(x, y) = \mathrm{wt}(x - y)$, and $x - y$ is a nonzero codeword whenever
-    $x \ne y$ are codewords; conversely $\mathrm{wt}(c) = d(c, 0)$ and $0$ is a
-    codeword.
+    $\tfrac12\bigl[(x+y)^3 + (x-y)^3\bigr] = \tfrac12(2x^3 + 6xy^2) = x^3 + 3xy^2$: one word
+    of weight 0 and three of weight 2. The dual is the even-weight code $\{000, 011, 101,
+    110\}$.
 
-??? question "4. Is there a binary $[10, 5, 6]$ code?"
+??? question "3. Is there a binary $[10, 5, 6]$ code?"
 
     Singleton allows $k \le 5$, but the Hamming bound with $t = 2$ requires $2^5(1 +
     10 + 45) = 1792 \le 1024$, which fails. No.
 
-??? question "5. In Berlekamp-Welch with $n = 15$, $k = 5$, how many unknowns and equations are there?"
+??? question "4. What are the parameters of $RM(2, 5)$, and how many errors does Reed's majority decoder correct?"
 
-    $e = 5$: $k + e = 10$ coefficients of $Q$ and $e = 5$ of $E$, so 15 unknowns and 15
-    equations.
+    $n = 32$, $k = 1 + 5 + 10 = 16$, $d = 2^{5-2} = 8$. Each degree-2 coefficient gets
+    $2^{3} = 8$ votes from disjoint subcubes of 4 points, so up to $2^{m-r-1} - 1 = 3$
+    errors are corrected.
 
-??? question "6. A binary Goppa code has $m = 12$, $n = 3488$, $t = 64$. What are $k$ and the error-correcting capability?"
+??? question "5. What relative distance does the Gilbert-Varshamov bound promise at rate 1/2, and what does that mean for a random code of length 1,000?"
 
-    $k = 3488 - 12 \cdot 64 = 2720$; it corrects 64 errors.
+    Solve $1 - H(\delta) = 1/2$: $\delta \approx 0.11$. A random $[1000, 500]$ code has
+    minimum distance about 110, so it can uniquely decode about 55 errors; near weight 110
+    a random syndrome has about one solution, and above it many.
+
+??? question "6. Is $1 + x + \cdots + x^{10}$ invertible modulo $x^{11} - 1$ over $GF(2)$? How many units does the ring have?"
+
+    No. 2 is a primitive root mod 11, so $x^{11} - 1 = (x + 1)\Phi_{11}(x)$ with $\Phi_{11} = 1
+    + x + \cdots + x^{10}$ irreducible, and $\Phi_{11}$ shares that factor with the modulus
+    although its weight is odd. The ring is $GF(2) \times GF(2^{10})$, with $1 \cdot 1023 =
+    1023$ units.
 
 ??? question "7. Why does McEliece need the permutation $P$ and the scrambler $S$?"
 
@@ -1071,27 +1824,40 @@ standard. BIKE was not selected. Both have keys and ciphertexts of a few kilobyt
 
     $\binom{29}{17}/\binom{32}{17} \approx 0.092$, about one in 10.9.
 
-??? question "9. Why are quasi-cyclic keys smaller?"
+??? question "9. For mceliece348864 ($m = 12$, $n = 3488$, $t = 64$), what are $k$ and the degree bounds in Patterson's lattice step, and why would the key-equation decoder modulo $g$ stop at 32 errors?"
 
-    A circulant $r \times r$ block is determined by its first row, $r$ bits instead of
-    $r^2$.
+    $k = 3488 - 12 \cdot 64 = 2720$; $\deg a \le 32$ and $\deg b \le 31$. The generic
+    decoder treats each error as two unknowns, a position and a value, and 64 syndrome
+    coefficients pay for 32 of them. Patterson uses that every value is 1: the splitting
+    $\sigma = a^2 + x b^2$ halves the degrees, so 64 equations suffice for 64 errors.
+
+??? question "10. A Reed-Solomon code has $n = 255$, $k = 33$. How many errors can unique decoding and Guruswami-Sudan list decoding handle?"
+
+    Unique decoding: $\lfloor (n - k)/2 \rfloor = 111$. List decoding up to the Johnson
+    radius needs $A$ agreements with $A^2 > n(k - 1) = 8160$, so $A \ge 91$: up to $255 -
+    91 = 164$ errors.
 
 ## What you learned
 
 - Minimum distance $d$ corrects $\lfloor (d-1)/2 \rfloor$ errors; the Hamming code
   locates a single error by its syndrome.
 - Linear codes are given by $G$ or $H$; syndromes depend only on the error; $d$ is the
-  smallest number of dependent columns of $H$.
+  smallest number of dependent columns of $H$. The MacWilliams identity gets the dual's
+  weight distribution from the code's.
 - Singleton ($k \le n - d + 1$), Hamming (sphere packing) and Gilbert-Varshamov
-  (existence) bound what is possible; Golay $[23, 12, 7]$ is perfect.
+  (existence) bound what is possible; Golay $[23, 12, 7]$ is perfect. Random codes meet
+  $R = 1 - H(\delta)$, and below the GV weight a planted error is the unique solution.
 - Berlekamp-Welch corrects $(n-k)/2$ Reed-Solomon errors by solving one linear system.
 - Binary Goppa codes over $GF(2^m)$ with a square-free $g$ of degree $t$ have
-  $k \ge n - mt$ and correct $t$ errors.
+  $k \ge n - mt$ and correct $t$ errors; Patterson's algorithm does it modulo $g$.
 - McEliece hides a Goppa code as $SGP$; Classic McEliece has keys of 0.26 to 1.4 MB
   and ciphertexts under 210 bytes.
 - Syndrome decoding is NP-complete; information-set decoding is the generic attack;
   HQC and BIKE use quasi-cyclic structure for small keys, and HQC was selected by NIST
-  in 2025.
+  in 2025. Their ring $GF(2)[x]/(x^r - 1)$ splits by cyclotomic cosets.
+- $RM(r, m)$ is $[2^m, \sum_{i \le r}\binom mi, 2^{m-r}]$, decoded by majority votes.
+- List decoding goes past half the distance to the Johnson radius $1 - \sqrt{1-\delta}$;
+  Guruswami-Sudan reaches it for Reed-Solomon codes, $1 - \sqrt R$.
 
 **Next:** [Chapter 19](19-Complexity-and-Reductions.md), complexity, reductions and
 hard problems: what "hard" means, and how the assumptions behind cryptography relate.
@@ -1113,5 +1879,21 @@ hard problems: what "hard" means, and how the assumptions behind cryptography re
 - Daniel Bernstein, Tanja Lange and Christiane Peters, "Attacking and Defending the
   McEliece Cryptosystem", PQCrypto 2008.
 - The Classic McEliece, HQC and BIKE specifications (NIST post-quantum project, round 4).
+- Edgar Gilbert, "A Comparison of Signalling Alphabets", *Bell System Technical Journal*
+  (1952); Rom Varshamov, *Doklady Akademii Nauk SSSR* (1957).
+- Jessie MacWilliams, "A Theorem on the Distribution of Weights in a Systematic Code",
+  *Bell System Technical Journal* (1963); Philippe Delsarte, *Information and Control*
+  (1973).
+- David Muller and Irving Reed, the two Reed-Muller papers, *IRE Transactions* (1954).
+- Nicolas Sendrier, "Decoding One Out of Many", PQCrypto 2011.
+- Selmer Johnson, "A New Upper Bound for Error-Correcting Codes", *IRE Transactions on
+  Information Theory* (1962).
+- Madhu Sudan, *Journal of Complexity* (1997); Venkatesan Guruswami and Madhu Sudan,
+  *IEEE Transactions on Information Theory* (1999); Ron Roth and Gitit Ruckenstein, same
+  journal (2000); Venkatesan Guruswami and Atri Rudra, same journal (2008).
+- Daniel Bleichenbacher and Phong Nguyen, "Noisy Polynomial Interpolation and Noisy
+  Chinese Remaindering", EUROCRYPT 2000.
+- Daniel Bernstein, "List Decoding for Binary Goppa Codes", IWCC 2011; Bernstein, Lange
+  and Peters, "Wild McEliece", SAC 2010.
 - In *Post-quantum cryptography*: [chapter 13](../post-quantum/13-Code-Based-Encryption-McEliece.md);
   in *The cryptography book*: [Chapter 22](../../book/22-Hash-and-Code-Based.md).
