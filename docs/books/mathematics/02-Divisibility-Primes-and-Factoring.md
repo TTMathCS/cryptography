@@ -5,10 +5,11 @@ security is a bet that nobody can find the primes again. This chapter studies
 the ground under that bet: division with remainder, the greatest common divisor
 and Euclid's algorithm (the oldest algorithm still in daily use), Bézout's
 identity, the theorem that every number factors into primes in exactly one way,
-how many primes there are, continued fractions, and the two simplest ways to
-factor. You will prove that Euclid's algorithm is fast, count the primes below
-ten million, and factor a printer's RSA key the way it was really done in
-2022.*
+how many primes and how many smooth numbers there are, continued fractions,
+and the classical ways to factor. You will prove that Euclid's algorithm is
+fast, count the primes below ten million, factor a printer's RSA key the way it
+was really done in 2022, and run a quadratic sieve small enough to check by
+hand.*
 
 !!! abstract "In this chapter"
     **You will learn:**
@@ -23,7 +24,12 @@ ten million, and factor a printer's RSA key the way it was really done in
     - how many primes there are: the sieve of Eratosthenes, the prime number
       theorem, and how many 1,024-bit primes exist;
     - continued fractions and their best approximations;
-    - trial division and Fermat's method, and why keys with close primes break.
+    - smooth numbers and Dickman's function, the count behind every fast
+      factoring method;
+    - trial division and Fermat's method, and why keys with close primes break;
+    - why Pollard's $p - 1$ and rho methods work, and why "strong primes" are
+      no longer needed;
+    - the quadratic sieve in miniature.
 
     **You need:** [Chapter 1](01-Mathematics-for-Secrets.md) (notation and
     proofs). *The cryptography book*, [Chapter 3](../../book/03-The-Arithmetic-of-Secrets.md),
@@ -71,9 +77,10 @@ The first four have classical answers, from Euclid around 300 BC to the prime
 number theorem of 1896. The fifth is where this book hands over to the
 cryptanalysts. The modern factoring algorithms (Pollard's methods, the elliptic
 curve method, the quadratic and number field sieves) are attacks, and book 2 of
-this shelf, *Cryptanalysis*, runs them in its [Chapter 11](../cryptanalysis/11-Factoring.md). Here we build the
-number theory they rest on and stop at the two simplest methods, which are
-already enough to break badly made keys.
+this shelf, *Cryptanalysis*, runs them at full strength in its [Chapter 11](../cryptanalysis/11-Factoring.md). Here we build the
+number theory they rest on, and run the classical methods only far enough to
+see *why* each works: trial division, Fermat, Pollard's two methods (one a
+fact about groups, the other about birthdays) and a toy quadratic sieve.
 
 ## 2.2 Division with remainder
 
@@ -362,7 +369,7 @@ $\blacksquare$
 
 The proof shows that $x, y$ exist; Euclid's algorithm run with bookkeeping
 finds them. The identity is named for Étienne Bézout, who proved a version for
-polynomials in 1779; the integer version was known to Claude Gaspard Bachet de
+polynomials in 1779; the integer version was known to the French mathematician Bachet de
 Méziriac in 1624.
 
 Two consequences are used everywhere:
@@ -638,6 +645,98 @@ are not, they do collide, which is exactly what happened in 2012 (§2.10).
 <figcaption>Figure 2.3. The primes up to 100 as a staircase: each step is a prime. The curve x / ln x runs a little below; the ratio tends to 1, which is the prime number theorem.</figcaption>
 </figure>
 
+### Which approximation is better?
+
+Gauss did not actually guess $x / \ln x$. In a letter of 1849 to Johann Encke
+he recalled noticing as a boy that primes near $t$ have density about
+$1 / \ln t$, and so he added the density up:
+
+$$\operatorname{li}(x) = \int_0^x \frac{dt}{\ln t}.$$
+
+Integrating by parts gives $\operatorname{li}(x) = x / \ln x + x / (\ln x)^2 +
+\cdots$, so the two approximations agree in the limit, but $x / \ln x$ is short
+by about $x / (\ln x)^2$, some 6 percent at $x = 10^7$. To compute
+$\operatorname{li}$, substitute $t = e^s$ and expand $e^s$ as a series:
+
+$$\operatorname{li}(x) = \gamma + \ln \ln x + \sum_{k=1}^{\infty} \frac{(\ln x)^k}{k \cdot k!},$$
+
+where $\gamma = 0.5772\ldots$ is Euler's constant.
+
+```python
+# Uses sieve() and ps from the listing above.
+import bisect
+
+def li(x):
+    """Logarithmic integral: gamma + ln ln x + sum of (ln x)^k / (k * k!)."""
+    L = math.log(x)
+    total, term = 0.0, 1.0
+    for k in range(1, 200):
+        term *= L / k                          # term = L^k / k!
+        total += term / k
+    return 0.5772156649015329 + math.log(L) + total
+
+print(f"{'x':>9} {'pi(x)':>7} {'x/ln x':>9} {'li(x)':>9} {'pi-x/ln x':>9} {'li-pi':>6}")
+for k in range(2, 8):
+    x = 10**k
+    pi_x = bisect.bisect_right(ps, x)          # how many primes in the list are <= x
+    print(f"{x:>9} {pi_x:>7} {x / math.log(x):>9.0f} {li(x):>9.0f} "
+          f"{pi_x - x / math.log(x):>9.0f} {li(x) - pi_x:>6.0f}")
+```
+
+It prints (after the table of the listing above):
+
+```text
+        x   pi(x)    x/ln x     li(x) pi-x/ln x  li-pi
+      100      25        22        30         3      5
+     1000     168       145       178        23     10
+    10000    1229      1086      1246       143     17
+   100000    9592      8686      9630       906     38
+  1000000   78498     72382     78628      6116    130
+ 10000000  664579    620421    664918     44158    339
+```
+
+At ten million $x / \ln x$ misses by 44,158 and $\operatorname{li}(x)$ by 339,
+well under $\sqrt{10^7} \approx 3{,}162$, the size of error the Riemann
+hypothesis allows up to a logarithm (Figure 2.4). The last column hides a
+surprise: $\operatorname{li}(x) > \pi(x)$ at every $x$ anyone has computed, yet
+John Littlewood proved in 1914 that the sign changes infinitely often, and
+Carter Bays and Richard Hudson showed in 2000 that a change occurs below about
+$1.4 \times 10^{316}$.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="Two curves against x from 100 to ten million on a logarithmic axis: pi(x) divided by x over ln x falls slowly from about 1.15 to 1.07, while pi(x) divided by li(x) rises from about 0.83 to 0.9995 and hugs the line at 1" fill="currentColor" font-size="13">
+<line x1="70" y1="240" x2="610" y2="240" stroke="currentColor" stroke-width="1.3"/>
+<line x1="70" y1="240" x2="70" y2="30" stroke="currentColor" stroke-width="1.3"/>
+<text x="64" y="244" text-anchor="end">0.8</text>
+<text x="64" y="194" text-anchor="end">0.9</text>
+<line x1="70" y1="190" x2="610" y2="190" stroke="currentColor" stroke-opacity="0.3" stroke-dasharray="2 4"/>
+<text x="64" y="144" text-anchor="end">1.0</text>
+<line x1="70" y1="140" x2="610" y2="140" stroke="currentColor" stroke-opacity="0.6"/>
+<text x="64" y="94" text-anchor="end">1.1</text>
+<line x1="70" y1="90" x2="610" y2="90" stroke="currentColor" stroke-opacity="0.3" stroke-dasharray="2 4"/>
+<text x="64" y="44" text-anchor="end">1.2</text>
+<line x1="70" y1="40" x2="610" y2="40" stroke="currentColor" stroke-opacity="0.3" stroke-dasharray="2 4"/>
+<line x1="70" y1="240" x2="70" y2="245" stroke="currentColor"/>
+<text x="70" y="260" text-anchor="middle">10<tspan dy="-6" font-size="10">2</tspan></text>
+<line x1="178" y1="240" x2="178" y2="245" stroke="currentColor"/>
+<text x="178" y="260" text-anchor="middle">10<tspan dy="-6" font-size="10">3</tspan></text>
+<line x1="286" y1="240" x2="286" y2="245" stroke="currentColor"/>
+<text x="286" y="260" text-anchor="middle">10<tspan dy="-6" font-size="10">4</tspan></text>
+<line x1="394" y1="240" x2="394" y2="245" stroke="currentColor"/>
+<text x="394" y="260" text-anchor="middle">10<tspan dy="-6" font-size="10">5</tspan></text>
+<line x1="502" y1="240" x2="502" y2="245" stroke="currentColor"/>
+<text x="502" y="260" text-anchor="middle">10<tspan dy="-6" font-size="10">6</tspan></text>
+<line x1="610" y1="240" x2="610" y2="245" stroke="currentColor"/>
+<text x="610" y="260" text-anchor="middle">10<tspan dy="-6" font-size="10">7</tspan></text>
+<text x="340" y="290" text-anchor="middle">x (logarithmic scale)</text>
+<polyline fill="none" stroke="currentColor" stroke-width="2" points="70.0,64.4 97.0,57.3 124.0,48.4 151.0,65.7 178.0,59.7 205.0,61.4 232.0,71.7 259.0,72.6 286.0,74.0 313.0,79.0 340.0,82.8 367.0,85.4 394.0,87.8 421.0,91.3 448.0,93.5 475.0,95.6 502.0,97.8 529.0,99.6 556.0,101.3 583.0,102.9 610.0,104.4"/>
+<polyline fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="7 4" points="70.0,225.1 97.0,204.9 124.0,183.3 151.0,183.5 178.0,167.1 205.0,158.2 232.0,158.3 259.0,151.9 286.0,146.9 313.0,145.9 340.0,144.8 367.0,143.2 394.0,142.0 421.0,142.1 448.0,141.4 475.0,141.0 502.0,140.8 529.0,140.6 556.0,140.4 583.0,140.3 610.0,140.3"/>
+<text x="330" y="55">π(x) ÷ (x / ln x): 1.071 at 10<tspan dy="-6" font-size="10">7</tspan></text>
+<text x="330" y="165">π(x) ÷ li(x): 0.9995 at 10<tspan dy="-6" font-size="10">7</tspan></text>
+</svg>
+<figcaption>Figure 2.4. The prime number theorem in two forms, for x from 100 to ten million. The ratio π(x) ÷ (x / ln x) (solid) creeps down toward 1 and is still 1.071 at ten million; the ratio π(x) ÷ li(x) (dashed) is within 0.05 percent of 1 by then.</figcaption>
+</figure>
+
 ### Gaps and patterns
 
 Primes thin out, but irregularly. There are arbitrarily long gaps: $n! + 2, n!
@@ -653,6 +752,144 @@ theorem** (1837) says that if $\gcd(a, m) = 1$, there are infinitely many primes
 $\equiv a \pmod m$, and asymptotically each such class gets an equal share. So
 about half of all odd primes are $\equiv 1 \pmod 4$ and half $\equiv 3 \pmod 4$,
 a fact Chapter 5 uses when it computes square roots.
+
+### Smooth numbers and Dickman's function
+
+Primes have no small factors. Factoring cares just as much about their
+opposites: a number is **$y$-smooth** if none of its prime factors exceeds $y$.
+So $2016 = 2^5 \cdot 3^2 \cdot 7$ is 7-smooth, and $2026 = 2 \cdot 1013$ is
+not even 1000-smooth. Write $\Psi(x, y)$ for the number of $y$-smooth integers
+from 1 to $x$. Every fast factoring method, from Pollard's $p - 1$ (§2.9) to
+the quadratic sieve (§2.11), works by finding smooth numbers, and its running
+time is set by how rare they are.
+
+**By hand, for $y = \sqrt x$.** A number $m \leq x$ that is not
+$\sqrt x$-smooth has exactly one prime factor $p > \sqrt x$, since two would
+multiply to more than $x$. Each such $p$ has $\lfloor x/p \rfloor$ multiples up
+to $x$, so the non-smooth numbers number about
+
+$$\sum_{\sqrt x < p \leq x} \frac{x}{p} \approx x \left(\ln \ln x - \ln \ln \sqrt x\right) = x \ln 2,$$
+
+by Mertens' theorem (1874), $\sum_{p \leq x} 1/p = \ln \ln x + 0.2615\ldots +
+o(1)$. So about $1 - \ln 2 \approx 30.7$ percent of numbers up to $x$ are
+$\sqrt x$-smooth, however large $x$ is.
+
+**Dickman's function.** In 1930 the Swedish actuary Karl Dickman found the
+general answer: for fixed $u \geq 1$, $\Psi(x, x^{1/u}) / x \to \rho(u)$, where
+$\rho(u) = 1$ on $[0, 1]$ and
+
+$$u\,\rho'(u) = -\rho(u - 1) \quad (u > 1),$$
+
+a **delay differential equation**, whose slope at $u$ depends on the value one
+unit earlier. On $[1, 2]$ it gives $\rho(u) = 1 - \ln u$, matching the hand
+count. Beyond that $\rho$ has no closed form, but it falls roughly like
+$u^{-u}$. Since $u\rho(u)$ and $\int_{u-1}^{u} \rho(t)\,dt$ have the same
+derivative and agree at $u = 1$,
+
+$$\rho(u) = \frac{1}{u} \int_{u-1}^{u} \rho(t)\,dt,$$
+
+an average of positive values, which a computer can step forward stably even
+when $\rho$ is tiny. The code does that, then counts smooth numbers with a
+sieve that records each number's largest prime factor.
+
+```python
+def dickman(umax, steps=200):
+    """Dickman's rho on a grid of step 1/steps, from u * rho(u) = integral of rho over [u - 1, u]."""
+    h = 1 / steps
+    r = [1.0] * (steps + 1)                    # rho(u) = 1 for 0 <= u <= 1
+    for i in range(steps + 1, umax * steps + 1):
+        u = i * h
+        inner = sum(r[i - steps + 1:i])        # trapezoid rule; the new end point is solved for
+        r.append(h * (r[i - steps] / 2 + inner) / (u - h / 2))
+    return lambda u: r[round(u * steps)]
+
+rho = dickman(20)
+
+N = 10**7
+big = list(range(N + 1))                       # big[m] ends as the largest prime factor of m
+for p in range(2, N + 1):
+    if big[p] == p:                            # no smaller prime has marked p, so p is prime
+        big[p::p] = [p] * len(range(p, N + 1, p))
+
+print("u  x=10^4  10^5    10^6    10^7    rho(u)")
+for u in (2, 3, 4, 5):
+    row = []
+    for k in (4, 5, 6, 7):
+        x = 10**k
+        y = x ** (1 / u)                       # count the x^(1/u)-smooth numbers up to x
+        row.append(sum(1 for m in range(1, x + 1) if big[m] <= y) / x)
+    print(u, " ".join(f"{d:.4f}" for d in row), f"{rho(u):.4f}")
+print(f"rho(8) = {rho(8):.3g}, rho(10) = {rho(10):.3g}, rho(16) = {rho(16):.3g}")
+```
+
+It prints:
+
+```text
+u  x=10^4  10^5    10^6    10^7    rho(u)
+2 0.3716 0.3582 0.3443 0.3362 0.3069
+3 0.1169 0.0874 0.0723 0.0665 0.0486
+4 0.0338 0.0258 0.0181 0.0116 0.0049
+5 0.0175 0.0069 0.0041 0.0028 0.0004
+rho(8) = 3.23e-08, rho(10) = 2.77e-11, rho(16) = 1.11e-21
+```
+
+Each row falls toward $\rho(u)$ as $x$ grows, but slowly, because with small
+$y$ numbers are smoother than the limit says (Figure 2.5).
+
+This explains sieving. Halving the size of the numbers that must be smooth
+halves $u$, and since $\rho$ falls like $u^{-u}$, that helps enormously. With a
+smoothness bound of $10^7$, a 112-digit number has $u = 16$ and is smooth with
+probability about $\rho(16) \approx 10^{-21}$; a 56-digit number has $u = 8$
+and probability $\rho(8) \approx 3 \times 10^{-8}$, some $10^{13}$ times
+likelier. The quadratic sieve wins exactly this way: it needs smooth values of
+$x^2 - n$, numbers only a little larger than $\sqrt n$, rather than random
+numbers as large as $n$.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="Dickman rho function on a logarithmic vertical scale, from 1 at u up to 1 down to about 2 in a hundred thousand at u equal 6; measured densities of smooth numbers up to ten million sit above the curve" fill="currentColor" font-size="13">
+<line x1="70" y1="240" x2="610" y2="240" stroke="currentColor" stroke-width="1.3"/>
+<line x1="70" y1="240" x2="70" y2="30" stroke="currentColor" stroke-width="1.3"/>
+<text x="64" y="44" text-anchor="end">10<tspan dy="-6" font-size="10">0</tspan></text>
+<text x="64" y="84" text-anchor="end">10<tspan dy="-6" font-size="10">-1</tspan></text>
+<line x1="70" y1="80" x2="610" y2="80" stroke="currentColor" stroke-opacity="0.25" stroke-dasharray="2 4"/>
+<text x="64" y="124" text-anchor="end">10<tspan dy="-6" font-size="10">-2</tspan></text>
+<line x1="70" y1="120" x2="610" y2="120" stroke="currentColor" stroke-opacity="0.25" stroke-dasharray="2 4"/>
+<text x="64" y="164" text-anchor="end">10<tspan dy="-6" font-size="10">-3</tspan></text>
+<line x1="70" y1="160" x2="610" y2="160" stroke="currentColor" stroke-opacity="0.25" stroke-dasharray="2 4"/>
+<text x="64" y="204" text-anchor="end">10<tspan dy="-6" font-size="10">-4</tspan></text>
+<line x1="70" y1="200" x2="610" y2="200" stroke="currentColor" stroke-opacity="0.25" stroke-dasharray="2 4"/>
+<text x="64" y="244" text-anchor="end">10<tspan dy="-6" font-size="10">-5</tspan></text>
+<line x1="70" y1="240" x2="610" y2="240" stroke="currentColor" stroke-opacity="0.25" stroke-dasharray="2 4"/>
+<line x1="70" y1="240" x2="70" y2="245" stroke="currentColor"/>
+<text x="70" y="260" text-anchor="middle">0</text>
+<line x1="160" y1="240" x2="160" y2="245" stroke="currentColor"/>
+<text x="160" y="260" text-anchor="middle">1</text>
+<line x1="250" y1="240" x2="250" y2="245" stroke="currentColor"/>
+<text x="250" y="260" text-anchor="middle">2</text>
+<line x1="340" y1="240" x2="340" y2="245" stroke="currentColor"/>
+<text x="340" y="260" text-anchor="middle">3</text>
+<line x1="430" y1="240" x2="430" y2="245" stroke="currentColor"/>
+<text x="430" y="260" text-anchor="middle">4</text>
+<line x1="520" y1="240" x2="520" y2="245" stroke="currentColor"/>
+<text x="520" y="260" text-anchor="middle">5</text>
+<line x1="610" y1="240" x2="610" y2="245" stroke="currentColor"/>
+<text x="610" y="260" text-anchor="middle">6</text>
+<text x="340" y="288" text-anchor="middle">u = (digits of x) ÷ (digits of the smoothness bound y)</text>
+<polyline fill="none" stroke="currentColor" stroke-width="2" points="70,40 85,40 100,40 115,40 130,40 145,40 160,40 175,43 190,46 205,49 220,52 235,56 250,61 265,65 280,70 295,75 310,81 325,87 340,93 355,99 370,105 385,112 400,118 415,125 430,132 445,140 460,147 475,155 490,162 505,170 520,178 535,186 550,194 565,203 580,211 595,220 610,228"/>
+<circle cx="250.0" cy="58.9" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<circle cx="340.0" cy="87.1" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<circle cx="430.0" cy="117.4" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<circle cx="520.0" cy="142.1" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<circle cx="250.0" cy="60.5" r="3"/>
+<circle cx="340.0" cy="92.5" r="3"/>
+<circle cx="430.0" cy="132.4" r="3"/>
+<circle cx="520.0" cy="178.0" r="3"/>
+<text x="260" y="51">ρ(2) = 1 − ln 2 ≈ 0.307</text>
+<text x="466" y="120">ρ(u), roughly u<tspan dy="-6" font-size="10">−u</tspan></text>
+<circle cx="92" cy="214" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><text x="104" y="218">counted up to x = 10<tspan dy="-6" font-size="10">7</tspan></text>
+</svg>
+<figcaption>Figure 2.5. Dickman's function ρ(u), the limiting share of numbers up to x whose prime factors are all at most x^(1/u), on a logarithmic scale. Dots mark ρ(2) to ρ(5); open circles mark the shares counted up to ten million, still above the limit.</figcaption>
+</figure>
 
 ## 2.8 Continued fractions
 
@@ -739,7 +976,7 @@ smaller than about $N^{1/4}$, the unknown fraction $k/d$ satisfies Legendre's
 condition, so $d$ appears among the convergents of $e/N$. *Cryptanalysis*,
 [Chapter 13](../cryptanalysis/13-Attacks-on-RSA.md), carries out the attack; Exercise 9 lets you try the idea.
 
-## 2.9 Factoring: the two simplest methods
+## 2.9 Factoring: the classical methods
 
 *Level: intermediate.*
 
@@ -808,6 +1045,23 @@ print(fermat_factor(200819))
 (409, 491, 2)
 ```
 
+### How close is too close?
+
+Fermat's method starts at $a = \lceil \sqrt n \rceil$ and stops at $a =
+(p + q)/2$, so it takes about
+
+$$\frac{p + q}{2} - \sqrt{pq} = \frac{(\sqrt q - \sqrt p)^2}{2} = \frac{(q - p)^2}{2(\sqrt q + \sqrt p)^2} \approx \frac{(q - p)^2}{8 \sqrt n}$$
+
+steps. For a 2,048-bit modulus,
+$\sqrt n \approx 2^{1024}$, so the count is about $(q - p)^2 / 2^{1027}$. If
+$q - p < 2^{513}$ or so, the first $a$ succeeds; if $q - p \approx
+2^{516.8}$, it takes about 100 steps; under the FIPS 186-5 rule $q - p >
+2^{924}$, it takes at least $2^{821}$. This matches what Hanno Böck measured
+(below): gaps up to about $2^{514}$ fall in the first step, and 100 steps
+reliably factor gaps up to about $2^{517}$. Two random 1,024-bit primes come
+within $2^{924}$ of each other with probability about $2^{-98}$, so only a
+broken generator lands in the danger zone.
+
 ### Break it: printers with close primes
 
 In March 2022, the security researcher Hanno Böck published the results of
@@ -819,6 +1073,15 @@ Rambus that picked one random starting point and took the next two primes after
 it. The bug is CVE-2022-26320. The mathematics in the code above, unchanged
 except for larger numbers, is what broke them.
 
+After the disclosure, certificate authorities began testing the keys they
+certify: Let's Encrypt added a Fermat check in 2022, and the CA/Browser Forum's
+ballot SC-59 (2023) put weak-key checks, including 100 rounds of Fermat's
+method, into the rules for publicly trusted authorities. A device in Arcadia
+City asking an authority on Earth for a certificate waits 6 to 44 minutes per
+round trip, so a rejected key costs a whole extra exchange; running the same
+Fermat rounds, and a gcd against known moduli, on Mars before sending costs
+milliseconds.
+
 !!! note "Life story: Fermat's factoring method"
     **Born:** 1643, in a letter by Pierre de Fermat, factoring 2,027,651,281 as
     44,021 × 46,061 · **Purpose:** to factor numbers whose two factors are near
@@ -827,28 +1090,331 @@ except for larger numbers, is what broke them.
     \pmod n$ instead of equalities, and so work for any $n$ · **Status:** still
     used to test keys; it broke the close-prime keys of CVE-2022-26320 in 2022
 
+### Pollard's p − 1: when the group order is smooth
+
+In 1974 John Pollard, then at the research laboratories of the British Post
+Office, published a method that needs neither a small factor nor two close
+ones, but a factor $p$ for which $p - 1$ is smooth (§2.7), however large $p$
+is. By Fermat's little theorem ([Chapter 4](04-Powers-and-Primitive-Roots.md)),
+$a^{p-1} \equiv 1 \pmod p$ when $p \nmid a$, so $a^M \equiv 1 \pmod p$ for
+every multiple $M$ of $p - 1$. We do not know $p - 1$, but if it is built from
+prime powers no larger than $B$, it divides
+
+$$M = \operatorname{lcm}(1, 2, \ldots, B) = \prod_{\ell \leq B \text{ prime}} \ell^{\lfloor \log_\ell B \rfloor},$$
+
+which anyone can compute. Then $p$ divides both $a^M - 1$ and $n$, hence
+$\gcd(a^M - 1, n)$, and the power is taken modulo $n$.
+
+In the language of groups ([Chapter 7](07-Groups.md)): the units modulo $p$
+form a group of order $p - 1$, and $a^M \equiv 1 \pmod p$ exactly when the
+order of $a$ divides $M$. By Lagrange's theorem that order divides $p - 1$. The
+method succeeds when the order of $a$ modulo $p$ divides $M$ and the order
+modulo $q$ does not; if both do, the gcd is $n$, and a smaller $B$ or more
+frequent gcds separate them.
+
+*By hand.* Factor $n = 41087$ with $a = 2$, $B = 10$, so $M = 2^3 \cdot 3^2
+\cdot 5 \cdot 7$, raising to one prime power at a time. The last two columns
+are hidden from the factorer:
+
+| step | exponent so far | $a \bmod 41087$ | $\gcd(a - 1, n)$ | $a \bmod 181$ | $a \bmod 227$ |
+|---|---|---|---|---|---|
+| $a \to a^8$ | 8 | 256 | 1 | 75 | 29 |
+| $a \to a^9$ | 72 | 20495 | 1 | 42 | 65 |
+| $a \to a^5$ | 360 | 24617 | **181** | 1 | 101 |
+
+The order of 2 modulo 181 is $180 = 2^2 \cdot 3^2 \cdot 5$, which divides 360;
+modulo 227 it is $226 = 2 \cdot 113$, out of reach. So $41087 = 181 \cdot
+227$, after three powers and three gcds, and it would have been the same three
+steps if 181 had been a 300-digit prime with an equally smooth $p - 1$.
+
+```python
+import random
+from math import gcd, prod
+
+def small_primes(B):
+    return [l for l in range(2, B + 1) if all(l % d for d in range(2, int(l ** 0.5) + 1))]
+
+def pollard_pm1(n, B, a=2, show=False):
+    """Raise a to each prime power l^k <= B in turn; stop when gcd(a - 1, n) > 1."""
+    for l in small_primes(B):
+        lk = l
+        while lk * l <= B:                    # the largest power of l that is at most B
+            lk *= l
+        a = pow(a, lk, n)
+        g = gcd(a - 1, n)
+        if show:
+            print(f"  ^{lk:<3} a = {a:<6} gcd = {g}")
+        if g > 1:
+            return g
+    return 1
+
+print(pollard_pm1(41087, 10, show=True))      # 41087 = 181 * 227, and 180 = 2^2 * 3^2 * 5
+
+def probable_prime(m):                        # Fermat test to five bases: fine for random numbers
+    return all(pow(b, m - 1, m) == 1 for b in (2, 3, 5, 7, 11))
+
+rng = random.Random(1974)
+ps = small_primes(1000)
+while True:                                   # a prime p with p - 1 built from primes below 1000
+    parts = sorted(rng.sample(ps, 14))
+    k = 2 * prod(parts)
+    if 2**120 < k < 2**136 and probable_prime(k + 1):
+        p = k + 1
+        break
+while True:                                   # a safe prime q = 2r + 1, r prime: q - 1 is not smooth
+    r = rng.getrandbits(127) | 1 << 126 | 1
+    if probable_prime(r) and probable_prime(2 * r + 1):
+        q = 2 * r + 1
+        break
+n = p * q
+print(p, "= 2 *", " * ".join(map(str, parts)), "+ 1")
+print(n.bit_length(), p.bit_length(), q.bit_length())
+print(pollard_pm1(n, 1000) == p)
+```
+
+It prints:
+
+```text
+  ^8   a = 256    gcd = 1
+  ^9   a = 20495  gcd = 1
+  ^5   a = 24617  gcd = 181
+181
+32487363772142648523347688467208143507 = 2 * 73 * 113 * 311 * 359 * 467 * 491 * 601 * 617 * 631 * 683 * 709 * 719 * 947 * 997 + 1
+253 125 128
+True
+```
+
+The 253-bit $n$ falls to about 1,400 modular squarings. Trial division would
+need about $2^{118}$ divisions to reach the 125-bit $p$, and rho (below) about
+$2^{62}$ steps. The other prime is a **safe prime**, $q - 1 = 2r$ with $r$
+prime, which no feasible bound reaches.
+
+The method uses one group, of order $p - 1$. Hugh
+Williams's $p + 1$ method (1982) adds a group of order $p + 1$, and Hendrik
+Lenstra's elliptic curve method (1985) uses curve groups modulo $p$, whose
+orders vary over $[p + 1 - 2\sqrt p,\ p + 1 + 2\sqrt p]$ from curve to curve;
+each curve is a fresh chance of a smooth order, and no choice of $p$ makes them
+all bad. *Cryptanalysis*
+[§11.5](../cryptanalysis/11-Factoring.md#115-smooth-numbers-and-pollards-p1)
+and [§11.6](../cryptanalysis/11-Factoring.md#116-the-elliptic-curve-method)
+run both at full strength.
+
+### Pollard's rho: a walk that must repeat
+
+In 1975 Pollard published a second method, which finds any prime factor $p$ in
+about $\sqrt p$ steps, whatever its form, with almost no memory. Its engine is
+a fact about functions on finite sets.
+
+**Every walk on a finite set ends in a cycle.** Let $f$ map a finite set $S$ to
+itself and set $x_{i+1} = f(x_i)$. Among $x_0, \ldots, x_{\lvert S \rvert}$ two
+are equal (pigeonhole). Let $x_\mu$ be the first value that recurs and
+$x_{\mu + \lambda}$ its first repeat; since each value determines the next, the
+walk then circles the same $\lambda$ values forever. A **tail** of $\mu$ steps
+into a **cycle** of length $\lambda$: the letter $\rho$ (Figure 2.6). If $f$
+behaves like a random function on $p$ elements, the chance that $x_0, \ldots,
+x_{k-1}$ are all different is $\prod_{j<k} (1 - j/p) \approx e^{-k^2/2p}$, the
+birthday calculation, and the expected $\mu + \lambda$ is $\sqrt{\pi p / 2}
+\approx 1.25 \sqrt p$.
+
+**The walk modulo a hidden prime.** Take $f(x) = x^2 + 1 \bmod n$ with $n =
+pq$. Because $f(x) \bmod p$ depends only on $x \bmod p$, the walk modulo $n$
+casts a *shadow* walk modulo $p$ on only $p$ values, which cycles after about
+$\sqrt p$ steps. When the shadow repeats, $x_i \equiv x_j \pmod p$, so
+$\gcd(x_i - x_j, n)$ reveals $p$ though nobody knows it. The shadow modulo $q$
+usually repeats at a different time, so the gcd is rarely all of $n$.
+
+**Lemma (Floyd).** For $i \geq 1$, $x_i = x_{2i}$ if and only if $i \geq \mu$
+and $\lambda \mid i$. So comparing a tortoise at $x_i$ with a hare at $x_{2i}$
+finds a repeat at the first multiple of $\lambda$ that is at least $\mu$, which
+is at most $\mu + \lambda$, storing nothing.
+
+*Proof.* If $i < \mu$, $x_i$ is on the tail and never recurs, so $x_{2i} \ne
+x_i$. If $i \geq \mu$, both are on the cycle, $i$ steps apart, and $i$ steps
+round a cycle of length $\lambda$ return to the start exactly when $\lambda
+\mid i$. Among $\mu, \ldots, \mu + \lambda - 1$ one number is a multiple of
+$\lambda$ (take $\lambda$ itself if $\mu = 0$). $\blacksquare$
+
+*By hand.* Factor $n = 8549$ with $x_0 = 2$. Each round the tortoise takes one
+step, the hare two; the last two columns are the hidden shadow modulo 83:
+
+| round $i$ | $x_i$ | $x_{2i}$ | $\gcd(x_i - x_{2i},\ 8549)$ | $x_i \bmod 83$ | $x_{2i} \bmod 83$ |
+|---|---|---|---|---|---|
+| 1 | 5 | 26 | 1 | 5 | 26 |
+| 2 | 26 | 5233 | 1 | 26 | 4 |
+| 3 | 677 | 2697 | 1 | 13 | 41 |
+| 4 | 5233 | 5797 | 1 | 4 | 70 |
+| 5 | 1843 | 5578 | **83** | 17 | 17 |
+
+In round 5, $1843 - 5578 = -3735 = -45 \cdot 83$, so $8549 = 83 \cdot 103$.
+Modulo 83 the walk is $2, 5, 26, 13$, then the cycle $4, 17, 41, 22, 70$:
+$\mu = 4$, $\lambda = 5$, and Floyd's lemma predicts round 5. Modulo 103 the
+tail is 3 and the cycle 14, so that shadow would not meet until round 14.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 350" width="640" role="img" aria-label="The walk x to x squared plus 1 modulo 83 from 2: a tail 2, 5, 26, 13 leads into the cycle 4, 17, 41, 22, 70 and back to 4; the tortoise and hare meet on 17" fill="currentColor" font-size="14">
+<defs><marker id="f2rho-ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
+<text x="20" y="24" font-weight="bold">x mod 83 for x → x² + 1, starting at 2 (n = 8549 = 83 × 103)</text>
+<line x1="91.0" y1="165.0" x2="127.0" y2="165.0" stroke="currentColor" stroke-width="1.4" marker-end="url(#f2rho-ar)"/>
+<line x1="171.0" y1="165.0" x2="207.0" y2="165.0" stroke="currentColor" stroke-width="1.4" marker-end="url(#f2rho-ar)"/>
+<line x1="251.0" y1="165.0" x2="287.0" y2="165.0" stroke="currentColor" stroke-width="1.4" marker-end="url(#f2rho-ar)"/>
+<line x1="331.0" y1="165.0" x2="369.0" y2="165.0" stroke="currentColor" stroke-width="1.4" marker-end="url(#f2rho-ar)"/>
+<line x1="404.3" y1="182.0" x2="439.3" y2="230.1" stroke="currentColor" stroke-width="1.4" marker-end="url(#f2rho-ar)"/>
+<line x1="472.8" y1="242.2" x2="529.3" y2="223.8" stroke="currentColor" stroke-width="1.4" marker-end="url(#f2rho-ar)"/>
+<line x1="551.2" y1="195.7" x2="551.2" y2="136.3" stroke="currentColor" stroke-width="1.4" marker-end="url(#f2rho-ar)"/>
+<line x1="531.2" y1="106.8" x2="474.7" y2="88.4" stroke="currentColor" stroke-width="1.4" marker-end="url(#f2rho-ar)"/>
+<line x1="440.5" y1="98.3" x2="405.5" y2="146.4" stroke="currentColor" stroke-width="1.4" marker-end="url(#f2rho-ar)"/>
+<circle cx="392.0" cy="165.0" r="20" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="392.0" y="170.0" text-anchor="middle">4</text>
+<text x="386.0" y="205.0" text-anchor="middle" font-size="12">x₄, x₉</text>
+<circle cx="452.8" cy="248.7" r="20" fill="none" stroke="currentColor" stroke-width="2.6"/>
+<text x="452.8" y="253.7" text-anchor="middle">17</text>
+<text x="439.8" y="292.6" text-anchor="middle" font-size="12">x₅, x₁₀</text>
+<circle cx="551.2" cy="216.7" r="20" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="551.2" y="221.7" text-anchor="middle">41</text>
+<text x="585.2" y="245.4" text-anchor="middle" font-size="12">x₆</text>
+<circle cx="551.2" cy="113.3" r="20" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="551.2" y="118.3" text-anchor="middle">22</text>
+<text x="585.2" y="92.6" text-anchor="middle" font-size="12">x₇</text>
+<circle cx="452.8" cy="81.3" r="20" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="452.8" y="86.3" text-anchor="middle">70</text>
+<text x="439.8" y="45.4" text-anchor="middle" font-size="12">x₈</text>
+<circle cx="70.0" cy="165.0" r="20" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="70.0" y="170.0" text-anchor="middle">2</text>
+<text x="70.0" y="205.0" text-anchor="middle" font-size="12">x₀</text>
+<circle cx="150.0" cy="165.0" r="20" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="150.0" y="170.0" text-anchor="middle">5</text>
+<text x="150.0" y="205.0" text-anchor="middle" font-size="12">x₁</text>
+<circle cx="230.0" cy="165.0" r="20" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="230.0" y="170.0" text-anchor="middle">26</text>
+<text x="230.0" y="205.0" text-anchor="middle" font-size="12">x₂</text>
+<circle cx="310.0" cy="165.0" r="20" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<text x="310.0" y="170.0" text-anchor="middle">13</text>
+<text x="310.0" y="205.0" text-anchor="middle" font-size="12">x₃</text>
+<text x="20" y="320" font-size="13">tail μ = 4, cycle λ = 5. Floyd meets at the first multiple of λ that is at least μ: round 5,</text>
+<text x="20" y="340" font-size="13">where x₅ = 1843 and x₁₀ = 5578 are both 17 mod 83, and gcd(1843 − 5578, 8549) = 83.</text>
+</svg>
+<figcaption>Figure 2.6. The shadow of Pollard's rho walk modulo the hidden factor 83 of 8549. Four tail values lead into a cycle of five; the tortoise (at x₅) and the hare (at x₁₀) first meet on 17, and the gcd of their difference with n exposes 83.</figcaption>
+</figure>
+
+```python
+from math import gcd, isqrt, sqrt
+
+def rho(n, c=1, x0=2):
+    """Pollard's rho with Floyd's tortoise and hare. Returns (gcd found, rounds)."""
+    x = y = x0
+    rounds = 0
+    while True:
+        x = (x * x + c) % n                    # the tortoise takes one step
+        y = (y * y + c) % n                    # the hare takes two
+        y = (y * y + c) % n
+        rounds += 1
+        g = gcd(x - y, n)
+        if g > 1:
+            return g, rounds
+
+print(rho(8549))                               # 83 * 103
+print(rho(8509), rho(8509, c=2))               # 67 * 127: with c = 1 both primes collide in round 8
+
+# Rounds needed modulo a prime p: run rho with n = p itself, so that the gcd
+# is p exactly when the two walkers meet. Average over 300 primes above 10^7.
+def is_prime(m):
+    return m > 1 and all(m % d for d in range(2, isqrt(m) + 1))
+
+ratios, p = [], 10**7 + 1
+while len(ratios) < 300:
+    p += 2
+    if is_prime(p):
+        ratios.append(rho(p)[1] / sqrt(p))
+print(round(sum(ratios) / len(ratios), 3))
+```
+
+It prints:
+
+```text
+(83, 5)
+(8509, 8) (127, 6)
+1.03
+```
+
+For $8509 = 67 \cdot 127$ the two shadows happen to have the same tail and
+cycle (8 and 2), both primes divide $x_8 - x_{16}$, and the gcd is $n$; with
+$x^2 + 2$ instead, 127 appears in round 6. On primes near $10^7$ the walkers
+meet after about $1.03 \sqrt p$ rounds on average, a little under the expected
+$\mu + \lambda$, as Floyd's lemma says they should, and in line with the
+random-function model.
+
+Nobody has proved that $x^2 + c$ behaves like a random function, so the
+$\sqrt p$ running time is a heuristic that every experiment confirms ($c = 0$
+and $c = -2$ are avoided as far too structured). And $\sqrt p$ is the limit:
+about $2^{512}$ steps for a 1,024-bit prime, so rho is useless against RSA
+moduli and excellent at stripping factors of 10 to 20 digits. The same
+tortoise and hare compute discrete logarithms in square-root time, which is
+why elliptic-curve groups need 256-bit orders for 128-bit security
+([Chapter 4](04-Powers-and-Primitive-Roots.md#pollards-rho-with-floyds-cycle-finding)).
+*Cryptanalysis* [§11.4](../cryptanalysis/11-Factoring.md#114-pollards-rho)
+adds Brent's faster cycle finding.
+
 ### What comes next
 
 Fermat's insight, *find two squares that differ by a multiple of $n$*, is the
 seed of every fast factoring algorithm. If $a^2 \equiv b^2 \pmod n$ but $a
 \not\equiv \pm b$, then $n$ divides $(a - b)(a + b)$ without dividing either
-factor, so $\gcd(a - b, n)$ is a proper factor of $n$. Chapter 5 proves this
-carefully, because it also shows why taking square roots modulo $n$ is as hard
-as factoring. The quadratic sieve and the number field sieve are machines for
-manufacturing such congruences; *Cryptanalysis*, [Chapter 11](../cryptanalysis/11-Factoring.md), builds them.
+factor, so $\gcd(a - b, n)$ is a proper factor of $n$.
+[Chapter 5](05-Square-Roots-Mod-p.md#square-roots-are-as-hard-as-factoring)
+proves this carefully, because it also shows why taking square roots modulo
+$n$ is as hard as factoring. The quadratic sieve and the number field sieve are
+machines for manufacturing such congruences out of smooth numbers. §2.11 builds
+a quadratic sieve in miniature on a seven-digit number; *Cryptanalysis*,
+[Chapter 11](../cryptanalysis/11-Factoring.md#117-congruent-squares-and-the-quadratic-sieve-by-hand),
+builds the full machines.
 
 ## 2.10 In the real world
 
 *Level: intermediate.*
 
-**The factoring records.** Public records for factoring RSA challenge numbers
-track the state of the art. RSA-129 (426 bits) fell in 1994 with the quadratic
-sieve; RSA-155 (512 bits) in 1999 with the number field sieve, which ended
-512-bit RSA; RSA-768 (232 digits) in December 2009, by Thorsten Kleinjung and
-colleagues, with about 2,000 core-years of computing; and RSA-250 (829 bits)
-in February 2020, by Fabrice Boudot, Pierrick Gaudry, Aurore Guillevic, Nadia
-Heninger, Emmanuel Thomé and Paul Zimmermann, with about 2,700 core-years. No
-1,024-bit RSA modulus is publicly known to have been factored as of 2026.
+**The factoring records.** The RSA challenge numbers track the state of the
+art. Milestones for numbers with no special form, with costs in the units each
+team reported:
+
+| Date | Number | Bits | Method | Reported cost |
+|---|---|---|---|---|
+| April 1994 | RSA-129 | 426 | quadratic sieve | about 5,000 MIPS-years |
+| August 1999 | RSA-155 | 512 | number field sieve | about 8,000 MIPS-years |
+| December 2009 | RSA-768 | 768 | number field sieve | about 2,000 core-years |
+| December 2019 | RSA-240 | 795 | number field sieve | about 900 core-years |
+| February 2020 | RSA-250 | 829 | number field sieve | about 2,700 core-years |
+| September 2026 | RSA-260 | 862 | number field sieve on GPUs | about 13.5 GPU-years |
+| September 2026 | RSA-896 | 896 | number field sieve on GPUs | about 30 GPU-years |
+
+RSA-155 ended 512-bit RSA. RSA-768 fell to Thorsten Kleinjung and twelve
+colleagues. RSA-250 was factored on 28 February 2020 by Fabrice Boudot,
+Pierrick Gaudry, Aurore Guillevic, Nadia Heninger, Emmanuel Thomé and Paul
+Zimmermann with the CADO-NFS software, 2,700 years of one processor core spread
+over many machines, and it held the record for six and a half years. In
+September 2026 two separate teams ported the same algorithm to graphics
+processors: RSA-260 fell on 3 September and the 270-digit RSA-896 on 19
+September, on up to 2,048 GPUs. As of November 2026 both results come from the
+factorers' own announcements, with published factors that multiply to the
+challenge numbers; neither used a new algorithm. No 1,024-bit RSA modulus is
+publicly known to have been factored as of November 2026. The number field
+sieve's running time $L_N[1/3, (64/9)^{1/3}]$ (§2.11), with the $o(1)$
+ignored, puts 1,024 bits about 30 times beyond RSA-896 and 2,048 bits about
+$3 \times 10^{10}$ times. *Cryptanalysis*
+[§11.10](../cryptanalysis/11-Factoring.md#1110-the-records-and-what-they-mean-for-2048-bit-keys)
+tells the stories of the records.
+
+**Strong primes, then and now.** Pollard's $p - 1$ method (§2.9) led standards
+of the 1980s and 1990s, such as ANSI X9.31, to require **strong primes**: $p -
+1$ and $p + 1$ must each have a large prime factor, built in deliberately.
+Smooth-number counting (§2.7) shows why this is no longer needed: for a random
+1,024-bit prime, the chance that $p - 1$ is $2^{64}$-smooth, far beyond any
+feasible bound, is about $\rho(16) \approx 10^{-21}$, and against the elliptic
+curve method no form of $p$ helps at all. Ron Rivest and Robert Silverman made
+this case in 1999, and it is now the consensus; FIPS 186-5 still describes
+primes with conditions on $p \pm 1$, but random primes of the sizes it allows
+are safe without them. The real danger runs the other way: a generator that
+builds $p$ as one plus a product of small primes hands the key to $p - 1$, as
+in the 253-bit example of §2.9.
 
 **Shared primes.** In 2012 two teams independently collected millions of RSA
 public keys from the internet and computed gcds between them. Arjen Lenstra and
@@ -893,11 +1459,12 @@ number field sieve in $L_N[1/3, (64/9)^{1/3}]$. Whether factoring can be done in
 polynomial time on an ordinary computer is open; on a quantum computer it can
 (Chapter 20).
 
-**Smooth numbers.** A number is **$B$-smooth** if all its prime factors are at
-most $B$. The sieves work by finding many smooth numbers, and their running times
-come from the Canfield-Erdős-Pomerance theorem (1983), which estimates the chance
-that a random number up to $x$ is $x^{1/u}$-smooth as about $u^{-u}$. This one
-estimate explains the shape of every $L$-function above.
+**Smooth numbers.** The sieves work by finding many smooth numbers (§2.7), and
+their running times come from the Canfield-Erdős-Pomerance theorem (1983),
+which estimates the chance that a random number up to $x$ is $x^{1/u}$-smooth
+as $u^{-u(1 + o(1))}$. Choosing the smoothness bound to balance that chance
+against the number of relations needed is what produces the shape of every
+$L$-function above; the miniature sieve below shows the pieces.
 
 **Unique factorization in other rings.** Rings where Euclid's algorithm works,
 the **Euclidean domains**, all have unique factorization: the Gaussian integers
@@ -907,6 +1474,201 @@ quadratic fields have been proposed as groups of unknown order for
 cryptography (Buchmann and Williams, 1988; more recently for verifiable delay
 functions), because nobody knows how to compute their size quickly.
 
+### The quadratic sieve in miniature
+
+In the 1920s Maurice Kraitchik saw that Fermat's exact $a^2 - n = b^2$ is more
+than needed: any $X^2 \equiv Y^2 \pmod n$ with $X \not\equiv \pm Y$ gives the
+factor $\gcd(X - Y, n)$ (§2.9), and such a pair can be assembled from pieces.
+For $x$ just above $\sqrt n$, $Q(x) = x^2 - n$ is small and $x^2 \equiv Q(x)
+\pmod n$. One $Q(x)$ is rarely a square, but if a product of several is a
+square $Y^2$, the product $X$ of their $x$ values satisfies $X^2 \equiv Y^2$.
+Carl Pomerance's **quadratic sieve** (1981) does this in five steps, each a
+piece of mathematics from this book.
+
+1. **Factor base.** If $p \mid Q(x)$ then $x^2 \equiv n \pmod p$, so $n$ is a
+   square modulo $p$. About half of all primes fail this and never divide any
+   $Q(x)$. The **factor base** is 2 and the primes $p \leq B$ with
+   $\left(\frac{n}{p}\right) = 1$ ([Chapter 5](05-Square-Roots-Mod-p.md)).
+2. **Sieve.** If $t^2 \equiv n \pmod p$, then $p$ divides $Q(x)$ for *every* $x
+   \equiv t \pmod p$. So step through the list by $p$ from the first such $x$,
+   dividing out $p$, exactly like Eratosthenes crossing out multiples. Entries
+   divided down to 1 are smooth.
+3. **Exponent vectors.** Each smooth $Q(x) = \prod p_j^{e_j}$ gives $(e_1,
+   \ldots, e_k)$. A product is a square exactly when the summed exponents are
+   even, so only the vectors modulo 2 matter.
+4. **Linear algebra.** Find vectors summing to zero modulo 2 by Gaussian
+   elimination over the field of two elements ([Chapter 9](09-Linear-Algebra.md)).
+   Any $k + 1$ vectors in a space of dimension $k$ are dependent, so $k + 1$
+   smooth values guarantee a dependency.
+5. **gcd.** $X = \prod x \bmod n$, $Y = \sqrt{\prod Q(x)} \bmod n$ (halve the
+   summed exponents), and $\gcd(X - Y, n)$.
+
+**Why it works half the time.** For $n = pq$ a square has four square roots
+modulo $n$, $\pm Y$ and two others
+([Chapter 5](05-Square-Roots-Mod-p.md#square-roots-are-as-hard-as-factoring)).
+Nothing in steps 1 to 4 prefers one root, so heuristically each dependency
+gives a factor with probability $\frac12$, and $d$ dependencies all fail with
+probability about $2^{-d}$.
+
+*In code, with every step printed*, for $n = 6{,}669{,}713$, $B = 50$, and 120
+values of $x$ from $\lceil \sqrt n \rceil = 2583$:
+
+```python
+from math import gcd, isqrt, prod
+
+def qs_toy(n, B, M):
+    # 1. Factor base: the primes p <= B for which n is a square mod p.
+    fb = [p for p in range(2, B + 1) if all(p % d for d in range(2, isqrt(p) + 1))
+          and any((t * t - n) % p == 0 for t in range(p))]
+    m = isqrt(n) + 1
+    print("factor base", fb, " start x =", m)
+    # 2. Sieve: if t^2 = n (mod p), p divides Q(x) = x^2 - n at every x = t (mod p).
+    left = [(m + i) ** 2 - n for i in range(M)]
+    for p in fb:
+        for t in range(p):
+            if (t * t - n) % p == 0:
+                for i in range((t - m) % p, M, p):
+                    while left[i] % p == 0:
+                        left[i] //= p
+    xs = [m + i for i in range(M) if left[i] == 1]       # Q(x) split completely over fb
+    # 3. Exponent vectors, and their parities as bits of an integer.
+    bits = []
+    for x in xs:
+        q, e = x * x - n, []
+        for p in fb:
+            k = 0
+            while q % p == 0:
+                q, k = q // p, k + 1
+            e.append(k)
+        bits.append(sum((k % 2) << j for j, k in enumerate(e)))
+        print(f"  x = {x}  Q(x) = {x * x - n:>6}  exponents {e}")
+    # 4. Gaussian elimination mod 2; 'used' records which relations make up each row.
+    pivots = {}
+    for i, v in enumerate(bits):
+        used = 1 << i
+        while v and v.bit_length() in pivots:
+            pv, pu = pivots[v.bit_length()]
+            v, used = v ^ pv, used ^ pu
+        if v:
+            pivots[v.bit_length()] = (v, used)
+            continue
+        # 5. v = 0: the relations in 'used' multiply to a square. Take X, Y and a gcd.
+        S = [xs[k] for k in range(len(xs)) if used >> k & 1]
+        X = prod(S) % n
+        Y = isqrt(prod(x * x - n for x in S)) % n
+        g = gcd(X - Y, n)
+        print("  dependency", S, " X =", X, " Y =", Y, " gcd =", g)
+        if 1 < g < n:
+            return g
+
+n = 6669713
+p = qs_toy(n, 50, 120)
+print(n, "=", p, "*", n // p)
+```
+
+It prints:
+
+```text
+factor base [2, 7, 17, 23, 31, 47]  start x = 2583
+  x = 2583  Q(x) =   2176  exponents [7, 0, 1, 0, 0, 0]
+  x = 2585  Q(x) =  12512  exponents [5, 0, 1, 1, 0, 0]
+  x = 2617  Q(x) = 178976  exponents [5, 1, 1, 0, 0, 1]
+  x = 2631  Q(x) = 252448  exponents [5, 3, 0, 1, 0, 0]
+  x = 2636  Q(x) = 278783  exponents [0, 0, 1, 2, 1, 0]
+  x = 2647  Q(x) = 336896  exponents [10, 1, 0, 0, 0, 1]
+  x = 2687  Q(x) = 550256  exponents [4, 1, 3, 0, 0, 0]
+  dependency [2583, 2617, 2647]  X = 4784751  Y = 4784751  gcd = 6669713
+  dependency [2585, 2631, 2687]  X = 6305838  Y = 1671706  gcd = 2963
+6669713 = 2963 * 2251
+```
+
+*Checking it by hand.* $n$ is a non-square modulo 3, 5, 11, 13, 19, 29, 37, 41
+and 43, which leaves six primes, and only seven of the 120 values are smooth
+(Figure 2.7 shows the first ten being sieved). For $x = 2585, 2631, 2687$,
+
+$$(5, 0, 1, 1, 0, 0) + (5, 3, 0, 1, 0, 0) + (4, 1, 3, 0, 0, 0) = (14, 4, 4, 2, 0, 0),$$
+
+all even, so $Y = 2^7 \cdot 7^2 \cdot 17^2 \cdot 23 = 41{,}689{,}984 \equiv
+1{,}671{,}706$. With $X = 2585 \cdot 2631 \cdot 2687 \bmod n = 6{,}305{,}838$,
+$X - Y = 4{,}634{,}132 = 1564 \cdot 2963$, so $6{,}669{,}713 = 2251 \cdot
+2963$. The first dependency, $x = 2583, 2617, 2647$, was the unlucky case:
+$Y = 2^{11} \cdot 7 \cdot 17 \cdot 47 \equiv 4{,}784{,}751$, which is $X$
+itself. One failure, one success.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 290" width="640" role="img" aria-label="Sieve table for n = 6669713, x from 2583 to 2592: for each prime of the factor base the power dividing Q(x) = x squared minus n is marked; only x = 2583 and x = 2585 are divided down to 1" fill="currentColor" font-size="12">
+<rect x="100" y="14" width="52" height="216" fill-opacity="0.13"/>
+<rect x="204" y="14" width="52" height="216" fill-opacity="0.13"/>
+<text x="8" y="30" font-weight="bold">x</text>
+<text x="8" y="54" font-weight="bold">Q(x)</text>
+<line x1="8" y1="38" x2="620" y2="38" stroke="currentColor" stroke-opacity="0.4"/>
+<text x="8" y="78" font-weight="normal">p = 2</text>
+<line x1="8" y1="62" x2="620" y2="62" stroke="currentColor" stroke-opacity="0.4"/>
+<text x="8" y="102" font-weight="normal">p = 7</text>
+<text x="8" y="126" font-weight="normal">p = 17</text>
+<text x="8" y="150" font-weight="normal">p = 23</text>
+<text x="8" y="174" font-weight="normal">p = 31</text>
+<text x="8" y="198" font-weight="normal">p = 47</text>
+<text x="8" y="222" font-weight="normal">left over</text>
+<line x1="8" y1="206" x2="620" y2="206" stroke="currentColor" stroke-opacity="0.4"/>
+<text x="126" y="30" text-anchor="middle" font-weight="bold">2583</text>
+<text x="126" y="54" text-anchor="middle">2176</text>
+<text x="126" y="78" text-anchor="middle">2⁷</text>
+<text x="126" y="126" text-anchor="middle">17</text>
+<text x="126" y="222" text-anchor="middle" font-weight="bold">1</text>
+<text x="178" y="30" text-anchor="middle" font-weight="bold">2584</text>
+<text x="178" y="54" text-anchor="middle">7343</text>
+<text x="178" y="102" text-anchor="middle">7</text>
+<text x="178" y="222" text-anchor="middle" font-weight="normal">1049</text>
+<text x="230" y="30" text-anchor="middle" font-weight="bold">2585</text>
+<text x="230" y="54" text-anchor="middle">12512</text>
+<text x="230" y="78" text-anchor="middle">2⁵</text>
+<text x="230" y="126" text-anchor="middle">17</text>
+<text x="230" y="150" text-anchor="middle">23</text>
+<text x="230" y="222" text-anchor="middle" font-weight="bold">1</text>
+<text x="282" y="30" text-anchor="middle" font-weight="bold">2586</text>
+<text x="282" y="54" text-anchor="middle">17683</text>
+<text x="282" y="222" text-anchor="middle" font-weight="normal">17683</text>
+<text x="334" y="30" text-anchor="middle" font-weight="bold">2587</text>
+<text x="334" y="54" text-anchor="middle">22856</text>
+<text x="334" y="78" text-anchor="middle">2³</text>
+<text x="334" y="222" text-anchor="middle" font-weight="normal">2857</text>
+<text x="386" y="30" text-anchor="middle" font-weight="bold">2588</text>
+<text x="386" y="54" text-anchor="middle">28031</text>
+<text x="386" y="222" text-anchor="middle" font-weight="normal">28031</text>
+<text x="438" y="30" text-anchor="middle" font-weight="bold">2589</text>
+<text x="438" y="54" text-anchor="middle">33208</text>
+<text x="438" y="78" text-anchor="middle">2³</text>
+<text x="438" y="102" text-anchor="middle">7</text>
+<text x="438" y="222" text-anchor="middle" font-weight="normal">593</text>
+<text x="490" y="30" text-anchor="middle" font-weight="bold">2590</text>
+<text x="490" y="54" text-anchor="middle">38387</text>
+<text x="490" y="150" text-anchor="middle">23</text>
+<text x="490" y="222" text-anchor="middle" font-weight="normal">1669</text>
+<text x="542" y="30" text-anchor="middle" font-weight="bold">2591</text>
+<text x="542" y="54" text-anchor="middle">43568</text>
+<text x="542" y="78" text-anchor="middle">2⁴</text>
+<text x="542" y="102" text-anchor="middle">7</text>
+<text x="542" y="222" text-anchor="middle" font-weight="normal">389</text>
+<text x="594" y="30" text-anchor="middle" font-weight="bold">2592</text>
+<text x="594" y="54" text-anchor="middle">48751</text>
+<text x="594" y="222" text-anchor="middle" font-weight="normal">48751</text>
+<text x="8" y="260" font-size="13">2 hits every odd x; 7 hits x ≡ 1, 6 (mod 7); 17 hits x ≡ 1, 16 (mod 17); 23 hits x ≡ 9, 14 (mod 23).</text>
+<text x="8" y="278" font-size="13">31 and 47 first hit at x = 2603 and x = 2600, beyond this strip. Shaded: smooth, kept.</text>
+</svg>
+<figcaption>Figure 2.7. Sieving n = 6,669,713 over its first ten values of x. Each odd prime of the factor base strikes Q(x) = x² − n at two residues modulo p (2 strikes every odd x), so its marks repeat with period p; dividing out the powers it strikes leaves 1 exactly at the smooth values, x = 2583 and 2585 (shaded).</figcaption>
+</figure>
+
+At real sizes the steps run with millions of primes, logarithms instead of
+divisions, and sparse linear algebra. Balancing $B$ against the smooth-number
+estimate of §2.7 for numbers near $\sqrt n$ gives the running time
+$L_n[1/2, 1]$. The quadratic sieve factored RSA-129 and
+is still the fastest method for general numbers below about 100 digits; above
+that the number field sieve takes over. *Cryptanalysis*
+[§11.7](../cryptanalysis/11-Factoring.md#117-congruent-squares-and-the-quadratic-sieve-by-hand)
+and [§11.9](../cryptanalysis/11-Factoring.md#119-the-number-field-sieve) build
+both at full strength.
+
 ## Check yourself
 
 ??? question "1. Find $q$ and $r$ for $a = -100$, $b = 7$, following the division theorem. What does C's `-100 % 7` give?"
@@ -914,12 +1676,7 @@ functions), because nobody knows how to compute their size quickly.
     $-100 = -15 \cdot 7 + 5$, so $q = -15$, $r = 5$. C rounds toward zero:
     $-100 / 7 = -14$ and $-100 \% 7 = -2$.
 
-??? question "2. Use Euclid's algorithm to find $\gcd(2026, 1105)$."
-
-    $2026 = 1 \cdot 1105 + 921$; $1105 = 1 \cdot 921 + 184$; $921 = 5 \cdot 184
-    + 1$; $184 = 184 \cdot 1 + 0$. The gcd is 1.
-
-??? question "3. Find integers $x, y$ with $35x + 22y = 1$, and use them to give the inverse of 35 modulo 22."
+??? question "2. Find integers $x, y$ with $35x + 22y = 1$, and use them to give the inverse of 35 modulo 22."
 
     $35 = 1 \cdot 22 + 13$, $22 = 1 \cdot 13 + 9$, $13 = 1 \cdot 9 + 4$, $9 =
     2 \cdot 4 + 1$. Back-substituting gives $1 = 35 \cdot (-5) + 22 \cdot 8$.
@@ -927,30 +1684,45 @@ functions), because nobody knows how to compute their size quickly.
     of 35 (that is, of 13) is $-5 \equiv 17$. Check: $13 \cdot 17 = 221 = 10
     \cdot 22 + 1$.
 
-??? question "4. Where does the proof of Euclid's lemma use that $p$ is prime? Give a counterexample for composite $p$."
+??? question "3. Where does the proof of Euclid's lemma use that $p$ is prime? Give a counterexample for composite $p$."
 
     In "$p \nmid a$, so $\gcd(a, p) = 1$". For composite $p$ the gcd could be a
     proper divisor. Counterexample: $4 \mid 2 \cdot 6$ but $4 \nmid 2$ and $4
     \nmid 6$.
 
-??? question "5. Which pair of numbers below 100 makes Euclid's algorithm take the most steps?"
-
-    Consecutive Fibonacci numbers: $(89, 55)$, which takes 9 steps.
-
-??? question "6. About how many primes are there with exactly 2,048 bits?"
+??? question "4. About how many primes are there with exactly 2,048 bits?"
 
     About $2^{2047} / (2048 \ln 2) \approx 2^{2047}/1420 \approx 2^{2036.5}$.
 
-??? question "7. Factor 10,403 with Fermat's method."
+??? question "5. Show that about 30.7 percent of the numbers up to $10^{12}$ have no prime factor above $10^6$."
+
+    A number $m \leq x$ that is not $\sqrt x$-smooth has exactly one prime
+    factor $p > \sqrt x$, so the non-smooth count is about $\sum_{\sqrt x < p
+    \leq x} x/p \approx x(\ln \ln x - \ln \ln \sqrt x) = x \ln 2$ by Mertens'
+    theorem. With $x = 10^{12}$, $\sqrt x = 10^6$, the smooth share is about $1 -
+    \ln 2 \approx 0.307$, which is $\rho(2)$. (At this finite size the true
+    share is a little higher.)
+
+??? question "6. Factor 10,403 with Fermat's method."
 
     $\sqrt{10403} \approx 101.99$, so start at $a = 102$: $102^2 - 10403 = 1 =
     1^2$. So $10403 = 101 \cdot 103$, found in one step.
 
-??? question "8. Show that $\gcd(a, b) \cdot \operatorname{lcm}(a, b) = ab$ for positive $a, b$, using factorizations."
+??? question "7. Run Pollard's $p - 1$ by hand on $n = 1457$ with $a = 2$ and $M = 60$. Which factor appears, and why not the other one?"
 
-    For each prime, the gcd takes $\min(e, f)$ and the lcm $\max(e, f)$ of the
-    exponents $e, f$ in $a$ and $b$. Since $\min(e, f) + \max(e, f) = e + f$,
-    the product has exponent $e + f$, the same as $ab$.
+    $1457 = 31 \cdot 47$. The order of 2 modulo 31 is 5 (since $2^5 = 32
+    \equiv 1$), which divides 60, so $2^{60} \equiv 1 \pmod{31}$. Modulo 47
+    the order of 2 divides $46 = 2 \cdot 23$ and is in fact 23, which does not
+    divide 60. So $\gcd(2^{60} - 1, 1457) = 31$. The method needs the order of
+    $a$ modulo $p$ to divide $M$; a smooth $p - 1$ guarantees that, and $47 - 1$
+    contains the prime 23.
+
+??? question "8. A rho walk modulo $p$ has a tail of $\mu = 7$ steps and a cycle of $\lambda = 3$. In which round do Floyd's tortoise and hare first meet? What if the tail is empty?"
+
+    By Floyd's lemma they meet at the smallest $i \geq 1$ with $i \geq \mu$ and
+    $\lambda \mid i$: here $i = 9$, since 7 and 8 are not multiples of 3. With
+    $\mu = 0$ the walk is a pure cycle and they meet at $i = \lambda = 3$. In
+    every case $i \leq \mu + \lambda$.
 
 ??? question "9. In Wiener's attack the unknown fraction $k/d$ is close to $e/N$. Compute the continued fraction of $17993/90581$ and its first convergents. One of them has denominator 5. Why might that be interesting?"
 
@@ -960,11 +1732,13 @@ functions), because nobody knows how to compute their size quickly.
     right: $ed - 1 = 89964 = (239 - 1)(379 - 1)$, so $d = 5$ is the private
     exponent. *Cryptanalysis*, [Chapter 13](../cryptanalysis/13-Attacks-on-RSA.md), does the full attack.
 
-??? question "10. Two RSA moduli $N_1, N_2$ share a prime $p$. How does an attacker find it, and how much work is it?"
+??? question "10. In the quadratic sieve for $n = 6{,}669{,}713$, why can the prime 3 never divide $Q(x) = x^2 - n$? And why can the relation for $x = 2636$, with exponents $(0, 0, 1, 2, 1, 0)$, never be part of a dependency among the seven relations found?"
 
-    Compute $\gcd(N_1, N_2) = p$ with Euclid's algorithm, about $1.44 \times
-    2048$ steps at most for 2,048-bit numbers: microseconds. Then $N_1 / p$ and
-    $N_2 / p$ give the other primes.
+    $n \equiv 2 \pmod 3$, and squares modulo 3 are only 0 and 1, so $x^2
+    \equiv n \pmod 3$ has no solution: $\left(\frac{n}{3}\right) = -1$. For
+    $x = 2636$, the prime 31 appears with exponent 1, and no other relation
+    contains 31; any product including it has an odd power of 31 and cannot be
+    a square. Collecting more relations might bring another 31 and rescue it.
 
 ## What you learned
 
@@ -978,11 +1752,23 @@ functions), because nobody knows how to compute their size quickly.
 - Every integer factors uniquely into primes. The proof needs Euclid's lemma,
   and in number systems without Euclid's algorithm uniqueness can fail.
 - Near $x$, about one number in $\ln x$ is prime; there are about $2^{1013.5}$
-  primes of 1,024 bits.
+  primes of 1,024 bits. As a count, $\operatorname{li}(x)$ is far better than
+  $x / \ln x$: off by 339 instead of 44,158 at ten million.
+- About $\rho(u)$ of the numbers up to $x$ are $x^{1/u}$-smooth; Dickman's
+  $\rho$ falls roughly like $u^{-u}$, which is why sieves shrink the numbers
+  that must be smooth.
 - Continued fractions, built from Euclid's quotients, give the best rational
   approximations, the tool behind Wiener's attack and Shor's algorithm.
-- Trial division finds small factors and Fermat's method finds close ones.
-  Real keys have been broken by both, and by a single gcd.
+- Trial division finds small factors and Fermat's method finds close ones,
+  in about $(q - p)^2 / (8\sqrt n)$ steps. Real keys have been broken by both,
+  and by a single gcd.
+- Pollard's $p - 1$ succeeds when the order of $a$ modulo $p$ divides
+  $\operatorname{lcm}(1, \ldots, B)$; random large primes are safe from it, so
+  "strong primes" are no longer needed.
+- Pollard's rho: every walk on a finite set ends in a cycle, after about
+  $\sqrt p$ steps, and Floyd's tortoise and hare find it with no memory.
+- The quadratic sieve sieves for smooth $x^2 - n$, finds a dependency mod 2,
+  and gets a factor from a gcd about half the time.
 
 **Next:** [Chapter 3](03-Modular-Arithmetic.md), arithmetic that wraps around:
 the ring of integers modulo $n$.
@@ -1014,6 +1800,29 @@ the ring of integers modulo $n$.
   announcement of February 2020.
 - FIPS 186-5, Digital Signature Standard (2023), Appendix A.1 on RSA key
   generation.
+- John Pollard, "Theorems on factorization and primality testing",
+  *Proceedings of the Cambridge Philosophical Society* 76 (1974): the $p - 1$
+  method.
+- John Pollard, "A Monte Carlo method for factorization", *BIT* 15 (1975): the
+  rho method.
+- Carl Pomerance, "A Tale of Two Sieves", *Notices of the AMS* 43 (1996): the
+  quadratic sieve's story, told by its inventor.
+- Karl Dickman, "On the frequency of numbers containing prime factors of a
+  certain relative magnitude", *Arkiv för Matematik, Astronomi och Fysik* 22
+  (1930).
+- Earl Canfield, Paul Erdős and Carl Pomerance, "On a problem of Oppenheim
+  concerning 'factorisatio numerorum'", *Journal of Number Theory* 17 (1983):
+  the uniform smooth-number estimate.
+- Carter Bays and Richard Hudson, "A new bound for the smallest $x$ with
+  $\pi(x) > \operatorname{li}(x)$", *Mathematics of Computation* 69 (2000).
+- Ron Rivest and Robert Silverman, "Are 'strong' primes needed for RSA?"
+  (1999; Cryptology ePrint Archive 2001/007).
+- Richard Crandall and Carl Pomerance, *Prime Numbers: A Computational
+  Perspective*, 2nd edition (Springer, 2005).
+- CA/Browser Forum, Ballot SC-59, "Weak Key Guidance" (2023).
+- The September 2026 records, from the factorers' own posts:
+  [Cognition, "Factoring RSA-260"](https://cognition.com/blog/factoring-rsa-260)
+  and [Steve Weis, RSA-896 announcement](https://saweis.net/posts/rsa-896.html).
 - Michael Wiener, "Cryptanalysis of Short RSA Secret Exponents", *IEEE
   Transactions on Information Theory* 36 (1990).
 - In *The cryptography book*: [Chapter 3](../../book/03-The-Arithmetic-of-Secrets.md)
