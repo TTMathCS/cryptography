@@ -186,8 +186,8 @@ The best-known explanation of zero knowledge was written for children. At
 CRYPTO '89, Jean-Jacques Quisquater and Louis Guillou, with members of their
 families and Thomas Berson, presented "How to Explain Zero-Knowledge Protocols
 to Your Children". It retells a version of the tale of Ali Baba and the forty
-thieves, set in a cave with a strange shape, and it named the two players
-**Peggy** (the prover) and **Victor** (the verifier), names that are still used.
+thieves, set in a cave with a strange shape, and it is the usual source for the
+two players' names, **Peggy** (the prover) and **Victor** (the verifier), names that are still used.
 
 The cave is a ring, shown in Figure 5.2. From the entrance a short corridor
 leads to a fork. The left passage, A, and the right passage, B, curve around
@@ -1595,7 +1595,7 @@ and Nisan, the **sumcheck protocol**, lives on inside many modern proof
 systems.
 
 !!! note "Life story: IP = PSPACE"
-    **Born:** December 1989 to January 1990; Carsten Lund, Lance Fortnow,
+    **Born:** November and December 1989; Carsten Lund, Lance Fortnow,
     Howard Karloff and Noam Nisan (the sumcheck protocol, coNP in IP), then
     Adi Shamir (IP = PSPACE), both at FOCS 1990 and in *Journal of the ACM*
     1992 · **Purpose:** to find out how much a polynomial-time verifier can be
@@ -1741,11 +1741,11 @@ proof behind it and the chapter that covers it.
 |---|---|---|---|
 | Smart-card and device login | "I know the secret behind this public key" | Fiat-Shamir, Guillou-Quisquater, Schnorr identification | [6](06-Sigma-Protocols-and-Fiat-Shamir.md) |
 | Schnorr, EdDSA and BIP 340 signatures | the same, bound to a message | Schnorr's protocol plus Fiat-Shamir | [6](06-Sigma-Protocols-and-Fiat-Shamir.md) |
-| Private payments (Zcash, since 2016) | a valid spend, with hidden amounts and parties | SNARKs | [7](07-SNARKs.md), 18 |
+| Private payments (Zcash, since 2016) | a valid spend, with hidden amounts and parties | SNARKs | [7](07-SNARKs.md), [18](18-Privacy-on-Ledgers.md) |
 | Confidential amounts (Monero, since 2018) | a hidden amount is not negative | Bulletproofs range proofs | [8](08-STARKs-Bulletproofs-and-Recursion.md) |
-| zk-rollups and zkVMs | a batch of transactions was executed correctly | SNARKs, STARKs, recursion | [8](08-STARKs-Bulletproofs-and-Recursion.md), 17 |
-| Anonymous credentials | "I hold a valid credential with this property" | Sigma protocols on signatures | 14 |
-| Electronic voting | "this ballot encrypts 0 or 1"; "the shuffle was honest" | OR-proofs, shuffle proofs | 16 |
+| zk-rollups and zkVMs | a batch of transactions was executed correctly | SNARKs, STARKs, recursion | [8](08-STARKs-Bulletproofs-and-Recursion.md), [17](17-Consensus-and-Smart-Contracts.md) |
+| Anonymous credentials | "I hold a valid credential with this property" | Sigma protocols on signatures | [14](14-Blind-Signatures-and-Anonymous-Credentials.md) |
+| Electronic voting | "this ballot encrypts 0 or 1"; "the shuffle was honest" | OR-proofs, shuffle proofs | [16](16-Electronic-Voting.md) |
 | Threshold key generation | "my share is consistent with my commitment" | Schnorr proofs of knowledge | [4](04-Threshold-Cryptography.md) |
 
 **Identification, 1986 to now.** The first practical target was the smart

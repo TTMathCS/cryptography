@@ -333,7 +333,7 @@ longer a pencil exercise (though still far too small for real use).
 The combiner above trusts every $d_i$. A malicious holder can send a random number
 instead, and the combined $K$ is then wrong in a way nobody can detect from the
 output alone: the "message" that comes out is garbage, and nobody knows whose fault
-it is. Worse, in a voting system (Chapter 16) a wrong
+it is. Worse, in a voting system ([Chapter 16](16-Electronic-Voting.md)) a wrong
 tally could look plausible.
 
 The fix is to make each partial result checkable. Every holder's **verification
@@ -357,7 +357,7 @@ provided at least $t$ honest holders answer.
 ### Where it is used
 
 Threshold ElGamal is the decryption step of most verifiable voting systems:
-Helios, ElectionGuard and the systems of Chapter 16
+Helios, ElectionGuard and the systems of [Chapter 16](16-Electronic-Voting.md)
 encrypt every ballot to a key held by several trustees, add the ballots
 homomorphically, and have the trustees jointly decrypt only the final tally. No
 single trustee can decrypt an individual ballot. The same pattern guards escrowed
@@ -1376,9 +1376,9 @@ prime factors. An attacker who uses $N$ with many small factors learns the hones
 party's share modulo each small factor from its MtA replies, and rebuilds it with
 the Chinese remainder theorem: against the most exposed implementations,
 Fireblocks reported, 16 signatures sufficed (CVE-2023-33241). A related flaw in Lindell17 implementations'
-abort handling leaked the key over about 200 signing attempts (CVE-2023-33242).
-Fireblocks counted more than ten affected wallets and libraries; vendors patched
-before publication, and no theft through these flaws has been publicly confirmed.
+abort handling leaked the key over a few hundred signing attempts (CVE-2023-33242).
+Fireblocks counted more than fifteen affected wallets, blockchains and libraries;
+the vendors it named had patched before publication, and no theft through these flaws has been publicly confirmed.
 The paper version is Makriyannis, Yomtov and Galansky (2023).
 
 How likely is it to guess a one-bit challenge? The code shows why "c-guess" works:
@@ -1445,7 +1445,7 @@ about making such schemes possible.
     disclosed on 9 August 2023 (CVE-2023-33241 for GG18/GG20, CVE-2023-33242 for
     Lindell17) · **Purpose:** to show that a missing proof about the Paillier
     modulus lets one party read another's key share out of normal signing
-    sessions · **Helped:** fixes in more than ten wallets and libraries; wider
+    sessions · **Helped:** fixes across more than fifteen affected wallets and libraries; wider
     adoption of the CGGMP proofs · **Status:** patched by the named vendors before
     disclosure
 
@@ -1608,7 +1608,7 @@ Algorand, designed by Silvio Micali with Yossi Gilad, Rotem Hemo, Georgios
 Vlachos and Nickolai Zeldovich (SOSP 2017), uses VRFs to pick committees without a
 beacon run by a few. In each step every user evaluates its own VRF on the round's
 public seed and the role, $(\beta, \pi) = \mathrm{VRF}_{sk}(\text{seed} \Vert \text{role})$.
-Treating $\beta$ as a number in $0, 1)$, a user with $w$ units of stake out of $W$ is
+Treating $\beta$ as a number in $[0, 1)$, a user with $w$ units of stake out of $W$ is
 selected as $j$ "sub-users", where $j$ is found by placing $\beta$ in the intervals
 of a binomial distribution with $w$ trials and success probability $\tau / W$ for
 an expected committee size $\tau$. More stake means more chances, and splitting
@@ -1629,7 +1629,7 @@ for slot leaders in a similar way.
     weighted by stake, in secret until they act · **Helped:** Algorand's network
     (since June 2019) and the use of VRFs in proof-of-stake designs ·
     **Status:** running; consensus theory is in
-    [Chapter 17
+    [Chapter 17](17-Consensus-and-Smart-Contracts.md)
 
 ## 4.11 Mars: a housing lottery nobody can rig
 
@@ -1645,7 +1645,9 @@ The design uses only this chapter's tools.
 
 <div class="mars-steps" markdown>
 
-1. **A key nobody holds.** The five district wardens run a DKG (§4.4, the GJKR
+1. **A key nobody holds.** Five lottery wardens, chosen by lot for this one job
+   and separate from the six who hold the city's master key in
+   [chapter 2](02-Secret-Sharing.md), run a DKG (§4.4, the GJKR
    version) for a 3-of-5 key, and publish the group key and each warden's
    verification key. This happens once, months before any draw.
 2. **Fix everything before the coin.** The council publishes the final list of
@@ -1842,7 +1844,7 @@ builds this into threshold ECDSA.
 known time bounds, so a missing message can be blamed. Over the open internet, or
 between Mars and Earth, that bound may not hold. Kokoris-Kogias, Malkhi and
 Spiegelman (CCS 2020) gave a practical asynchronous DKG, which needs the tools of
-Byzantine agreement (Chapter 17).
+Byzantine agreement ([Chapter 17](17-Consensus-and-Smart-Contracts.md)).
 
 **Why linear schemes split.** If the secret operation is a homomorphism in the
 key, $F_{x + x'}(m) = F_x(m) \cdot F_{x'}(m)$, then Lagrange interpolation works on

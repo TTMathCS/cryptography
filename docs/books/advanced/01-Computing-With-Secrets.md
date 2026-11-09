@@ -196,7 +196,7 @@ gives the inputs away, no protocol can help. Two people who compute the average
 of their two salaries each learn the other's salary from the average, however
 perfectly the average is computed. Choosing a function whose output is safe to
 release is a separate problem, the subject of output privacy (§1.7) and of
-differential privacy (Chapter 19).
+differential privacy ([Chapter 19](19-Differential-Privacy.md)).
 
 ### Code it
 
@@ -520,7 +520,7 @@ Protocols secure against semi-honest parties are much cheaper, and they are the
 first version of almost every protocol in this book.
 
 A **malicious** adversary (also *active*, or *Byzantine*, after the generals of
-Chapter 17) may make its parties do
+[Chapter 17](17-Consensus-and-Smart-Contracts.md)) may make its parties do
 anything at all: send malformed or inconsistent messages, choose its messages
 after seeing the honest ones, stop halfway, or run several sessions at once and
 mix their messages. Protection against malicious parties needs extra machinery,
@@ -556,7 +556,7 @@ threshold is part of the security claim. The common cases have names:
 
 - **Honest majority:** $t < n/2$. More than half the parties are honest.
 - **Two-thirds honest:** $t < n/3$, the classic bound for Byzantine agreement
-  (Chapter 17).
+  ([Chapter 17](17-Consensus-and-Smart-Contracts.md)).
 - **Dishonest majority:** any $t \le n - 1$. Each honest party is protected
   even if all the others conspire against it. For two parties this is the only
   model that makes sense: if one party is corrupted, half are.
@@ -1215,7 +1215,7 @@ The defenses for output privacy are different in kind: limit the questions,
 round or suppress small counts, or add calibrated noise so that the output
 changes little whether or not any one person is included. The last is
 **differential privacy**, and it is the closing chapter of the book,
-Chapter 19.
+[Chapter 19](19-Differential-Privacy.md).
 
 ### Anonymity and pseudonymity
 
@@ -1228,7 +1228,7 @@ question about years of service, is not anonymous in any useful sense.
 **Pseudonymity** replaces the name with a stable alias: a user handle, a key, a
 cryptocurrency address. It hides the name but lets every action under the alias
 be collected, which is why the ledgers of
-Chapter 18 are a gift to analysts.
+[Chapter 18](18-Privacy-on-Ledgers.md) are a gift to analysts.
 
 ### Unlinkability
 
@@ -1236,7 +1236,7 @@ Chapter 18 are a gift to analysts.
 even when neither is tied to a name. Paying a coffee shop anonymously twice
 with the same card number is anonymous and linkable: the shop builds a profile
 of "card 4417", which a single later slip ties to a name. Blind signatures and
-anonymous credentials (Chapter 14)
+anonymous credentials ([Chapter 14](14-Blind-Signatures-and-Anonymous-Credentials.md))
 are designed for unlinkability: the bank that issues a digital coin cannot
 recognize it when it is spent, and a person who proves their age to two
 websites gives them nothing to match. Rotating identifiers, as in the
@@ -1251,7 +1251,7 @@ hides content and leaves metadata in plain view, and metadata is often enough.
 Michael Hayden, a former director of both the NSA and the CIA, said in a public
 debate in 2014: "We kill people based on metadata." Hiding metadata takes
 different tools: mixes, onion routing and cover traffic
-(Chapter 15), and messenger features such as
+([Chapter 15](15-Anonymous-Communication.md)), and messenger features such as
 sealed sender ([Protocols, Chapter 16](../protocols/index.md)).
 The strongest form, **unobservability**, hides even whether a communication
 took place.
@@ -1294,7 +1294,7 @@ computer's operators report to the mayor, who is one of the voters. So the
 council does without Trent. Three **teller** machines, in three different
 districts and run by different staff, play the role of the parties that hold
 shares. (The full election, with thousands of voters, proofs and audits, is
-Chapter 16; this is the small version.)
+[Chapter 16](16-Electronic-Voting.md); this is the small version.)
 
 Each member writes their vote as 1 for yes or 0 for no, splits it into three
 random shares that add up to the vote modulo 101, and sends one share to each
@@ -1415,11 +1415,11 @@ and $t$.
   against a malicious member. The fix is a zero-knowledge proof, attached to the
   shares or to an encrypted ballot, that the vote is 0 or 1 without saying which
   ([Chapter 6](06-Sigma-Protocols-and-Fiat-Shamir.md)'s OR-proof, used in
-  Chapter 16).
+  [Chapter 16](16-Electronic-Voting.md)).
 - **Coercion.** A member under pressure could show the shares they sent to a
   district boss, who could check them against the tellers. Making a vote
   impossible to prove, even willingly, is **receipt-freeness**, a voting
-  requirement that Chapter 16 treats properly.
+  requirement that [Chapter 16](16-Electronic-Voting.md) treats properly.
 
 ## 1.9 In the real world
 
@@ -1588,24 +1588,24 @@ computation, and the special-purpose ones that are fast enough to deploy.
 **Part IV. Privacy for people.** The systems that protect individuals:
 credentials, anonymous communication, voting, ledgers and statistics.
 
-- Chapter 14, blind
+- [Chapter 14](14-Blind-Signatures-and-Anonymous-Credentials.md), blind
   signatures and anonymous credentials: digital cash, Privacy Pass, group and
   ring signatures, and digital identity wallets.
-- Chapter 15, anonymous communication: mixes,
+- [Chapter 15](15-Anonymous-Communication.md), anonymous communication: mixes,
   onion routing, Tor and the attacks on it, and metadata in messengers.
-- Chapter 16, electronic voting: secret ballots with
+- [Chapter 16](16-Electronic-Voting.md), electronic voting: secret ballots with
   verifiable counts, Helios, Estonia, the Swiss Post flaws. Mars: the council
   election in full.
-- Chapter 17, consensus and smart
+- [Chapter 17](17-Consensus-and-Smart-Contracts.md), consensus and smart
   contracts: agreeing with strangers, from the Byzantine generals to
   proof of stake.
-- Chapter 18, privacy on ledgers, and its limits:
+- [Chapter 18](18-Privacy-on-Ledgers.md), privacy on ledgers, and its limits:
   chain analysis, Monero, Zcash and Tornado Cash.
-- Chapter 19, differential privacy and private
+- [Chapter 19](19-Differential-Privacy.md), differential privacy and private
   statistics: output privacy made precise. Mars: the settlement's privacy
   charter.
 
-The Glossary collects the terms.
+The [Glossary](Glossary.md) collects the terms.
 
 **How to read it.** Part I comes first for everyone, because the later parts are
 built from its tools. After that, the parts can be read in any order: Part II
@@ -1681,7 +1681,7 @@ including the millionaires' comparison on a domain of polynomial size, can be
 computed with complete fairness. Which functions admit fairness is still not
 fully understood. In practice, protocols get around the problem with partial
 fairness (gradual release of the output, bit by bit), with penalties enforced
-by a ledger (Chapter 17), or with an
+by a ledger ([Chapter 17](17-Consensus-and-Smart-Contracts.md)), or with an
 honest majority.
 
 **Leakage, stated honestly.** Almost every practical ideal functionality outputs

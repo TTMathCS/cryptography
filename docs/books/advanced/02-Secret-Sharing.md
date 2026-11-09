@@ -98,7 +98,7 @@ Today the idea guards the root key of the domain name system, corporate secret
 stores and the paper backups of hardware wallets. It is also the foundation of
 much of this book: threshold signatures ([Chapter 4](04-Threshold-Cryptography.md)), secure
 multi-party computation ([Chapter 10](10-Multi-Party-Computation-in-Practice.md))
-and electronic voting (Chapter 16) all start by
+and electronic voting ([Chapter 16](16-Electronic-Voting.md)) all start by
 secret-sharing something. Figure 2.1 shows the main steps.
 
 <figure class="mars-fig">
@@ -252,7 +252,7 @@ function of shared secrets, each working only on its own shares, without
 talking to each other and without anyone seeing $a$ or $b$. Multiplying two
 shared secrets needs interaction, the subject of
 [Chapter 10](10-Multi-Party-Computation-in-Practice.md). Linearity is also
-behind secure aggregation (Chapter 19) and the
+behind secure aggregation ([Chapter 19](19-Differential-Privacy.md)) and the
 refresh trick of §2.7.
 
 ### Any threshold from additive pieces
@@ -1726,14 +1726,14 @@ duplicates. Better, never let participants choose their indices.
   exists.
 
 !!! note "Life story: Ledger Recover"
-    **Born:** announced by Ledger in May 2023, with Coincover and EscrowTech
-    as custodians · **Purpose:** an optional paid backup in which the wallet
+    **Born:** announced by Ledger in May 2023, with Ledger, Coincover and
+    EscrowTech as the three custodians · **Purpose:** an optional paid backup in which the wallet
     encrypts its seed, splits it into three shards with Shamir's scheme and
     sends one to each custodian; any two rebuild it after an identity check
     · **Helped:** a public argument about trust: the outcry was not about the
     sharing but that the firmware could export the seed at all; Ledger
     published a protocol white paper in June 2023 · **Status:** launched as an
-    optional service later in 2023
+    optional service in October 2023
 
 ### In the real world
 
@@ -1788,7 +1788,7 @@ and John Bloom (1983) built threshold schemes from the Chinese remainder
 theorem; they are not perfect in the strict sense and rarely used. The VSS of
 this chapter assumes a synchronous broadcast channel; asynchronous VSS (Cachin,
 Kursawe, Lysyanskaya and Strobl, 2002) underlies many randomness beacons and
-consensus systems (Chapter 17).
+consensus systems ([Chapter 17](17-Consensus-and-Smart-Contracts.md)).
 
 **Quantum computers.** Shamir, Blakley, additive and replicated sharing are
 unconditionally secure: nothing changes. Feldman's commitments fall to a large

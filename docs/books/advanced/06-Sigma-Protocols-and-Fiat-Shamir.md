@@ -88,9 +88,9 @@ Today the same shape sits inside Ed25519 signatures in SSH and Signal, inside
 Bitcoin's Taproot upgrade, inside the threshold signing of
 [Chapter 4](04-Threshold-Cryptography.md), inside verifiable random functions
 and privacy tokens, inside anonymous credentials
-(Chapter 14) and inside the
+([Chapter 14](14-Blind-Signatures-and-Anonymous-Credentials.md)) and inside the
 ballot proofs of verifiable elections
-(Chapter 16). Its mistakes are just as widespread.
+([Chapter 16](16-Electronic-Voting.md)). Its mistakes are just as widespread.
 Figure 6.1 lays out the history.
 
 <figure class="mars-fig">
@@ -538,7 +538,7 @@ has the general definition.
 The simulator is given only $y$. It cannot compute a real response, because
 that needs $x$. Instead it writes the transcript backwards:
 
-1. pick the challenge $c$ uniformly in $0, q)$;
+1. pick the challenge $c$ uniformly in $[0, q)$;
 2. pick the response $s$ uniformly in $[0, q)$;
 3. set the commitment to whatever makes the check pass:
    $t = g^{s} \cdot y^{-c}$.
@@ -712,7 +712,7 @@ in two places.
   $m = B / D$. To prove it decrypted honestly without giving away $x$, it
   proves $\log_g X = \log_A D$. This is how the trustees of a verifiable
   election show that the announced tally is the true decryption
-  ([Chapter 16), and how each share of a threshold
+  ([Chapter 16](16-Electronic-Voting.md)), and how each share of a threshold
   decryption is checked ([Chapter 4](04-Threshold-Cryptography.md)).
 - **Verifiable random functions and oblivious PRFs.** The elliptic-curve VRF
   of RFC 9381 outputs $\Gamma = H(m)^x$ and attaches exactly this proof that
@@ -917,7 +917,7 @@ a stronger assumption (the "one-more discrete log" problem). In practice
 Schnorr won on cost, and Okamoto's idea lives on in proofs about Pedersen
 commitments, in anonymous credentials, where a user proves facts about
 several hidden attributes at once
-(Chapter 14), and in the
+([Chapter 14](14-Blind-Signatures-and-Anonymous-Credentials.md)), and in the
 general recipe of §6.12.
 
 ## 6.6 AND and OR
@@ -1060,13 +1060,13 @@ branch challenges must be shares of $c$ under a threshold scheme in which any
 $n - k$ shares, plus the secret $c$, determine the rest; the prover fakes the
 $n - k$ branches it cannot do and gets the other $k$ challenges from the shares.
 The cost grows linearly with $n$, which matters for big sets
-(§6.7 and Chapter 14's ring
+(§6.7 and [Chapter 14](14-Blind-Signatures-and-Anonymous-Credentials.md)'s ring
 signatures).
 
 ### Code it: a vote that is 0 or 1
 
 The OR-proof's most important job is in voting
-(Chapter 16). Votes are encrypted with **exponential
+([Chapter 16](16-Electronic-Voting.md)). Votes are encrypted with **exponential
 ElGamal**, which puts the vote $v$ in the exponent: $(A, B) = (g^r,
 g^v X^r)$. Multiplying ciphertexts adds the votes inside them, so the
 trustees can decrypt only the total. The danger is a voter who encrypts
@@ -1271,7 +1271,7 @@ controller's means. For a list
 of thousands, the linear cost hurts, and the better tools are ring signatures
 with logarithmic size or anonymous credentials, where the office signs a
 "cleared for surface work" attribute once and the badge proves it holds such a
-signature (Chapter 14).
+signature ([Chapter 14](14-Blind-Signatures-and-Anonymous-Credentials.md)).
 The proof also does nothing against a stolen badge (a PIN or a fingerprint on
 the badge is the answer to that), and nothing against someone who relays the
 door's challenge to a cleared resident's badge elsewhere in the city (a short
@@ -1458,7 +1458,7 @@ signature is a proof that the signer knows the secret key, bound to a message
 by the hash. The same transform applied to any sigma protocol gives a
 signature scheme: applied to the OR-proof of §6.7 it gives a signature that
 says "one of these $n$ people signed", which is the ring signature of
-Chapter 14; applied to
+[Chapter 14](14-Blind-Signatures-and-Anonymous-Credentials.md); applied to
 Fiat and Shamir's own square-root protocol it gave the first scheme of the
 family; applied to a lattice-based identification protocol it gives ML-DSA
 (§6.12).
@@ -1504,9 +1504,9 @@ wrong inputs.
 !!! note "Life story: the Fiat-Shamir transform"
     **Born:** 1986, Amos Fiat and Adi Shamir, Weizmann Institute of Science,
     "How to Prove Yourself: Practical Solutions to Identification and
-    Signature Problems" (CRYPTO 1986). As Shamir has told it, their US patent
-    application was briefly placed under a government secrecy order in 1987,
-    lifted within days after protests · **Purpose:** remove the live verifier
+    Signature Problems" (CRYPTO 1986). Their US patent application was
+    placed under a government secrecy order in January 1987, reportedly at
+    the Army's request, and the order was lifted within two days · **Purpose:** remove the live verifier
     by deriving the challenge from a hash, giving signatures and
     non-interactive proofs · **Helped:** Schnorr signatures, EdDSA, BIP 340,
     ML-DSA, and nearly every deployed zero-knowledge proof system, SNARKs and
@@ -1671,7 +1671,7 @@ Scytl system that Swiss Post had opened for public scrutiny found, among
 other problems, proofs that hashed too little; Thomas Haines, Sarah Jamie
 Lewis, Olivier Pereira and Vanessa Teague published the analysis as "How Not
 to Prove Your Election Outcome" (IEEE Symposium on Security and Privacy,
-2020). Chapter 16 tells that story.
+2020). [Chapter 16](16-Electronic-Voting.md) tells that story.
 
 !!! note "Life story: weak Fiat-Shamir in Helios"
     **Born:** found 2012 by David Bernhard, Olivier Pereira and Bogdan
@@ -1705,7 +1705,7 @@ valid, that means proving invalid transactions valid. The projects were fixed
 in coordination with the disclosure, and no exploitation in the wild was
 reported. A follow-up academic study in 2023 by Quang Dao, Jim Miller, Opal
 Wright and Paul Grubbs searched open-source proof systems systematically and
-found weak Fiat-Shamir in dozens more implementations. The pattern behind all
+found 36 weak Fiat-Shamir implementations across 12 proof systems. The pattern behind all
 of them is the one this section started with: a paper writes the challenge as
 "$H(\text{transcript})$" without listing every public value, and an
 implementer hashes the messages and forgets the statement.
@@ -1946,10 +1946,10 @@ Anonymous credentials are where the composition rules of §6.6 do the most
 work: a user proves, in one Fiat-Shamir proof, that it holds a signature from
 an issuer on a set of hidden attributes, AND that one attribute (a birth date)
 is before some date, AND that its credential is not on a revocation list,
-revealing nothing else (Chapter 14).
+revealing nothing else ([Chapter 14](14-Blind-Signatures-and-Anonymous-Credentials.md)).
 Voting is where the OR-proof and the decryption proof run in public, on every
 ballot, before observers whose job is to check them
-(Chapter 16).
+([Chapter 16](16-Electronic-Voting.md)).
 
 ## 6.12 Going deeper
 
@@ -2020,7 +2020,7 @@ problem, which Benhamouda, Lepoint, Loss, Orrù and Raykova showed in 2021 can b
 done in polynomial time once a few hundred sessions are open at once. It is the
 sharpest reminder that a sigma protocol's guarantees are about one
 conversation, and that running many conversations at once is a different
-setting. Chapter 14 takes it
+setting. [Chapter 14](14-Blind-Signatures-and-Anonymous-Credentials.md) takes it
 up.
 
 ## Check yourself

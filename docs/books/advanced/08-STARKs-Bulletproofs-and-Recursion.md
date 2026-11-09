@@ -668,7 +668,7 @@ it can hold for only a tiny fraction of the $2^{61}$ possible challenges.
 
 ### Monero adopts Bulletproofs
 
-Monero, the privacy coin of Chapter 18, switched on
+Monero, the privacy coin of [Chapter 18](18-Privacy-on-Ledgers.md), switched on
 confidential amounts (RingCT) in January 2017. Its range proofs were built from
 Borromean ring signatures: one small ring signature per bit, about 6 kilobytes
 for each output. With two outputs per typical transaction, range proofs were
@@ -1497,7 +1497,7 @@ accumulator", and any accumulation scheme gives proof-carrying data.
 Halo 2, which combines PLONK-style circuits with the inner-product commitment,
 went into production in Zcash's Network Upgrade 5 on **31 May 2022**: the new
 Orchard shielded pool needs no trusted setup at all, six years after the Sprout
-ceremony. The story of Zcash's pools is in Chapter 18.
+ceremony. The story of Zcash's pools is in [Chapter 18](18-Privacy-on-Ledgers.md).
 
 !!! note "Life story: Halo"
     **Born:** September 2019, Sean Bowe, Jack Grigg and Daira Hopwood at the
@@ -1730,7 +1730,7 @@ instead of re-running every transaction. StarkEx has run since 2020 (it
 powered version 3 of the dYdX exchange and Immutable X), Starknet since 2021, and
 ZKsync Era, Polygon zkEVM, Scroll and Linea since 2023. How rollups fit into
 consensus, and the data-availability problem they leave open, belong to
-Chapter 17. In 2025 several zkVM teams
+[Chapter 17](17-Consensus-and-Smart-Contracts.md). In 2025 several zkVM teams
 reported proving most Ethereum mainnet blocks within the 12-second slot time on
 clusters of graphics cards, and the Ethereum Foundation began planning for
 clients that check a block's proof instead of re-executing it; the hardware and
@@ -1739,7 +1739,7 @@ timings in those reports vary and are moving quickly.
 **Privacy coins.** Monero runs Bulletproofs+ on every output; Grin and other
 Mimblewimble chains use Bulletproofs; Zcash's Orchard pool uses Halo 2; Mina
 uses Halo-style accumulation to keep its chain at one small proof.
-Chapter 18 tells what these systems hide and what
+[Chapter 18](18-Privacy-on-Ledgers.md) tells what these systems hide and what
 they cannot.
 
 **Incidents.** The failures in this chapter's systems were not broken hash

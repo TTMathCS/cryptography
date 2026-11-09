@@ -786,7 +786,7 @@ deployed it in its Elements sidechains and the Liquid network (2018). Monero
 adopted the same idea as RingCT in January 2017, and the Mimblewimble design
 (2016), used by Grin and as an extension of Litecoin, builds the entire ledger
 out of Pedersen commitments. The privacy coins and their limits are
-Chapter 18.
+[Chapter 18](18-Privacy-on-Ledgers.md).
 
 **Inside proofs.** Pedersen commitments are the first message of many
 zero-knowledge proofs ([Chapter 6](06-Sigma-Protocols-and-Fiat-Shamir.md)), the
@@ -864,7 +864,7 @@ hide.** When the leaves are sensitive, each leaf is a proper hash commitment
 with its own random salt, $\mathrm{leaf}_i = H(0 \,\Vert\, r_i \,\Vert\, m_i)$.
 That is how CONIKS hides its users' keys (§3.8) and how the SD-JWT format for
 digital identity cards hides each attribute until its holder chooses to show it
-(Chapter 14).
+([Chapter 14](14-Blind-Signatures-and-Anonymous-Credentials.md)).
 
 <figure class="mars-fig">
 <svg viewBox="0 0 640 300" width="640" role="img" aria-label="A Merkle tree over eight log entries; the inclusion proof for entry 5 is three sibling hashes, and the verifier recomputes the path to the root" fill="currentColor" font-size="14">
@@ -1236,7 +1236,7 @@ why the rest of this section and all of the next one exist.
 ### In the real world: Ethereum's blobs
 
 Ethereum's rollups, the systems that run transactions off the main chain and post
-compressed batches back to it (Chapter 17),
+compressed batches back to it ([Chapter 17](17-Consensus-and-Smart-Contracts.md)),
 needed somewhere cheap to put that data. The Dencun upgrade of 13 March 2024
 introduced **blob transactions** (EIP-4844). A blob is 4,096 numbers of 32 bytes
 each, 128 KiB, read as the values of a polynomial of degree 4,095 over the
@@ -1409,7 +1409,7 @@ November 2017 to April 2018 and accepted 87 contributions; the Sapling phase 2
 that followed in 2018 accepted more than 90. Since its Orchard upgrade of 2022,
 Zcash uses Halo 2, which needs no trusted setup at all
 ([Chapter 8](08-STARKs-Bulletproofs-and-Recursion.md),
-Chapter 18).
+[Chapter 18](18-Privacy-on-Ledgers.md)).
 
 There is a coda that shows why the setup is more than ceremony. In March 2018
 Ariel Gabizon found that the parameters generated in 2016 contained extra

@@ -1917,10 +1917,11 @@ security of the BCTV Pinocchio zk-SNARK variant" and CVE-2019-7167.
 
 Had anyone exploited it? The company said it had found no evidence of
 counterfeiting, while explaining that Sprout's privacy made complete certainty
-impossible. What bounded the damage was a separate rule: Zcash tracks the total
-value in each shielded pool, and its consensus rules refuse any transaction that
-would make a pool's balance negative (ZIP 209). Counterfeit coins inside Sprout
-could not leave it in excess of the value honestly put in.
+impossible. What bounds the damage is a separate rule, added after the
+disclosure: Zcash tracks the total value in each shielded pool, and since 2019
+its consensus rules refuse any block that would make a pool's balance negative
+(ZIP 209). Counterfeit coins inside Sprout cannot leave it in excess of the
+value honestly put in.
 
 The lesson reaches beyond Zcash. A SNARK's parameters are part of its security
 proof, and every element in them must be justified by that proof. An extra
@@ -2083,7 +2084,10 @@ the risk as counterfeiting or double-spending. Because a circuit fix changes the
 verifying key that every node has built in, it could not be patched in place.
 Zcash first disabled Orchard transactions by an emergency soft fork on 2 June
 2026, then restored them with a corrected circuit in the NU6.2 network upgrade on
-3 June. At the time of writing no exploitation has been publicly confirmed; check
+3 June. On 28 July 2026 the NU6.3 upgrade opened a new shielded pool, Ironwood,
+and sealed Orchard so that its coins can only leave, through a turnstile that
+publishes the amount ([Chapter 18](18-Privacy-on-Ledgers.md), §18.9). At the
+time of writing no exploitation has been publicly confirmed; check
 the Zcash developers' own reports for the final account.
 
 !!! note "Life story: the Orchard circuit flaw"
@@ -2092,7 +2096,8 @@ the Zcash developers' own reports for the final account.
     a circuit that guards shielded value · **Helped:** showed that removing the
     trusted setup (Halo 2) removes one risk and leaves the circuit risk untouched;
     an emergency soft fork on 2 June 2026 and a fixed circuit in NU6.2 on 3 June ·
-    **Status:** fixed; the final public account of its cause and impact was still
+    **Status:** fixed; Orchard sealed behind a turnstile and replaced by the
+    Ironwood pool in NU6.3 on 28 July 2026; the final public account of its cause and impact was still
     being written at the time of this chapter
 
 ### How common is it?
@@ -2142,7 +2147,7 @@ No single tool removes the problem, but a few habits catch most of it:
 three shielded pools trace the history of the field: Pinocchio-style proofs in
 2016, Groth16 in 2018, and Halo 2 in 2022, which removed the trusted setup. The
 privacy story, and what a shielded pool can and cannot hide, is
-Chapter 18.
+[Chapter 18](18-Privacy-on-Ledgers.md).
 
 **Ethereum** made SNARKs practical on a blockchain when the Byzantium upgrade of
 October 2017 added precompiled contracts for addition, scalar multiplication and
@@ -2165,7 +2170,7 @@ opened to the public in 2023. Their provers typically produce a large proof with
 fast hash-based system, verify that proof inside a small Groth16 or PLONK circuit,
 and post the small proof; recursion of this kind is in
 [Chapter 8](08-STARKs-Bulletproofs-and-Recursion.md), and the rollup design in
-Chapter 17.
+[Chapter 17](17-Consensus-and-Smart-Contracts.md).
 
 **Storage and identity.** Filecoin, launched in 2020, has storage providers prove
 with Groth16 that they hold the data they are paid to store, and generates
@@ -2175,7 +2180,7 @@ anonymously on Ethereum; Sui's zkLogin (2023) lets a user prove they hold a vali
 login token from an identity provider without revealing which account it names;
 and several projects prove facts about the signed chip in an electronic passport,
 such as nationality or age over 18. Anonymous credentials without SNARKs are in
-Chapter 14.
+[Chapter 14](14-Blind-Signatures-and-Anonymous-Credentials.md).
 
 **What a quantum computer would do.** Every system in this chapter rests on
 pairings, which Shor's algorithm breaks. A quantum attacker could compute the

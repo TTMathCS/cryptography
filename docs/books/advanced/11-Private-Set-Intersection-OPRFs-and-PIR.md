@@ -709,7 +709,7 @@ changed purchases using MPC between Meta and an advertiser, and an
 open-source matching protocol, Private-ID. In 2022 Meta and Mozilla proposed
 Interoperable Private Attribution to the W3C's Private Advertising
 Technology Community Group, combining MPC and differential privacy
-(Chapter 19). Google's browser-side Privacy
+([Chapter 19](19-Differential-Privacy.md)). Google's browser-side Privacy
 Sandbox took a different road, with attribution reports computed in the
 browser and aggregated by servers in trusted hardware; in 2025 Google said
 it would retire most of those interfaces. The exact deployment scale of these
@@ -1146,7 +1146,7 @@ RFCs in June 2024:
   with SHA-384 (the issuer, holding the private key, is the only one who can
   verify the token), and type 0x0002 is a blind RSA signature (RFC 9474), which
   anyone holding the public key can verify. Blind signatures are
-  Chapter 14's subject.
+  [Chapter 14](14-Blind-Signatures-and-Anonymous-Credentials.md)'s subject.
 
 The largest deployment so far uses the second type: Apple's Private Access
 Tokens (iOS 16 and macOS Ventura, 2022), where the device attests that it is

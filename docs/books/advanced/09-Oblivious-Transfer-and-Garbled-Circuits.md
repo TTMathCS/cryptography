@@ -591,9 +591,10 @@ roughly, a simulator cannot always extract which message a cheating receiver
 is after, and UC proofs need that extraction. Eduard Hauck and Julian Loss
 (2017) patched the proof for static corruptions under the stronger **gap
 Diffie-Hellman** assumption (CDH stays hard even with an oracle that answers
-decisional Diffie-Hellman questions) and gave a modified protocol that is UC
-secure under plain CDH. Chou and Orlandi acknowledged the problems, and the UC
-claim was withdrawn.
+decisional Diffie-Hellman questions) and gave a modified protocol that they
+proved UC secure under plain CDH, though later papers argued that the same
+receiver-extraction problem affects it too. Chou and Orlandi acknowledged the
+problems, and the UC claim was withdrawn.
 
 None of this produced a practical attack that reads both messages. What it
 means is narrower and still important: the simplest OT is a good semi-honest
@@ -612,7 +613,7 @@ index for each one.
 | Bellare, Micali (1989) | public $C$, unknown log | perfect | CDH, random oracle | 2 |
 | Naor, Pinkas (2001) | public $C$ | perfect | CDH, random oracle | 2 |
 | Chou, Orlandi (2015) | none | perfect | CDH, random oracle (semi-honest); stronger claims disputed | 3 |
-| Hauck, Loss (2017) | none | perfect | CDH, random oracle, UC against static corruption | 3 |
+| Hauck, Loss (2017) | none | perfect | CDH, random oracle; UC claim (static corruption) later questioned | 3 |
 
 !!! note "Life story: the simplest OT"
     **Born:** 2015, Tung Chou and Claudio Orlandi, "The Simplest Protocol for

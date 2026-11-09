@@ -1422,7 +1422,7 @@ rules about joining them. In 2015 statisticians at the Estonian Center of
 Applied Research (CentAR) asked whether students who work during their studies
 are more likely to fail to graduate on time. Answering needed the tax
 records of the Estonian Tax and Customs Board, about ten million rows of
-individual tax payments, joined with about half a million records of higher
+individual tax payments, joined with more than half a million records of higher
 education events from the Ministry of Education and Research. Neither
 agency could legally hand its data to the other, or to the researchers.
 
@@ -1440,7 +1440,7 @@ millions of rows, in hours rather than years.
     Cybernetica and the University of Tartu); the study in 2015, published
     as "Students and Taxes" (PoPETs 2016) · **Purpose:** statistics across
     government databases that may not be joined in the clear · **Helped:**
-    joined ten million tax records with half a million education records;
+    joined ten million tax records with over half a million education records;
     a model for later studies on government data · **Status:** current; Sharemind is a commercial platform
 
 ### Private Join and Compute, 2019
@@ -1478,7 +1478,7 @@ contracts and audits.
 A threshold signature ([Chapter 4](04-Threshold-Cryptography.md)) is MPC for
 one function: sign a message with a key that exists only as shares. From
 about 2018 cryptocurrency custody firms (Fireblocks, Unbound, which Coinbase
-acquired in 2021, ZenGo and others) built their products on it, and
+agreed to buy in late 2021, ZenGo and others) built their products on it, and
 "MPC wallet" became a product category. A typical consumer wallet splits the
 key between the user's phone and the provider's server, so that a stolen phone
 or a breached server alone cannot move funds; institutional custody spreads
@@ -1519,12 +1519,13 @@ noise. In July 2024 Firefox 128 included a related experiment,
 Privacy-Preserving Attribution, built on DAP with two aggregators, one run by Mozilla
 and one by ISRG's Divvi Up. It was on by default, drew a complaint by the
 privacy group noyb to the Austrian data protection authority, and was later
-removed; Mozilla said it had never been activated beyond a limited test. The
+removed; Mozilla said the experiment, meant for a couple of its own test sites,
+was never actually activated. The
 episode shows that people judge these systems by who runs the servers and
 whether they were asked, not by the protocol. Two ideas from this section
 continue in later chapters: the private matching in
 [Chapter 11](11-Private-Set-Intersection-OPRFs-and-PIR.md) and the added
-noise, differential privacy, in Chapter 19.
+noise, differential privacy, in [Chapter 19](19-Differential-Privacy.md).
 
 !!! note "Life story: Prio"
     **Born:** 2017, Henry Corrigan-Gibbs and Dan Boneh, Stanford (NSDI 2017)
@@ -1726,7 +1727,7 @@ Earth's charts or drifts away from them. Twelve six-year-olds are far too few
 to answer alone. Two children's clinics on Earth, one in Toronto and one in
 Nairobi, have agreed to pool their numbers. None of the three may send
 records: the Earth clinics are bound by their countries' health-privacy laws,
-and Arcadia's settlement charter (Chapter 19)
+and Arcadia's settlement charter ([Chapter 19](19-Differential-Privacy.md))
 forbids exporting residents' medical files. The link between them is 4 to 24
 minutes of light delay each way, depending on where the two planets are in
 their orbits, and nobody fully trusts the relays in between.
@@ -1892,7 +1893,7 @@ number of rounds is the cost that matters.
   ones gives Arcadia's $n$, $S$ and $Q$ exactly: the mean and spread of twelve
   named children. Each run was secure; the combination of outputs leaks. This
   differencing attack, and the noise that defeats it, are the subject of
-  Chapter 19.
+  [Chapter 19](19-Differential-Privacy.md).
 - **A lying clinic.** A clinic can enter heights of 9 meters, and no MPC
   protocol can tell, because the ideal Trent would accept them too
   ([§1.4](01-Computing-With-Secrets.md)). Range proofs on the shares, as Prio

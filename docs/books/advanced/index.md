@@ -69,14 +69,14 @@ privacy statistics, from first idea to current research.
 | | [11. Private set intersection, OPRFs and private information retrieval](11-Private-Set-Intersection-OPRFs-and-PIR.md) | intermediate |
 | | [12. Homomorphic encryption](12-Homomorphic-Encryption.md) | intermediate to expert |
 | | [13. Identity-based, attribute-based and functional encryption](13-Identity-Attribute-and-Functional-Encryption.md) | intermediate to expert |
-| **IV. Privacy for people** | 14. Blind signatures and anonymous credentials | intermediate |
-| | 15. Anonymous communication: mixes, onion routing and Tor | intermediate |
-| | 16. Electronic voting | intermediate |
-| | 17. Consensus and smart contracts | intermediate |
-| | 18. Privacy on ledgers, and its limits | intermediate |
-| | 19. Differential privacy and private statistics | beginner to intermediate |
+| **IV. Privacy for people** | [14. Blind signatures and anonymous credentials](14-Blind-Signatures-and-Anonymous-Credentials.md) | intermediate |
+| | [15. Anonymous communication: mixes, onion routing and Tor](15-Anonymous-Communication.md) | intermediate |
+| | [16. Electronic voting](16-Electronic-Voting.md) | intermediate |
+| | [17. Consensus and smart contracts](17-Consensus-and-Smart-Contracts.md) | intermediate |
+| | [18. Privacy on ledgers, and its limits](18-Privacy-on-Ledgers.md) | intermediate |
+| | [19. Differential privacy and private statistics](19-Differential-Privacy.md) | beginner to intermediate |
 
-Chapters without a link are being written and appear part by part.
+The [Glossary](Glossary.md) defines 240 terms, each with a link to the section that teaches it.
 
 ## Three ways in
 

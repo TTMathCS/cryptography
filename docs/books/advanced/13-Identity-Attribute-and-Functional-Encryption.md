@@ -1387,7 +1387,7 @@ Blu-ray disc pressed so far. It was a 128-bit number, 32 hexadecimal digits that
 began 09 F9.
 
 AACS LA did what the design allowed. In April 2007 it revoked the device keys of
-the software players involved (InterVideo's WinDVD is the one usually named) by
+the software players involved (InterVideo's WinDVD and CyberLink's PowerDVD) by
 issuing a new media key block for new discs, and those players had to be updated to
 play them. It also sent legal notices under the US Digital Millennium Copyright
 Act to web sites that published the processing key, treating the number itself as
@@ -1872,7 +1872,7 @@ can solve for $x$ entirely. The real security question for an inner-product
 deployment is therefore the authority's policy: which vectors does it sign, and
 does their span contain a vector that singles out one person? The cryptography
 cannot answer that; the key-issuing policy must, as in the differencing attacks of
-Chapter 19.
+[Chapter 19](19-Differential-Privacy.md).
 
 Inner-product functional encryption has been built from DDH, from Paillier's
 assumption and from learning with errors (Shweta Agrawal, Benoît Libert and Damien
@@ -2159,7 +2159,7 @@ proposed answers to ABE's revocation problem.
   GPV trapdoors, carry identity-based and attribute-based encryption past quantum
   computers.
 
-**Next:** Chapter 14, where the
+**Next:** [Chapter 14](14-Blind-Signatures-and-Anonymous-Credentials.md), where the
 question changes from "who may read?" to "how can I prove I am allowed, without
 saying who I am?"
 
