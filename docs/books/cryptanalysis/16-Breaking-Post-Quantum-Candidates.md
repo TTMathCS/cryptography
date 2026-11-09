@@ -353,7 +353,11 @@ Several schemes in rank-metric and multivariate families fell the same way: the
 designer added structure to make keys smaller, and the structure let an
 attacker see through the disguise. McEliece's original 1978 design has survived
 forty-eight years precisely because it hides very little structure; most attempts
-to shrink its keys have been broken.
+to shrink its keys have been broken. Even so, structural attacks on the Goppa codes
+themselves improved from 2024, and in 2026 estimates put key recovery for every
+Classic McEliece parameter set somewhat below its claimed level, though far from
+practical; Germany's BSI then advised against it in new systems (see
+[Post-quantum, Chapter 13](../post-quantum/13-Code-Based-Encryption-McEliece.md#1310-standards-and-the-attacks-of-2026)).
 
 **Groups that are not as hard as they look: WalnutDSA.** WalnutDSA, from SecureRF,
 was a signature built on braid groups, a family with a long history of proposals

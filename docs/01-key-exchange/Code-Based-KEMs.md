@@ -36,7 +36,7 @@ out mceliece348864, and the designers recommend the mceliece6 sizes.
 
 - **Who made it:** Robert McEliece at NASA's Jet Propulsion Laboratory, in a 1978 progress report of the Deep Space Network, the people who were already using error-correcting codes to talk to space probes. Harald Niederreiter gave a dual form in 1986. HQC (2017) is from a French team around Carlos Aguilar Melchor and Philippe Gaborit.
 - **What for:** Public-key encryption from a problem unrelated to number theory: decoding a code that looks random.
-- **What it solved:** It gives a second, independent family next to lattices. McEliece is the oldest public-key scheme that has never been broken in more than 45 years of attacks.
+- **What it solved:** It gives a second, independent family next to lattices. McEliece is the oldest public-key scheme with no practical break in more than 45 years of attacks, though 2026 estimates of structural attacks put Classic McEliece below its claimed levels (see below).
 - **Where it stands:** NIST chose HQC in March 2025 as a backup to ML-KEM, with a standard due around 2027. Classic McEliece went to ISO instead (2026). Its public keys of hundreds of kilobytes keep it to special uses, such as long-term keys that rarely move.
 - **Incidents:** The scheme has held, but versions built on other codes fell. Niederreiter's original with Reed-Solomon codes was broken by Sidelnikov and Shestakov in 1992, which is why the Goppa codes matter. In 2022 Guo and others recovered HQC and BIKE keys from timing leaks in rejection sampling, an implementation flaw that was then fixed.
 

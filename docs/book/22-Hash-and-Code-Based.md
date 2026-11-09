@@ -1053,7 +1053,7 @@ NIST in 2017 by a team including Daniel Bernstein and Tanja Lange.
     **Born:** 1978, Robert McEliece at JPL · **Purpose:** public-key encryption from the hardness of
     decoding · **Helped:** the oldest unbroken post-quantum encryption; Classic McEliece for static keys (for
     example Rosenpass for WireGuard) · **Status:** unbroken at proper sizes; a NIST fourth-round candidate not
-    selected in 2025, being standardized at ISO; Germany's BSI advised caution in 2026
+    selected in 2025, standardized at ISO in 2026; in October 2026 Germany's BSI advised against it in new systems after new structural-attack estimates
 
 ## 22.10 HQC and BIKE: smaller keys from structure
 
