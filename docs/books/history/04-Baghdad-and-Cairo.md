@@ -772,7 +772,7 @@ A recent paper on how the Byzantines protected documents and secret communicatio
 
 *Level: intermediate.*
 
-Europe's own breaking of ciphers shows up in the Italian city-states around 1400, about five centuries after al-Kindi. A cipher key from Mantua dated 1401 already gives the vowels several substitutes each, which is the homophone idea. In the 1460s Leon Battista Alberti, secretary in the papal chancery, discussed letter frequencies in his treatise on ciphers. In 1474 Cicco Simonetta, the secretary to the dukes of Milan, wrote down *Regule ad extrahendum litteras ziferatas sine exemplo*, "rules for extracting ciphered letters without a key". Chapter 6 tells that story. The question for this chapter is whether the Arabic books lie behind it.
+Europe's own breaking of ciphers shows up in the Italian city-states around 1400, about five centuries after al-Kindi. A cipher key from Mantua dated 1401 already gives the vowels several substitutes each, which is the homophone idea. In the 1460s Leon Battista Alberti, secretary in the papal chancery, discussed letter frequencies in his treatise on ciphers. In 1474 Cicco Simonetta, the secretary to the dukes of Milan, wrote down *Regule ad extrahendum litteras ziferatas sine exemplo*, "rules for extracting ciphered letters without a key". [Chapter 6](06-Italy-Ambassadors-and-Nomenclators.md) tells that story. The question for this chapter is whether the Arabic books lie behind it.
 
 <figure class="mars-fig">
 <svg viewBox="0 0 640 300" width="640" role="img" aria-label="A map as labeled boxes: Baghdad, Damascus and Cairo joined by the Arabic cryptology tradition; Toledo, Palermo and Venice on the western side; Constantinople between; dashed arrows from east to west marking possible but undocumented routes" fill="currentColor" font-size="14">
@@ -815,7 +815,7 @@ Europe's own breaking of ciphers shows up in the Italian city-states around 1400
 
 **What would settle it.** A European manuscript that quotes an Arabic cryptological book. A Latin or Italian translation, or even a title in a library catalog of a cipher secretary. A traveler's report. A cipher key whose structure copies a Mamluk one in detail. None has turned up, and the Arabic manuscripts themselves have only been edited for forty years, so the search is young. A fair summary: the channels existed, borrowing is possible, and there is no positive evidence. The honest word is "unknown". Anyone who says the Arabs "taught" Europe, or plainly did not, goes further than the sources allow.
 
-One more point. Alkindus was a famous name in Latin Europe, and Cardano, who also wrote on ciphers (chapter 7), praised him. If Cardano or Alberti had known the book on ciphers, one might expect some sign of it. There is none.
+One more point. Alkindus was a famous name in Latin Europe, and Cardano, who also wrote on ciphers ([chapter 7](07-Printed-Ciphers.md)), praised him. If Cardano or Alberti had known the book on ciphers, one might expect some sign of it. There is none.
 
 ## 4.11 In the real world: what the sources show, and what they do not
 
@@ -845,7 +845,7 @@ Ibn 'Adlan's warning stands: a very short message, a few dozen letters, may have
 
 ### What changed
 
-After al-Kindi, a single scrambled alphabet could not be trusted against a skilled reader. Every cipher improvement of the next eight centuries was a reply to counting. Homophones spread a common letter over several symbols (Ibn ad-Durayhim, the Mantuan key of 1401). Nulls, meaningless symbols, threw the counts off. Codes replaced words and names with symbols. The great reply, a different alphabet for each letter, is the subject of chapter 7, and the generation of ciphers that followed chapter 6 is the history of the contest that al-Kindi began.
+After al-Kindi, a single scrambled alphabet could not be trusted against a skilled reader. Every cipher improvement of the next eight centuries was a reply to counting. Homophones spread a common letter over several symbols (Ibn ad-Durayhim, the Mantuan key of 1401). Nulls, meaningless symbols, threw the counts off. Codes replaced words and names with symbols. The great reply, a different alphabet for each letter, is the subject of [chapter 7](07-Printed-Ciphers.md), and the generation of ciphers that followed [chapter 6](06-Italy-Ambassadors-and-Nomenclators.md) is the history of the contest that al-Kindi began.
 
 ## 4.12 Going deeper
 
@@ -896,7 +896,7 @@ At 90 letters about one letter of the 28 is still unseen even in the best case o
 **Open questions.**
 
 - Did the Abbasid, Fatimid or Mamluk chanceries use ciphers routinely? The manuals describe them, and the surviving chancery letters would show it, but a systematic search of those letters for enciphered ones is not known to have been made.
-- Did al-Kindi's treatise have Persian or Turkish readers who carried it east? The later Persian and Ottoman tradition (chapter 8) is the place to look.
+- Did al-Kindi's treatise have Persian or Turkish readers who carried it east? The later Persian and Ottoman tradition ([chapter 8](08-The-World-Beyond-Europe.md)) is the place to look.
 
 ## Check yourself
 

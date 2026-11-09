@@ -60,11 +60,11 @@ replace RSA and elliptic curves.
 | | [3. Greece and Rome](03-Greece-and-Rome.md) | beginner |
 | | [4. Baghdad and Cairo: the first codebreakers](04-Baghdad-and-Cairo.md) | beginner to intermediate |
 | **II. Europe's courts and the wider world** | [5. The medieval world](05-The-Medieval-World.md) | beginner |
-| | 6. Italy: ambassadors, nomenclators and the disk | beginner to intermediate |
-| | 7. Printed ciphers: Trithemius to Vigenère | beginner to intermediate |
-| | 8. The world beyond Europe, from ancient China to the Ottomans | beginner |
-| | 9. Queens, spies and black chambers | beginner to intermediate |
-| **III. Wires, radio and machines** | 10. The telegraph: codes by the word, and the keyword falls | beginner to intermediate |
+| | [6. Italy: ambassadors, nomenclators and the disk](06-Italy-Ambassadors-and-Nomenclators.md) | beginner to intermediate |
+| | [7. Printed ciphers: Trithemius to Vigenère](07-Printed-Ciphers.md) | beginner to intermediate |
+| | [8. The world beyond Europe, from ancient China to the Ottomans](08-The-World-Beyond-Europe.md) | beginner |
+| | [9. Queens, spies and black chambers](09-Queens-Spies-and-Black-Chambers.md) | beginner to intermediate |
+| **III. Wires, radio and machines** | [10. The telegraph: codes by the word, and the keyword falls](10-The-Telegraph.md) | beginner to intermediate |
 | | 11. Radio, the First World War and the one-time pad | beginner to intermediate |
 | | 12. Rotors and Enigma, and the Poles who broke it | intermediate |
 | | 13. Bletchley Park, Lorenz and Colossus | intermediate |

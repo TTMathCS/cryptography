@@ -915,7 +915,7 @@ encyclopedia for the clerks of the Mamluk chancery. [Chapter 4](04-Baghdad-and-C
 In China the military encyclopedia *Wujing Zongyao*, compiled for the Song court between 1040 and 1044, describes a code
 built on a poem: the two sides agreed on a poem of 40 characters, none repeated, and a list of 40 standard messages, one
 per character, and an officer sent a message by marking the matching character with his seal. The Chinese traditions get
-their own treatment in Chapter 8. Figure 5.6 puts the two worlds on the same time line.
+their own treatment in [Chapter 8](08-The-World-Beyond-Europe.md). Figure 5.6 puts the two worlds on the same time line.
 
 <figure class="mars-fig">
 <svg viewBox="0 0 640 230" width="640" role="img" aria-label="Two timelines from 700 to 1450: Europe's few cipher cases and the working cipher traditions of the Islamic world and China" fill="currentColor" font-size="14">
@@ -1150,7 +1150,7 @@ drawings are taken to agree. A careful reader asks, for each date in a book on t
 - Elsewhere, ciphers were working tools with books about them (al-Kindi, c. 850; the *Wujing Zongyao*, 1040 to 1044), and
   the difference with Europe looks like demand.
 
-**Next:** Chapter 6, where permanent embassies create the demand, and the first
+**Next:** [Chapter 6](06-Italy-Ambassadors-and-Nomenclators.md), where permanent embassies create the demand, and the first
 European codebreakers appear. For the terms, see the Glossary.
 
 ## Further reading
