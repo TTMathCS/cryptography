@@ -8,8 +8,10 @@ The difference is that a lattice response leaks the secret unless the signer som
 throws it away and tries again. This chapter builds ML-DSA completely. You will watch a
 secret fall out of 20,000 signatures made without rejection and stay hidden with it, follow
 the rounding and the "hints" that keep public keys and signatures small, run a full
-implementation that matches all 615 of NIST's test vectors, count how often the signer
-retries, and see why context strings and the pre-hash variant exist.*
+implementation that matches all 615 of NIST's test vectors, work out from the parameters
+how often the signer retries (and why the official figures were a little low), see why
+context strings, external $\mu$ and the pre-hash variant exist, follow the security proof
+step by step, and forge a signature with half a stolen key.*
 
 !!! abstract "In this chapter"
     **You will learn:**
@@ -19,10 +21,17 @@ retries, and see why context strings and the pre-hash variant exist.*
     - ML-DSA's keys, its signing loop and its verification, step by step;
     - Power2Round, HighBits, LowBits and the hints that let the public key drop 13 bits
       per coefficient;
-    - the three parameter sets and their sizes;
+    - why rejection makes every kept signature independent of the key, exactly;
+    - how MakeHint and UseHint work, on a modulus small enough to check every case;
+    - the three parameter sets, their sizes and speeds, and where the expected number of
+      tries per signature comes from;
     - a complete implementation, checked against NIST's vectors;
-    - hedged and deterministic signing, context strings, and HashML-DSA;
-    - what the security proofs say, and where ML-DSA is used today.
+    - hedged and deterministic signing, and why a fault that leaks only $\mathbf{s}_1$ is
+      already a full break;
+    - context strings, external $\mu$ and HashML-DSA, and when to use which;
+    - the security proof in outline, from chosen-message forgery down to Module-SIS;
+    - what changed from round-3 Dilithium to FIPS 204, and where ML-DSA is deployed as of
+      November 2026.
 
     **You need:** [Chapter 3](03-KEMs-and-Signatures.md) (signatures and Fiat-Shamir),
     [Chapter 5](05-Lattices-and-Their-Hard-Problems.md) (SIS and Module-LWE) and
@@ -30,7 +39,9 @@ retries, and see why context strings and the pre-hash variant exist.*
     sampling ideas recur here.
 
     **Levels:** §9.1 to §9.3 are for beginners, §9.4 to §9.9 are intermediate, §9.10 to
-    §9.12 are expert.
+    §9.13 are expert. The lattice and LWE background is in the Mathematics book,
+    [Chapter 14](../mathematics/14-Lattices.md) and
+    [Chapter 15](../mathematics/15-Learning-with-Errors.md).
 
 ## 9.1 The problem
 
@@ -129,7 +140,7 @@ print("the secret was:                   ", secret)
 
 It prints:
 
-```
+```text
 no rejection -> attacker's guess: [-2, 0, 2, 2, -2, -1, 2, 2]
 rejection -> attacker's guess: [-2, -2, -2, -2, -2, -2, -2, -2]
 the secret was:                    [-2, 0, 2, 2, -2, -1, 2, 2]
@@ -145,6 +156,78 @@ This is Lyubashevsky's **Fiat-Shamir with aborts** (ASIACRYPT 2009, refined in "
 Signatures without Trapdoors", EUROCRYPT 2012). The cost is that signing is a loop: the
 signer may need several tries, and the number of tries is random. ML-DSA checks a second
 condition as well (§9.4), so that the low bits used in verification also hide $\mathbf{s}_2$.
+
+### Why the kept values say nothing, exactly
+
+The attack above is statistical, and so is its failure: "all guesses came out the same" is
+evidence, not proof. The proof is short enough to do by hand on a toy. Take masks $y$
+uniform on the nine integers $[-4, 4]$ ($\gamma = 4$) and a secret contribution
+$c\,s \in \{-1, 0, +1\}$ ($\beta = 1$).
+
+<div class="mars-steps" markdown>
+
+**Rejection by hand** ($\gamma = 4$, $\beta = 1$).
+
+1. If $c\,s = +1$, then $z = y + 1$ is uniform on $\{-3, -2, \dots, 5\}$, nine values with
+   probability $1/9$ each.
+2. If $c\,s = -1$, then $z$ is uniform on $\{-5, -4, \dots, 3\}$.
+3. The two lists share seven values, $-3$ to $3$. A single $z = 5$ proves that $c\,s = +1$; a
+   single $z = -5$ proves that $c\,s = -1$. The **statistical distance** between the two
+   distributions, the most any test can gain from one sample, is $2/9$.
+4. Now keep $z$ only if $|z| \le \gamma - \beta = 3$. In both cases exactly seven values of
+   $y$ survive, one for each $z \in \{-3, \dots, 3\}$, so each kept $z$ has probability
+   $1/7$, whatever $c\,s$ was. The distance is 0.
+5. The price: a try is kept with probability $7/9$, so a signer needs $9/7 \approx 1.29$
+   tries on average for this one coefficient.
+
+</div>
+
+The argument does not depend on the toy numbers. For any shift $v$ with $|v| \le \beta$,
+every target value $z$ in $[-(\gamma - \beta), \gamma - \beta]$ is hit by exactly one mask,
+$y = z - v$, and that mask lies inside $[-\gamma, \gamma]$. So each kept value has probability
+$1/(2\gamma + 1)$ before normalizing, the same for every $v$, and the kept distribution is
+uniform on the small box. That is why the bound $\beta = \tau\eta$ matters: the challenge
+has $\tau$ coefficients of $\pm 1$ and the secret's coefficients are at most $\eta$, so no
+coefficient of $c\,\mathbf{s}_1$ can exceed $\tau\eta$ in size. If it could, the argument would
+fail at the edges.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 210" width="640" role="img" aria-label="Three bars showing the range of z = y + c s for c s equal to minus 1, 0 and plus 1, with masks from minus 4 to 4. The bars are shifted copies; the shaded middle band from minus 3 to 3 lies inside all three, and only values in it are kept." fill="currentColor" font-size="14">
+<rect x="216" y="30" width="288" height="140" fill="currentColor" fill-opacity=".12"/>
+<text x="360" y="22" text-anchor="middle">kept: |z| ≤ γ − β = 3</text>
+<text x="20" y="57">c·s = −1</text>
+<rect x="120" y="42" width="384" height="22" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="20" y="97">c·s = 0</text>
+<rect x="168" y="82" width="384" height="22" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="20" y="137">c·s = +1</text>
+<rect x="216" y="122" width="384" height="22" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<line x1="120" y1="180" x2="600" y2="180" stroke="currentColor"/>
+<g stroke="currentColor">
+<line x1="120" y1="176" x2="120" y2="184"/><line x1="168" y1="176" x2="168" y2="184"/><line x1="216" y1="176" x2="216" y2="184"/><line x1="264" y1="176" x2="264" y2="184"/><line x1="312" y1="176" x2="312" y2="184"/><line x1="360" y1="176" x2="360" y2="184"/><line x1="408" y1="176" x2="408" y2="184"/><line x1="456" y1="176" x2="456" y2="184"/><line x1="504" y1="176" x2="504" y2="184"/><line x1="552" y1="176" x2="552" y2="184"/><line x1="600" y1="176" x2="600" y2="184"/>
+</g>
+<g text-anchor="middle" font-size="13">
+<text x="120" y="200">−5</text><text x="168" y="200">−4</text><text x="216" y="200">−3</text><text x="264" y="200">−2</text><text x="312" y="200">−1</text><text x="360" y="200">0</text><text x="408" y="200">1</text><text x="456" y="200">2</text><text x="504" y="200">3</text><text x="552" y="200">4</text><text x="600" y="200">5</text>
+</g>
+</svg>
+<figcaption>Figure 9.1. Rejection on a toy with masks in [−4, 4] and |c·s| ≤ 1. Without rejection the three ranges differ at their ends, and an end value names the secret. The shaded band lies inside every range, so a kept z is uniform on it, whatever the secret.</figcaption>
+</figure>
+
+At ML-DSA-44's sizes ($\gamma_1 = 2^{17}$, $\beta = 78$) the same count keeps a single
+coefficient with probability about $1 - \beta/\gamma_1 \approx 0.9994$, but $\mathbf{z}$ has
+$256\ell = 1{,}024$ coefficients and all must pass, so only about 54 percent of tries survive
+this first check: $(1 - \beta/\gamma_1)^{256\ell} \approx e^{-256\ell\beta/\gamma_1}$. That
+exponential is the whole story of the loop count, and §9.6 finishes it.
+
+Lyubashevsky's 2012 scheme and BLISS (2013) used Gaussian masks, which give smaller
+signatures, but Gaussian sampling is hard to make constant-time and BLISS implementations
+fell to cache-timing attacks on exactly that step. Dilithium chose uniform masks and the
+plain box test above.
+
+One more consequence matters for implementers. The argument covers *kept* values only. A
+rejected $\mathbf{z}$ is more likely to sit at the end of the range the secret pushes it
+towards, so rejected candidates, and anything computed from them, must never leave the
+signer. The proof in §9.10 leans on this: it can simulate the signatures the signer
+outputs, but not the ones it throws away.
 
 ## 9.4 The scheme
 
@@ -204,7 +287,7 @@ $\mathbf{w}' = \mathbf{A}\mathbf{z} - c\,\mathbf{t}_1 2^{13}$; recover $\mathbf{
 <text x="20" y="232" fill-opacity=".7">On average 4.25, 5.1 and 3.85 tries</text>
 <text x="20" y="252" fill-opacity=".7">for ML-DSA-44, -65 and -87 (FIPS 204).</text>
 </svg>
-<figcaption>Figure 9.1. The signing loop of ML-DSA. Each rejected try uses a fresh mask; the number of tries is random but small. The values from rejected tries must stay secret too, because they depend on the key.</figcaption>
+<figcaption>Figure 9.2. The signing loop of ML-DSA. Each rejected try uses a fresh mask; the number of tries is random but small. The values from rejected tries must stay secret too, because they depend on the key.</figcaption>
 </figure>
 
 ## 9.5 Rounding and hints
@@ -253,6 +336,127 @@ $\|c\,\mathbf{t}_0\|_\infty < \gamma_2$ guarantees that one step up or down is a
 $\omega$ caps the number of hints so the signature has a fixed size. The hint is stored as a
 list of positions: at most $\omega$ bytes of positions plus $k$ bytes of counts.
 
+### The whole chain on a toy modulus
+
+The example above starts in the middle. Here is the whole chain, signer to verifier, on a
+modulus small enough to draw: $q = 97$ and $2\gamma_2 = 16$, so $q - 1 = 96$ is six blocks of
+16 and HighBits takes the values 0 to 5. LowBits lies in $(-8, 8]$, so block $j$ holds the
+numbers from $16j - 7$ to $16j + 8$. Take $\beta = 2$.
+
+<div class="mars-steps" markdown>
+
+**The hint by hand** ($q = 97$, $\gamma_2 = 8$, $\beta = 2$).
+
+1. The signer's commitment coefficient is $w = 37 = 2 \cdot 16 + 5$: HighBits 2, LowBits 5.
+   This 2 is what goes into the hash.
+2. The verifier will not see $w$. It will see $w - c\,s_2 + c\,t_0$ (§9.5's opening). Say
+   $c\,s_2 = 1$ and $c\,t_0 = 6$.
+3. **The signer's second check.** $w - c\,s_2 = 36$ has LowBits 4, and $|4| < \gamma_2 -
+   \beta = 6$, so the try is kept. The check guarantees that subtracting anything up to $\beta$
+   in size cannot move a number out of its block, so HighBits$(36) = $ HighBits$(37) = 2$.
+   The hash can be recomputed from $w - c\,s_2$, which the verifier is one step away from.
+4. **MakeHint.** The verifier's number is $36 + 6 = 42 = 3 \cdot 16 - 6$: HighBits 3, LowBits
+   $-6$. It has crossed the boundary between 40 and 41. The signer knows $t_0$, compares
+   HighBits$(42) = 3$ with HighBits$(36) = 2$, finds them different and sets the hint bit to 1.
+5. **UseHint.** The verifier has 42 and the hint 1. Its LowBits $-6$ are negative, so the true
+   value lies below, and it takes $3 - 1 = 2$. It hashes the 2, as the signer did.
+
+</div>
+
+Two rules make UseHint safe. The error $c\,t_0$ must be at most $\gamma_2$, half a block, so
+it crosses at most one boundary; that is the signer's check $\|c\,\mathbf{t}_0\|_\infty <
+\gamma_2$. And the direction comes free: a value pushed up into the next block lands in its
+lower half, with negative LowBits, so negative LowBits mean "step down".
+
+The top of the range needs care. Numbers from 89 to 96 are $-8$ to $-1$ modulo 97, close to
+0, so Decompose puts them in block 0 with negative low bits: 93 becomes HighBits 0, LowBits
+$-4$. This is the "small correction at the top end", the line `if r - r0 == Q - 1` in §9.7,
+and the reason UseHint counts modulo the number of blocks.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 230" width="640" role="img" aria-label="A number line from 0 to 96 for the toy modulus 97, cut into blocks of 16 labeled with their high bits 0 to 5, and a final short piece from 89 to 96 that also belongs to block 0. The signer's value 36 lies in block 2; adding c t0 = 6 moves it to 42 in block 3, across the boundary at 40.5; the hint tells the verifier to step back to block 2." fill="currentColor" font-size="14">
+<rect x="40" y="70" width="52" height="40" fill="currentColor" fill-opacity=".12"/>
+<rect x="557" y="70" width="46" height="40" fill="currentColor" fill-opacity=".12"/>
+<rect x="40" y="70" width="563" height="40" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<g stroke="currentColor" stroke-width="1.4">
+<line x1="92" y1="70" x2="92" y2="110"/><line x1="185" y1="70" x2="185" y2="110"/><line x1="278" y1="70" x2="278" y2="110"/><line x1="371" y1="70" x2="371" y2="110"/><line x1="464" y1="70" x2="464" y2="110"/><line x1="557" y1="70" x2="557" y2="110"/>
+</g>
+<g text-anchor="middle" font-size="15">
+<text x="66" y="96">0</text><text x="138" y="96">1</text><text x="231" y="96">2</text><text x="324" y="96">3</text><text x="417" y="96">4</text><text x="510" y="96">5</text><text x="580" y="96">0</text>
+</g>
+<g text-anchor="middle" font-size="12">
+<text x="40" y="128">0</text><text x="92" y="128">8|9</text><text x="185" y="128">24|25</text><text x="278" y="128">40|41</text><text x="371" y="128">56|57</text><text x="464" y="128">72|73</text><text x="557" y="128">88|89</text><text x="603" y="128">96</text>
+</g>
+<text x="40" y="30">HighBits per block (2γ₂ = 16); LowBits run from −7 to 8 inside each block</text>
+<circle cx="249" cy="60" r="4"/><text x="249" y="52" text-anchor="middle" font-size="13">36</text>
+<circle cx="284" cy="60" r="4"/><text x="290" y="52" font-size="13">42</text>
+<line x1="253" y1="60" x2="278" y2="60" stroke="currentColor" stroke-width="1.6"/>
+<path d="M276 56 L284 60 L276 64 Z"/>
+<text x="40" y="160">signer: w − c s₂ = 36, HighBits 2 (hashed)</text>
+<text x="40" y="182">verifier: 36 + c t₀ = 42, HighBits 3, LowBits −6, so the hint bit is 1</text>
+<text x="40" y="204">UseHint: hint 1 and LowBits ≤ 0, so step down: 3 − 1 = 2, the signer's value</text>
+</svg>
+<figcaption>Figure 9.3. HighBits and the hint on the toy modulus q = 97. A small error can carry a value across one block boundary; one hint bit says that it did, and the sign of the verifier's low bits says which way to step back. The shaded ends are both block 0 because 89 to 96 are small negative numbers modulo 97.</figcaption>
+</figure>
+
+**Code it.** Decompose, MakeHint and UseHint on the toy, run on the example and then on
+every value of $r$ and every error $z$ up to a bound.
+
+```python
+# Decompose, MakeHint and UseHint on a toy modulus, checked on every case.
+q, gamma2 = 97, 8                         # q - 1 = 96 = 6 blocks of 2*gamma2 = 16
+M = (q - 1) // (2 * gamma2)               # high bits take the values 0 .. M-1
+
+def mod_pm(r, m):
+    r %= m
+    return r - m if r > m // 2 else r
+
+def decompose(r):
+    r0 = mod_pm(r, 2 * gamma2)
+    if r - r0 == q - 1:                   # the top sliver wraps around to block 0
+        return 0, r0 - 1
+    return (r - r0) // (2 * gamma2), r0
+
+def high(r):  return decompose(r % q)[0]
+
+def make_hint(z, r):  return int(high(r) != high(r + z))
+
+def use_hint(h, r):
+    r1, r0 = decompose(r % q)
+    if h == 0:
+        return r1
+    return (r1 + 1) % M if r0 > 0 else (r1 - 1) % M
+
+for r in (37, 42, 93, 95):
+    print("r =", r, " (HighBits, LowBits) =", decompose(r))
+print("signer: w - c*s2 = 36, high bits", high(36), "; verifier sees 36 + c*t0 = 42, high bits", high(42))
+print("hint =", make_hint(-6, 42), "; UseHint(1, 42) =", use_hint(1, 42))
+
+for bound in (gamma2, gamma2 + 1, 12):
+    wrong = sum(use_hint(make_hint(z, r), r) != high(r + z)
+                for r in range(q) for z in range(-bound, bound + 1))
+    print(f"|z| <= {bound}: UseHint wrong in {wrong} of {q * (2 * bound + 1)} cases")
+```
+
+It prints:
+
+```text
+r = 37  (HighBits, LowBits) = (2, 5)
+r = 42  (HighBits, LowBits) = (3, -6)
+r = 93  (HighBits, LowBits) = (0, -4)
+r = 95  (HighBits, LowBits) = (0, -2)
+signer: w - c*s2 = 36, high bits 2 ; verifier sees 36 + c*t0 = 42, high bits 3
+hint = 1 ; UseHint(1, 42) = 2
+|z| <= 8: UseHint wrong in 0 of 1649 cases
+|z| <= 9: UseHint wrong in 11 of 1843 cases
+|z| <= 12: UseHint wrong in 116 of 2425 cases
+```
+
+Up to $\gamma_2$ the hint is never wrong, over all 1,649 cases; one unit beyond, it starts to
+fail. That is FIPS 204's lemma about hints in miniature. The real functions have the same
+shape, with blocks of 190,464 or 523,776, and each rejection condition that protects them
+adds a little to the number of tries, as §9.6 shows.
+
 §9.7 counts the hints in real signatures.
 
 ## 9.6 Parameters and sizes
@@ -276,16 +480,177 @@ list of positions: at most $\omega$ bytes of positions plus $k$ bytes of counts.
 | expected tries | 4.25 | 5.1 | 3.85 |
 
 *Table 9.1. ML-DSA parameter sets (FIPS 204, Tables 1 and 2). All use $q = 8{,}380{,}417$,
-$n = 256$ and $d = 13$ dropped bits. The sizes are checked by the code in §9.7.*
+$n = 256$ and $d = 13$ dropped bits. The sizes are checked by the code in §9.7. The expected
+tries are FIPS 204's; counting every rejection check gives about 4.36, 5.14 and 3.91 (below).*
 
 For comparison: an Ed25519 public key is 32 bytes and a signature 64 bytes; an RSA-2048
 public key is 256 bytes plus the exponent, and a signature 256 bytes. ML-DSA-44's signature is
 about 38 times an Ed25519 signature. Speed is a different story. On a laptop, optimized
-ML-DSA signs and verifies in tens of microseconds, comparable to Ed25519 and much faster
-than RSA signing. Size, not speed, is ML-DSA's cost.
+ML-DSA signs in about a tenth of a millisecond and verifies in less (Table 9.2 below),
+comparable to Ed25519 and much faster than RSA signing. Size, not speed, is ML-DSA's cost.
 
 The category 2 rating of ML-DSA-44 (not 1) reflects that its estimated attack cost reaches
 the SHA-256 collision threshold of Chapter 2, though not the AES-192 key search of category 3.
+
+The sizes follow from the parameters: the public key is $32 + 320k$ bytes; the private key is
+128 bytes of seeds and $tr$, the secret polynomials at 3 or 4 bits per coefficient, and
+$\mathbf{t}_0$ at 416 bytes per polynomial ($128 + 11 \cdot 128 + 6 \cdot 416 = 4{,}032$ for
+ML-DSA-65). In practice the private key is often stored as the 32-byte seed $\xi$ and
+expanded when needed; RFC 9881 allows the seed, the expanded key, or both.
+
+### Where the loop count comes from
+
+The last row of Table 9.1 can be worked out by hand. A try survives the first check if every
+coefficient of $\mathbf{z}$ stays below $\gamma_1 - \beta$; §9.3 showed each one does with
+probability about $1 - \beta/\gamma_1$. The second check asks every coefficient of
+LowBits$(\mathbf{w} - c\,\mathbf{s}_2)$ to stay below $\gamma_2 - \beta$, and those low bits behave
+like uniform numbers in $(-\gamma_2, \gamma_2]$, so each passes with probability about
+$1 - \beta/\gamma_2$. With $256\ell$ coefficients of the first kind and $256k$ of the second,
+
+$$\Pr[\text{try kept}] \approx \left(1 - \frac{\beta}{\gamma_1}\right)^{256\ell}
+\left(1 - \frac{\beta}{\gamma_2}\right)^{256k} \approx
+\exp\!\left(-256\,\beta\left(\frac{\ell}{\gamma_1} + \frac{k}{\gamma_2}\right)\right),$$
+
+and the expected number of tries is the reciprocal, because the tries are independent and the
+count is geometric. This is equation (5) of the Dilithium specification, and it is where
+FIPS 204's figures come from.
+
+<div class="mars-steps" markdown>
+
+**ML-DSA-44 by hand** ($\beta = 78$, $\ell = k = 4$, $\gamma_1 = 131{,}072$, $\gamma_2 = 95{,}232$).
+
+1. $\ell/\gamma_1 = 4/131{,}072 = 3.052 \times 10^{-5}$ and $k/\gamma_2 = 4/95{,}232 = 4.200 \times 10^{-5}$.
+2. Their sum is $7.252 \times 10^{-5}$; times $256 \cdot 78 = 19{,}968$ it is $1.448$.
+3. $e^{1.448} = 4.25$ tries on average, and a try is kept with probability $1/4.25 = 0.235$.
+4. The chance that a signature needs more than 10 tries is $(1 - 0.235)^{10} = 0.069$, about
+   one signature in fourteen; more than 30 tries, $0.765^{30} = 0.0003$.
+
+</div>
+
+Two more checks come after the hint is computed, $\|c\,\mathbf{t}_0\|_\infty < \gamma_2$ and at
+most $\omega$ hints, and the formula ignores both. The first almost never fails ($c\,\mathbf{t}_0$
+would have to be more than six standard deviations out). The second fails more often: each
+coefficient of ML-DSA-44 needs a hint with probability about 6 percent (63 hints in 1,024
+coefficients on average, as §9.7 counts), and the limit $\omega = 80$ is only about two
+standard deviations above that. In October 2026 Kris Kwiatkowski published a complete
+accounting of all four checks (ePrint 2026/2456), after Hanno Becker and others noticed on
+NIST's pqc-forum that measured loop counts ran slightly above FIPS 204's figures. The corrected
+expectations are 4.36, 5.14 and 3.91 tries, and the paper reports that NIST's errata for
+FIPS 204 already carry them.
+
+**Code it.** The exponential formula, the exact count for the two box checks, and the hint
+limit added with a normal approximation for $c\,\mathbf{t}_0$; the last column is the loop cap
+discussed below.
+
+```python
+# Expected trips through ML-DSA's signing loop, worked out from the parameters alone.
+import math
+Q = 8380417
+#                     k  l  tau eta gamma1    gamma2          omega
+SETS = {"ML-DSA-44": (4, 4, 39, 2, 1 << 17, (Q - 1) // 88, 80),
+        "ML-DSA-65": (6, 5, 49, 4, 1 << 19, (Q - 1) // 32, 55),
+        "ML-DSA-87": (8, 7, 60, 2, 1 << 19, (Q - 1) // 32, 75)}
+
+def binom_tail(n, p, limit):              # P(more than `limit` of n coins with bias p)
+    term, total = (1 - p) ** n, 0.0
+    for i in range(n):
+        if i > limit:
+            total += term
+        term *= (n - i) / (i + 1) * p / (1 - p)
+    return total
+
+print("            FIPS formula   both checks, exact   with hint limit   hints   cap")
+for name, (k, l, tau, eta, g1, g2, omega) in SETS.items():
+    beta = tau * eta
+    approx = math.exp(256 * beta * (l / g1 + k / g2))           # the formula behind FIPS 204
+    p_z = ((2 * (g1 - beta) - 1) / (2 * g1)) ** (256 * l)       # all |z| < gamma1 - beta
+    p_low = ((2 * (g2 - beta) - 1) / (2 * g2)) ** (256 * k)     # all |LowBits| < gamma2 - beta
+    # c*t0 is a sum of tau values +-t0, with t0 nearly uniform on (-2^12, 2^12]: about normal
+    sd = math.sqrt(tau * ((1 << 13) ** 2 - 1) / 12)
+    a = beta / sd
+    pdf = math.exp(-a * a / 2) / math.sqrt(2 * math.pi)
+    excess = 2 * sd * pdf - 2 * beta * 0.5 * math.erfc(a / math.sqrt(2))  # E[max(0, |e| - beta)]
+    p_hint = excess / (2 * (g2 - beta))                         # chance one coefficient needs a hint
+    full = 1 / (p_z * p_low * (1 - binom_tail(256 * k, p_hint, omega)))
+    cap = math.ceil(256 * math.log(2) / -math.log(1 - 1 / full))
+    print(f"{name}     {approx:5.2f}            {1 / (p_z * p_low):5.2f}"
+          f"               {full:5.2f}         {256 * k * p_hint:5.1f}   {cap}")
+print("cap from the FIPS 204 value for ML-DSA-65:",
+      math.ceil(256 * math.log(2) / -math.log(1 - 1 / 5.1)))
+```
+
+It prints:
+
+```text
+            FIPS formula   both checks, exact   with hint limit   hints   cap
+ML-DSA-44      4.25             4.30                4.36          63.0   681
+ML-DSA-65      5.09             5.12                5.14          38.2   820
+ML-DSA-87      3.85             3.87                3.90          56.7   600
+cap from the FIPS 204 value for ML-DSA-65: 814
+```
+
+The model lands on the corrected figures (3.90 against 3.91 for ML-DSA-87, where the normal
+approximation is a little rough), and its predicted 63 hints per try for ML-DSA-44 matches what
+real signatures carry. The hint reasoning is the one from the toy: a coefficient needs a hint
+when $c\,t_0$ pushes the verifier's value out of its block, and since the kept low bits lie
+within $\gamma_2 - \beta$ of the center, that happens with probability about
+$\mathrm{E}[\max(0, |c\,t_0| - \beta)] / (2(\gamma_2 - \beta))$.
+
+**The loop cap.** An unbounded loop is awkward for hardware and real-time code, so FIPS 204
+lets an implementation stop after a fixed number of tries and report an error, if the limit
+makes that cryptographically rare. The figure it gives is 814: with ML-DSA-65's 5.1 expected
+tries, 814 failures in a row have probability below $2^{-256}$. With the corrected 5.14 the
+same calculation gives about 820. Real signers never come near either; the cap turns a bug, or
+a fault that makes every try fail, into an error instead of a hang.
+
+### Sizes and speeds
+
+Figure 9.4 puts the sizes next to the schemes they replace and the alternatives.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 330" width="640" role="img" aria-label="Bar chart of public key plus signature bytes: Ed25519 32 plus 64; RSA-2048 256 plus 256; Falcon-512 897 plus 666; ML-DSA-44 1,312 plus 2,420; ML-DSA-65 1,952 plus 3,309; ML-DSA-87 2,592 plus 4,627; SLH-DSA-128s 32 plus 7,856." fill="currentColor" font-size="14">
+<text x="20" y="24">Bytes on the wire: public key (dark) + signature (light)</text>
+<g text-anchor="end">
+<text x="140" y="59">Ed25519</text><text x="140" y="94">RSA-2048</text><text x="140" y="129">Falcon-512</text><text x="140" y="164">ML-DSA-44</text><text x="140" y="199">ML-DSA-65</text><text x="140" y="234">ML-DSA-87</text><text x="140" y="269">SLH-DSA-128s</text>
+</g>
+<rect x="150" y="44" width="1.8" height="20" fill-opacity=".85"/><rect x="151.8" y="44" width="3.5" height="20" fill-opacity=".3"/>
+<rect x="150" y="79" width="14.1" height="20" fill-opacity=".85"/><rect x="164.1" y="79" width="14.1" height="20" fill-opacity=".3"/>
+<rect x="150" y="114" width="49.3" height="20" fill-opacity=".85"/><rect x="199.3" y="114" width="36.6" height="20" fill-opacity=".3"/>
+<rect x="150" y="149" width="72.2" height="20" fill-opacity=".85"/><rect x="222.2" y="149" width="133.1" height="20" fill-opacity=".3"/>
+<rect x="150" y="184" width="107.4" height="20" fill-opacity=".85"/><rect x="257.4" y="184" width="182.0" height="20" fill-opacity=".3"/>
+<rect x="150" y="219" width="142.6" height="20" fill-opacity=".85"/><rect x="292.6" y="219" width="254.5" height="20" fill-opacity=".3"/>
+<rect x="150" y="254" width="1.8" height="20" fill-opacity=".85"/><rect x="151.8" y="254" width="432.1" height="20" fill-opacity=".3"/>
+<g font-size="13">
+<text x="162" y="59">96</text><text x="186" y="94">512</text><text x="244" y="129">1,563</text><text x="363" y="164">3,732</text><text x="447" y="199">5,261</text><text x="555" y="234">7,219</text><text x="590" y="269">7,888</text>
+</g>
+<line x1="150" y1="285" x2="590" y2="285" stroke="currentColor"/>
+<g stroke="currentColor"><line x1="150" y1="285" x2="150" y2="291"/><line x1="260" y1="285" x2="260" y2="291"/><line x1="370" y1="285" x2="370" y2="291"/><line x1="480" y1="285" x2="480" y2="291"/><line x1="590" y1="285" x2="590" y2="291"/></g>
+<g text-anchor="middle" font-size="12"><text x="150" y="306">0</text><text x="260" y="306">2,000</text><text x="370" y="306">4,000</text><text x="480" y="306">6,000</text><text x="590" y="306">8,000</text></g>
+<text x="20" y="324" fill-opacity=".7">RSA-2048 counts the modulus only; Falcon-512 and SLH-DSA-SHA2-128s are from Chapters 10 and 12.</text>
+</svg>
+<figcaption>Figure 9.4. Public key plus signature for one signer. ML-DSA-44 costs about 39 times Ed25519's 96 bytes; Falcon is less than half of ML-DSA-44; the hash-based SLH-DSA puts almost everything in the signature.</figcaption>
+</figure>
+
+Speed is where ML-DSA shines. The Dilithium team's round 3 measurements, on one core of an
+Intel Core i7-6600U (Skylake) with the AVX2 implementation, were as follows; the
+arithmetic is the same in ML-DSA, and the FIPS 204 changes add only a few hashes.
+
+| Skylake cycles (AVX2) | key generation | signing (average) | verification |
+|---|---|---|---|
+| Dilithium2 (ML-DSA-44) | 124,031 | 333,013 | 118,412 |
+| Dilithium3 (ML-DSA-65) | 256,403 | 529,106 | 179,424 |
+| Dilithium5 (ML-DSA-87) | 298,050 | 642,192 | 279,936 |
+
+*Table 9.2. Round 3 Dilithium speeds from the CRYSTALS team's published benchmarks. The
+portable C reference code is two to five times slower.*
+
+At 3 GHz, 333,013 cycles is about 0.11 milliseconds, so one core signs about nine thousand
+ML-DSA-44 messages a second and verifies about twenty-five thousand. That is in the same
+range as Ed25519 and far faster than RSA-2048 signing, which takes a few million cycles.
+Signing is the variable one: the average hides the loop, and a signature that needs ten
+tries takes more than twice the average, so Sebastien Riou and colleagues (ePrint 2026/1333)
+argue that benchmarks should report the spread on standard inputs, not a bare average.
+Verification has no loop.
 
 ## 9.7 The complete code
 
@@ -606,7 +971,7 @@ for name, seed, pk_hash, sk_hash in VECTORS:
 
 It prints:
 
-```
+```text
 ML-DSA-44: pk 1312 B, sk 2560 B, signature 2420 B, matches NIST: True
 ML-DSA-65: pk 1952 B, sk 4032 B, signature 3309 B, matches NIST: True
 ML-DSA-87: pk 2592 B, sk 4896 B, signature 4627 B, matches NIST: True
@@ -639,7 +1004,7 @@ print("signatures that still verify with the hints removed:", still_ok, "of 30")
 
 It prints:
 
-```
+```text
 hints per signature: min 50  max 76  average 63.2  (limit omega = 80 of 1024 )
 signatures that still verify with the hints removed: 0 of 30
 ```
@@ -692,7 +1057,7 @@ print("hedged: two signatures equal:       ", hed1 == hed2,
 
 It prints:
 
-```
+```text
 valid signature verifies:       True
 one byte of message changed:    False
 same signature, other context:  False
@@ -700,6 +1065,91 @@ one bit of signature flipped:   False
 deterministic: two signatures equal: True
 hedged: two signatures equal:        False  both verify: True
 ```
+
+### Deterministic, hedged, and what a fault buys
+
+FIPS 204 makes hedged signing the default and permits the deterministic variant.
+Deterministic signing has two honest uses: platforms with no trustworthy randomness, and
+known-answer testing (NIST's ACVP vectors cover both modes, supplying $\mathit{rnd}$ as an
+input for hedged ones). Everywhere else, hedge. The reason is the fault attack, which [Chapter 17](17-Implementing-Post-Quantum-Safely.md)
+carries out in full (§17.6 and §17.7) and the Cryptanalysis book places among the nonce
+failures of every Schnorr-like scheme
+([Chapter 14](../cryptanalysis/14-Attacks-on-Signatures-and-Nonces.md); its
+[Chapter 17](../cryptanalysis/17-Side-Channels-the-Attackers-View.md) has the attacker's view
+of side channels). In brief: in deterministic mode the same message gives the same mask
+$\mathbf{y}$; a glitch that changes $c$ on a second signing yields $\mathbf{z}_1 - \mathbf{z}_2 = (c_1 -
+c_2)\,\mathbf{s}_1$, and $\mathbf{s}_1$ falls out of one linear solve.
+
+A natural hope is that half the key is not enough: the attacker lacks $\mathbf{s}_2$ and
+$\mathbf{t}_0$. The hope is false. From the public key,
+
+$$\mathbf{A}\mathbf{s}_1 - \mathbf{t}_1 \cdot 2^{13} = \mathbf{t} - \mathbf{s}_2 - \mathbf{t}_1 \cdot 2^{13}
+= \mathbf{t}_0 - \mathbf{s}_2,$$
+
+so anyone holding $\mathbf{s}_1$ knows the small vector $\mathbf{t}_0 - \mathbf{s}_2$, and that is all a
+signer needs. Choose $\mathbf{y}$, compute $\mathbf{w} = \mathbf{A}\mathbf{y}$, hash its high bits to get
+$c$, set $\mathbf{z} = \mathbf{y} + c\,\mathbf{s}_1$; the verifier will compute $\mathbf{A}\mathbf{z} -
+c\,\mathbf{t}_1 2^{13} = \mathbf{w} + c(\mathbf{t}_0 - \mathbf{s}_2)$, which the forger can compute
+too, and the hints from there back to HighBits$(\mathbf{w})$ follow directly.
+
+**Break it.** A forger with $\mathbf{s}_1$ and the public key, nothing else.
+
+```python
+# Uses keygen(), sk_decode(), verify() and the helpers from the listing above.
+# A fault attack that recovers only s1 is enough: sign with s1 and the public key alone.
+import hashlib, random
+
+def forge(params, pk, s1, msg, ctx=b""):
+    k, l, eta, tau, lam, g1, g2, omega = PARAMS[params]
+    rho, t1 = pk[:32], [unpack(pk[32 + 320 * i:32 + 320 * (i + 1)], 10) for i in range(k)]
+    A = expand_a(rho, k, l)
+    mu = H(H(pk, 64) + bytes([0, len(ctx)]) + ctx + msg, 64)
+    rng = random.Random(1)
+    while True:
+        y = [[rng.randrange(-g1 + 1, g1 + 1) % Q for _ in range(N)] for _ in range(l)]
+        w = mat_vec(A, [ntt(p) for p in y])
+        c_tilde = H(mu + w1_encode([[high_bits(x, g2) for x in p] for p in w], g2), lam // 4)
+        ch = ntt(sample_in_ball(c_tilde, tau))
+        z = [padd(a, ntt_inv(pmul(ch, ntt(s)))) for a, s in zip(y, s1)]
+        if inf_norm(z) >= g1 - tau * eta:
+            continue                      # z must still pass the verifier's size check
+        # the verifier's value, A z - c t1 2^13, and hints from it back to HighBits(w)
+        ct1 = [ntt_inv(pmul(ch, ntt([(x << D) % Q for x in p]))) for p in t1]
+        w_v = [psub(a, b) for a, b in zip(mat_vec(A, [ntt(p) for p in z]), ct1)]
+        diff = [psub(a, b) for a, b in zip(w, w_v)]
+        h = [[make_hint(d, b, g2) for d, b in zip(pd, pv)] for pd, pv in zip(diff, w_v)]
+        if inf_norm(diff) >= g2 or sum(map(sum, h)) > omega:
+            continue
+        return (c_tilde + b"".join(bit_pack([mod_pm(x, Q) for x in p], g1 - 1, g1) for p in z)
+                + hint_pack(h, omega, k))
+
+P = "ML-DSA-44"
+pk, sk = keygen(P, hashlib.sha3_256(b"air plant controller").digest())
+s1 = sk_decode(sk, *PARAMS[P][:3])[3]           # what the fault attack recovered
+fake = forge(P, pk, s1, b"open all airlocks")
+print("forged with s1 only, verifies:", verify(P, pk, b"open all airlocks", fake))
+```
+
+It prints:
+
+```text
+forged with s1 only, verifies: True
+```
+
+So any leak of $\mathbf{s}_1$, by a fault, by power analysis of $c\,\mathbf{s}_1$, or by a bug
+that publishes a rejected $\mathbf{z}$, is a total break.
+
+**Fix it.** Hedged signing removes the repeated $\mathbf{y}$ the attack needs. It does not stop
+every fault (a glitch that skips the rejection check releases a $\mathbf{z}$ carrying the
+key's imprint), so careful signers also verify each signature before releasing it, at about a
+third of the cost of signing.
+
+**Mars.** Faults are not only an attacker's tool. Mars has no global magnetic field and a
+thin atmosphere, so cosmic rays flip bits in electronics far more often than on Earth's
+surface. A deterministic signer in Arcadia City that re-signs a status report after a dropped
+link, and suffers one bit flip in the challenge, has handed its key to anyone who reads both
+signatures. Arcadia's signers therefore run hedged, verify before
+release, and never retransmit by re-signing: they resend the stored signature.
 
 **The loop.** Each try costs a matrix-vector product and several NTTs. The listing counts
 tries over 200 signatures per parameter set.
@@ -724,18 +1174,16 @@ for NAME in PARAMS:
 
 It prints:
 
-```
+```text
 ML-DSA-44 average tries per signature over 200: 4.185
 ML-DSA-65 average tries per signature over 200: 4.635
 ML-DSA-87 average tries per signature over 200: 4.28
 ```
 
-The averages come out near FIPS 204's expected values of 4.25, 5.1 and 3.85; 200 signatures
-are too few to pin them down more closely, since the number of tries varies a lot from one
-signature to the next. The variation matters in practice. A signer's time is not fixed, and
-a real implementation must make sure that the number of tries, and the values computed in
-rejected tries, reveal nothing about the key. The number of tries depends only on the
-random masks and is safe to leak; the rejected values are not.
+The averages come out near the expected values of §9.6; 200 signatures are too few to pin
+them down more closely, since the count varies a lot from one signature to the next. The
+number of tries depends only on the random masks and is safe to leak; the values computed in
+rejected tries are not.
 
 ## 9.9 HashML-DSA and pre-hashing
 
@@ -786,16 +1234,112 @@ print("pure signature accepted as HashML-DSA:  ", hash_verify(P, pk, image, pure
 
 It prints:
 
-```
+```text
 HashML-DSA signature verifies:           True
 accepted as a pure ML-DSA signature:     False
 pure signature accepted as HashML-DSA:   False
 ```
 
-Which to use? Most guidance favors pure ML-DSA, with external $\mu$ where the message cannot
-be brought to the signer. HashML-DSA's security also depends on the collision
-resistance of the pre-hash, and having two signature types for one key invites confusion. The
-IETF's specifications for ML-DSA in certificates use pure ML-DSA.
+### External μ in practice
+
+External $\mu$ splits pure ML-DSA at its first line. Everything before $\mu$ needs only
+public data: the public key (for $tr$), the context string and the message. Everything
+after needs the private key but only 64 bytes of input. So the expensive, message-sized
+work can run wherever the message is, and the small, secret work wherever the key is.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="External mu flow. On the host, next to the large message, tr = H(pk), M prime = 0, length of ctx, ctx, M, and mu = H(tr, M prime) are computed. Only the 64-byte mu goes to the signing module, which holds the private key and runs the signing loop. The signature comes back and any ordinary ML-DSA verifier checks it against pk, M and ctx." fill="currentColor" font-size="14">
+<rect x="20" y="20" width="260" height="150" rx="6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="34" y="44">Host, next to the message M</text>
+<text x="34" y="74" font-size="13">tr = H(pk), 64 bytes (public)</text>
+<text x="34" y="98" font-size="13">M′ = 0 ‖ len(ctx) ‖ ctx ‖ M</text>
+<text x="34" y="122" font-size="13">μ = H(tr ‖ M′), 64 bytes</text>
+<text x="34" y="152" font-size="13" fill-opacity=".7">reads all of M; no secrets</text>
+<rect x="380" y="20" width="240" height="150" rx="6" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="1.6"/>
+<text x="394" y="44">Signing module (holds sk)</text>
+<text x="394" y="74" font-size="13">ρ″ = H(K ‖ rnd ‖ μ)</text>
+<text x="394" y="98" font-size="13">loop: y, w, c̃, z, checks, h</text>
+<text x="394" y="122" font-size="13">output σ = (c̃, z, h)</text>
+<text x="394" y="152" font-size="13" fill-opacity=".7">never sees M</text>
+<line x1="280" y1="70" x2="372" y2="70" stroke="currentColor" stroke-width="1.6"/><path d="M370 65 L380 70 L370 75 Z"/>
+<text x="330" y="60" text-anchor="middle" font-size="13">μ (64 B)</text>
+<line x1="380" y1="125" x2="288" y2="125" stroke="currentColor" stroke-width="1.6"/><path d="M290 120 L280 125 L290 130 Z"/>
+<text x="330" y="145" text-anchor="middle" font-size="13">σ</text>
+<rect x="150" y="210" width="340" height="60" rx="6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="320" y="236" text-anchor="middle">Any verifier: ordinary ML-DSA.Verify</text>
+<text x="320" y="258" text-anchor="middle" font-size="13">(pk, M, σ, ctx), nothing new to support</text>
+<line x1="150" y1="170" x2="190" y2="208" stroke="currentColor" stroke-dasharray="4 3"/>
+<line x1="500" y1="170" x2="450" y2="208" stroke="currentColor" stroke-dasharray="4 3"/>
+</svg>
+<figcaption>Figure 9.5. External μ. The host does the message-sized hashing with public data only; the module holding the key receives 64 bytes and returns an ordinary pure ML-DSA signature. Because tr = H(pk) is inside μ, a μ computed for the wrong key yields a signature that fails.</figcaption>
+</figure>
+
+**Code it.** The host and the module, played by the same program: the signature from
+external $\mu$ is byte for byte the one the module would have made from the whole message.
+
+```python
+# Uses keygen(), sign_internal(), sign() and verify() from the listing above.
+# External mu: the host hashes the message, the signing module sees only 64 bytes.
+import hashlib
+P = "ML-DSA-65"
+pk, sk = keygen(P, hashlib.sha3_256(b"Arcadia ground station HSM").digest())
+image = bytes(range(256)) * 4000                     # the 1 MB update, on the host
+ctx = b"door-locks"
+
+# On the host, next to the image: tr = H(pk), M' = 0 || len(ctx) || ctx || M, mu = H(tr || M')
+tr = H(pk, 64)
+m_prime = bytes([0, len(ctx)]) + ctx + image
+mu = H(tr + m_prime, 64)
+print("bytes sent to the signing module:", len(mu))
+
+# In the module: Algorithm 7 started from mu (deterministic here, so it can be compared)
+sig = sign_internal(P, sk, b"", bytes(32), mu=mu)
+print("same as signing the whole image inside: ", sig == sign(P, sk, image, ctx=ctx))
+print("an ordinary verifier accepts it:         ", verify(P, pk, image, sig, ctx=ctx))
+
+# mu binds the key: a mu computed with another key's tr gives a signature that fails
+other_pk, _ = keygen(P, hashlib.sha3_256(b"some other key").digest())
+bad_mu = H(H(other_pk, 64) + m_prime, 64)
+print("mu built with the wrong public key:      ",
+      verify(P, pk, image, sign_internal(P, sk, b"", bytes(32), mu=bad_mu), ctx=ctx))
+```
+
+It prints:
+
+```text
+bytes sent to the signing module: 64
+same as signing the whole image inside:  True
+an ordinary verifier accepts it:          True
+mu built with the wrong public key:       False
+```
+
+This is not a hypothetical interface. When AWS added ML-DSA keys to its Key Management
+Service in June 2025, it added a message type called `EXTERNAL_MU` to the signing call, for
+exactly this reason. Two cautions apply. The module signs whatever 64 bytes it is given, so
+the host is trusted to compute $\mu$ from the right message, as a classical HSM trusts a
+caller that sends a digest. And the module cannot enforce a context-string policy, because
+the context went into $\mu$ before it arrived.
+
+### Which to use
+
+Most guidance, NIST's and the IETF's, comes down to a short list.
+
+1. **Pure ML-DSA, empty context string,** for anything that follows an existing protocol
+   specification. RFC 9881 (X.509, October 2025) and RFC 9882 (CMS, October 2025) use pure
+   ML-DSA only; the TLS draft (draft-ietf-tls-mldsa) requires the empty context. A context
+   string is for your own protocol, documented and the same at both ends.
+2. **External $\mu$** when the message is large or far from the key: HSMs, cloud key
+   services, smart cards. Verifiers need nothing new.
+3. **HashML-DSA** only when an interface fixes the input as a digest made elsewhere and the
+   verifier, too, works from the digest: some legacy signing APIs and document formats are
+   built that way. The pre-hash must match the parameter set's strength (FIPS 204 asks for
+   at least $\lambda$ bits of collision and second-preimage resistance, so SHA-256 is enough
+   for ML-DSA-44 but SHA-512 or SHAKE256 is needed for ML-DSA-87), and the verifier must
+   be told which hash was used.
+
+Pure signing is preferred less for strength than to avoid confusion: the domain-separation
+byte stops one kind of signature verifying as the other, but a key should still be used in
+one mode only.
 
 ## 9.10 Security
 
@@ -809,38 +1353,190 @@ c\,\mathbf{t})) = c$: forgery in its plainest form. It is not reducible to plain
 quantum setting without losses, so the concrete parameters are chosen against the best known
 attacks on both problems, using the estimator of Chapter 6. FIPS 204 also claims strong
 unforgeability: given signatures, an attacker cannot make a different valid signature even
-of the same message. The strict checks on the hint encoding in verification exist for that;
-without them, two encodings of the same hint would both verify.
+of the same message.
 
 **Binding to the key.** $\mu$ includes $tr = H(\mathrm{pk})$, so a signature is valid only for the
 key it was made with. That gives ML-DSA the "exclusive ownership" properties of Cremers and
 others' BUFF framework (2021) that some older schemes lack, which prevents attacks where an
 adversary finds a second key that accepts an existing signature.
 
-**What changed from Dilithium.** The main changes in FIPS 204 are: hedged signing with a
-32-byte $\mathit{rnd}$ as the default; a 64-byte $tr$; a challenge hash $\tilde c$ whose length
-grows with the security level ($\lambda/4$ bytes); key generation that hashes in $k$ and
-$\ell$, like ML-KEM's domain separator; and the context strings, domain-separation byte and
-HashML-DSA of §9.8 and §9.9. As with ML-KEM, old Dilithium signatures do not verify under
-ML-DSA.
+### The proof in outline
+
+A security proof is a chain of reductions: anyone who could forge could also solve a
+better-studied lattice problem. [Chapter 3](03-KEMs-and-Signatures.md) explained the quantum
+random oracle model the proof lives in, and the Mathematics book's
+[Chapter 19](../mathematics/19-Complexity-and-Reductions.md) explains reductions. ML-DSA's
+chain has four links (Figure 9.6).
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 380" width="640" role="img" aria-label="The ML-DSA proof chain as five boxes from top to bottom: a forger with chosen messages and quantum hash access; a forger with no signing oracle; a forger against a random public key; a SelfTargetMSIS solver; a Module-SIS solver. The arrows are labeled: simulate signatures and program the hash; Module-LWE; the same problem; forking or measure-and-reprogram, with a loss." fill="currentColor" font-size="14">
+<rect x="20" y="20" width="290" height="44" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="34" y="47">Forger: chosen messages, quantum H</text>
+<rect x="20" y="100" width="290" height="44" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="34" y="127">Forger with no signing oracle</text>
+<rect x="20" y="180" width="290" height="44" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="34" y="207">Forger against a random (A, t)</text>
+<rect x="20" y="260" width="290" height="44" rx="5" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="1.6"/>
+<text x="34" y="287">SelfTargetMSIS solver</text>
+<rect x="20" y="330" width="290" height="44" rx="5" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1.6"/>
+<text x="34" y="357">Module-SIS solver</text>
+<g stroke="currentColor" stroke-width="1.6">
+<line x1="165" y1="64" x2="165" y2="92"/><line x1="165" y1="144" x2="165" y2="172"/><line x1="165" y1="224" x2="165" y2="252"/><line x1="165" y1="304" x2="165" y2="322"/>
+</g>
+<path d="M160 90 L165 100 L170 90 Z"/><path d="M160 170 L165 180 L170 170 Z"/><path d="M160 250 L165 260 L170 250 Z"/><path d="M160 320 L165 330 L170 320 Z"/>
+<g font-size="13">
+<text x="330" y="76">1. simulate signatures without the key:</text>
+<text x="330" y="94" fill-opacity=".7">z uniform in the box, program H</text>
+<text x="330" y="156">2. replace t = As₁ + s₂ by uniform t:</text>
+<text x="330" y="174" fill-opacity=".7">costs the Module-LWE advantage</text>
+<text x="330" y="236">3. a forgery is a short (z, c, u)</text>
+<text x="330" y="254" fill-opacity=".7">that hashes to c: the same problem</text>
+<text x="330" y="306">4. fork (ROM) or measure-and-reprogram</text>
+<text x="330" y="324" fill-opacity=".7">(QROM): loose; parameters assume equal</text>
+<text x="330" y="342" fill-opacity=".7">hardness and are set by known attacks</text>
+</g>
+</svg>
+<figcaption>Figure 9.6. The chain of reductions behind ML-DSA. Links 1 to 3 are tight in the quantum random oracle model (Kiltz, Lyubashevsky and Schaffner, 2018, with the gap closed in 2023). Link 4 loses a lot, which is why the parameters are chosen from attacks rather than from the proof.</figcaption>
+</figure>
+
+**1. Remove the signing oracle.** The attacker may ask for signatures on messages of its
+choice, and the reduction, which has no private key, must fake them perfectly. Here §9.3 pays
+off: a kept $\mathbf{z}$ is uniform on the small box, whatever the key. So the simulator picks $\mathbf{z}$ uniform on that box and $c$ at random,
+computes the commitment backwards from the public key as
+$\mathbf{w}_1 = \mathrm{HighBits}(\mathbf{A}\mathbf{z} - c\,\mathbf{t})$, and then *programs* the random
+oracle so that $H(\mu \,\|\, \mathbf{w}_1)$ returns this $c$. This honest-verifier
+zero-knowledge step needs three things: kept transcripts independent of the key (rejection),
+recomputed high bits that match the real ones (the second check, as in the toy of §9.5), and
+a programmed input the attacker has not already queried ($\mathbf{w}_1$ has plenty of entropy
+from the mask). The analysis treats $\mathbf{t}_0$ as public; keeping it secret is a margin.
+
+In the QROM, programming is the delicate step, because a quantum attacker may have queried
+$H$ on a superposition including the programmed point; Grilo, Hövelmanns, Hülsing and Majenz
+(ASIACRYPT 2021) gave a general, tight lemma for this "adaptive reprogramming".
+
+**2. Make the key random.** The public key $\mathbf{t} = \mathbf{A}\mathbf{s}_1 + \mathbf{s}_2$ is a
+Module-LWE sample (Mathematics book, [Chapter 15](../mathematics/15-Learning-with-Errors.md)).
+If the attacker forged noticeably more often against real keys than against a uniformly random
+$\mathbf{t}$, it would be a Module-LWE distinguisher. So from here on the key is random and has
+no secret behind it at all.
+
+**3. Read the forgery as a lattice solution.** A valid forgery $(\tilde c, \mathbf{z}, \mathbf{h})$
+against a random key gives a short $\mathbf{z}$, a sparse $c$ and a small rounding term
+$\mathbf{u}$ with
+
+$$H\big(\mu \,\|\, [\mathbf{A} \mid \mathbf{t} \mid \mathbf{I}]\cdot(\mathbf{z}, -c, \mathbf{u})\big) = c,$$
+
+after the high bits are taken. A short vector whose image under a random matrix hashes to part
+of itself is exactly **SelfTargetMSIS**. Together the first three steps are tight: success
+$\varepsilon$ for the forger gives success about $\varepsilon$, minus the Module-LWE advantage,
+for the solver. That quantum tightness was the main result of the 2018 paper.
+
+**4. From SelfTargetMSIS to plain Module-SIS.** Classically, the forking lemma rewinds the
+solver to the moment it asked for $c$, answers differently, and hopes for a second solution
+with the same commitment; the two subtract to a short vector in the kernel of
+$[\mathbf{A} \mid \mathbf{t} \mid \mathbf{I}]$, a Module-SIS solution. Success drops to roughly
+its square divided by the number of hash queries. A quantum attacker cannot simply be rewound,
+but the measure-and-reprogram technique of Don, Fehr, Majenz and Schaffner (CRYPTO 2019) and
+Liu and Zhandry's work the same year give a quantum version, losing a factor around the square
+of the number of queries. No attack on SelfTargetMSIS beats attacking Module-SIS directly, so
+parameters treat the two as equally hard and are estimated with the lattice estimator
+([Chapter 6](06-Lattice-Reduction-and-the-Estimator.md)).
+
+**The 2023 gap.** In 2023 two groups found a subtle error that affected proofs of every
+Fiat-Shamir with aborts scheme, Dilithium included. Manuel Barbosa, Gilles Barthe and eight
+co-authors hit it while formalizing the 2018 proof in the EasyCrypt proof assistant; Julien
+Devevey, Pouria Fallahpour, Alain Passelègue and Damien Stehlé found it independently. Both
+papers appeared at CRYPTO 2023. The real signer also queries the hash on the commitments of
+its rejected tries, and whether a try is rejected depends on the answer; the earlier
+simulations missed how that skews the hash outputs. The fixes show that rejected tries can be
+simulated too, give new proofs in both models, and confirm Dilithium's claimed security
+levels; Barbosa and colleagues also machine-checked the classical proof. Rejected values,
+again, are not harmless leftovers.
+
+**Strong unforgeability** also needs each signature to have exactly one valid encoding, so
+HintBitUnpack rejects positions out of order, decreasing counts and nonzero padding. The
+draft of FIPS 204 omitted one of these checks by accident; Mike Hamburg pointed it out, and
+the final standard restored it.
 
 **Side channels.** ML-DSA's arithmetic is integer-only and its sampling is rejection-based,
 which makes constant-time code straightforward compared with Falcon (Chapter 10). The
 dangerous values are the secret-dependent ones: $c\,\mathbf{s}_1$, $\mathbf{y}$ and the
 low bits. Published power-analysis attacks recover keys from unprotected implementations
 on microcontrollers; masked implementations exist but cost several times the plain one.
-Chapter 17 returns to this.
+Chapter 17 returns to this, and the Cryptanalysis book's
+[Chapter 17](../cryptanalysis/17-Side-Channels-the-Attackers-View.md) shows the attacks from
+the other side. The number of tries is the one value that may leak: it depends only on the
+masks, which are fresh for every signature.
 
-## 9.11 In the real world
+## 9.11 From Dilithium to FIPS 204
 
 *Level: expert.*
 
-**Where it runs.** OpenSSL 3.5 (April 2025) added ML-DSA alongside ML-KEM and SLH-DSA, , other major
-libraries have followed, and several cloud key-management services offer it. NSA's CNSA 2.0 requires ML-DSA-87 for signatures on US national security
-systems, with software and firmware signing among the first uses. Hardware roots of trust,
-the chips that check a device's boot code, are among the earliest adopters, because a device
-built today may still be in use when quantum computers arrive, and its boot key cannot be
-changed after it ships.
+Dilithium was submitted in November 2017 and frozen as specification version 3.1 in February
+2021. NIST selected it in July 2022, published a draft FIPS 204 on 24 August 2023, received
+comments from 37 commenters and published the final standard on 13 August 2024. The changes
+are small in code and large in consequence: no two of the three versions interoperate.
+
+| What | Dilithium round 3.1 | FIPS 204 | Why |
+|---|---|---|---|
+| $tr = H(\mathrm{pk})$ | 32 bytes | 64 bytes (draft) | stronger BUFF properties |
+| $\tilde c$ | 32 bytes for all sets | $\lambda/4$: 32, 48, 64 bytes (draft) | stronger BUFF properties at levels 3 and 5 |
+| signing randomness | deterministic by default; randomized mode used a random $\rho'$ | hedged by default, $\rho'' = H(K \,\|\, \mathit{rnd} \,\|\, \mu)$ (draft) | resist faults and bad RNGs (§9.8) |
+| SampleInBall | first 256 bits of $\tilde c$ | all of $\tilde c$ (final) | cleaner; requested by commenters |
+| ExpandMask | SHAKE output read at an offset | read from the start (final) | the offset was unnecessary |
+| HintBitUnpack | full checks in the reference code | a check missing in the draft, restored (final) | strong unforgeability |
+| key generation | $H(\xi)$ | $H(\xi \,\|\, k \,\|\, \ell)$ (final) | one seed cannot give related keys for two sets |
+| message | $M$ | $0 \,\|\, |\mathit{ctx}| \,\|\, \mathit{ctx} \,\|\, M$, and HashML-DSA with 1 (final) | contexts; pure and pre-hash kept apart |
+| loop | unbounded | a cap of at least 814 tries allowed (final) | hardware and real-time code |
+| symmetric primitive | SHAKE, or AES in the "-AES" variant | SHAKE only | one design |
+
+*Table 9.3. From Dilithium to ML-DSA. "Draft" marks a change made in the August 2023 draft,
+"final" one made between the draft and the August 2024 standard (from NIST's FIPS 204 status
+talk, 2024, and the standard itself).*
+
+The parameters $q$, $n$, $d$, $k$, $\ell$, $\eta$, $\tau$, $\gamma_1$, $\gamma_2$ and $\omega$
+did not change, and neither did the public-key size. The longer $tr$ added 32 bytes to every
+private key (Dilithium2's 2,528 became 2,560), and the longer $\tilde c$ added 16 bytes to
+ML-DSA-65 signatures (3,293 became 3,309) and 32 bytes to ML-DSA-87's (4,595 became 4,627).
+NIST also recorded what it declined to change: commenters asked to replace SHAKE with SHA-2 or
+with a DRBG inside the samplers, to swap the order of $tr$ and $M$ in $\mu$, and to lengthen
+the 32-byte seed, and NIST kept the design as it was in each case.
+
+The practical lesson is about test vectors. Libraries implemented round-3 Dilithium and then
+the August 2023 draft before the final standard, and both kinds of signature fail under
+FIPS 204. Passing
+Dilithium's old known-answer tests proves nothing about ML-DSA; the NIST ACVP vectors of §9.7
+are the reference, and certificates must use the RFC 9881 identifiers, never the experimental
+ones assigned to Dilithium.
+
+## 9.12 In the real world
+
+*Level: expert.*
+
+**Where it runs.** As of November 2026, ML-DSA is in most general-purpose cryptographic
+libraries and is moving into protocols and hardware.
+
+- **Libraries.** OpenSSL 3.5 (April 2025) added ML-DSA alongside ML-KEM and SLH-DSA; Java's
+  JDK 24 (March 2025, JEP 497) added it to the standard library; BoringSSL, AWS-LC and
+  Bouncy Castle carry it, among others.
+- **Cloud keys.** AWS KMS added ML-DSA keys in June 2025, with the external-$\mu$ interface of
+  §9.9, and AWS Private CA added ML-DSA certificates in November 2025.
+- **Standards for formats.** RFC 9881 (X.509 certificates and CRLs) and RFC 9882 (CMS) were
+  published in October 2025, RFC 9964 (JOSE and COSE) in 2026. TLS 1.3 signature codepoints
+  are in draft-ietf-tls-mldsa (revision 05, July 2026), and composite ML-DSA, paired with a
+  classical signature, has its own LAMPS and TLS drafts. Chapter 18 follows these into the
+  Web PKI.
+- **Hardware security modules.** The large HSM vendors ship firmware with ML-DSA whose
+  algorithm implementations have passed NIST's CAVP testing, and module-level FIPS 140-3
+  validations that include them have started to arrive (Thales, for example, announced a
+  Level 3 validation for its post-quantum Luna T-Series HSM in July 2026). A buyer should
+  check that the module's certificate names ML-DSA and the firmware version in use.
+- **Policy.** NSA's CNSA 2.0 requires ML-DSA-87 for signatures on US national security
+  systems, with software and firmware signing among the first uses.
+
+Hardware roots of trust, the chips that check a device's boot code, are among the earliest
+adopters, because a device built today may still be in use when quantum computers arrive,
+and its boot key cannot be changed after it ships.
 
 **Where size hurts.** A TLS handshake carries several signatures and public keys: the
 server's certificate and its issuer's, the handshake signature, and signed certificate
@@ -858,19 +1554,20 @@ signing key lives in a ground-station security module that receives only $\mu$, 
 beside the image, as in §9.9. The context string names the device class, so a signature on
 door-lock firmware is no use to anyone trying to install it on the air plant.
 
-## 9.12 Going deeper
+## 9.13 Going deeper
 
 *Level: expert.*
 
 - **The design.** Ducas and others' TCHES 2018 paper explains every parameter choice; the
   round 3 specification documents the security estimates.
-- **Fiat-Shamir with aborts in the QROM.** Kiltz, Lyubashevsky and Schaffner (2018), and later
-  work by Devevey, Fallahpour, Passelègue and Stehlé (2023) on a gap in earlier proofs of
-  aborting schemes and how to close it.
+- **Fiat-Shamir with aborts in the QROM.** Kiltz, Lyubashevsky and Schaffner (2018), then the
+  two CRYPTO 2023 papers that found and closed the gap (Barbosa and others, with a
+  machine-checked proof; Devevey and others).
 - **Relatives.** HAETAE (smaller signatures from a bimodal distribution) and Raccoon
   (designed to be easy to mask) were lattice entries in NIST's additional signature call;
-  neither reached its second round. Chapter 15 covers the signatures still in that process,
-  including HAWK, a lattice scheme.
+  neither reached its second round. HAWK, a lattice scheme closer to Falcon, reached round 3
+  and was withdrawn by its team in July 2026; Chapter 15 tells that story. BLISS (2013) shows
+  the Gaussian road ML-DSA did not take.
 - **Threshold ML-DSA.** Splitting a key among several signers is much harder than for
   Schnorr, because of the rejection loop; this is an active research area as of November 2026.
 - **Fault and side-channel attacks.** Bruinderink and Pessl (TCHES 2018) on faults in
@@ -886,11 +1583,13 @@ door-lock firmware is no use to anyone trying to install it on the air plant.
     shifted by $c\,\mathbf{s}_1$. Its edges reveal the secret. Rejecting anything outside a
     smaller box makes the distribution of $\mathbf{z}$ independent of the secret.
 
-??? question "2. What are the two problems ML-DSA's security rests on?"
+??? question "2. In the security proof, how does the reduction answer signing queries without the private key?"
 
-    Module-LWE, for key recovery from $\mathbf{t} = \mathbf{A}\mathbf{s}_1 + \mathbf{s}_2$, and an SIS-type
-    problem (SelfTargetMSIS in the proofs), for forging a short $\mathbf{z}$ that matches a
-    hash.
+    It picks $\mathbf{z}$ uniform on the small box and $c$ at random, computes
+    $\mathbf{w}_1 = \mathrm{HighBits}(\mathbf{A}\mathbf{z} - c\,\mathbf{t})$, and programs the random
+    oracle so that $H(\mu \,\|\, \mathbf{w}_1) = c$. This works because kept $\mathbf{z}$ is
+    independent of the key. Then Module-LWE makes the key look random, and a forgery becomes a
+    SelfTargetMSIS solution.
 
 ??? question "3. What does Power2Round do to the public key, and what does the signer have to add in exchange?"
 
@@ -898,9 +1597,11 @@ door-lock firmware is no use to anyone trying to install it on the air plant.
     $\mathbf{t}_0$. The verifier's value is then off by $c\,\mathbf{t}_0$, and the signer adds
     hints telling it where that error crosses a HighBits boundary.
 
-??? question "4. With 2γ₂ = 190,464, what are HighBits and LowBits of 400,000?"
+??? question "4. On the toy modulus q = 97 with 2γ₂ = 16, the verifier holds r = 58 and a hint bit 1. Which high bits does it hash?"
 
-    $400{,}000 = 2 \cdot 190{,}464 + 19{,}072$, so HighBits 2 and LowBits $19{,}072$.
+    $58 = 4 \cdot 16 - 6$, so HighBits 4 and LowBits $-6$. The hint says a boundary was crossed,
+    and negative low bits mean the value came up from the block below, so UseHint returns
+    $4 - 1 = 3$.
 
 ??? question "5. Compute the size of an ML-DSA-44 signature from its parameters."
 
@@ -914,10 +1615,15 @@ door-lock firmware is no use to anyone trying to install it on the air plant.
     signature of the same message. Only randomness fails if the random number generator is
     weak. Hedged signing $\rho'' = H(K \,\|\, \mathit{rnd} \,\|\, \mu)$ resists both.
 
-??? question "7. What is a context string for?"
+??? question "7. Where does ML-DSA-44's figure of 4.25 expected tries come from, and why is the true figure slightly higher?"
 
-    To separate uses of one key: a signature made with context "firmware" does not verify
-    with context "chat", so a signature cannot be moved from one application to another.
+    Each of the $256\ell$ coefficients of $\mathbf{z}$ passes with probability about
+    $1 - \beta/\gamma_1$ and each of the $256k$ low-bit coefficients with about
+    $1 - \beta/\gamma_2$, so a try is kept with probability about
+    $\exp(-256\beta(\ell/\gamma_1 + k/\gamma_2)) = e^{-1.448}$, and the expected count is
+    $e^{1.448} = 4.25$. The formula leaves out the checks made after the hint is computed; the
+    limit of $\omega = 80$ hints fails in a few percent of tries, which raises the expectation to
+    about 4.36.
 
 ??? question "8. A signer signs with HashML-DSA. Can the signature be accepted by a pure ML-DSA verifier?"
 
@@ -933,22 +1639,31 @@ door-lock firmware is no use to anyone trying to install it on the air plant.
 ??? question "10. Which values in ML-DSA signing must be kept secret even when a try is rejected?"
 
     The mask $\mathbf{y}$, the products $c\,\mathbf{s}_1$ and $c\,\mathbf{s}_2$, and the rejected
-    candidate $\mathbf{z}$: all depend on the key. The number of tries itself depends only on
-    the masks and may leak.
+    candidate $\mathbf{z}$: all depend on the key, and a leak of $\mathbf{s}_1$ alone is enough
+    to forge (§9.8). The number of tries itself depends only on the masks and may leak.
 
 ## What you learned
 
 - ML-DSA is Fiat-Shamir with aborts over module lattices: commit $\mathbf{w} = \mathbf{A}\mathbf{y}$,
   challenge $c$, respond $\mathbf{z} = \mathbf{y} + c\,\mathbf{s}_1$, and reject unless $\mathbf{z}$ hides
   the secret.
-- Without rejection, the edges of $\mathbf{z}$'s distribution reveal the secret.
+- Without rejection, the edges of $\mathbf{z}$'s distribution reveal the secret. With it, every
+  kept value of $\mathbf{z}$ has exactly the same probability whatever the key; rejected values
+  must never leave the signer.
+- MakeHint and UseHint are exact as long as the error stays within $\gamma_2$: one bit says a
+  block boundary was crossed and the verifier's own low bits say which way.
 - Power2Round shrinks the public key; HighBits, LowBits and at most $\omega$ hints let the
   verifier recompute the committed high bits.
-- ML-DSA-44, -65 and -87 have signatures of 2,420, 3,309 and 4,627 bytes; signing takes about
-  four tries on average.
+- ML-DSA-44, -65 and -87 have signatures of 2,420, 3,309 and 4,627 bytes. The expected number
+  of tries is about $\exp(256\beta(\ell/\gamma_1 + k/\gamma_2))$: 4.25, 5.1 and 3.85 in FIPS 204,
+  about 4.36, 5.14 and 3.91 once the hint limit is counted; a loop cap must be at least 814.
 - A complete implementation fits in about 270 lines and matches NIST's 615 test vectors.
-- Signing is hedged by default; context strings separate applications; external $\mu$ and
-  HashML-DSA handle large messages.
+- A fault that reveals only $\mathbf{s}_1$ is a full break, which is why signing is hedged and
+  signatures are best verified before release.
+- Use pure ML-DSA with an empty context for standard protocols, external $\mu$ when the message
+  is far from the key, and HashML-DSA only when an interface forces a digest.
+- FIPS 204 changed $tr$, $\tilde c$, the default randomness, SampleInBall, ExpandMask, key
+  generation and message formatting, so round-3 Dilithium does not interoperate with ML-DSA.
 - Security rests on Module-LWE and SelfTargetMSIS in the QROM; side channels and size are the
   practical challenges.
 
@@ -971,5 +1686,32 @@ smaller signatures at the price of harder arithmetic.
   2021).
 - Leon Groot Bruinderink and Peter Pessl, "Differential Fault Attacks on Deterministic Lattice
   Signatures" (TCHES 2018).
+- Léo Ducas, Alain Durmus, Tancrède Lepoint and Vadim Lyubashevsky, "Lattice Signatures and
+  Bimodal Gaussians" (BLISS, CRYPTO 2013); Leon Groot Bruinderink, Andreas Hülsing, Tanja Lange
+  and Yuval Yarom, "Flush, Gauss, and Reload" (CHES 2016).
+- CRYSTALS-Dilithium, *Algorithm Specifications and Supporting Documentation*, version 3.1
+  (8 February 2021), with equation (5) for the expected repetitions and the round 3
+  benchmarks.
+- Jelle Don, Serge Fehr, Christian Majenz and Christian Schaffner, "Security of the Fiat-Shamir
+  Transformation in the Quantum Random-Oracle Model" (CRYPTO 2019); Qipeng Liu and Mark
+  Zhandry, "Revisiting Post-Quantum Fiat-Shamir" (CRYPTO 2019).
+- Alex B. Grilo, Kathrin Hövelmanns, Andreas Hülsing and Christian Majenz, "Tight Adaptive
+  Reprogramming in the QROM" (ASIACRYPT 2021).
+- Manuel Barbosa, Gilles Barthe, Christian Doczkal, Jelle Don, Serge Fehr, Benjamin Grégoire,
+  Yu-Hsuan Huang, Andreas Hülsing, Yi Lee and Xiaodi Wu, "Fixing and Mechanizing the Security
+  Proof of Fiat-Shamir with Aborts and Dilithium" (CRYPTO 2023; ePrint 2023/246).
+- Julien Devevey, Pouria Fallahpour, Alain Passelègue and Damien Stehlé, "A Detailed Analysis
+  of Fiat-Shamir with Aborts" (CRYPTO 2023; ePrint 2023/245).
+- Ray Perlner, "FIPS 204 Status Update" (NIST presentation, 2024): the
+  changes from the draft to the final standard.
+- Kris Kwiatkowski, "On the Expected Number of Iterations in ML-DSA Signing: A Complete
+  Accounting of the Rejection Conditions" (ePrint 2026/2456, October 2026).
+- Sebastien Riou, Jong-Yeon Park, Liga Anwar, Axel Poschmann and Michael Hutter, "Apples,
+  Oranges, and Signatures: Pitfalls and Methodology in ML-DSA Benchmarking" (ePrint 2026/1333,
+  2026).
+- RFC 9881, *Algorithm Identifiers for ML-DSA* in X.509 (October 2025); RFC 9882, *Use of
+  ML-DSA in CMS* (October 2025); RFC 9964, *ML-DSA for JOSE and COSE* (2026);
+  draft-ietf-tls-mldsa-05, *Use of ML-DSA in TLS 1.3* (July 2026).
+- AWS, "AWS KMS adds support for post-quantum ML-DSA digital signatures" (June 2025).
 - NSA, *Commercial National Security Algorithm Suite 2.0* (CNSA 2.0) advisory and FAQ.
 - The NIST ACVP-Server repository (github.com/usnistgov/ACVP-Server), FIPS 204 test files.
