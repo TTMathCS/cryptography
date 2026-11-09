@@ -22,8 +22,12 @@ in a relay orbiter on their way to Mars, and which problems are still open.*
     - the Dolev-Yao attacker and the symbolic model of a protocol;
     - Lowe's attack on Needham-Schroeder, by hand and found by a model
       checker you write;
+    - why a ballot can be secret symbolically and readable computationally;
+    - the Otway-Rees type flaw, found by a second checker and fixed by tags;
     - what ProVerif, Tamarin, CryptoVerif and verified code have proved,
-      and where proofs stop;
+      what the analyses of TLS 1.3, Signal and 5G found, and where proofs stop;
+    - the Bellare-Rogaway game, and how to read a security bound;
+    - a design checklist, applied to a habitat command;
     - how post-quantum algorithms change the shape of protocols;
     - delay-tolerant networking and BPSec, checked against RFC 9173;
     - the open problems this book leaves for its readers.
@@ -35,8 +39,8 @@ in a relay orbiter on their way to Mars, and which problems are still open.*
     [Chapter 16](16-Signal-and-the-Double-Ratchet.md) for the examples;
     public-key encryption and MACs from book 1.
 
-    **Levels:** 20.1 to 20.3 beginner; 20.4 to 20.8 intermediate; 20.9
-    advanced; 20.10 expert.
+    **Levels:** 20.1 to 20.3 beginner; 20.4 to 20.8, 20.10 and 20.11
+    intermediate; 20.9 and 20.12 advanced; 20.13 expert.
 
 ## 20.1 What thirty years of failures teach
 
@@ -186,7 +190,67 @@ The other model is the **computational** one of cryptographers: messages are
 bit strings, the attacker is any probabilistic polynomial-time algorithm, and
 security is proved by a reduction (an attacker on the protocol would give an
 attacker on, say, the decisional Diffie-Hellman problem). Computational proofs
-say more, but are long and written by hand. §20.4 shows tools for both.
+say more, but are long and written by hand. §20.4 shows tools for both, and
+§20.9 plays the computational game by hand.
+
+### Symbolic and computational, on one message
+
+A voter sends a ballot encrypted under the election's public key. In the
+symbolic model it is the term $\mathrm{aenc}(\mathit{yes}, \mathit{pk}(E))$,
+and the attacker cannot derive $\mathit{yes}$ without $E$'s private key. The
+ballot is secret.
+
+Now compute it with real numbers, using textbook RSA and a toy key:
+$p = 61$, $q = 53$, $n = 3233$, $e = 17$, and the private exponent
+$d = 2753$ (since $17 \cdot 2753 = 46{,}801 = 15 \cdot 3120 + 1$, with
+$3120 = 60 \cdot 52$). Encode "no" as 2 and "yes" as 3. Square and multiply
+gives the ballot: $3^2 = 9$, $3^4 = 81$, $3^8 = 6561 \equiv 95$,
+$3^{16} \equiv 95^2 = 9025 \equiv 2559$, and $3^{17} \equiv 2559 \cdot 3 =
+7677 \equiv 1211 \pmod{3233}$. The attacker cannot decrypt 1211, and does
+not need to: it encrypts both possible votes and compares. $2^{17} = 131{,}072 \equiv 1752$, which is not the ballot;
+$3^{17} \equiv 1211$, which is. The vote is out, and no symbolic rule was
+broken.
+
+```python
+# One ballot, two models: textbook RSA is deterministic, so a guess can be tested.
+import random
+n, e, d = 61 * 53, 17, 2753                      # p = 61, q = 53: a toy key
+YES, NO = 3, 2
+ballot = pow(YES, e, n)
+print("ballot on the wire:", ballot)
+for name, guess in (("no", NO), ("yes", YES)):
+    c = pow(guess, e, n)
+    print(f"  attacker encrypts {name!r}: {c}" + ("  <- same as the ballot" if c == ballot else ""))
+
+rng = random.Random(20)
+def padded(v): return pow(v + 4 * rng.randrange(1, 800), e, n)    # random padding, then RSA
+b1, b2 = padded(YES), padded(YES)
+print("two padded ballots for 'yes':", b1, b2)
+print("receiver decrypts and reads the vote:", pow(b1, d, n) % 4, pow(b2, d, n) % 4)
+print("attacker's guess matches a ballot:", pow(YES, e, n) in (b1, b2))
+```
+
+It prints:
+
+```text
+ballot on the wire: 1211
+  attacker encrypts 'no': 1752
+  attacker encrypts 'yes': 1211  <- same as the ballot
+two padded ballots for 'yes': 370 1301
+receiver decrypts and reads the vote: 3 3
+attacker's guess matches a ballot: False
+```
+
+The symbolic question was the wrong one. "Cannot derive the term" is **weak
+secrecy**; what a ballot needs is **strong secrecy**, that an observer cannot
+tell a "yes" ballot from a "no" ballot. Symbolic tools can ask that too, as an
+equivalence between two runs of the system (§20.13), and then they find the
+guess-and-compare attack on deterministic encryption. With a fresh random
+$r$ inside, $\mathrm{aenc}(m, r, \mathit{pk})$, as in the padded version,
+the attack goes away in both models. The toy padding has only 799 values, so
+a patient attacker could still try all 1,598 encryptions; real padding (OAEP,
+or HPKE's KEM plus AEAD) uses at least 128 random bits, and only the
+computational model can say why that is enough.
 
 ## 20.3 Lowe's attack on Needham-Schroeder
 
@@ -302,6 +366,20 @@ analysis.
 </svg>
 <figcaption>Figure 20.1. Lowe's attack. Each encryption is perfect; the flaw is that message 2′ does not name its sender, so A cannot tell B's reply from I's.</figcaption>
 </figure>
+
+### The attack as a derivation
+
+A model checker does not see a story; it sees the attacker's knowledge grow by
+the analysis and synthesis rules of §20.2. I opens $\{N_A, A\}_{\mathit{pk}(I)}$
+with its own key and re-encrypts the contents for B (message 1′). It cannot
+open B's reply, so it passes it on, and *honest A* opens it and sends $N_B$
+out under I's key. I opens that and builds $\{N_B\}_{\mathit{pk}(B)}$
+(message 3′). The middle step is the heart of many logic attacks: an honest
+role used as a **decryption oracle**, taking in a ciphertext for itself and
+sending some of its contents out under a key the attacker controls. The belief
+logics of the 1980s, such as the BAN logic of Michael Burrows, Martín Abadi
+and Needham himself (1989), could not express such a step: they reason about
+what honest parties come to believe, with no explicit model of the attacker.
 
 ### Code it: a model checker finds the attack
 
@@ -489,6 +567,87 @@ is extracted from **libcrux**, a formally verified library. Verified code
 removes a whole class of bugs (carry errors, overflows, wrong reductions) that
 tests catch only by luck.
 
+### What the big analyses found
+
+**TLS 1.3: analysis as part of design.** The IETF published draft after draft
+from 2014 to 2018 and invited analysts to break them. In 2016 Cas Cremers,
+Marko Horvat, Sam Scott and Thyla van der Merwe modeled draft 10 in Tamarin,
+with resumption and a client that authenticates later with a certificate.
+Tamarin found a run in which an attacker impersonates an honest client: the
+client's late signature covered a handshake hash of nonces and other values
+copyable from another run. Draft 11 made the signed context include the
+Finished messages. In February 2017, modeling draft 18, Cremers reported that
+post-handshake client authentication gives the client weaker guarantees: the
+server never confirms that it processed the client's certificate. Benjamin
+Dowling, Marc Fischlin, Felix Günther and Douglas Stebila meanwhile proved
+draft after draft in the computational model, up to their 2021 journal
+version. The flaws were found in drafts, which is the point.
+
+**Signal: writing down what was meant.** Signal was deployed for years before
+its specifications appeared in 2016. When Katriel Cohn-Gordon, Cremers,
+Dowling, Luke Garratt and Stebila proved it secure (2017), the first job was
+to say what "secure" means when keys change with every message, building on
+the post-compromise security that Cohn-Gordon, Cremers and Garratt had
+defined in 2016. PQXDH was analyzed with ProVerif and CryptoVerif *before*
+release, and the weaknesses found went into the published revision
+([Chapter 16](16-Signal-and-the-Double-Ratchet.md)). MLS went further, with
+analysts on every draft; most of what they found concerned members of the
+group misbehaving ([Chapter 17](17-Group-Messaging-MLS.md)).
+
+**5G AKA: the assumptions nobody wrote down.** In 2018 David Basin, Jannik
+Dreier, Lucca Hirschi, Saša Radomirović, Ralf Sasse and Vincent Stettler
+built the first full Tamarin model of 5G's authentication and key agreement.
+Several of the standard's security goals held only under assumptions it did
+not state, and subscribers could be traced; the industry body GSMA recorded
+the report as CVD-2018-0012. In 2019 Cremers and Martin Dehnel-Wild modeled
+every party, including the channels between the operator's servers, and
+found that an operator could implement the standard "correctly" and still
+leave a race condition in which one subscriber's session is confused with
+another's. Their fixes make the session binding explicit.
+
+The findings fall into three groups: logic flaws in drafts (TLS 1.3 draft 10,
+PQXDH's first draft); assumptions that lived only in designers' heads (5G,
+the PSK uses that Selfie broke); and properties nobody asked for until an
+analyst had to write the goal down (post-compromise security, MLS's
+insiders). Only the first is a bug in the usual sense; the other two are what
+a standard gains just by being written down formally.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 230" width="640" role="img" aria-label="Timeline from 1975 to 2025: Needham-Schroeder 1978, Denning-Sacco 1981, Dolev-Yao 1983, Otway-Rees 1987, BAN logic 1989, Bellare-Rogaway 1993, Lowe with FDR 1995, ProVerif 2001, Tamarin 2012, TLS 1.3 draft attack 2016, 5G AKA analyzed 2018, PQXDH analyzed 2024" fill="currentColor" font-size="11">
+<line x1="30" y1="115" x2="615" y2="115" stroke="currentColor" stroke-width="1.5"/>
+<text x="30" y="132" text-anchor="middle" font-size="10" fill-opacity=".7">1975</text>
+<text x="146" y="132" text-anchor="middle" font-size="10" fill-opacity=".7">1985</text>
+<text x="262" y="132" text-anchor="middle" font-size="10" fill-opacity=".7">1995</text>
+<text x="378" y="132" text-anchor="middle" font-size="10" fill-opacity=".7">2005</text>
+<text x="494" y="132" text-anchor="middle" font-size="10" fill-opacity=".7">2015</text>
+<text x="610" y="132" text-anchor="middle" font-size="10" fill-opacity=".7">2025</text>
+<g stroke="currentColor" stroke-opacity=".6">
+<line x1="65" y1="48" x2="65" y2="115"/><line x1="100" y1="115" x2="100" y2="146"/><line x1="123" y1="88" x2="123" y2="115"/>
+<line x1="169" y1="115" x2="169" y2="186"/><line x1="192" y1="48" x2="192" y2="115"/><line x1="239" y1="115" x2="239" y2="146"/>
+<line x1="262" y1="88" x2="262" y2="115"/><line x1="332" y1="115" x2="332" y2="186"/><line x1="459" y1="48" x2="459" y2="115"/>
+<line x1="506" y1="115" x2="506" y2="146"/><line x1="529" y1="88" x2="529" y2="115"/><line x1="598" y1="115" x2="598" y2="186"/>
+</g>
+<g fill-opacity=".9">
+<circle cx="65" cy="115" r="3.5"/><circle cx="100" cy="115" r="3.5"/><circle cx="123" cy="115" r="3.5"/><circle cx="169" cy="115" r="3.5"/>
+<circle cx="192" cy="115" r="3.5"/><circle cx="239" cy="115" r="3.5"/><circle cx="262" cy="115" r="3.5"/><circle cx="332" cy="115" r="3.5"/>
+<circle cx="459" cy="115" r="3.5"/><circle cx="506" cy="115" r="3.5"/><circle cx="529" cy="115" r="3.5"/><circle cx="598" cy="115" r="3.5"/>
+</g>
+<text x="65" y="26" text-anchor="middle" font-weight="bold">1978</text><text x="65" y="40" text-anchor="middle">Needham-Schroeder</text>
+<text x="192" y="26" text-anchor="middle" font-weight="bold">1989</text><text x="192" y="40" text-anchor="middle">BAN logic</text>
+<text x="459" y="26" text-anchor="middle" font-weight="bold">2012</text><text x="459" y="40" text-anchor="middle">Tamarin</text>
+<text x="123" y="66" text-anchor="middle" font-weight="bold">1983</text><text x="123" y="80" text-anchor="middle">Dolev-Yao</text>
+<text x="262" y="66" text-anchor="middle" font-weight="bold">1995</text><text x="262" y="80" text-anchor="middle">Lowe, with FDR</text>
+<text x="529" y="66" text-anchor="middle" font-weight="bold">2018</text><text x="529" y="80" text-anchor="middle">5G AKA analyzed</text>
+<text x="100" y="160" text-anchor="middle" font-weight="bold">1981</text><text x="100" y="174" text-anchor="middle">Denning-Sacco</text>
+<text x="239" y="160" text-anchor="middle" font-weight="bold">1993</text><text x="239" y="174" text-anchor="middle">Bellare-Rogaway</text>
+<text x="506" y="160" text-anchor="middle" font-weight="bold">2016</text><text x="506" y="174" text-anchor="middle">TLS 1.3 draft attack</text>
+<text x="169" y="200" text-anchor="middle" font-weight="bold">1987</text><text x="169" y="214" text-anchor="middle">Otway-Rees</text>
+<text x="332" y="200" text-anchor="middle" font-weight="bold">2001</text><text x="332" y="214" text-anchor="middle">ProVerif</text>
+<text x="636" y="200" text-anchor="end" font-weight="bold">2024</text><text x="636" y="214" text-anchor="end">PQXDH analyzed</text>
+</svg>
+<figcaption>Figure 20.2. Forty-six years of protocols, attacks and tools. The first two decades are protocols and paper analyses; since about 2012 the tools have been used on standards while they are still drafts.</figcaption>
+</figure>
+
 ## 20.5 Where proofs stop
 
 *Level: intermediate.*
@@ -543,7 +702,7 @@ failures of rule 10.
 <text x="571" y="152" text-anchor="middle" font-size="10.5" opacity="0.8">Logjam, 2015</text>
 <text x="320" y="186" text-anchor="middle" font-size="12">A proof covers the shaded middle; attacks live in every gap.</text>
 </svg>
-<figcaption>Figure 20.2. From standard to deployment. Each stage can lose what the one before it promised, and each has a famous example in this book.</figcaption>
+<figcaption>Figure 20.3. From standard to deployment. Each stage can lose what the one before it promised, and each has a famous example in this book.</figcaption>
 </figure>
 
 None of this makes proofs less valuable. It says where to spend the remaining
@@ -662,7 +821,7 @@ out and pasted into another bundle (rule 1, in DTN form).
 <rect x="412" y="146" width="168" height="40" rx="4" class="acc-fill" fill-opacity="0.25" stroke="currentColor"/><text x="496" y="164" text-anchor="middle" font-size="11.5">payload, block 1</text><text x="496" y="179" text-anchor="middle" font-size="10.5">AES-GCM ciphertext</text>
 <text x="320" y="226" text-anchor="middle" font-size="12">Security travels inside the bundle: no handshake, no round trip.</text>
 </svg>
-<figcaption>Figure 20.3. A bundle on its way to Mars, laid out as in RFC 9173's second example. Every hop may hold it for hours; the BCB lets only the destination read the payload, and lets it detect any change.</figcaption>
+<figcaption>Figure 20.4. A bundle on its way to Mars, laid out as in RFC 9173's second example. Every hop may hold it for hours; the BCB lets only the destination read the payload, and lets it detect any change.</figcaption>
 </figure>
 
 ### Code it: BPSec, checked against RFC 9173
@@ -816,7 +975,504 @@ into a bundle with a different destination or lifetime (rule 1). And every
 key needs a purpose and an expiry, because revocation by round trip is not
 available (rules 4 and 8).
 
-## 20.8 Mars: one design, start to finish
+## 20.8 A second target: Otway-Rees and the type flaw
+
+*Level: intermediate.*
+
+Lowe's attack lives in the logic of who says what to whom. A second family
+lives lower down, in how a receiver *parses* bytes, and the checker of §20.3
+cannot see it because every field there is a neat symbol of a known kind.
+
+The target is a protocol from 1987 by Dave Otway and Owen Rees, of the same
+family as Kerberos ([Chapter 12](12-Kerberos.md)): a trusted server S shares a
+long-term key with each user ($K_{AS}$ with A, $K_{BS}$ with B) and hands out
+a fresh session key $K_{AB}$. Its selling point was that both users get
+assurance of freshness from their own nonces, without clocks. $M$ is a run
+identifier, sent in the clear:
+
+$$
+\begin{aligned}
+&1.\quad A \to B:\ M, A, B, \{N_A, M, A, B\}_{K_{AS}}\\
+&2.\quad B \to S:\ M, A, B, \{N_A, M, A, B\}_{K_{AS}}, \{N_B, M, A, B\}_{K_{BS}}\\
+&3.\quad S \to B:\ M, \{N_A, K_{AB}\}_{K_{AS}}, \{N_B, K_{AB}\}_{K_{BS}}\\
+&4.\quad B \to A:\ M, \{N_A, K_{AB}\}_{K_{AS}}
+\end{aligned}
+$$
+
+S checks that both ciphertexts name the same run and users, and returns the
+session key under each user's key, next to that user's nonce. B forwards A's
+half. Each user accepts the key that comes back next to its own nonce.
+
+### A worked example by hand: the bytes
+
+Say the run identifier $M$ is 8 bytes, a name is a 4-byte number, and nonces
+and session keys are 16 bytes (AES-128).
+Take $M$ = `5f3a9c1e07d2b468`, A = `0000000a`, B = `0000000b`. The plaintext
+inside A's ciphertext in message 1 is
+
+$$
+\underbrace{N_A}_{16} \,\|\, \underbrace{\texttt{5f3a9c1e07d2b468}}_{8}
+\,\|\, \underbrace{\texttt{0000000a}}_{4} \,\|\, \underbrace{\texttt{0000000b}}_{4}
+\quad = 32 \text{ bytes},
+$$
+
+and A expects message 4's plaintext to be $N_A$ and a 16-byte key: also 32
+bytes. The attacker intercepts message 1 and sends back $M$ and A's own
+ciphertext as message 4. A decrypts it, finds $N_A$ in the first 16 bytes,
+and takes the other 16 as the session key:
+
+$$
+K_{AB} = \texttt{5f3a9c1e07d2b468\,0000000a\,0000000b}.
+$$
+
+Every byte of that "key" crossed the network in the clear, and even a length
+check passes, since $8 + 4 + 4 = 16$. This is a **type flaw**: fields of one
+type (a run identifier and two names) accepted as another (a key). John Clark and Jeremy Jacob's 1997 survey of authentication
+protocols lists it; a second version works the same way against B.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 250" width="640" role="img" aria-label="Top: A sends message 1 to B, intercepted by the attacker I, who returns M and A's own ciphertext to A as message 4. Bottom: two 32-byte bars aligned; message 1's plaintext is Na, M, A, B with sizes 16, 8, 4, 4; message 4's expected plaintext is Na, K with sizes 16, 16; the bytes M, A, B fall exactly where A expects K." fill="currentColor" font-size="12">
+<text x="90" y="22" text-anchor="middle" font-weight="bold">A</text>
+<text x="550" y="22" text-anchor="middle" font-weight="bold">I, posing as B</text>
+<line x1="90" y1="30" x2="90" y2="112" stroke="currentColor" stroke-opacity=".5"/>
+<line x1="550" y1="30" x2="550" y2="112" stroke="currentColor" stroke-opacity=".5"/>
+<line x1="90" y1="54" x2="538" y2="54" stroke="currentColor" stroke-width="1.5"/><polygon points="548,54 536,49 536,59"/>
+<text x="320" y="47" text-anchor="middle" font-size="11.5">1. M, A, B, {Na, M, A, B}Kas</text>
+<line x1="550" y1="94" x2="102" y2="94" stroke="currentColor" stroke-width="1.5"/><polygon points="92,94 104,89 104,99"/>
+<text x="320" y="87" text-anchor="middle" font-size="11.5">"4." M, {Na, M, A, B}Kas: A's own ciphertext, sent back</text>
+<text x="20" y="152" font-size="11.5">sent in 1:</text>
+<rect x="110" y="136" width="240" height="24" fill="currentColor" fill-opacity=".12" stroke="currentColor"/><text x="230" y="153" text-anchor="middle">Na (16 bytes)</text>
+<rect x="350" y="136" width="120" height="24" fill="currentColor" fill-opacity=".3" stroke="currentColor"/><text x="410" y="153" text-anchor="middle">M (8)</text>
+<rect x="470" y="136" width="60" height="24" fill="currentColor" fill-opacity=".3" stroke="currentColor"/><text x="500" y="153" text-anchor="middle">A (4)</text>
+<rect x="530" y="136" width="60" height="24" fill="currentColor" fill-opacity=".3" stroke="currentColor"/><text x="560" y="153" text-anchor="middle">B (4)</text>
+<text x="20" y="196" font-size="11.5">A reads in 4:</text>
+<rect x="110" y="180" width="240" height="24" fill="currentColor" fill-opacity=".12" stroke="currentColor"/><text x="230" y="197" text-anchor="middle">Na (16 bytes): matches</text>
+<rect x="350" y="180" width="240" height="24" fill="none" stroke="currentColor" stroke-width="2"/><text x="470" y="197" text-anchor="middle">K (16 bytes) = M, A, B</text>
+<line x1="350" y1="160" x2="350" y2="180" stroke="currentColor" stroke-dasharray="3 3"/><line x1="590" y1="160" x2="590" y2="180" stroke="currentColor" stroke-dasharray="3 3"/>
+<text x="320" y="236" text-anchor="middle" font-size="12">Same key, same length, same nonce: the parse succeeds and the "key" is public.</text>
+</svg>
+<figcaption>Figure 20.5. The type flaw in Otway-Rees. The attacker reflects A's own ciphertext; A finds its nonce where it expects it and reads the next 16 bytes, which are the run identifier and two names, as the session key.</figcaption>
+</figure>
+
+### Code it: a checker for untyped messages
+
+The new checker differs from the first in three ways. Messages are nested
+pairs, as in Tamarin, so $\{N_A, M, A, B\}$ is the nested term
+$\langle N_A, \langle M, \langle A, B \rangle\rangle\rangle$ and a pattern
+$\langle N_A, K \rangle$ can match it with $K = \langle M, \langle A, B
+\rangle\rangle$. A variable can be **typed** (it only ever holds one atom, a
+nonce or a key) or **untyped** (it holds whatever bytes arrive). And the
+attacker either composes what it delivers from atoms and ciphertexts it
+holds, or replays an old term whole. A, B and S run one session each; the
+attacker I is a registered user with its own key $K_{IS}$. For each version
+the search runs to the end and reports, for A and for B, the shortest run in
+which that user accepts a key for the other that I can derive. It also checks
+that an honest run is reachable at all, because a model in which nothing can
+happen satisfies every security property.
+
+```python
+# A second model checker: Otway-Rees (1987) with a trusted server S. Tuples are
+# nested pairs, as in Tamarin: {Na, M, A, B} is <Na, <M, <A, B>>>.
+from collections import deque
+
+def tup(*xs): return xs[0] if len(xs) == 1 else ("pair", xs[0], tup(*xs[1:]))
+def enc(k, *body): return ("senc", k, tup(*body))
+def key(x): return ("key", x)                    # the key that x shares with S
+def V(n): return ("var", n)
+PUBLIC = ["A", "B", "S", "I", "T1", "T2", "T3"]  # names and tags: everyone knows them
+def show(t):
+    if isinstance(t, str): return t
+    if t[0] == "key": return "K" + t[1].lower() + "s"
+    if t[0] == "pair": return show(t[1]) + ", " + show(t[2])
+    return "{" + show(t[2]) + "}" + show(t[1])
+
+def roles(tags):
+    tg = (lambda n: (n,)) if tags else (lambda n: ())
+    M, X, Y, K, a, b, na, nb = (V(n) for n in ("M", "X", "Y", "K", "a", "b", "na", "nb"))
+    A = [("send", tup("M", "A", "B", enc(key("A"), *tg("T1"), "Na", "M", "A", "B"))),
+         ("recv", tup("M", enc(key("A"), *tg("T3"), "Na", K))), ("end", "B")]
+    B = [("recv", tup(M, a, "B", X)),
+         ("send", tup(M, a, "B", X, enc(key("B"), *tg("T2"), "Nb", M, a, "B"))),
+         ("recv", tup(M, Y, enc(key("B"), *tg("T3"), "Nb", K))),
+         ("send", tup(M, Y)), ("end", a)]
+    S = [("recv", tup(M, a, b, enc(key(a), *tg("T1"), na, M, a, b), enc(key(b), *tg("T2"), nb, M, a, b))),
+         ("send", tup(M, enc(key(a), *tg("T3"), na, "Kab"), enc(key(b), *tg("T3"), nb, "Kab"))), ("end", b)]
+    return [("A", A), ("B", B), ("S", S)]
+
+def subst(t, env):
+    if isinstance(t, str): return t
+    if t[0] == "var": return env.get(t[1], t)
+    return (t[0],) + tuple(subst(x, env) for x in t[1:])
+def analyse(known):                              # split pairs, open what I's key opens
+    known, todo = set(known), list(known)
+    while todo:
+        t = todo.pop()
+        parts = [] if isinstance(t, str) else [t[1], t[2]] if t[0] == "pair" else [t[2]] if t[0] == "senc" and t[1] in known else []
+        for p in parts:
+            if p not in known: known.add(p); todo.append(p)
+    return frozenset(known)
+def derivable(t, known):
+    if t in known or t in PUBLIC: return True
+    if isinstance(t, str) or t[0] in ("key", "var"): return False
+    return all(derivable(x, known) for x in t[1:])
+
+def fits(var, t, typed):                         # what may a variable stand for?
+    if var in "XY": return True                  # a field the receiver cannot open
+    if var in "ab": return t in ("A", "B", "I")  # a user's name, looked up
+    return isinstance(t, str) or not typed       # typed: one atom; untyped: any bytes
+def match(p, t, env, typed):
+    if isinstance(p, str): return env if p == t else None
+    if p[0] == "var":
+        if p[1] in env: return env if env[p[1]] == t else None
+        return {**env, p[1]: t} if fits(p[1], t, typed) else None
+    if isinstance(t, str) or t[0] != p[0]: return None
+    for x, y in zip(p[1:], t[1:]):
+        env = match(x, y, env, typed)
+        if env is None: return None
+    return env
+
+def deliveries(p, env, known, typed):            # every term I can send that fits p
+    p = subst(p, env)
+    if isinstance(p, str): return [env] if derivable(p, known) else []
+    if p[0] == "var":                            # an atom I know, or a ciphertext I hold
+        opaque = p[1] in "XY"
+        pool = {t for t in known | set(PUBLIC) if isinstance(t, str) != opaque and (not opaque or t[0] == "senc")}
+        return [{**env, p[1]: t} for t in sorted(pool, key=repr) if fits(p[1], t, typed)]
+    out = [e for t in sorted(known, key=repr) if not isinstance(t, str) and t[0] == p[0]
+           for e in [match(p, t, env, typed)] if e is not None]          # replay an old term
+    if p[0] == "pair" or (p[0] == "senc" and derivable(p[1], known)):   # or build a new one
+        out += [e2 for e1 in deliveries(p[1], env, known, typed) for e2 in deliveries(p[2], e1, known, typed)]
+    return list({frozenset(e.items()): e for e in out}.values())                    # drop repeats
+
+def search(tags, typed):                         # explore every state; keep the first trace to each goal
+    threads, found = roles(tags), {}
+    queue, seen = deque([((0, 0, 0), ({}, {}, {}), analyse({key("I"), "Ni"}), ())]), set()
+    while queue:
+        pc, envs, known, trace = queue.popleft()
+        sig = (pc, tuple(frozenset(e.items()) for e in envs), known)
+        if sig in seen: continue
+        seen.add(sig)
+        ended = {w: (subst(s[-1][1], envs[i]), envs[i].get("K")) for i, (w, s) in enumerate(threads) if pc[i] == len(s) - 1}
+        if ended.get("A") == ("B", "Kab") and ended.get("B") == ("A", "Kab"): found.setdefault("honest", trace)
+        for who, (peer, k) in ended.items():
+            if who != "S" and peer == {"A": "B", "B": "A"}[who] and derivable(k, known):
+                found.setdefault(who, trace + (f"{who} accepts the key ({show(k)}) for {peer}, and I knows it",))
+        for i, (who, steps) in enumerate(threads):
+            if pc[i] >= len(steps) - 1: continue
+            kind, msg = steps[pc[i]]
+            for e in [envs[i]] if kind == "send" else deliveries(msg, envs[i], known, typed):
+                if "a" in e and e["a"] == e.get("b"): continue           # S never pairs a user with itself
+                m = subst(msg, e)
+                queue.append((pc[:i] + (pc[i] + 1,) + pc[i + 1:], envs[:i] + (e,) + envs[i + 1:],
+                              analyse(known | {m}) if kind == "send" else known,
+                              trace + (f"{who} {'sends   ' if kind == 'send' else 'receives'} {show(m)}",)))
+    return found, len(seen)
+
+for label, tags, typed in (("untyped", False, False), ("typed", False, True), ("untyped, tagged", True, False)):
+    found, n = search(tags, typed)
+    print(f"Otway-Rees, {label}: {n} states, honest run possible: {'honest' in found}")
+    for who in "AB":
+        print(f"  attack on {who}:" if who in found else f"  attack on {who}: none")
+        for line in found.get(who, ()):
+            print("    ", line)
+```
+
+It prints:
+
+```text
+Otway-Rees, untyped: 3952 states, honest run possible: True
+  attack on A:
+     A sends    M, A, B, {Na, M, A, B}Kas
+     A receives M, {Na, M, A, B}Kas
+     A accepts the key (M, A, B) for B, and I knows it
+  attack on B:
+     A sends    M, A, B, {Na, M, A, B}Kas
+     B receives M, A, B, {Na, M, A, B}Kas
+     B sends    M, A, B, {Na, M, A, B}Kas, {Nb, M, A, B}Kbs
+     B receives M, {Na, M, A, B}Kas, {Nb, M, A, B}Kbs
+     B sends    M, {Na, M, A, B}Kas
+     B accepts the key (M, A, B) for A, and I knows it
+Otway-Rees, typed: 885 states, honest run possible: True
+  attack on A: none
+  attack on B: none
+Otway-Rees, untyped, tagged: 885 states, honest run possible: True
+  attack on A: none
+  attack on B: none
+```
+
+The untyped search finds both attacks. In the second, B's message 3 is forged
+from B's *own* ciphertext and A's, and what B forwards is exactly what A
+accepts in the first: both users agree on the "key" $M, A, B$ and the
+attacker reads everything. S was never involved.
+
+The typed search finds nothing, and that is the trap. A typed model assumes
+the receiver can tell a key from a pair of names, which is true of a Python
+object and false of 32 bytes off the wire. The third run shows the cure: one
+public constant (`T1`, `T2`, `T3`) at the start of each kind of ciphertext, and the
+untyped attacker is left with the same 885 states as the typed one and no
+attack. James Heather, Lowe and Steve Schneider proved in 2000 that tagging
+each field with its intended type prevents type-flaw attacks in general,
+which is why tools may assume types once a protocol is tagged.
+
+### The same model, written for a tool
+
+Tamarin writes $\langle a, b, c\rangle$ as $\langle a, \langle b,
+c\rangle\rangle$, as the checker does. A's half and the secrecy goal look
+like this; it is a sketch, not run here, since neither Tamarin nor ProVerif
+is installed where this book's programs run:
+
+```text
+theory OtwayRees_A
+begin
+builtins: symmetric-encryption
+
+rule Register:                       // each user shares a long-term key with S
+    [ Fr(~k) ] --> [ !Ltk($X, ~k) ]
+
+rule A_1:
+    [ Fr(~m), Fr(~na), !Ltk($A, kas) ]
+  -->
+    [ Out(<~m, $A, $B, senc(<~na, ~m, $A, $B>, kas)>), A_wait($A, $B, ~m, ~na, kas) ]
+
+rule A_4:
+    [ A_wait($A, $B, m, na, kas), In(<m, senc(<na, k>, kas)>) ]
+  --[ AcceptA($A, $B, k) ]->
+    [ ]
+
+lemma key_secrecy_A:
+  "All a b k #i. AcceptA(a, b, k) @ #i ==> not (Ex #j. K(k) @ #j)"
+end
+```
+
+Because the variable `k` in rule `A_4` is untyped, Tamarin may unify it with
+`<~m, $A, $B>`, and the lemma should fail with the checker's two-message
+trace. ProVerif's tuples have a fixed length, so a 4-tuple never matches a
+2-tuple, and a ProVerif model sees this attack only if messages are written
+as explicit concatenations: the message model is itself a modeling decision
+(§20.5).
+
+### Fix it
+
+Rule 1 applies inside a ciphertext too. **Tag** every encrypted or signed
+structure: TLS 1.3 signs 64 spaces, a context string such as
+`TLS 1.3, server CertificateVerify`, a zero byte and then the transcript hash
+(RFC 8446, §4.4.3), so a signature made for one purpose cannot be read as
+another. **Encode unambiguously**, with length prefixes or a typed format
+such as CBOR or ASN.1 DER. **Separate keys** by purpose (rule 4). And analyze
+messages as untyped bytes unless types really travel on the wire.
+
+## 20.9 Proofs by games: the Bellare-Rogaway idea
+
+*Level: advanced.*
+
+A symbolic proof has no probabilities in it, so it cannot say how likely an
+attack is, nor see the ballot of §20.2. In 1993 Mihir Bellare and Phillip
+Rogaway defined secure key exchange in the computational model as a **game**
+between a challenger and an attacker, and nearly every key-exchange proof
+since, from TLS 1.3 to Signal and MLS, has that shape.
+
+### The game
+
+The challenger runs many honest parties with many sessions each. The attacker
+plays the network through **queries**, and its running time and success
+probability are measured:
+
+- **Send**$(P, s, m)$ delivers message $m$ to session $s$ of party $P$ and
+  returns whatever $P$ answers. This is the whole network.
+- **Reveal**$(P, s)$ hands over the key session $s$ accepted. Keys leak in
+  practice, and a good protocol keeps every *other* session's key safe.
+- **Corrupt**$(P)$ hands over $P$'s long-term key. Later models (Canetti and
+  Krawczyk in 2001, eCK in 2007) also leak session state.
+- **Test**$(P, s)$, asked once: the challenger flips a secret bit $b$. If
+  $b = 0$ it returns the real session key; if $b = 1$, a random string of the
+  same length. The attacker must say which.
+
+The Test session must be **fresh**: the attacker may not have revealed its
+key or its **partner's** key, nor corrupted the parties before the session
+ended. Partners are the two sessions that are meant to share a key; Bellare
+and Rogaway defined them by **matching conversations**, sessions that sent
+and received the same messages in order. The attacker's **advantage** is
+
+$$
+\mathrm{Adv} = \bigl|\,2 \Pr[\text{attacker guesses } b] - 1\,\bigr|,
+$$
+
+0 for blind guessing and 1 for always being right. The protocol is secure if
+every efficient attacker's advantage is negligible and partners always accept
+the same key. One game covers secrecy, independence of sessions and, through
+partnering, much of authentication.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 240" width="640" role="img" aria-label="The attacker on the left sends four kinds of query to the challenger on the right: Send, Reveal, Corrupt and Test. The challenger runs honest sessions; for Test it flips a bit b and returns either the real key or a random string. The attacker outputs a guess for b." fill="currentColor" font-size="12">
+<rect x="20" y="40" width="150" height="150" rx="8" fill="currentColor" fill-opacity=".12" stroke="currentColor"/>
+<text x="95" y="66" text-anchor="middle" font-weight="bold">attacker</text>
+<text x="95" y="86" text-anchor="middle" font-size="11">is the network,</text>
+<text x="95" y="101" text-anchor="middle" font-size="11">may be a user,</text>
+<text x="95" y="116" text-anchor="middle" font-size="11">runs in bounded time</text>
+<text x="95" y="172" text-anchor="middle" font-weight="bold">outputs guess b′</text>
+<rect x="420" y="40" width="200" height="150" rx="8" fill="none" stroke="currentColor"/>
+<text x="520" y="66" text-anchor="middle" font-weight="bold">challenger</text>
+<rect x="436" y="80" width="78" height="28" rx="4" fill="none" stroke="currentColor"/><text x="475" y="99" text-anchor="middle" font-size="11">A, session 1</text>
+<rect x="526" y="80" width="78" height="28" rx="4" fill="none" stroke="currentColor"/><text x="565" y="99" text-anchor="middle" font-size="11">B, session 1</text>
+<rect x="436" y="114" width="78" height="28" rx="4" fill="none" stroke="currentColor"/><text x="475" y="133" text-anchor="middle" font-size="11">A, session 2</text>
+<rect x="526" y="114" width="78" height="28" rx="4" fill="none" stroke="currentColor"/><text x="565" y="133" text-anchor="middle" font-size="11">C, session 1</text>
+<text x="520" y="168" text-anchor="middle" font-size="11">secret bit b; Test returns</text>
+<text x="520" y="182" text-anchor="middle" font-size="11">real key (b = 0) or random (b = 1)</text>
+<g stroke="currentColor" stroke-width="1.5">
+<line x1="170" y1="62" x2="410" y2="62"/><line x1="170" y1="98" x2="410" y2="98"/><line x1="170" y1="134" x2="410" y2="134"/><line x1="170" y1="170" x2="410" y2="170"/>
+</g>
+<polygon points="418,62 406,57 406,67"/><polygon points="418,98 406,93 406,103"/><polygon points="418,134 406,129 406,139"/><polygon points="418,170 406,165 406,175"/>
+<text x="290" y="56" text-anchor="middle">Send(P, s, m): the network</text>
+<text x="290" y="92" text-anchor="middle">Reveal(P, s): a session key leaks</text>
+<text x="290" y="128" text-anchor="middle">Corrupt(P): a long-term key leaks</text>
+<text x="290" y="164" text-anchor="middle">Test(P, s): once, on a fresh session</text>
+<text x="320" y="222" text-anchor="middle">Advantage = |2 Pr[b′ = b] − 1|; secure means negligible for every efficient attacker.</text>
+</svg>
+<figcaption>Figure 20.6. The Bellare-Rogaway game. Every attack in this book is a strategy for the attacker on the left; the definition asks that none does much better than a coin.</figcaption>
+</figure>
+
+### A worked example by hand: misbinding wins the game
+
+[Chapter 1](01-What-a-Protocol-Must-Do.md#17-authenticated-key-exchange-signing-it-right)
+showed identity misbinding on naive signed Diffie-Hellman: Eve replaces
+Alice's name and signature in the last message with her own, so Bob's session
+believes its peer is Eve, Alice's believes its peer is Bob, and both hold the
+same key. Eve never learns it. Is that an attack? The game answers:
+
+1. Eve uses **Send** to run the protocol, rewriting message 3 as above.
+   Alice's session accepts key $k$ with peer Bob; Bob's session accepts the
+   same $k$ with peer Eve.
+2. The two sessions are not partners: message 3 differs, and they disagree
+   about who is talking. So Bob's session may be revealed.
+3. Eve asks **Reveal** on Bob's session and gets $k$.
+4. Eve asks **Test** on Alice's session and compares the answer with $k$:
+   equal means $b = 0$, different means $b = 1$.
+
+She is right every time, except when a random 128-bit string happens to equal
+$k$, with probability $2^{-128}$. So $\Pr[\text{win}] = 1 - 2^{-129}$ and
+the advantage is $1 - 2^{-128}$. The game turns "two sessions disagree about
+who holds the key" into "the key is not secret", which is what misbinding
+means in practice: Bob credits Eve with whatever Alice sends.
+
+Putting the names into the key derivation, $k = H(g^{xy}, g^x, g^y,
+\text{initiator}, \text{responder})$, removes the win: Alice derives the key
+for (Alice, Bob), Bob for (Eve, Bob), and Eve is back to guessing. SIGMA gets the same
+effect with a MAC of the name under the new key.
+
+```python
+# The Bellare-Rogaway game against identity misbinding: Eve Reveals Bob's
+# session key, then asks Test on Alice's. Real or random?
+import hashlib, random
+P, G = 2**127 - 1, 3                             # a toy group: fine for a game
+rng = random.Random(2026)
+def kdf(*parts): return hashlib.sha256(repr(parts).encode()).hexdigest()[:16]
+
+def misbound_sessions(names_in_key):
+    x, y = rng.getrandbits(120), rng.getrandbits(120)
+    gx, gy = pow(G, x, P), pow(G, y, P)
+    z = pow(gy, x, P)                            # Alice and Bob both compute it
+    if not names_in_key:
+        return kdf(z, gx, gy), kdf(z, gx, gy)
+    return kdf(z, gx, gy, "Alice", "Bob"), kdf(z, gx, gy, "Eve", "Bob")   # each side's view of who talks
+
+def play(names_in_key, games=10000):
+    wins = 0
+    for _ in range(games):
+        alice_key, bob_key = misbound_sessions(names_in_key)
+        b = rng.getrandbits(1)                   # the challenger's secret coin
+        test = alice_key if b == 0 else "%016x" % rng.getrandbits(64)   # Test: real (0) or random (1)
+        revealed = bob_key                       # Reveal: allowed, Bob's session is not Alice's partner
+        guess = 0 if test == revealed else 1
+        wins += guess == b
+    return wins, games
+
+for names_in_key in (False, True):
+    wins, games = play(names_in_key)
+    print(f"names in the key derivation: {names_in_key!s:5}  Eve wins {wins} of {games}, "
+          f"advantage {abs(2 * wins / games - 1):.4f}")
+```
+
+It prints:
+
+```text
+names in the key derivation: False  Eve wins 10000 of 10000, advantage 1.0000
+names in the key derivation: True   Eve wins 4981 of 10000, advantage 0.0038
+```
+
+With the names in the key, Eve wins about half the games; 0.0038 is noise
+(10,000 fair flips have a standard deviation of 50, and 4,981 is 19 below
+5,000). A proof would show that *every* strategy does no better.
+
+### Reading a bound, with numbers
+
+A game-based proof ends in an inequality. A typical one for a signed
+Diffie-Hellman handshake, with $q_s$ sessions, $n_P$ parties and $\ell$-bit
+random nonces, has the shape
+
+$$
+\mathrm{Adv} \;\le\; \frac{q_s^2}{2^{\ell}} \;+\; n_P\,\mathrm{Adv}^{\mathrm{sig}}
+\;+\; q_s\,\mathrm{Adv}^{\mathrm{ddh}} \;+\; \dots
+$$
+
+The first term is the chance that two sessions pick the same nonce. With
+$q_s = 2^{40}$ sessions (about $10^{12}$) and the 256-bit random values of
+TLS, it is $2^{80}/2^{256} = 2^{-176}$: nothing.
+With 64-bit nonces, as some older protocols used, it is $2^{80}/2^{64} =
+2^{16}$, a "bound" above 1 that says nothing. The last term is a **loose
+reduction**: turning an attacker on the protocol into one on decisional
+Diffie-Hellman loses a factor of $q_s$. If the group gives $\mathrm{Adv}^{\mathrm{ddh}} \le 2^{-128}$ for
+the attacker's budget, the protocol is promised only $2^{40} \cdot 2^{-128}
+= 2^{-88}$, still tiny; for a group at the "80-bit" level the same loss
+leaves $2^{-40}$, which is not comfortable. The search for **tight** proofs,
+which lose no factor of $q_s$, goes on (§20.13).
+
+## 20.10 A designer's checklist
+
+*Level: intermediate.*
+
+The rules of §20.1 say what went wrong. A designer needs them as questions to
+ask of a draft, each with the place in this book where its absence did
+damage.
+
+| # | Ask of every message and every key | If the answer is no |
+| --- | --- | --- |
+| 1 | Does each protected message name its sender, receiver and purpose (a tag or context string)? | Lowe (§20.3); Otway-Rees type flaw (§20.8) |
+| 2 | Is every negotiated choice authenticated by something the negotiation cannot weaken? | FREAK, Logjam ([Chapter 4](04-Thirty-Years-of-TLS-Attacks.md)) |
+| 3 | Is every field length-prefixed or typed, so there is one way to parse it? | type flaws; canonicalization bugs in signatures |
+| 4 | Is anything decrypted, decompressed or parsed before it is authenticated? | padding oracles, EFAIL ([Chapter 15](15-Email-OpenPGP-and-SMIME.md)) |
+| 5 | Does each key have one purpose, derived with its own label? | cross-protocol attacks; Selfie (§20.5) |
+| 6 | How does a receiver tell a new message from a replay, and what state does that need? | KRACK ([Chapter 9](09-Wi-Fi-Security.md)); the rover of §20.7 |
+| 7 | What does each long-term key reveal if it leaks tomorrow? | no forward secrecy in RSA key transport |
+| 8 | Does every error look the same, and take the same time? | Bleichenbacher and its returns |
+| 9 | Can the state machine be drawn on one page, and does the code reject everything else? | SMACK, 2015 (§20.5) |
+| 10 | Can every algorithm be replaced by a new version, without a list of options? | export suites; JWT's `alg` |
+| 11 | Is there a model with an executable honest run, and a proof or a bounded search of its goals? | everything the tools found in drafts (§20.4) |
+
+### Worked example: a habitat command, checked
+
+A first draft for sending commands from mission control to Arcadia City's
+life-support controllers looks innocent: the command, then
+$\mathrm{HMAC}(K, \mathit{command})$ with a key $K$ shared by Earth and the
+controllers. Run the list.
+
+Question 1 fails: nothing says who sent the command or which device it is
+for, so a command recorded for one airlock verifies on every controller that
+shares $K$. Question 6 fails: the same bundle delivered twice is valid twice,
+the rover of §20.7. Question 5 fails too: any controller, or anyone who
+extracts $K$ from one, can forge commands "from Earth". And there is no
+version byte for question 10.
+
+The second draft has a version byte, a tag `"arcadia/command/v1"`, sender
+and target identifiers, a sequence number, an expiry time and the command,
+encoded in CBOR and signed with ML-DSA or SLH-DSA by mission control. The
+controller rejects anything at or below its highest accepted sequence number,
+or expired. Question 11 then asks for a model with an
+honest command accepted, a replay rejected and a command for device 7
+rejected by device 8: an afternoon's work in Tamarin. The 22-minute light
+delay changes nothing in the checklist; it only removes every fix that would
+need a reply.
+
+## 20.11 Mars: one design, start to finish
 
 *Level: intermediate.*
 
@@ -861,7 +1517,7 @@ launch. A change of algorithms is a new version delivered with the software
 update, never a list of options for an attacker 20 light-minutes away to pick
 from.
 
-## 20.9 Open problems
+## 20.12 Open problems
 
 *Level: advanced.*
 
@@ -901,7 +1557,7 @@ algorithms and trust anchors can be replaced safely, remotely and without a
 round trip is part engineering and part research, and no standard yet solves
 it end to end.
 
-## 20.10 Going deeper
+## 20.13 Going deeper
 
 *Level: expert.*
 
@@ -928,71 +1584,72 @@ each run either violates them or not. Privacy properties, such as "an
 observer cannot tell whether two sessions involve the same passport", are
 **equivalences** between two versions of a system. ProVerif and Tamarin check
 a stronger, more automatable notion (diff-equivalence); the e-passport result
-in §20.4 relies on such reasoning. Deciding equivalence for an unbounded
+in §20.4 and the ballot of §20.2 rely on such reasoning. Deciding
+equivalence for an unbounded
 number of sessions is undecidable in general, and the tools' approximations
 are an active area.
 
-**Bounds that matter.** A computational proof gives a bound such as
-$\mathrm{Adv} \le q_s^2/2^{n} + \mathrm{Adv}^{\mathrm{ddh}} + \dots$, with
-$q_s$ the number of sessions. Reading these bounds concretely, as tight
-reductions or loose ones, decides key sizes, and several protocols proved
-"secure" had bounds too loose to say anything at deployed parameters. The
-multi-user setting, where an attacker targets any of billions of keys, is
-where the gap usually appears.
+**Bounds that matter.** §20.9 read one bound with numbers. Several protocols
+proved "secure" had bounds too loose to say anything at deployed parameters,
+and the multi-user setting, where an attacker targets any of billions of
+keys, is where the gap usually appears; tight proofs are an active area.
 
 ## Check yourself
 
-??? question "1. State rule 2 and name an attack that broke it."
-    Bind the whole transcript: every negotiated choice must be authenticated
-    by both sides afterwards. FREAK and Logjam forced export-grade
-    cryptography because the negotiation was not protected strongly enough.
+??? question "1. What can a Dolev-Yao attacker do, and what can it not do?"
+    It controls the network: it reads, deletes, reorders and injects
+    messages, builds new messages from what it knows, and may be a legitimate
+    user. It cannot break primitives: no decryption without the key, no
+    forged signatures, no hash inversion.
 
 ??? question "2. Why did a Finished MAC not stop Logjam?"
     The MAC was keyed by the session secret from the negotiated exchange. The
     attacker broke the weak 512-bit exchange during the handshake, so it knew
     the MAC key and could forge the MAC over the edited transcript.
 
-??? question "3. What can a Dolev-Yao attacker do, and what can it not do?"
-    It controls the network: it reads, deletes, reorders and injects
-    messages, builds new messages from what it knows, and may be a legitimate
-    user. It cannot break primitives: no decryption without the key, no
-    forged signatures, no hash inversion.
-
-??? question "4. In Lowe's attack, which message lacks what?"
+??? question "3. In Lowe's attack, which message lacks what, and which honest party does the attacker's decryption for it?"
     Message 2, $\{N_A, N_B\}_{\mathit{pk}(A)}$, does not name its sender B,
-    so A cannot tell B's reply from I's. NSL adds B's name.
+    so A cannot tell B's reply from I's. NSL adds B's name. A acts as the
+    decryption oracle: it opens B's message and sends $N_B$ out under I's key.
 
-??? question "5. Why is the model checker in §20.3 not a proof for NSL?"
+??? question "4. Why is the model checker in §20.3 not a proof for NSL?"
     It explores only three role instances with a fixed set of nonces. An
     attack needing more sessions would be missed. ProVerif and Tamarin reason
     about unbounded sessions.
 
-??? question "6. What did the Selfie attack show about proofs?"
-    The TLS 1.3 PSK proofs assumed each PSK is shared by exactly two parties.
-    Deployments that share one PSK among a group of servers break that
-    assumption, and a reflection attack becomes possible.
+??? question "5. A ballot is textbook RSA with n = 3233 and e = 17. It reads 1752. How did the voter vote, if 2 is no and 3 is yes, and what does this say about the symbolic model?"
+    $2^{17} = 131{,}072 = 40 \cdot 3233 + 1752$, so the vote was no; anyone
+    can encrypt both choices and compare. The term is not derivable (weak
+    secrecy), but the ballot needs strong secrecy, which deterministic
+    encryption cannot give.
 
-??? question "7. Why can't a KEM simply replace Diffie-Hellman in X3DH or Noise?"
+??? question "6. In Otway-Rees, what does A accept as the session key in the type-flaw attack, and why does a length check not help?"
+    The bytes $M, A, B$ from its own message 1, reflected as message 4. With
+    an 8-byte $M$ and 4-byte names they are exactly 16 bytes, an AES-128 key's
+    length. Tags or a length-prefixed encoding stop message 1 parsing as 4.
+
+??? question "7. Your typed model of a protocol finds no attack, and your untyped model finds one. Which do you trust, and what do you change?"
+    The untyped one, unless types really travel on the wire. Add tags or
+    context strings and unambiguous encodings until the untyped model is
+    clean too.
+
+??? question "8. Why can't a KEM simply replace Diffie-Hellman in X3DH or Noise?"
     DH lets two parties with published keys compute a shared secret without
     messages; a KEM needs a ciphertext sent to the holder of the
     decapsulation key. Static-key authentication by DH must become a
     signature or an extra KEM exchange, changing message flows.
 
-??? question "8. What does a BCB carry, and what does it protect?"
-    It names its target blocks, the security context and parameters (IV,
-    variant, wrapped key, scope flags), and the results (the authentication
-    tag). It encrypts the targets in place and authenticates them with any
-    data the scope flags add.
-
 ??? question "9. A rover accepts a valid BPSec-protected command twice. Why, and what fixes it?"
     BPSec gives integrity, not freshness; the duplicate is a valid bundle. A
     sequence number or validity window inside the protected payload, checked
-    against the highest accepted value, fixes it.
+    against the highest accepted value, fixes it. Short-lived keys and
+    certificates help too, since revocation by round trip is not available.
 
-??? question "10. Why should Mars certificates be short-lived rather than revocable?"
-    Revocation checks need a fast round trip to a responder, which a 3 to 22
-    minute link cannot give. Short-lived certificates issued in advance make
-    a stolen key useless after a known time without any query.
+??? question "10. In the Bellare-Rogaway game, how does identity misbinding give the attacker advantage close to 1, even though it never learns the key?"
+    The misbound sessions share a key but are not partners, so the attacker
+    may Reveal Bob's key and Test Alice's session: comparing tells real from
+    random every time. Names in the key derivation, or SIGMA's MAC, make the
+    two keys unrelated.
 
 ## What you learned
 
@@ -1016,6 +1673,17 @@ where the gap usually appears.
 - DTN carries self-protected bundles; BPSec's BIB and BCB, which you matched
   byte for byte against RFC 9173, give integrity and confidentiality but not
   freshness.
+- A deterministic ballot is secret symbolically and readable by
+  guess-and-compare; strong secrecy needs randomized encryption.
+- A second checker, reading messages as untyped pairs, found both Otway-Rees
+  type flaws in 3,952 states; typing hid them, and tags removed them.
+- The big analyses found logic flaws in drafts, assumptions nobody wrote down
+  (5G AKA, Selfie) and properties nobody had asked for (post-compromise
+  security, MLS insiders).
+- The Bellare-Rogaway game asks "real key or random?"; misbinding wins it
+  outright, and a bound means something only once its terms get numbers.
+- An eleven-question checklist and a model with a reachable honest run catch
+  most of this book's failures before deployment.
 
 ## Further reading
 
@@ -1034,8 +1702,32 @@ where the gap usually appears.
 - Simon Meier, Benedikt Schmidt, Cas Cremers and David Basin, "The TAMARIN
   Prover for the Symbolic Analysis of Security Protocols", CAV 2013.
 - Manuel Barbosa et al., "SoK: Computer-Aided Cryptography", IEEE S&P 2021.
+- Dave Otway and Owen Rees, "Efficient and Timely Mutual Authentication",
+  *ACM SIGOPS Operating Systems Review* 21(1), 1987.
+- Michael Burrows, Martín Abadi and Roger Needham, "A Logic of
+  Authentication", *Proceedings of the Royal Society of London A*, 1989.
+- Mihir Bellare and Phillip Rogaway, "Entity Authentication and Key
+  Distribution", CRYPTO 1993.
+- John Clark and Jeremy Jacob, "A Survey of Authentication Protocol
+  Literature: Version 1.0", University of York, 1997.
+- James Heather, Gavin Lowe and Steve Schneider, "How to Prevent Type Flaw
+  Attacks on Security Protocols", CSFW 2000; *Journal of Computer Security*,
+  2003.
+- Cas Cremers, Marko Horvat, Sam Scott and Thyla van der Merwe, "Automated
+  Analysis and Verification of TLS 1.3: 0-RTT, Resumption and Delayed
+  Authentication", IEEE S&P 2016.
 - Cas Cremers, Marko Horvat, Jonathan Hoyland, Sam Scott and Thyla van der
   Merwe, "A Comprehensive Symbolic Analysis of TLS 1.3", CCS 2017.
+- Benjamin Dowling, Marc Fischlin, Felix Günther and Douglas Stebila, "A
+  Cryptographic Analysis of the TLS 1.3 Handshake Protocol", *Journal of
+  Cryptology*, 2021.
+- Katriel Cohn-Gordon, Cas Cremers, Benjamin Dowling, Luke Garratt and
+  Douglas Stebila, "A Formal Security Analysis of the Signal Messaging
+  Protocol", IEEE EuroS&P 2017.
+- David Basin, Jannik Dreier, Lucca Hirschi, Saša Radomirović, Ralf Sasse
+  and Vincent Stettler, "A Formal Analysis of 5G Authentication", CCS 2018.
+- Cas Cremers and Martin Dehnel-Wild, "Component-Based Formal Analysis of
+  5G-AKA: Channel Assumptions and Session Confusion", NDSS 2019.
 - David Basin, Ralf Sasse and Jorge Toro-Pozo, "The EMV Standard: Break, Fix,
   Verify", IEEE S&P 2021.
 - Nir Drucker and Shay Gueron, "Selfie: Reflections on TLS 1.3 with PSK",
