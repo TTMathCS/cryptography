@@ -11,8 +11,10 @@ square root, which is why AES survives. This chapter builds the mathematics from
 complex vectors up: qubits, tensor products, unitary gates, measurement and
 interference, the quantum Fourier transform, period finding and Shor's algorithm
 (simulated in full for $N = 21$), the hidden subgroup problem and why lattices resist
-it, Grover's search and its proven limit, and what current resource estimates mean
-for key sizes.*
+it, Grover's search and its proven limit, quantum error correction and what current
+resource estimates mean for key sizes. It also builds Simon's algorithm, which breaks
+some symmetric constructions in the right model, and phase estimation, of which Shor's
+algorithm is one case.*
 
 !!! abstract "In this chapter"
     **You will learn:**
@@ -20,24 +22,27 @@ for key sizes.*
     - qubits as unit vectors in $\mathbb{C}^2$, registers as tensor products, gates
       as unitary matrices, and measurement;
     - the Hadamard gate, interference and entanglement, with a small simulator;
-    - the Deutsch-Jozsa algorithm, the first exponential separation;
-    - the quantum Fourier transform and how it reveals periods;
-    - Shor's algorithm: the quantum period finding, simulated for $N = 21$, and the
-      classical number theory around it;
+    - the Deutsch-Jozsa algorithm, and Simon's algorithm for a hidden XOR period;
+    - the quantum Fourier transform, and phase estimation as a circuit;
+    - Shor's algorithm: period finding simulated for $N = 21$, order finding as phase
+      estimation for $N = 15$, and continued fractions by hand;
     - Shor for discrete logarithms, the hidden subgroup problem, and why lattice
       problems do not fall to the same idea;
-    - Grover's search, its $\frac{\pi}{4}\sqrt{N}$ iterations, simulated, and the
-      BBBV lower bound;
-    - resource estimates, from 20 million qubits in 2019 to under a million in 2025,
-      and what they mean for keys.
+    - Grover's search, its $\frac{\pi}{4}\sqrt{N}$ iterations, simulated, and why the
+      BBBV lower bound says nothing does better;
+    - quantum error correction, from the three-qubit codes to the surface code, and
+      why RSA-2048 needs about a million physical qubits;
+    - Simon's attacks on Even-Mansour and CBC-MAC, and why the query model matters;
+    - what all of this means for key sizes.
 
     **You need:** [Chapter 9](09-Linear-Algebra.md) (vectors and matrices),
+    [Chapter 2](02-Divisibility-Primes-and-Factoring.md) (continued fractions),
     [Chapter 4](04-Powers-and-Primitive-Roots.md) (orders and discrete logarithms),
     [Chapter 11](11-Polynomials-at-Work.md) (the Fourier transform) and complex
     numbers ($e^{i\theta} = \cos\theta + i\sin\theta$).
 
-    **Levels:** §20.1 to §20.3 are for beginners, §20.4 to §20.6 are intermediate,
-    §20.7 to §20.9 are expert.
+    **Levels:** §20.1 to §20.3 are for beginners (Simon's algorithm at the end of §20.3
+    is intermediate), §20.4 to §20.6 are intermediate, §20.7 to §20.10 are expert.
 
 ## 20.1 The problem
 
@@ -196,6 +201,123 @@ a few, which is why this is a separation of principle rather than a useful one).
 pattern, Hadamards, an oracle in the phases, a transform, a measurement, is the
 template for everything that follows.
 
+### Simon's problem
+
+*This subsection and the next are intermediate.*
+
+Deutsch-Jozsa beats only deterministic algorithms. In 1994 Daniel Simon found a
+problem where the gap survives randomness; Shor's paper, a few months later, follows
+the same pattern with a Fourier transform over a cyclic group in place of the
+Hadamards.
+
+**Simon's problem.** A function $f: \{0,1\}^n \to \{0,1\}^m$ is promised to have a
+hidden **XOR period** $s \ne 0$: $f(x) = f(x')$ exactly when $x' = x$ or $x' = x
+\oplus s$. So $f$ is two-to-one, and each output is shared by a pair $\{x, x \oplus
+s\}$. Find $s$.
+
+Classically, the only way to learn anything about $s$ is to find two inputs with the
+same output, and then $s$ is their XOR. That is a collision search, and by the
+birthday bound of [Chapter 16](16-Probability.md) it needs about $2^{n/2}$ queries;
+Simon proved that every classical algorithm, randomized or not, needs exponentially
+many. The quantum algorithm needs about $n$ queries:
+
+1. Start with $|0^n\rangle|0^m\rangle$ and apply $H$ to every qubit of the first
+   register: $\frac{1}{\sqrt{2^n}}\sum_x |x\rangle|0^m\rangle$.
+2. Query the oracle once: $\frac{1}{\sqrt{2^n}}\sum_x |x\rangle|f(x)\rangle$.
+3. Measure the second register (or never look at it again; the result is the same). It
+   shows some value $f(x_0)$, and the first register collapses to the two inputs with
+   that value: $\frac{1}{\sqrt 2}\bigl(|x_0\rangle + |x_0 \oplus s\rangle\bigr)$.
+4. Apply $H$ to every qubit of the first register and measure.
+
+To see what step 4 gives, use the formula for $n$ Hadamards on a basis state, which
+follows from $H|b\rangle = \frac{1}{\sqrt 2}\sum_{c}(-1)^{bc}|c\rangle$ applied to each
+bit:
+
+$$
+H^{\otimes n}|x\rangle = \frac{1}{\sqrt{2^n}} \sum_{y} (-1)^{x \cdot y}\,|y\rangle,
+\qquad x \cdot y = x_1y_1 \oplus \cdots \oplus x_ny_n .
+$$
+
+The amplitude of $|y\rangle$ after step 4 is therefore
+
+$$
+\frac{(-1)^{x_0 \cdot y} + (-1)^{(x_0 \oplus s)\cdot y}}{\sqrt{2^{n+1}}}
+= \frac{(-1)^{x_0 \cdot y}\bigl(1 + (-1)^{s \cdot y}\bigr)}{\sqrt{2^{n+1}}} .
+$$
+
+If $s \cdot y = 1$ the two paths cancel and the amplitude is 0. If $s \cdot y = 0$ they
+add, and the probability is $4/2^{n+1} = 1/2^{n-1}$. So each run returns a uniformly
+random $y$ from the $2^{n-1}$ vectors **orthogonal** to $s$ modulo 2, and the unknown
+$x_0$ has vanished into a sign that measurement cannot see. Each run is one linear
+equation $y \cdot s = 0$ over $\mathrm{GF}(2)$. Once $n - 1$ independent equations are
+in hand, Gaussian elimination from [Chapter 9](09-Linear-Algebra.md) leaves exactly
+one nonzero solution, and that is $s$. Random vectors from an $(n-1)$-dimensional
+space span it after fewer than $n + 1$ draws on average, so the total cost is about
+$n$ queries and $O(n^3)$ classical work. For $n = 128$, that is roughly 130 quantum
+queries against about $2^{64}$ classical ones.
+
+### By hand: Simon with $n = 3$
+
+Take $s = 110$ and pair the inputs as $\{000, 110\}$, $\{001, 111\}$, $\{010, 100\}$,
+$\{011, 101\}$, giving each pair its own output. Suppose step 3 leaves
+$\frac{1}{\sqrt 2}(|001\rangle + |111\rangle)$. The two dot products are $001 \cdot y =
+y_0$ and $111 \cdot y = y_2 \oplus y_1 \oplus y_0$ (bits written $y_2y_1y_0$), and the
+normalization is $\frac{1}{\sqrt 2}\cdot\frac{1}{\sqrt 8} = \frac14$. For $y = 000$
+the signs are $+1, +1$ and the amplitude is $+\frac12$; for $001$ they are $-1, -1$,
+giving $-\frac12$; for $010$ they are $+1, -1$ and cancel. Going through all eight, the
+amplitude is $\pm\frac12$ (probability $\frac14$) for 000, 001, 110 and 111, and 0 for
+010, 011, 100 and 101. The four survivors are exactly the $y$ with $y \cdot 110 = 0$.
+Two runs that return 001 and 110 give the equations $s_0 = 0$ and $s_2 \oplus s_1 = 0$;
+the only nonzero solution is $s = 110$. A run that returns 000 is wasted, and one that
+returns 111 adds nothing new once the other two are known.
+
+```python
+# Simon's algorithm: f(x) = f(x XOR s) for a hidden s. The input x sits in the low n qubits,
+# the output f(x) in the m qubits above them.
+def simon_run(f, n, m, rng):
+    """One run: H on the input, the oracle |x>|0> -> |x>|f(x)>, H again, measure the input."""
+    state = [0j] * 2 ** (n + m)
+    state[0] = 1
+    for q in range(n):
+        state = apply_1q(state, Hd, q, n + m)
+    out = [0j] * len(state)
+    for i, a in enumerate(state):                  # the oracle permutes basis states
+        out[i ^ (f(i % 2**n) << n)] += a
+    for q in range(n):
+        out = apply_1q(out, Hd, q, n + m)
+    p = [0.0] * 2**n
+    for i, a in enumerate(out):
+        p[i % 2**n] += abs(a) ** 2                 # probability of each input-register outcome
+    return rng.choices(range(2**n), weights=p)[0], p
+
+def dot(a, b):
+    return bin(a & b).count("1") % 2
+
+def candidates(ys, n):
+    """Every nonzero s with y . s = 0 for all measured y (Gaussian elimination does this faster)."""
+    return [s for s in range(1, 2**n) if all(dot(y, s) == 0 for y in ys)]
+
+rng = random.Random(1994)
+s = 0b110
+y, p = simon_run(lambda x: min(x, x ^ s), 3, 3, rng)
+print([round(v, 3) for v in p])
+s = 0b1011
+ys = []
+while len(candidates(ys, 4)) > 1:
+    ys.append(simon_run(lambda x: min(x, x ^ s), 4, 4, rng)[0])
+print([format(y, "04b") for y in ys], [format(c, "04b") for c in candidates(ys, 4)])
+```
+
+```text
+[0.25, 0.25, 0.0, 0.0, 0.0, 0.0, 0.25, 0.25]
+['1010', '1010', '0100', '0011'] ['1011']
+```
+
+The first line is the hand computation, done by the simulator ($\min(x, x \oplus s)$
+is an easy oracle with period $s$). The second is a run for $n = 4$ and $s = 1011$:
+four queries, one a repeat, give three independent equations whose only nonzero
+solution is 1011. Section 20.9 turns this against real symmetric constructions.
+
 ## 20.4 The quantum Fourier transform
 
 *Level: intermediate.*
@@ -253,57 +375,9 @@ $64k/6$. The total probability is 1, as it must be for a unitary.
 <g stroke="currentColor" stroke-width="1" opacity=".5"><line x1="105" y1="100" x2="625" y2="100"/><line x1="105" y1="225" x2="625" y2="225"/></g>
 <text x="10" y="40" font-size="12">before</text><text x="10" y="56" font-size="12">amplitude</text>
 <text x="10" y="165" font-size="12">after QFT</text><text x="10" y="181" font-size="12">probability</text>
-<rect x="117.5" y="47.2" width="5" height="52.8" opacity=".75"/>
-<rect x="165.6" y="47.2" width="5" height="52.8" opacity=".75"/>
-<rect x="213.7" y="47.2" width="5" height="52.8" opacity=".75"/>
-<rect x="261.8" y="47.2" width="5" height="52.8" opacity=".75"/>
-<rect x="309.9" y="47.2" width="5" height="52.8" opacity=".75"/>
-<rect x="358.0" y="47.2" width="5" height="52.8" opacity=".75"/>
-<rect x="406.1" y="47.2" width="5" height="52.8" opacity=".75"/>
-<rect x="454.2" y="47.2" width="5" height="52.8" opacity=".75"/>
-<rect x="502.3" y="47.2" width="5" height="52.8" opacity=".75"/>
-<rect x="550.4" y="47.2" width="5" height="52.8" opacity=".75"/>
-<rect x="598.5" y="47.2" width="5" height="52.8" opacity=".75"/>
-<rect x="109.5" y="130.0" width="5" height="95.0" class="acc-fill"/>
-<rect x="165.6" y="224.6" width="5" height="0.4" opacity=".55"/>
-<rect x="173.6" y="224.2" width="5" height="0.8" opacity=".55"/>
-<rect x="181.6" y="222.9" width="5" height="2.1" opacity=".55"/>
-<rect x="189.7" y="210.7" width="5" height="14.3" opacity=".55"/>
-<rect x="197.7" y="161.4" width="5" height="63.6" class="acc-fill"/>
-<rect x="205.7" y="220.4" width="5" height="4.6" opacity=".55"/>
-<rect x="213.7" y="223.2" width="5" height="1.8" opacity=".55"/>
-<rect x="221.7" y="223.9" width="5" height="1.1" opacity=".55"/>
-<rect x="229.7" y="224.2" width="5" height="0.8" opacity=".55"/>
-<rect x="237.8" y="224.2" width="5" height="0.8" opacity=".55"/>
-<rect x="245.8" y="224.2" width="5" height="0.8" opacity=".55"/>
-<rect x="253.8" y="223.9" width="5" height="1.1" opacity=".55"/>
-<rect x="261.8" y="223.2" width="5" height="1.8" opacity=".55"/>
-<rect x="269.8" y="220.4" width="5" height="4.6" opacity=".55"/>
-<rect x="277.8" y="161.4" width="5" height="63.6" class="acc-fill"/>
-<rect x="285.8" y="210.7" width="5" height="14.3" opacity=".55"/>
-<rect x="293.9" y="222.9" width="5" height="2.1" opacity=".55"/>
-<rect x="301.9" y="224.2" width="5" height="0.8" opacity=".55"/>
-<rect x="309.9" y="224.6" width="5" height="0.4" opacity=".55"/>
-<rect x="366.0" y="130.0" width="5" height="95.0" class="acc-fill"/>
-<rect x="422.1" y="224.6" width="5" height="0.4" opacity=".55"/>
-<rect x="430.1" y="224.2" width="5" height="0.8" opacity=".55"/>
-<rect x="438.2" y="222.9" width="5" height="2.1" opacity=".55"/>
-<rect x="446.2" y="210.7" width="5" height="14.3" opacity=".55"/>
-<rect x="454.2" y="161.4" width="5" height="63.6" class="acc-fill"/>
-<rect x="462.2" y="220.4" width="5" height="4.6" opacity=".55"/>
-<rect x="470.2" y="223.2" width="5" height="1.8" opacity=".55"/>
-<rect x="478.2" y="223.9" width="5" height="1.1" opacity=".55"/>
-<rect x="486.2" y="224.2" width="5" height="0.8" opacity=".55"/>
-<rect x="494.3" y="224.2" width="5" height="0.8" opacity=".55"/>
-<rect x="502.3" y="224.2" width="5" height="0.8" opacity=".55"/>
-<rect x="510.3" y="223.9" width="5" height="1.1" opacity=".55"/>
-<rect x="518.3" y="223.2" width="5" height="1.8" opacity=".55"/>
-<rect x="526.3" y="220.4" width="5" height="4.6" opacity=".55"/>
-<rect x="534.3" y="161.4" width="5" height="63.6" class="acc-fill"/>
-<rect x="542.4" y="210.7" width="5" height="14.3" opacity=".55"/>
-<rect x="550.4" y="222.9" width="5" height="2.1" opacity=".55"/>
-<rect x="558.4" y="224.2" width="5" height="0.8" opacity=".55"/>
-<rect x="566.4" y="224.6" width="5" height="0.4" opacity=".55"/>
+<path opacity=".75" d="M117.5 47.2h5v52.8h-5zM165.6 47.2h5v52.8h-5zM213.7 47.2h5v52.8h-5zM261.8 47.2h5v52.8h-5zM309.9 47.2h5v52.8h-5zM358.0 47.2h5v52.8h-5zM406.1 47.2h5v52.8h-5zM454.2 47.2h5v52.8h-5zM502.3 47.2h5v52.8h-5zM550.4 47.2h5v52.8h-5zM598.5 47.2h5v52.8h-5z"/>
+<path class="acc-fill" d="M109.5 130.0h5v95.0h-5zM197.7 161.4h5v63.6h-5zM277.8 161.4h5v63.6h-5zM366.0 130.0h5v95.0h-5zM454.2 161.4h5v63.6h-5zM534.3 161.4h5v63.6h-5z"/>
+<path opacity=".55" d="M165.6 224.6h5v0.4h-5zM173.6 224.2h5v0.8h-5zM181.6 222.9h5v2.1h-5zM189.7 210.7h5v14.3h-5zM205.7 220.4h5v4.6h-5zM213.7 223.2h5v1.8h-5zM221.7 223.9h5v1.1h-5zM229.7 224.2h5v0.8h-5zM237.8 224.2h5v0.8h-5zM245.8 224.2h5v0.8h-5zM253.8 223.9h5v1.1h-5zM261.8 223.2h5v1.8h-5zM269.8 220.4h5v4.6h-5zM285.8 210.7h5v14.3h-5zM293.9 222.9h5v2.1h-5zM301.9 224.2h5v0.8h-5zM309.9 224.6h5v0.4h-5zM422.1 224.6h5v0.4h-5zM430.1 224.2h5v0.8h-5zM438.2 222.9h5v2.1h-5zM446.2 210.7h5v14.3h-5zM462.2 220.4h5v4.6h-5zM470.2 223.2h5v1.8h-5zM478.2 223.9h5v1.1h-5zM486.2 224.2h5v0.8h-5zM494.3 224.2h5v0.8h-5zM502.3 224.2h5v0.8h-5zM510.3 223.9h5v1.1h-5zM518.3 223.2h5v1.8h-5zM526.3 220.4h5v4.6h-5zM542.4 210.7h5v14.3h-5zM550.4 222.9h5v2.1h-5zM558.4 224.2h5v0.8h-5zM566.4 224.6h5v0.4h-5z"/>
 <text x="112.0" y="242" text-anchor="middle" font-size="12">0</text>
 <text x="200.2" y="242" text-anchor="middle" font-size="12">11</text>
 <text x="280.3" y="242" text-anchor="middle" font-size="12">21</text>
@@ -318,6 +392,145 @@ $64k/6$. The total probability is 1, as it must be for a unitary.
 </svg>
 <figcaption>Figure 20.1. The quantum Fourier transform turns a period into peaks. Top: amplitudes on x = 1, 7, 13, … (period 6) in a register of 64. Bottom: probabilities after the QFT, peaked near multiples of 64/6 ≈ 10.67. Measuring gives one peak at random; continued fractions turn it into the period.</figcaption>
 </figure>
+
+### Phase estimation
+
+The QFT does more than find periods. Its most general use is **phase estimation**,
+due to Alexei Kitaev (1995): given a unitary $U$ and one of its eigenvectors
+$|u\rangle$, with
+
+$$
+U|u\rangle = e^{2\pi i \varphi}|u\rangle, \qquad 0 \le \varphi < 1,
+$$
+
+estimate the phase $\varphi$. Shor's algorithm is phase estimation for one particular
+$U$.
+
+**The circuit** (Figure 20.2) has $t$ counting qubits and a target register holding
+$|u\rangle$.
+
+1. Apply $H$ to each counting qubit.
+2. For $j = 0, 1, \ldots, t-1$, let counting qubit $j$ control $U^{2^j}$ on the target.
+3. Apply the inverse QFT to the counting register and measure it, giving an integer
+   $m$ with $0 \le m < 2^t$. The estimate is $\varphi \approx m/2^t$.
+
+**Why it works: phase kickback.** A controlled $U$ acting on $\frac{1}{\sqrt
+2}(|0\rangle + |1\rangle)|u\rangle$ leaves the $|0\rangle$ half alone and multiplies
+the $|1\rangle$ half by the eigenvalue:
+
+$$
+\tfrac{1}{\sqrt 2}\bigl(|0\rangle|u\rangle + |1\rangle\, e^{2\pi i\varphi}|u\rangle\bigr)
+= \tfrac{1}{\sqrt 2}\bigl(|0\rangle + e^{2\pi i\varphi}|1\rangle\bigr)|u\rangle .
+$$
+
+The target is unchanged; the phase has moved onto the control qubit. With $U^{2^j}$
+the phase is $e^{2\pi i \varphi 2^j}$. Write $Q = 2^t$ and $x = \sum_j x_j 2^j$; the
+phases multiply, and the counting register ends step 2 as
+
+$$
+\bigotimes_{j=0}^{t-1} \tfrac{1}{\sqrt 2}\bigl(|0\rangle + e^{2\pi i \varphi 2^j}|1\rangle\bigr)
+= \frac{1}{\sqrt Q}\sum_{x=0}^{Q-1} e^{2\pi i \varphi x}\,|x\rangle .
+$$
+
+If $\varphi = m/Q$ exactly, this is $\mathrm{QFT}|m\rangle$, and the inverse QFT returns
+$m$ with certainty. Otherwise write $\delta = \varphi - m/Q$; summing a geometric
+series gives the probability of outcome $m$:
+
+$$
+\Pr[m] = \left|\frac{1}{Q}\sum_{x=0}^{Q-1} e^{2\pi i \delta x}\right|^2
+= \frac{\sin^2(\pi Q \delta)}{Q^2 \sin^2(\pi \delta)} .
+$$
+
+For the integer $m$ nearest to $\varphi Q$, $|\delta| \le 1/(2Q)$, and this is at least
+$4/\pi^2 \approx 0.405$; the two nearest integers together get at least $8/\pi^2
+\approx 0.81$. To learn $\varphi$ to $n$ bits with failure probability at most
+$\varepsilon$, Nielsen and Chuang show that $t = n + \lceil \log_2(2 +
+\frac{1}{2\varepsilon}) \rceil$ counting qubits suffice.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 260" width="640" role="img" aria-label="Phase estimation circuit: three counting qubits start in zero and get a Hadamard each; counting qubit j controls U to the power 2 to the j on a target register holding the eigenvector u; the phases kick back onto the counting qubits; an inverse quantum Fourier transform and measurements read out m, about 8 phi" fill="currentColor" font-size="14">
+<g stroke="currentColor" stroke-width="1.2"><line x1="55" y1="55" x2="95" y2="55"/><line x1="125" y1="55" x2="405" y2="55"/><line x1="475" y1="55" x2="500" y2="55"/><line x1="55" y1="100" x2="95" y2="100"/><line x1="125" y1="100" x2="405" y2="100"/><line x1="475" y1="100" x2="500" y2="100"/><line x1="55" y1="145" x2="95" y2="145"/><line x1="125" y1="145" x2="405" y2="145"/><line x1="475" y1="145" x2="500" y2="145"/><line x1="55" y1="205" x2="175" y2="205"/><line x1="215" y1="205" x2="255" y2="205"/><line x1="295" y1="205" x2="335" y2="205"/><line x1="375" y1="205" x2="600" y2="205"/></g>
+<g stroke="currentColor" stroke-width="1.5" fill="none"><rect x="95" y="40" width="30" height="30" rx="3"/><rect x="500" y="41" width="32" height="28" rx="3"/><path d="M506 62 A10 10 0 0 1 526 62 M516 62 L524 47"/><rect x="95" y="85" width="30" height="30" rx="3"/><rect x="500" y="86" width="32" height="28" rx="3"/><path d="M506 107 A10 10 0 0 1 526 107 M516 107 L524 92"/><rect x="95" y="130" width="30" height="30" rx="3"/><rect x="500" y="131" width="32" height="28" rx="3"/><path d="M506 152 A10 10 0 0 1 526 152 M516 152 L524 137"/><line x1="195" y1="55" x2="195" y2="190"/><rect x="175" y="190" width="40" height="30" rx="3"/><line x1="275" y1="100" x2="275" y2="190"/><rect x="255" y="190" width="40" height="30" rx="3"/><line x1="355" y1="145" x2="355" y2="190"/><rect x="335" y="190" width="40" height="30" rx="3"/><rect x="405" y="38" width="70" height="124" rx="3"/></g>
+<circle cx="195" cy="55" r="4.5"/><circle cx="275" cy="100" r="4.5"/><circle cx="355" cy="145" r="4.5"/>
+<text x="20" y="60">|0⟩</text><text x="110" y="60" text-anchor="middle">H</text><text x="545" y="60">m₀</text><text x="20" y="105">|0⟩</text><text x="110" y="105" text-anchor="middle">H</text><text x="545" y="105">m₁</text><text x="20" y="150">|0⟩</text><text x="110" y="150" text-anchor="middle">H</text><text x="545" y="150">m₂</text><text x="20" y="210">|u⟩</text><text x="195" y="210" text-anchor="middle">U</text><text x="275" y="210" text-anchor="middle">U²</text><text x="355" y="210" text-anchor="middle">U⁴</text><text x="440" y="105" text-anchor="middle">QFT⁻¹</text>
+<g font-size="12"><text x="203" y="45" fill-opacity=".75">turn φ</text><text x="283" y="90" fill-opacity=".75">turn 2φ</text><text x="363" y="135" fill-opacity=".75">turn 4φ</text><text x="520" y="190" text-anchor="middle">m = m₂m₁m₀ ≈ 8φ</text><text x="320" y="248" text-anchor="middle">the target never changes; each controlled power kicks a phase back onto its control qubit</text></g>
+</svg>
+<figcaption>Figure 20.2. Phase estimation with three counting qubits. Counting qubit j controls U to the power 2^j; each controlled power leaves the eigenvector |u⟩ alone and adds a turn of 2^j·φ to its control. The inverse QFT turns those phases into the binary digits of φ.</figcaption>
+</figure>
+
+**By hand: $t = 2$ and the phase gate $S$.** Take $U = S = \mathrm{diag}(1, i)$, whose
+eigenvector $|1\rangle$ has eigenvalue $i = e^{2\pi i \cdot 1/4}$, so $\varphi =
+\frac14$. Counting qubit 0 controls $S$ and picks up the phase $i$; counting qubit 1
+controls $S^2 = \mathrm{diag}(1, -1)$ and picks up $-1$. The counting register is
+
+$$
+\tfrac{1}{\sqrt 2}(|0\rangle - |1\rangle)_{\text{qubit }1} \otimes
+\tfrac{1}{\sqrt 2}(|0\rangle + i|1\rangle)_{\text{qubit }0}
+= \tfrac12\bigl(|0\rangle + i|1\rangle - |2\rangle - i|3\rangle\bigr)
+= \tfrac12 \sum_{x=0}^{3} i^x |x\rangle .
+$$
+
+The inverse QFT with $Q = 4$ gives outcome $m$ the amplitude $\frac14 \sum_x i^x
+(-i)^{xm}$. For $m = 1$ every term is $i^x(-i)^x = 1$, so the amplitude is 1: the
+measurement returns $m = 1$ with certainty, and $m/Q = \frac14 = \varphi$.
+
+**By hand: a phase that does not fit.** Now let $\varphi = \frac13$, with $t = 3$
+counting qubits. The nearest multiple of $\frac18$ is $\frac38$, so the best outcome is
+$m = 3$ with $\delta = \frac13 - \frac38 = -\frac{1}{24}$. Then $\sin^2(\pi Q\delta) =
+\sin^2(\pi/3) = 0.75$ and $Q^2 \sin^2(\pi\delta) = 64 \sin^2(7.5^\circ) = 64 \times
+0.017037 = 1.0904$, so $\Pr[3] = 0.75 / 1.0904 = 0.688$. The next nearest, $m = 2$,
+has $\delta = \frac{1}{12}$ and probability $0.75/(64 \sin^2 15^\circ) = 0.175$. The
+listing builds the circuit gate by gate and checks these numbers.
+
+```python
+# Phase estimation as a circuit: t counting qubits (0 .. t-1) and one target qubit t holding
+# the eigenvector |1> of U = diag(1, e^(2 pi i phi)). Then the inverse QFT on the counting qubits.
+def iqft(state):
+    Q = len(state)
+    w = [cmath.exp(-2j * math.pi * k / Q) for k in range(Q)]
+    return [sum(state[x] * w[(x * y) % Q] for x in range(Q)) / math.sqrt(Q) for y in range(Q)]
+
+def phase_estimation(phi, t):
+    state = [0j] * 2 ** (t + 1)
+    state[1 << t] = 1                              # counting register |0...0>, target |1>
+    for j in range(t):
+        state = apply_1q(state, Hd, j, t + 1)
+    for j in range(t):                             # controlled-U^(2^j), control j, target t
+        kick = cmath.exp(2j * math.pi * phi * 2**j)
+        state = [a * kick if (i >> j) & 1 and (i >> t) & 1 else a for i, a in enumerate(state)]
+    counting = state[1 << t:]                      # the target stays |1>: keep that half
+    return [round(abs(a) ** 2, 4) for a in iqft(counting)]
+
+print(phase_estimation(1 / 8, 3))
+print(phase_estimation(1 / 3, 3))
+p6 = phase_estimation(1 / 3, 6)
+best = max(range(64), key=lambda m: p6[m])
+print(best, p6[best], round(sum(p6[best - 1:best + 2]), 4), round(4 / math.pi**2, 4))
+```
+
+```text
+[0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+[0.0156, 0.0316, 0.1749, 0.6878, 0.0469, 0.0186, 0.0126, 0.0119]
+21 0.684 0.8978 0.4053
+```
+
+A phase of $\frac18$ fits three bits and comes back as $m = 1$ every time. For
+$\frac13$, three counting qubits give the hand-computed 0.688 and 0.175; six give $m =
+21$ ($\frac{21}{64} = 0.328$, within $\frac{1}{128}$ of $\frac13$) with probability
+0.684, and one of 20, 21, 22 with 0.898, well above the guaranteed 0.405.
+
+**The catch, and why Shor escapes it.** Step 2 needs $U^{2^j}$ for $j$ up to $t - 1$;
+applying a general $U$ $2^{t-1}$ times would take exponential time. Phase estimation
+is efficient only when high powers of $U$ are cheap. For multiplication by $a$ modulo
+$N$ they are: $U^{2^j}$ is
+multiplication by $a^{2^j} \bmod N$, a number the classical computer finds by repeated
+squaring ([Chapter 4](04-Powers-and-Primitive-Roots.md)) before the circuit is built.
+
+**One counting qubit is enough.** Robert Griffiths and Chi-Sheng Niu (1996) showed that
+the inverse QFT and measurement can be done one qubit at a time, with classically
+controlled phase corrections, so a single recycled counting qubit suffices. Stéphane
+Beauregard (2003) built Shor's algorithm this way with $2n + 3$ qubits for an $n$-bit
+modulus, the source of the "about $2n$" in §20.5.
 
 ## 20.5 Shor's algorithm
 
@@ -455,8 +668,173 @@ factors, and 181 of the 198 bases tried below 200 would have worked.
 <text x="565" y="96" text-anchor="middle">continued</text><text x="565" y="112" text-anchor="middle">fractions,</text><text x="565" y="128" text-anchor="middle">gcd</text>
 <text x="320" y="200" text-anchor="middle" font-size="12">classical in, classical out: only the period finding needs a quantum computer</text>
 </svg>
-<figcaption>Figure 20.2. Shor's algorithm. The quantum computer's only job is to find the order r of a modulo N; everything before and after is ordinary number theory. The modular exponentiation dominates the cost.</figcaption>
+<figcaption>Figure 20.3. Shor's algorithm. The quantum computer's only job is to find the order r of a modulo N; everything before and after is ordinary number theory. The modular exponentiation dominates the cost.</figcaption>
 </figure>
+
+### Order finding as phase estimation: $N = 15$
+
+Shor's quantum step is phase estimation for the unitary that multiplies by $a$:
+
+$$
+U_a|y\rangle = |a y \bmod N\rangle \quad (0 \le y < N), \qquad U_a|y\rangle = |y\rangle \quad (y \ge N).
+$$
+
+Because $a$ is invertible modulo $N$, $U_a$ permutes the basis states, and a
+permutation matrix is unitary. If $r$ is the order of $a$, then for each $k = 0, 1,
+\ldots, r-1$ the vector
+
+$$
+|u_k\rangle = \frac{1}{\sqrt r}\sum_{j=0}^{r-1} e^{-2\pi i kj/r}\,|a^j \bmod N\rangle
+$$
+
+is an eigenvector with eigenvalue $e^{2\pi i k/r}$. The proof is one line: $U_a$
+moves $|a^j\rangle$ to $|a^{j+1}\rangle$, and shifting the index of the sum by one
+pulls out a factor $e^{2\pi i k/r}$, with the end of the cycle wrapping around because
+$a^r \equiv 1$. So the phases are $\varphi = k/r$.
+
+We cannot prepare $|u_k\rangle$ without knowing $r$. We do not need to: the sum of all
+of them is
+
+$$
+\frac{1}{\sqrt r}\sum_{k=0}^{r-1} |u_k\rangle
+= \frac{1}{r}\sum_{j}\Bigl(\sum_{k} e^{-2\pi i kj/r}\Bigr)|a^j\rangle = |1\rangle ,
+$$
+
+because the inner sum of roots of unity is $r$ when $j = 0$ and 0 otherwise. Starting
+the target register in $|1\rangle$, which anyone can prepare, runs phase estimation on
+an equal mixture of all the eigenvectors, and the outcome is $m/Q \approx k/r$ for a
+uniformly random $k$. The controlled powers $U_a^{2^j}$ applied to $|1\rangle$ compute
+exactly $|x\rangle|a^x \bmod N\rangle$: the circuit is the one in the Shor listing
+above, seen from a different side.
+
+**By hand, $N = 15$, $a = 7$.** The powers of 7 modulo 15 are $7, 49 \equiv 4, 28
+\equiv 13, 91 \equiv 1$, so $r = 4$ and $U_7$ cycles $1 \to 7 \to 4 \to 13 \to 1$. For
+$k = 1$:
+
+$$
+|u_1\rangle = \tfrac12\bigl(|1\rangle - i|7\rangle - |4\rangle + i|13\rangle\bigr),
+\qquad
+U_7|u_1\rangle = \tfrac12\bigl(|7\rangle - i|4\rangle - |13\rangle + i|1\rangle\bigr) = i\,|u_1\rangle ,
+$$
+
+eigenvalue $i = e^{2\pi i \cdot 1/4}$. With $t = 8$ counting qubits ($Q = 256 \ge 15^2 =
+225$) and $r = 4$ dividing $Q$ exactly, the outcomes are $m = 0, 64, 128, 192$ with
+probability $\frac14$ each. Then $192/256 = \frac34$ gives $r = 4$; $64/256 = \frac14$
+gives $r = 4$; $128/256 = \frac12$ gives only $r = 2$, and the check $7^2 = 49 \equiv 4
+\not\equiv 1$ shows it is a proper divisor of the order (here $k = 2$ shared a factor
+with $r$). Small multiples of a failed candidate, or the least common multiple of two runs'
+denominators, recover $r = 4$. Finally $7^{2} \equiv 4$,
+and $\gcd(4 - 1, 15) = 3$, $\gcd(4 + 1, 15) = 5$. The first experimental run of
+Shor's algorithm, on a seven-qubit nuclear magnetic resonance machine in 2001, factored
+15 with $a = 11$ and with this harder case, $a = 7$.
+
+```python
+# Order finding for N = 15, a = 7, as phase estimation of U|y> = |7y mod 15>.
+N, a, t = 15, 7, 8                                 # Q = 256 >= 15^2 = 225
+
+# Phase estimation on |1> (an equal mix of the four eigenvectors): controlled U^(2^j) turns
+# |x>|1> into |x>|7^x mod 15>; then the inverse QFT on the counting register.
+Q = 2**t
+rows = {}
+for x in range(Q):
+    rows.setdefault(pow(a, x, N), [0j] * Q)[x] = 1 / math.sqrt(Q)
+p = [0.0] * Q
+for row in rows.values():
+    for m, amp in enumerate(iqft(row)):
+        p[m] += abs(amp) ** 2
+for m in range(Q):
+    if p[m] > 1e-9:
+        frac = Fraction(m, Q).limit_denominator(N - 1)
+        print(m, round(p[m], 4), frac, frac.denominator)
+print(pow(a, 2, N), math.gcd(pow(a, 2, N) - 1, N), math.gcd(pow(a, 2, N) + 1, N))
+```
+
+```text
+0 0.25 0 1
+64 0.25 1/4 4
+128 0.25 1/2 2
+192 0.25 3/4 4
+4 3 5
+```
+
+The outcomes are the four multiples of 64, each with probability $\frac14$; the last
+line is $7^2 \bmod 15$ and the two factors.
+
+### By hand: the continued-fraction step
+
+When $r$ does not divide $Q$, the measured $m$ is only close to $kQ/r$, and the
+fraction $k/r$ has to be dug out of $m/Q$. Take the run $y = 427$ from the $N = 21$
+listing, with $Q = 512$. Euclid's algorithm on 427 and 512 gives the partial
+quotients ([Chapter 2](02-Divisibility-Primes-and-Factoring.md) introduces continued
+fractions):
+
+$$
+512 = 1 \cdot 427 + 85, \quad 427 = 5 \cdot 85 + 2, \quad 85 = 42 \cdot 2 + 1, \quad 2 = 2 \cdot 1 ,
+$$
+
+so $\frac{427}{512} = [0; 1, 5, 42, 2] = \cfrac{1}{1 + \cfrac{1}{5 + \cfrac{1}{42 +
+\cfrac{1}{2}}}}$. The convergents $h_i/k_i$ follow from $h_i = a_i h_{i-1} + h_{i-2}$
+and $k_i = a_i k_{i-1} + k_{i-2}$:
+
+| $a_i$ | 0 | 1 | 5 | 42 | 2 |
+|---|---|---|---|---|---|
+| $h_i$ | 0 | 1 | 5 | 211 | 427 |
+| $k_i$ | 1 | 1 | 6 | 253 | 512 |
+
+The last convergent with denominator below $N = 21$ is $\frac56$, so $r = 6$, and indeed
+$2^6 = 64 \equiv 1 \pmod{21}$. Legendre's theorem says why this works: if
+$|m/Q - k/r| < 1/(2r^2)$, then $k/r$ is a convergent of $m/Q$. The nearest peak is
+within $1/(2Q)$ of $k/r$, and $Q \ge N^2 > r^2$ makes that small enough.
+
+Now $y = 429$, two steps from the peak at $426.67$. Here $512 = 1 \cdot 429 +
+83$, $429 = 5 \cdot 83 + 14$, $83 = 5 \cdot 14 + 13$, $14 = 1 \cdot 13 + 1$, $13 = 13
+\cdot 1$, so $\frac{429}{512} = [0; 1, 5, 5, 1, 13]$ with convergents $1, \frac56,
+\frac{26}{31}, \ldots$. Since $|429/512 - 5/6| = 14/3072 \approx 0.0046$ is below $1/(2 \cdot 6^2)$,
+$\frac56$ is still a convergent. Yet the listing returned 19, because
+`limit_denominator(20)` returns the closest fraction with denominator at most 20:
+$\frac{16}{19}$
+(distance $41/9728 \approx 0.0042$), not a convergent but a **semiconvergent**
+$\frac{1 + 3 \cdot 5}{1 + 3 \cdot 6}$ lying between $\frac56$ and $\frac{26}{31}$. The
+fix is to do what the theory says: list the convergents, and test each denominator
+below $N$.
+
+```python
+# Continued fractions done properly: list the convergents of y/Q, and test each denominator.
+# Uses factor_with_order() from the Shor listing above.
+def convergents(num, den):
+    h_prev, h, k_prev, k = 0, 1, 1, 0              # h/k runs through the convergents
+    out = []
+    while den:
+        q = num // den
+        num, den = den, num - q * den
+        h_prev, h = h, q * h + h_prev
+        k_prev, k = k, q * k + k_prev
+        out.append((h, k))
+    return out
+
+def order_from(y, Q, N, a):
+    for h, k in convergents(y, Q):
+        if 0 < k < N and pow(a, k, N) == 1:
+            return k
+    return None
+
+print(convergents(427, 512))
+print(convergents(429, 512))
+print(order_from(427, 512, 21, 2), order_from(429, 512, 21, 2), order_from(171, 512, 21, 2))
+print(factor_with_order(21, 2, order_from(429, 512, 21, 2)))
+```
+
+```text
+[(0, 1), (1, 1), (5, 6), (211, 253), (427, 512)]
+[(0, 1), (1, 1), (5, 6), (26, 31), (31, 37), (429, 512)]
+6 6 None
+(7, 3)
+```
+
+Both runs now give the order 6, and the factors 7 and 3. The run $y = 171$ still fails,
+for a different reason: its fraction is $\frac{1}{3} = \frac{2}{6}$ in lowest terms, so
+the denominator is only a divisor of $r$; the cure there is another run, or the
+least common multiple of two denominators.
 
 ## 20.6 Discrete logarithms and the hidden subgroup problem
 
@@ -545,68 +923,8 @@ For $N = 1024$, the best number of iterations is 25 ($\frac{\pi}{4}\sqrt{1024}
 <figure class="mars-fig">
 <svg viewBox="0 0 640 250" width="640" role="img" aria-label="Success probability of Grover's search over 1024 items against the number of iterations: it rises like a sine squared to nearly 1 at 25 iterations, falls to nearly 0 at 50, and rises again" fill="currentColor" font-size="13">
 <g stroke="currentColor" stroke-width="1" opacity=".5"><line x1="70" y1="210" x2="605" y2="210"/><line x1="70" y1="210" x2="70" y2="20"/></g>
-<path fill="none" stroke="currentColor" stroke-width="2" class="acc" d="M70.0 209.8 L70.9 209.7 L71.8 209.7 L72.7 209.6 L73.5 209.4 L74.4 209.3 L75.3 209.2 L76.2 209.0 L77.1 208.8 L78.0 208.6 L78.8 208.4 L79.7 208.2 L80.6 208.0 L81.5 207.7 L82.4 207.5 L83.2 207.2 L84.1 206.9 L85.0 206.6 L85.9 206.3 L86.8 206.0 L87.7 205.6 L88.5 205.3 L89.4 204.9 L90.3 204.5 L91.2 204.1 L92.1 203.7 L93.0 203.3 L93.8 202.9 L94.7 202.4 L95.6 202.0 L96.5 201.5 L97.4 201.0 L98.3 200.5 L99.2 200.0 L100.0 199.5 L100.9 199.0 L101.8 198.4 L102.7 197.9 L103.6 197.3 L104.5 196.7 L105.3 196.1 L106.2 195.5 L107.1 194.9 L108.0 194.3 L108.9 193.6 L109.8 193.0 L110.6 192.3 L111.5 191.6 L112.4 191.0 L113.3 190.3 L114.2 189.5 L115.0 188.8 L115.9 188.1 L116.8 187.4 L117.7 186.6 L118.6 185.8 L119.5 185.1 L120.3 184.3 L121.2 183.5 L122.1 182.7 L123.0 181.9 L123.9 181.1 L124.8 180.2 L125.7 179.4 L126.5 178.5 L127.4 177.7 L128.3 176.8 L129.2 175.9 L130.1 175.0 L130.9 174.2 L131.8 173.3 L132.7 172.3 L133.6 171.4 L134.5 170.5 L135.4 169.6 L136.2 168.6 L137.1 167.7 L138.0 166.7 L138.9 165.7 L139.8 164.8 L140.7 163.8 L141.6 162.8 L142.4 161.8 L143.3 160.8 L144.2 159.8 L145.1 158.8 L146.0 157.8 L146.8 156.7 L147.7 155.7 L148.6 154.7 L149.5 153.6 L150.4 152.6 L151.3 151.5 L152.2 150.5 L153.0 149.4 L153.9 148.4 L154.8 147.3 L155.7 146.2 L156.6 145.1 L157.4 144.1 L158.3 143.0 L159.2 141.9 L160.1 140.8 L161.0 139.7 L161.9 138.6 L162.8 137.5 L163.6 136.4 L164.5 135.3 L165.4 134.2 L166.3 133.1 L167.2 131.9 L168.1 130.8 L168.9 129.7 L169.8 128.6 L170.7 127.5 L171.6 126.3 L172.5 125.2 L173.3 124.1 L174.2 123.0 L175.1 121.8 L176.0 120.7 L176.9 119.6 L177.8 118.5 L178.7 117.3 L179.5 116.2 L180.4 115.1 L181.3 114.0 L182.2 112.9 L183.1 111.7 L183.9 110.6 L184.8 109.5 L185.7 108.4 L186.6 107.3 L187.5 106.2 L188.4 105.0 L189.2 103.9 L190.1 102.8 L191.0 101.7 L191.9 100.6 L192.8 99.5 L193.7 98.4 L194.6 97.3 L195.4 96.3 L196.3 95.2 L197.2 94.1 L198.1 93.0 L199.0 91.9 L199.8 90.9 L200.7 89.8 L201.6 88.8 L202.5 87.7 L203.4 86.7 L204.3 85.6 L205.2 84.6 L206.0 83.5 L206.9 82.5 L207.8 81.5 L208.7 80.5 L209.6 79.5 L210.4 78.5 L211.3 77.5 L212.2 76.5 L213.1 75.5 L214.0 74.5 L214.9 73.6 L215.8 72.6 L216.6 71.7 L217.5 70.7 L218.4 69.8 L219.3 68.8 L220.2 67.9 L221.1 67.0 L221.9 66.1 L222.8 65.2 L223.7 64.3 L224.6 63.4 L225.5 62.6 L226.3 61.7 L227.2 60.9 L228.1 60.0 L229.0 59.2 L229.9 58.4 L230.8 57.5 L231.7 56.7 L232.5 55.9 L233.4 55.2 L234.3 54.4 L235.2 53.6 L236.1 52.9 L236.9 52.1 L237.8 51.4 L238.7 50.7 L239.6 49.9 L240.5 49.2 L241.4 48.6 L242.2 47.9 L243.1 47.2 L244.0 46.6 L244.9 45.9 L245.8 45.3 L246.7 44.7 L247.6 44.0 L248.4 43.4 L249.3 42.9 L250.2 42.3 L251.1 41.7 L252.0 41.2 L252.8 40.6 L253.7 40.1 L254.6 39.6 L255.5 39.1 L256.4 38.6 L257.3 38.1 L258.1 37.7 L259.0 37.2 L259.9 36.8 L260.8 36.4 L261.7 36.0 L262.6 35.6 L263.4 35.2 L264.3 34.8 L265.2 34.5 L266.1 34.1 L267.0 33.8 L267.9 33.5 L268.8 33.2 L269.6 32.9 L270.5 32.6 L271.4 32.3 L272.3 32.1 L273.2 31.9 L274.1 31.6 L274.9 31.4 L275.8 31.2 L276.7 31.1 L277.6 30.9 L278.5 30.7 L279.4 30.6 L280.2 30.5 L281.1 30.4 L282.0 30.3 L282.9 30.2 L283.8 30.1 L284.6 30.1 L285.5 30.0 L286.4 30.0 L287.3 30.0 L288.2 30.0 L289.1 30.0 L289.9 30.1 L290.8 30.1 L291.7 30.2 L292.6 30.2 L293.5 30.3 L294.4 30.4 L295.2 30.5 L296.1 30.7 L297.0 30.8 L297.9 31.0 L298.8 31.1 L299.7 31.3 L300.6 31.5 L301.4 31.7 L302.3 32.0 L303.2 32.2 L304.1 32.5 L305.0 32.7 L305.9 33.0 L306.7 33.3 L307.6 33.6 L308.5 33.9 L309.4 34.3 L310.3 34.6 L311.1 35.0 L312.0 35.3 L312.9 35.7 L313.8 36.1 L314.7 36.6 L315.6 37.0 L316.4 37.4 L317.3 37.9 L318.2 38.3 L319.1 38.8 L320.0 39.3 L320.9 39.8 L321.8 40.3 L322.6 40.9 L323.5 41.4 L324.4 42.0 L325.3 42.5 L326.2 43.1 L327.1 43.7 L327.9 44.3 L328.8 44.9 L329.7 45.5 L330.6 46.2 L331.5 46.8 L332.4 47.5 L333.2 48.2 L334.1 48.8 L335.0 49.5 L335.9 50.2 L336.8 51.0 L337.6 51.7 L338.5 52.4 L339.4 53.2 L340.3 53.9 L341.2 54.7 L342.1 55.5 L342.9 56.3 L343.8 57.1 L344.7 57.9 L345.6 58.7 L346.5 59.5 L347.4 60.4 L348.2 61.2 L349.1 62.1 L350.0 62.9 L350.9 63.8 L351.8 64.7 L352.7 65.6 L353.6 66.5 L354.4 67.4 L355.3 68.3 L356.2 69.2 L357.1 70.2 L358.0 71.1 L358.9 72.1 L359.7 73.0 L360.6 74.0 L361.5 75.0 L362.4 75.9 L363.3 76.9 L364.1 77.9 L365.0 78.9 L365.9 79.9 L366.8 80.9 L367.7 81.9 L368.6 83.0 L369.4 84.0 L370.3 85.0 L371.2 86.1 L372.1 87.1 L373.0 88.2 L373.9 89.2 L374.8 90.3 L375.6 91.3 L376.5 92.4 L377.4 93.5 L378.3 94.6 L379.2 95.6 L380.1 96.7 L380.9 97.8 L381.8 98.9 L382.7 100.0 L383.6 101.1 L384.5 102.2 L385.4 103.3 L386.2 104.4 L387.1 105.5 L388.0 106.6 L388.9 107.7 L389.8 108.9 L390.6 110.0 L391.5 111.1 L392.4 112.2 L393.3 113.3 L394.2 114.5 L395.1 115.6 L395.9 116.7 L396.8 117.8 L397.7 119.0 L398.6 120.1 L399.5 121.2 L400.4 122.3 L401.2 123.5 L402.1 124.6 L403.0 125.7 L403.9 126.8 L404.8 127.9 L405.7 129.1 L406.6 130.2 L407.4 131.3 L408.3 132.4 L409.2 133.5 L410.1 134.6 L411.0 135.8 L411.9 136.9 L412.7 138.0 L413.6 139.1 L414.5 140.2 L415.4 141.3 L416.3 142.3 L417.1 143.4 L418.0 144.5 L418.9 145.6 L419.8 146.7 L420.7 147.7 L421.6 148.8 L422.4 149.9 L423.3 150.9 L424.2 152.0 L425.1 153.0 L426.0 154.1 L426.9 155.1 L427.8 156.2 L428.6 157.2 L429.5 158.2 L430.4 159.2 L431.3 160.2 L432.2 161.2 L433.1 162.2 L433.9 163.2 L434.8 164.2 L435.7 165.2 L436.6 166.2 L437.5 167.1 L438.4 168.1 L439.2 169.0 L440.1 170.0 L441.0 170.9 L441.9 171.8 L442.8 172.7 L443.6 173.6 L444.5 174.5 L445.4 175.4 L446.3 176.3 L447.2 177.2 L448.1 178.0 L448.9 178.9 L449.8 179.7 L450.7 180.6 L451.6 181.4 L452.5 182.2 L453.4 183.0 L454.2 183.8 L455.1 184.6 L456.0 185.4 L456.9 186.2 L457.8 186.9 L458.7 187.7 L459.6 188.4 L460.4 189.1 L461.3 189.9 L462.2 190.6 L463.1 191.2 L464.0 191.9 L464.9 192.6 L465.7 193.3 L466.6 193.9 L467.5 194.5 L468.4 195.2 L469.3 195.8 L470.1 196.4 L471.0 197.0 L471.9 197.6 L472.8 198.1 L473.7 198.7 L474.6 199.2 L475.4 199.7 L476.3 200.3 L477.2 200.8 L478.1 201.2 L479.0 201.7 L479.9 202.2 L480.8 202.6 L481.6 203.1 L482.5 203.5 L483.4 203.9 L484.3 204.3 L485.2 204.7 L486.1 205.1 L486.9 205.4 L487.8 205.8 L488.7 206.1 L489.6 206.4 L490.5 206.7 L491.4 207.0 L492.2 207.3 L493.1 207.6 L494.0 207.8 L494.9 208.1 L495.8 208.3 L496.6 208.5 L497.5 208.7 L498.4 208.9 L499.3 209.1 L500.2 209.2 L501.1 209.4 L501.9 209.5 L502.8 209.6 L503.7 209.7 L504.6 209.8 L505.5 209.9 L506.4 209.9 L507.2 210.0 L508.1 210.0 L509.0 210.0 L509.9 210.0 L510.8 210.0 L511.7 210.0 L512.5 209.9 L513.4 209.9 L514.3 209.8 L515.2 209.7 L516.1 209.6 L517.0 209.5 L517.9 209.4 L518.7 209.2 L519.6 209.1 L520.5 208.9 L521.4 208.7 L522.3 208.5 L523.1 208.3 L524.0 208.1 L524.9 207.9 L525.8 207.6 L526.7 207.4 L527.6 207.1 L528.5 206.8 L529.3 206.5 L530.2 206.2 L531.1 205.8 L532.0 205.5 L532.9 205.1 L533.8 204.8 L534.6 204.4 L535.5 204.0 L536.4 203.6 L537.3 203.1 L538.2 202.7 L539.0 202.3 L539.9 201.8 L540.8 201.3 L541.7 200.8 L542.6 200.3 L543.5 199.8 L544.4 199.3 L545.2 198.7 L546.1 198.2 L547.0 197.6 L547.9 197.1 L548.8 196.5 L549.6 195.9 L550.5 195.3 L551.4 194.6 L552.3 194.0 L553.2 193.4 L554.1 192.7 L555.0 192.0 L555.8 191.3 L556.7 190.7 L557.6 190.0 L558.5 189.2 L559.4 188.5 L560.2 187.8 L561.1 187.0 L562.0 186.3 L562.9 185.5 L563.8 184.7 L564.7 184.0 L565.5 183.2 L566.4 182.3 L567.3 181.5 L568.2 180.7 L569.1 179.9 L570.0 179.0 L570.9 178.2 L571.7 177.3 L572.6 176.4 L573.5 175.6 L574.4 174.7 L575.3 173.8 L576.1 172.9 L577.0 171.9 L577.9 171.0 L578.8 170.1 L579.7 169.2 L580.6 168.2 L581.5 167.3 L582.3 166.3 L583.2 165.3 L584.1 164.4 L585.0 163.4 L585.9 162.4 L586.8 161.4 L587.6 160.4 L588.5 159.4 L589.4 158.4 L590.3 157.3 L591.2 156.3 L592.0 155.3 L592.9 154.2 L593.8 153.2 L594.7 152.1 L595.6 151.1 L596.5 150.0 L597.4 149.0 L598.2 147.9 L599.1 146.8 L600.0 145.8"/>
-<circle cx="70.0" cy="209.8" r="2"/>
-<circle cx="78.8" cy="208.4" r="2"/>
-<circle cx="87.7" cy="205.6" r="2"/>
-<circle cx="96.5" cy="201.5" r="2"/>
-<circle cx="105.3" cy="196.1" r="2"/>
-<circle cx="114.2" cy="189.5" r="2"/>
-<circle cx="123.0" cy="181.9" r="2"/>
-<circle cx="131.8" cy="173.3" r="2"/>
-<circle cx="140.7" cy="163.8" r="2"/>
-<circle cx="149.5" cy="153.6" r="2"/>
-<circle cx="158.3" cy="143.0" r="2"/>
-<circle cx="167.2" cy="131.9" r="2"/>
-<circle cx="176.0" cy="120.7" r="2"/>
-<circle cx="184.8" cy="109.5" r="2"/>
-<circle cx="193.7" cy="98.4" r="2"/>
-<circle cx="202.5" cy="87.7" r="2"/>
-<circle cx="211.3" cy="77.5" r="2"/>
-<circle cx="220.2" cy="67.9" r="2"/>
-<circle cx="229.0" cy="59.2" r="2"/>
-<circle cx="237.8" cy="51.4" r="2"/>
-<circle cx="246.7" cy="44.7" r="2"/>
-<circle cx="255.5" cy="39.1" r="2"/>
-<circle cx="264.3" cy="34.8" r="2"/>
-<circle cx="273.2" cy="31.9" r="2"/>
-<circle cx="282.0" cy="30.3" r="2"/>
-<circle cx="290.8" cy="30.1" r="2"/>
-<circle cx="299.7" cy="31.3" r="2"/>
-<circle cx="308.5" cy="33.9" r="2"/>
-<circle cx="317.3" cy="37.9" r="2"/>
-<circle cx="326.2" cy="43.1" r="2"/>
-<circle cx="335.0" cy="49.5" r="2"/>
-<circle cx="343.8" cy="57.1" r="2"/>
-<circle cx="352.7" cy="65.6" r="2"/>
-<circle cx="361.5" cy="75.0" r="2"/>
-<circle cx="370.3" cy="85.0" r="2"/>
-<circle cx="379.2" cy="95.6" r="2"/>
-<circle cx="388.0" cy="106.6" r="2"/>
-<circle cx="396.8" cy="117.8" r="2"/>
-<circle cx="405.7" cy="129.1" r="2"/>
-<circle cx="414.5" cy="140.2" r="2"/>
-<circle cx="423.3" cy="150.9" r="2"/>
-<circle cx="432.2" cy="161.2" r="2"/>
-<circle cx="441.0" cy="170.9" r="2"/>
-<circle cx="449.8" cy="179.7" r="2"/>
-<circle cx="458.7" cy="187.7" r="2"/>
-<circle cx="467.5" cy="194.5" r="2"/>
-<circle cx="476.3" cy="200.3" r="2"/>
-<circle cx="485.2" cy="204.7" r="2"/>
-<circle cx="494.0" cy="207.8" r="2"/>
-<circle cx="502.8" cy="209.6" r="2"/>
-<circle cx="511.7" cy="210.0" r="2"/>
-<circle cx="520.5" cy="208.9" r="2"/>
-<circle cx="529.3" cy="206.5" r="2"/>
-<circle cx="538.2" cy="202.7" r="2"/>
-<circle cx="547.0" cy="197.6" r="2"/>
-<circle cx="555.8" cy="191.3" r="2"/>
-<circle cx="564.7" cy="184.0" r="2"/>
-<circle cx="573.5" cy="175.6" r="2"/>
-<circle cx="582.3" cy="166.3" r="2"/>
-<circle cx="591.2" cy="156.3" r="2"/>
-<circle cx="600.0" cy="145.8" r="2"/>
+<path fill="none" stroke="currentColor" stroke-width="2" class="acc" d="M70.0 209.8 L74.4 209.3 L78.8 208.4 L83.2 207.2 L87.7 205.6 L92.1 203.7 L96.5 201.5 L100.9 199.0 L105.3 196.1 L109.8 193.0 L114.2 189.5 L118.6 185.8 L123.0 181.9 L127.4 177.7 L131.8 173.3 L136.2 168.6 L140.7 163.8 L145.1 158.8 L149.5 153.6 L153.9 148.4 L158.3 143.0 L162.8 137.5 L167.2 131.9 L171.6 126.3 L176.0 120.7 L180.4 115.1 L184.8 109.5 L189.2 103.9 L193.7 98.4 L198.1 93.0 L202.5 87.7 L206.9 82.5 L211.3 77.5 L215.8 72.6 L220.2 67.9 L224.6 63.4 L229.0 59.2 L233.4 55.2 L237.8 51.4 L242.2 47.9 L246.7 44.7 L251.1 41.7 L255.5 39.1 L259.9 36.8 L264.3 34.8 L268.8 33.2 L273.2 31.9 L277.6 30.9 L282.0 30.3 L286.4 30.0 L290.8 30.1 L295.2 30.5 L299.7 31.3 L304.1 32.5 L308.5 33.9 L312.9 35.7 L317.3 37.9 L321.8 40.3 L326.2 43.1 L330.6 46.2 L335.0 49.5 L339.4 53.2 L343.8 57.1 L348.2 61.2 L352.7 65.6 L357.1 70.2 L361.5 75.0 L365.9 79.9 L370.3 85.0 L374.8 90.3 L379.2 95.6 L383.6 101.1 L388.0 106.6 L392.4 112.2 L396.8 117.8 L401.2 123.5 L405.7 129.1 L410.1 134.6 L414.5 140.2 L418.9 145.6 L423.3 150.9 L427.8 156.2 L432.2 161.2 L436.6 166.2 L441.0 170.9 L445.4 175.4 L449.8 179.7 L454.2 183.8 L458.7 187.7 L463.1 191.2 L467.5 194.5 L471.9 197.6 L476.3 200.3 L480.8 202.6 L485.2 204.7 L489.6 206.4 L494.0 207.8 L498.4 208.9 L502.8 209.6 L507.2 210.0 L511.7 210.0 L516.1 209.6 L520.5 208.9 L524.9 207.9 L529.3 206.5 L533.8 204.8 L538.2 202.7 L542.6 200.3 L547.0 197.6 L551.4 194.6 L555.8 191.3 L560.2 187.8 L564.7 184.0 L569.1 179.9 L573.5 175.6 L577.9 171.0 L582.3 166.3 L586.8 161.4 L591.2 156.3 L595.6 151.1 L600.0 145.8"/>
+<path fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" d="M70.0 209.8h0M78.8 208.4h0M87.7 205.6h0M96.5 201.5h0M105.3 196.1h0M114.2 189.5h0M123.0 181.9h0M131.8 173.3h0M140.7 163.8h0M149.5 153.6h0M158.3 143.0h0M167.2 131.9h0M176.0 120.7h0M184.8 109.5h0M193.7 98.4h0M202.5 87.7h0M211.3 77.5h0M220.2 67.9h0M229.0 59.2h0M237.8 51.4h0M246.7 44.7h0M255.5 39.1h0M264.3 34.8h0M273.2 31.9h0M282.0 30.3h0M290.8 30.1h0M299.7 31.3h0M308.5 33.9h0M317.3 37.9h0M326.2 43.1h0M335.0 49.5h0M343.8 57.1h0M352.7 65.6h0M361.5 75.0h0M370.3 85.0h0M379.2 95.6h0M388.0 106.6h0M396.8 117.8h0M405.7 129.1h0M414.5 140.2h0M423.3 150.9h0M432.2 161.2h0M441.0 170.9h0M449.8 179.7h0M458.7 187.7h0M467.5 194.5h0M476.3 200.3h0M485.2 204.7h0M494.0 207.8h0M502.8 209.6h0M511.7 210.0h0M520.5 208.9h0M529.3 206.5h0M538.2 202.7h0M547.0 197.6h0M555.8 191.3h0M564.7 184.0h0M573.5 175.6h0M582.3 166.3h0M591.2 156.3h0M600.0 145.8h0"/>
 <line x1="290.8" y1="30" x2="290.8" y2="210" stroke="currentColor" stroke-dasharray="3 4" opacity=".6"/>
 <text x="290.8" y="24" text-anchor="middle" font-size="12">25 iterations: 0.9995</text>
 <text x="511.7" y="196" text-anchor="middle" font-size="12">50: 0.0002</text>
@@ -622,7 +940,7 @@ For $N = 1024$, the best number of iterations is 25 ($\frac{\pi}{4}\sqrt{1024}
 <text x="62" y="34.0" text-anchor="end" font-size="12">1</text>
 <text x="337" y="246" text-anchor="middle" font-size="12">iterations k</text>
 </svg>
-<figcaption>Figure 20.3. Grover's search over N = 1024 items: the probability of finding the marked item oscillates as sin²((2k + 1)θ), peaking after about (π/4)√N = 25 iterations. More iterations make it worse, not better.</figcaption>
+<figcaption>Figure 20.4. Grover's search over N = 1024 items: the probability of finding the marked item oscillates as sin²((2k + 1)θ), peaking after about (π/4)√N = 25 iterations. More iterations make it worse, not better.</figcaption>
 </figure>
 
 **The limit.** Charles Bennett, Ethan Bernstein, Gilles Brassard and Umesh Vazirani
@@ -659,6 +977,57 @@ That is why NIST's post-quantum security categories are defined by the cost of
 searching for an AES key, with a limit on circuit depth, and why AES-128 is still
 considered acceptable while 256-bit keys are recommended for long-term secrets.
 
+### Why nothing beats Grover: the BBBV argument in plain words
+
+The lower bound of Bennett, Bernstein, Brassard and Vazirani is why symmetric
+cryptography survives. It is a hybrid argument ([Chapter 16](16-Probability.md))
+applied to quantum states.
+
+Run any quantum algorithm that makes $T$ queries, but give it an oracle that marks
+**nothing**. Before each query $t$, the state spreads some probability $q_w(t)$ over
+each item $w$: the squared amplitude on the basis states that ask about $w$. These add
+up to at most 1 at each step, so over all $T$ queries
+
+$$
+\sum_{w} \sum_{t=1}^{T} q_w(t) \le T .
+$$
+
+There are $N$ items, so on average an item receives total "query weight" at most
+$T/N$, and most items receive about that much or less. Pick such an item $w$.
+
+Now run the same algorithm with $w$ marked. The two oracles differ only on $w$, so query
+$t$ can pull the two runs apart by at most $2\sqrt{q_w(t)}$: flipping the sign of an
+amplitude $\alpha$ moves the state by $|2\alpha|$. Distances add (the triangle
+inequality), so the final states differ by at most
+
+$$
+2\sum_{t=1}^{T} \sqrt{q_w(t)} \le 2\sqrt{T \sum_t q_w(t)} \le 2\sqrt{T \cdot \frac{T}{N}}
+= \frac{2T}{\sqrt N},
+$$
+
+using the Cauchy-Schwarz inequality in the middle. To find $w$ with good probability,
+the algorithm must end in a state measurably different from the one it would reach if
+nothing were marked, which needs that distance to be at least a constant $c$. So $2T /
+\sqrt N \ge c$, and $T \ge \frac{c}{2}\sqrt N$.
+
+In words: a query looks at every item at once, but with total weight 1 spread over $N$
+items, and evidence about one item grows only like the square root of its weight.
+Christof Zalka (1999) showed that Grover's $\frac{\pi}{4}\sqrt N$ is optimal up to
+lower-order terms. Two consequences matter for cryptography:
+
+- **Brute force on a good cipher stays exponential:** about $2^{64}$ sequential AES
+  evaluations for a 128-bit key. A faster quantum attack must use structure, as
+  Simon's algorithm does in §20.9.
+- **Quantum computers are not believed to solve NP-complete problems quickly.** BBBV
+  shows that, relative to a random oracle, search alone cannot do it. That is not a
+  proof about real problems, but it fits the picture of
+  [Chapter 19](19-Complexity-and-Reductions.md): the quantum threat comes from hidden
+  structure such as periods, not from raw search power.
+
+The *Post-quantum cryptography* book's
+[chapter 2](../post-quantum/02-Security-Levels.md) shows how NIST turned the
+sequential nature of Grover into its "MAXDEPTH" security categories.
+
 ## 20.8 Resource estimates
 
 *Level: expert.*
@@ -673,19 +1042,481 @@ the surface code) into far fewer, reliable **logical qubits**.
 | Craig Gidney (2025) | RSA-2048 | under 1 million | under a week |
 | Martin Roetteler, Michael Naehrig, Krysta Svore and Kristin Lauter (2017) | 256-bit elliptic curve | 2,330 logical qubits | (logical estimate) |
 
-All assume gate error rates around $10^{-3}$ and a microsecond-scale cycle time. The
-drop from 20 million to under a million came from better arithmetic (approximate
-residue arithmetic, cheaper magic-state production) rather than better hardware, and
-it is the reason "Q-day" estimates keep moving earlier. Today's largest machines have
-on the order of a thousand physical qubits with error rates near those thresholds; the
-largest numbers ever factored with a genuinely quantum run of Shor's algorithm are
-tiny (15 in 2001, 21 in 2012, each with simplifications that use the known answer).
+All three assume gate error rates around $10^{-3}$ and a microsecond-scale cycle time.
+The drop from 20 million to under a million came from better arithmetic (approximate
+residue arithmetic, cheaper magic-state production, denser storage of idle qubits)
+rather than better hardware, and it is the reason "Q-day" estimates keep moving
+earlier. The rest of this section explains where "a million" comes from.
 
-The *Post-quantum cryptography* book's
-[chapter 1](../post-quantum/01-The-Quantum-Threat-Measured.md) follows the timelines
-and migration deadlines; the mathematics is the same as here.
+### Why noisy qubits need a code
 
-## 20.9 What it means for key sizes
+A physical qubit with a gate error of $10^{-3}$ survives about a thousand operations;
+Shor's algorithm for RSA-2048 needs billions. Classical computers would store each bit
+three times and vote. For qubits three things seem to forbid that: no unitary copies an
+unknown state (the **no-cloning** theorem: copying $|0\rangle$ and $|1\rangle$ forces
+the wrong answer on their sum, by linearity); measuring the data destroys the
+superposition; and errors are continuous, small drifts rather than clean flips.
+
+All three have answers. A code spreads one qubit over several by **entangling**, not
+copying. The checks measure only **parities** of several qubits, which reveal the
+error but nothing about the data. And measuring the parities **discretizes** the error:
+any one-qubit error is a combination of the identity, a bit flip $X$, a phase flip $Z =
+\mathrm{diag}(1, -1)$ and their product, and the measurement collapses it onto one of
+these, which is then undone. Correcting $X$ and $Z$ on any one qubit corrects every
+error on it.
+
+### The three-qubit bit-flip code
+
+Encode $\alpha|0\rangle + \beta|1\rangle$ as
+
+$$
+\alpha|000\rangle + \beta|111\rangle ,
+$$
+
+with two CNOTs from the data qubit onto two fresh qubits in $|0\rangle$ (Figure 20.5).
+This is not three copies, $(\alpha|0\rangle + \beta|1\rangle)^{\otimes 3}$, but one
+logical qubit with **codewords** $|0_L\rangle = |000\rangle$ and $|1_L\rangle =
+|111\rangle$.
+
+Two parity checks find a single bit flip: $q_0 \oplus q_1$ and $q_1 \oplus q_2$, each
+computed onto an extra **ancilla** qubit with two CNOTs and then measured. In operator
+language these are the **stabilizers** $Z_0Z_1$ and $Z_1Z_2$: both codewords are
+eigenvectors with eigenvalue $+1$, and a flipped qubit changes the sign of the checks
+it touches. The two measured bits form the **syndrome**:
+
+| error | state | $q_0 \oplus q_1$ | $q_1 \oplus q_2$ | correction |
+|---|---|---|---|---|
+| none | $\alpha\lvert 000\rangle + \beta\lvert 111\rangle$ | 0 | 0 | none |
+| $X$ on $q_0$ | $\alpha\lvert 001\rangle + \beta\lvert 110\rangle$ | 1 | 0 | $X$ on $q_0$ |
+| $X$ on $q_1$ | $\alpha\lvert 010\rangle + \beta\lvert 101\rangle$ | 1 | 1 | $X$ on $q_1$ |
+| $X$ on $q_2$ | $\alpha\lvert 100\rangle + \beta\lvert 011\rangle$ | 0 | 1 | $X$ on $q_2$ |
+
+(Bit strings are written $q_2q_1q_0$.) **By hand**, take the third row. Both terms,
+$|010\rangle$ and $|101\rangle$, have $q_0 \oplus q_1 = 1$ and $q_1 \oplus q_2 = 1$, so
+the ancillas come out $(1, 1)$ with certainty, and measuring them does not disturb
+$\alpha$ and $\beta$ at all. The syndrome points at $q_1$; flipping it back restores
+$\alpha|000\rangle + \beta|111\rangle$. The decoder never learns $\alpha$ or $\beta$,
+and never needs to.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 275" width="640" role="img" aria-label="The three-qubit bit-flip code as a circuit: two CNOTs copy the basis value of the first qubit onto two fresh qubits, noise may flip one data qubit, four CNOTs compute the parities of qubits 0 and 1 and of qubits 1 and 2 onto two ancillas, the ancillas are measured, and the syndrome selects which qubit to flip back" fill="currentColor" font-size="14">
+<g stroke="currentColor" stroke-width="1.2"><line x1="110" y1="55" x2="235" y2="55"/><line x1="275" y1="55" x2="545" y2="55"/><line x1="595" y1="55" x2="620" y2="55"/><line x1="110" y1="95" x2="235" y2="95"/><line x1="275" y1="95" x2="545" y2="95"/><line x1="595" y1="95" x2="620" y2="95"/><line x1="110" y1="135" x2="235" y2="135"/><line x1="275" y1="135" x2="545" y2="135"/><line x1="595" y1="135" x2="620" y2="135"/><line x1="110" y1="190" x2="470" y2="190"/><line x1="110" y1="230" x2="470" y2="230"/></g>
+<g stroke="currentColor" stroke-width="1.5" fill="none"><line x1="150" y1="55" x2="150" y2="104"/><circle cx="150" cy="95" r="9"/><path d="M141 95H159M150 86V104"/><line x1="190" y1="55" x2="190" y2="144"/><circle cx="190" cy="135" r="9"/><path d="M181 135H199M190 126V144"/><line x1="310" y1="55" x2="310" y2="199"/><circle cx="310" cy="190" r="9"/><path d="M301 190H319M310 181V199"/><line x1="345" y1="95" x2="345" y2="199"/><circle cx="345" cy="190" r="9"/><path d="M336 190H354M345 181V199"/><line x1="395" y1="95" x2="395" y2="239"/><circle cx="395" cy="230" r="9"/><path d="M386 230H404M395 221V239"/><line x1="430" y1="135" x2="430" y2="239"/><circle cx="430" cy="230" r="9"/><path d="M421 230H439M430 221V239"/><rect x="470" y="176" width="32" height="28" rx="3"/><path d="M476 197 A10 10 0 0 1 496 197 M486 197 L494 182"/><rect x="470" y="216" width="32" height="28" rx="3"/><path d="M476 237 A10 10 0 0 1 496 237 M486 237 L494 222"/><rect x="545" y="38" width="50" height="114" rx="3"/><path stroke-width="1" d="M502 188H560V152M502 192H564V152M502 228H572V152M502 232H576V152"/></g>
+<circle cx="150" cy="55" r="4.5"/><circle cx="190" cy="55" r="4.5"/><circle cx="310" cy="55" r="4.5"/><circle cx="345" cy="95" r="4.5"/><circle cx="395" cy="95" r="4.5"/><circle cx="430" cy="135" r="4.5"/>
+<rect x="235" y="38" width="40" height="114" rx="4" fill-opacity=".08" stroke="currentColor" stroke-dasharray="4 3"/>
+<text x="10" y="60">α|0⟩+β|1⟩</text><text x="84" y="100">|0⟩</text><text x="84" y="140">|0⟩</text><text x="84" y="195">|0⟩</text><text x="84" y="235">|0⟩</text>
+<g font-size="12"><text x="255" y="100" text-anchor="middle">X?</text><text x="570" y="100" text-anchor="middle">fix</text><text x="10" y="195">q0⊕q1</text><text x="10" y="235">q1⊕q2</text><text x="170" y="20" text-anchor="middle">encode</text><text x="255" y="20" text-anchor="middle">noise</text><text x="370" y="20" text-anchor="middle">measure two parities</text><text x="570" y="20" text-anchor="middle">correct</text><text x="320" y="266" text-anchor="middle">the parities reveal where a flip happened, never whether the data is 0 or 1</text></g>
+</svg>
+<figcaption>Figure 20.5. The three-qubit bit-flip code. Two CNOTs encode, noise may flip one data qubit, four CNOTs copy two parities onto ancillas, and the measured syndrome says which qubit to flip back. The phase-flip code is the same circuit with a Hadamard on each data qubit after encoding and before the checks.</figcaption>
+</figure>
+
+If each qubit flips independently with probability $p$, the code fails only when two
+or three flip: $p_L = 3p^2(1 - p) + p^3 = 3p^2 - 2p^3$. For $p = 0.01$, that is
+$0.000298$, about 34 times better than an unprotected qubit.
+
+### The phase-flip code
+
+A phase flip $Z$ leaves $|000\rangle$ and $|111\rangle$ where they are and changes the
+sign of $\beta$, which no $Z$-parity check can see. But the Hadamard gate swaps the two
+kinds of error, $HZH = X$, because $H$ maps $|0\rangle, |1\rangle$ to $|{+}\rangle,
+|{-}\rangle$ and $Z$ swaps $|{+}\rangle$ and $|{-}\rangle$. So the **phase-flip code**
+is the bit-flip code in the other basis:
+
+$$
+\alpha|{+}{+}{+}\rangle + \beta|{-}{-}{-}\rangle ,
+$$
+
+with stabilizers $X_0X_1$ and $X_1X_2$. Decoding applies $H$ to each qubit, runs the
+same parity checks, and applies $H$ again. Peter Shor's nine-qubit code (1995), the
+first quantum error-correcting code, nests the two (a phase-flip code whose qubits are
+each bit-flip encoded) and corrects any error on any one of its nine qubits. Andrew Steane's seven-qubit code (1996) does the same
+with seven qubits by borrowing the classical Hamming code of
+[Chapter 18](18-Error-Correcting-Codes.md).
+
+```python
+# The three-qubit bit-flip code: data on qubits 0, 1, 2; syndrome ancillas on qubits 3 and 4.
+Z = [[1, 0], [0, -1]]
+
+def encode(alpha, beta, phase_code=False):
+    state = [0j] * 32
+    state[0], state[1] = alpha, beta               # qubit 0 holds alpha|0> + beta|1>
+    state = apply_cnot(apply_cnot(state, 0, 1), 0, 2)   # alpha|000> + beta|111>
+    if phase_code:                                 # alpha|+++> + beta|--->
+        for q in range(3):
+            state = apply_1q(state, Hd, q, 5)
+    return state
+
+def correct(state, phase_code=False):
+    if phase_code:                                 # back to the bit-flip basis
+        for q in range(3):
+            state = apply_1q(state, Hd, q, 5)
+    state = apply_cnot(apply_cnot(state, 0, 3), 1, 3)   # ancilla 3 = q0 XOR q1
+    state = apply_cnot(apply_cnot(state, 1, 4), 2, 4)   # ancilla 4 = q1 XOR q2
+    i = next(i for i, amp in enumerate(state) if abs(amp) > 1e-9)
+    syndrome = ((i >> 3) & 1, (i >> 4) & 1)        # measuring the ancillas: one definite answer
+    flip = {(1, 0): 0, (1, 1): 1, (0, 1): 2}.get(syndrome)
+    if flip is not None:
+        state = apply_1q(state, X, flip, 5)
+    if phase_code:
+        for q in range(3):
+            state = apply_1q(state, Hd, q, 5)
+    return state, syndrome
+
+def fidelity(state, good, syndrome):
+    shift = syndrome[0] << 3 | syndrome[1] << 4    # the ancillas keep the syndrome bits
+    return round(abs(sum(good[i].conjugate() * state[i | shift] for i in range(8))) ** 2, 6)
+
+for phase_code, err in ((False, X), (True, Z)):
+    good = encode(0.6, 0.8, phase_code)
+    for where in (None, 0, 1, 2):
+        state = good if where is None else apply_1q(good, err, where, 5)
+        fixed, syn = correct(state, phase_code)
+        print("phase" if phase_code else "bit  ", where, syn, fidelity(fixed, good, syn))
+
+good = encode(0.6, 0.8)
+two = apply_1q(apply_1q(good, X, 0, 5), X, 1, 5)    # two bit flips: too many for this code
+fixed, syn = correct(two)
+print("two flips", syn, fidelity(fixed, good, syn))
+fixed, syn = correct(apply_1q(good, Z, 0, 5))       # a phase flip: invisible to the bit-flip code
+print("phase flip on bit code", syn, fidelity(fixed, good, syn))
+```
+
+```text
+bit   None (0, 0) 1.0
+bit   0 (1, 0) 1.0
+bit   1 (1, 1) 1.0
+bit   2 (0, 1) 1.0
+phase None (0, 0) 1.0
+phase 0 (1, 0) 1.0
+phase 1 (1, 1) 1.0
+phase 2 (0, 1) 1.0
+two flips (0, 1) 0.9216
+phase flip on bit code (0, 0) 0.0784
+```
+
+The state is $0.6|0\rangle + 0.8|1\rangle$. Every single error of the kind each code is
+built for gives its own syndrome and is undone exactly (fidelity 1). Two bit flips are
+"corrected" into a logical flip, $0.8|0_L\rangle + 0.6|1_L\rangle$, with overlap $(2
+\times 0.6 \times 0.8)^2 = 0.9216$: close, but wrong. A phase flip passes the bit-flip
+checks with syndrome $(0, 0)$ and leaves $0.6|0_L\rangle - 0.8|1_L\rangle$, overlap
+$(0.36 - 0.64)^2 = 0.0784$. A real code must catch both kinds, over and over, with
+checks that are themselves noisy.
+
+### The surface code
+
+The **surface code**, from Alexei Kitaev's toric code (1997) and its planar form by
+Sergey Bravyi and Kitaev (1998), is what nearly every estimate for superconducting
+machines assumes. It needs only a square grid of qubits with nearest-neighbor
+couplings, and it tolerates physical error rates up to about 1%, among the highest of
+any practical code.
+
+A patch of **distance** $d$ (Figure 20.6) has $d^2$ data qubits on a grid and $d^2 - 1$
+measure qubits, one in each square, $2d^2 - 1$ in all. Each measure qubit repeatedly
+checks a parity of its two or four neighbors: half the squares check $Z$-parities (they
+catch bit flips) and half check $X$-parities (they catch phase flips), the two codes of
+the last section woven into one grid. One round of all the checks is a **cycle**, about
+a microsecond on superconducting chips. The data are never measured; a classical
+**decoder** watches the stream of syndromes and infers the most likely errors.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="A distance-3 surface code patch: nine data qubits on a 3 by 3 grid, four square plaquettes and four half-disk plaquettes on the boundary, each with a measure qubit at its center, shaded by type X or Z; seventeen qubits in all" fill="currentColor" font-size="14">
+<g stroke="currentColor" stroke-width="1.2" fill-opacity=".28"><rect x="90" y="70" width="75" height="75"/><rect x="165" y="145" width="75" height="75"/><path d="M90 220A37.5 37.5 0 0 1 90 145Z"/><path d="M240 70A37.5 37.5 0 0 1 240 145Z"/><rect x="321" y="128" width="18" height="18"/></g>
+<g stroke="currentColor" stroke-width="1.2" fill-opacity=".08"><rect x="165" y="70" width="75" height="75"/><rect x="90" y="145" width="75" height="75"/><path d="M90 70A37.5 37.5 0 0 1 165 70Z"/><path d="M240 220A37.5 37.5 0 0 1 165 220Z"/><rect x="321" y="160" width="18" height="18"/></g>
+<g stroke="currentColor" stroke-width="1.5" fill="none"><circle cx="127.5" cy="107.5" r="7"/><circle cx="127.5" cy="182.5" r="7"/><circle cx="202.5" cy="107.5" r="7"/><circle cx="202.5" cy="182.5" r="7"/><circle cx="127.5" cy="53.125" r="7"/><circle cx="202.5" cy="236.875" r="7"/><circle cx="73.125" cy="182.5" r="7"/><circle cx="256.875" cy="107.5" r="7"/><circle cx="330" cy="105" r="7"/></g>
+<circle cx="90" cy="70" r="8"/><circle cx="90" cy="145" r="8"/><circle cx="90" cy="220" r="8"/><circle cx="165" cy="70" r="8"/><circle cx="165" cy="145" r="8"/><circle cx="165" cy="220" r="8"/><circle cx="240" cy="70" r="8"/><circle cx="240" cy="145" r="8"/><circle cx="240" cy="220" r="8"/><circle cx="330" cy="70" r="8"/>
+<g font-size="11"><text x="138.5" y="99.5">Z</text><text x="213.5" y="99.5">X</text><text x="138.5" y="174.5">X</text><text x="213.5" y="174.5">Z</text></g>
+<text x="348" y="75">data qubit (d² = 9)</text><text x="348" y="110">measure qubit (d² − 1 = 8)</text><text x="348" y="142">Z parity of its corners</text><text x="348" y="174">X parity of its corners</text>
+<g font-size="13"><text x="321" y="215">d = 3: 17 qubits, any 1 error corrected</text><text x="321" y="237">d = 27: 1,457 qubits, any 13 corrected</text><text x="321" y="259">a logical error needs a chain of d flips</text><text x="321" y="281">from one edge of the patch to the other</text></g>
+</svg>
+<figcaption>Figure 20.6. A distance-3 surface code patch: 9 data qubits, 8 measure qubits, 17 in all. Shaded squares check Z-parities and catch bit flips; light squares check X-parities and catch phase flips. A logical error needs a chain of errors stretching across the patch, so its probability falls like p^((d+1)/2).</figcaption>
+</figure>
+
+**Where the formula comes from.** A logical error on the patch is a chain of physical
+errors running from one edge to the opposite edge, at least $d$ long. The decoder,
+seeing only the endpoints of error chains, matches them up by the shortest
+explanation. It makes a mistake when more than half of some crossing chain has gone
+wrong, that is, when about $(d+1)/2$ errors line up. The number of ways to choose
+those positions grows only exponentially in $d$, with a base around $1/p_{th}$, so
+the logical error rate per cycle behaves like
+
+$$
+p_L \approx A \left(\frac{p}{p_{th}}\right)^{(d+1)/2},
+$$
+
+with $p_{th} \approx 10^{-2}$ and $A \approx 0.1$, the rule of thumb Gidney and Ekerå
+used in 2019 (Austin Fowler and colleagues' 2012 review fits a similar formula). Below
+threshold each step $d \to d + 2$ divides $p_L$ by $\Lambda = p_{th}/p$; above it, a
+bigger patch only gives errors more room. The listing shows the same behavior exactly
+for the repetition code, and turns the surface formula into the estimate below.
+
+```python
+# Majority vote over d copies fails when more than half flip; the surface code behaves alike.
+def repetition_failure(p, d):
+    return sum(math.comb(d, k) * p**k * (1 - p) ** (d - k) for k in range((d + 1) // 2, d + 1))
+
+for p in (0.01, 0.1, 0.6):
+    print(p, ["%.1e" % repetition_failure(p, d) for d in (1, 3, 5, 7, 9)])
+
+def surface_distance(p, target, p_th=0.01):
+    d = 3
+    while 0.1 * (p / p_th) ** ((d + 1) / 2) > target:
+        d += 2
+    return d
+
+rounds = 1400 * 5 * 24 * 3600 * 10**6              # 1,400 logical qubits for five days of 1-microsecond rounds
+d = surface_distance(1e-3, 1 / rounds)
+print("%.1e" % rounds, d, 2 * d * d, 1400 * 2 * d * d)
+```
+
+```text
+0.01 ['1.0e-02', '3.0e-04', '9.9e-06', '3.4e-07', '1.2e-08']
+0.1 ['1.0e-01', '2.8e-02', '8.6e-03', '2.7e-03', '8.9e-04']
+0.6 ['6.0e-01', '6.5e-01', '6.8e-01', '7.1e-01', '7.3e-01']
+6.0e+14 27 1458 2041200
+```
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 260" width="640" role="img" aria-label="Logical failure rate of a distance-d repetition code against d, on a logarithmic scale: for a physical flip rate of 0.01 it falls from 1e-2 to about 1e-8 at d = 9; for 0.1 it falls more slowly to about 1e-3; for 0.6, above the threshold, it rises" fill="currentColor" font-size="12">
+<g stroke="currentColor" stroke-width="1" opacity=".5" fill="none"><path d="M110 30V222.0H470"/></g>
+<g stroke="currentColor" stroke-width=".5" opacity=".25"><line x1="110" y1="30.0" x2="470" y2="30.0"/><line x1="110" y1="78.0" x2="470" y2="78.0"/><line x1="110" y1="126.0" x2="470" y2="126.0"/><line x1="110" y1="174.0" x2="470" y2="174.0"/></g>
+<g text-anchor="end"><text x="102" y="34.0">1</text><text x="102" y="82.0">10⁻²</text><text x="102" y="130.0">10⁻⁴</text><text x="102" y="178.0">10⁻⁶</text><text x="102" y="226.0">10⁻⁸</text></g>
+<g text-anchor="middle"><text x="110.0" y="240.0">1</text><text x="200.0" y="240.0">3</text><text x="290.0" y="240.0">5</text><text x="380.0" y="240.0">7</text><text x="470.0" y="240.0">9</text><text x="290.0" y="258.0">distance d (copies)</text></g>
+<g stroke="currentColor" stroke-width="2" fill="none"><path d="M110 35.3L200 34.5L290 34.0L380 33.6L470 33.2" stroke-dasharray="2 4"/><path d="M110 54.0L200 67.3L290 79.6L380 91.5L470 103.2" stroke-dasharray="7 4"/><path d="M110 78.0L200 114.6L290 150.2L380 185.2L470 219.9"/></g>
+<circle cx="110" cy="35.3" r="3"/><circle cx="200" cy="34.5" r="3"/><circle cx="290" cy="34.0" r="3"/><circle cx="380" cy="33.6" r="3"/><circle cx="470" cy="33.2" r="3"/><circle cx="110" cy="54.0" r="3"/><circle cx="200" cy="67.3" r="3"/><circle cx="290" cy="79.6" r="3"/><circle cx="380" cy="91.5" r="3"/><circle cx="470" cy="103.2" r="3"/><circle cx="110" cy="78.0" r="3"/><circle cx="200" cy="114.6" r="3"/><circle cx="290" cy="150.2" r="3"/><circle cx="380" cy="185.2" r="3"/><circle cx="470" cy="219.9" r="3"/><text x="480" y="37.2">p = 0.6 (above threshold)</text><text x="480" y="107.2">p = 0.1</text><text x="480" y="223.9">p = 0.01</text>
+</svg>
+<figcaption>Figure 20.7. Threshold behavior, computed exactly for the repetition code (majority vote over d copies, threshold 1/2). Below threshold every step in distance multiplies the failure rate by a constant factor less than 1; above it, more copies make things worse. The surface code does the same with a threshold near 1%.</figcaption>
+</figure>
+
+At $p = 0.01$ each step $d \to d + 2$ divides the failure rate by about 30, at $p =
+0.1$ by about 3, and at $p = 0.6$ it climbs. In December 2024 Google showed this for
+the surface code on its 105-qubit Willow chip: distance 3, 5 and 7 memories each beat
+the last, with $\Lambda = 2.14$ and 0.143% logical error per cycle at distance 7.
+Below threshold, but with $\Lambda$ near 2, not the 10 the estimates assume.
+
+### A worked estimate: why about a million
+
+Put numbers in, as the last line of the listing does. Gidney's 2025 design uses about
+1,400 logical qubits and runs for under a week; call it five days, or about $5 \times 86{,}400 \times 10^6
+\approx 4.3 \times 10^{11}$ cycles of one microsecond. That is $1{,}400 \times 4.3
+\times 10^{11} \approx 6 \times 10^{14}$ logical-qubit-cycles, and for a good chance
+that **none** of them fails, each must fail with probability below about $1/(6 \times
+10^{14}) \approx 1.7 \times 10^{-15}$.
+
+With $p = 10^{-3}$, $p/p_{th} = 0.1$, so we need $0.1 \times 0.1^{(d+1)/2} \le 1.7
+\times 10^{-15}$: $(d+1)/2 \ge 14$, $d = 27$. A distance-27 patch has $2 \cdot 27^2 - 1
+= 1{,}457$ qubits, call it 1,458. Then
+
+$$
+1{,}400 \times 1{,}458 \approx 2.0 \text{ million physical qubits},
+$$
+
+before counting the space for routing and for making magic states: the order of a
+million, not a thousand and not a billion. Gidney's design gets below a million mainly
+by storing idle logical qubits in a denser "yoked" encoding and by **magic state
+cultivation** (Gidney, Shutty and Jones, 2024), which grows the states needed for
+Toffoli gates in a small patch instead of large distillation factories.
+
+The lever is $p/p_{th}$: at $p = 10^{-4}$ the same calculation gives $d = 13$ and under
+half a million qubits; at $p = 5 \times 10^{-3}$ it needs $d$ above 90. The
+*Post-quantum cryptography* book's
+[chapter 1](../post-quantum/01-The-Quantum-Threat-Measured.md), sections 1.5 and 1.6,
+adds the factories and running time and tabulates the estimates since 2019.
+
+### Hardware status, November 2026
+
+As of November 2026:
+
+- **Below threshold, at small distance.** Google's Willow result (December 2024, in
+  *Nature*) is the clearest demonstration that surface-code errors fall as the distance
+  grows, for one logical qubit up to distance 7.
+- **Better physical qubits.** Quantinuum's Helios trapped-ion machine (November 2025)
+  has 98 qubits with a reported two-qubit gate fidelity of 99.92%. Neutral-atom and
+  trapped-ion groups have reported tens of logical qubits in 2025 and 2026, with small
+  codes and limited sets of operations.
+- **No cryptographic factoring.** The largest numbers factored by a genuine run of
+  Shor's algorithm are still 15 (2001) and 21 (2012), each with simplifications.
+
+The gaps: about $10^{-3}$ logical error per cycle against the $10^{-15}$ needed; tens
+of logical qubits against 1,400; machines of a hundred to a few thousand physical
+qubits against a million. The *Post-quantum cryptography* book's
+[chapter 1](../post-quantum/01-The-Quantum-Threat-Measured.md), section 1.7, follows
+the machines and the claims about them.
+
+## 20.9 Simon's algorithm against symmetric cryptography
+
+*Level: expert.*
+
+Section 20.7 suggests a comfortable rule: a symmetric primitive loses half its bits to
+a quantum computer and no more. BBBV makes that right for a cipher used as a black box.
+It is wrong for some **constructions** whose algebra hides an XOR period: Simon's
+algorithm then takes all the bits, in polynomial time, provided the attacker can ask
+the right kind of question.
+
+### Even-Mansour
+
+The **Even-Mansour** cipher (Shimon Even and Yishay Mansour, 1991) is the simplest
+block cipher with a security proof (for a random $P$): take a fixed, public permutation $P$
+of $n$-bit blocks and two secret keys, and set
+
+$$
+E(x) = P(x \oplus k_1) \oplus k_2 .
+$$
+
+Classically, any attack that makes $D$ queries to $E$ and $T$ evaluations of $P$ needs
+$D \cdot T \approx 2^n$, so about $2^{n/2}$ work at best. Even-Mansour matters beyond
+itself because it is the skeleton of key-alternating ciphers: AES is a long sequence
+of round keys XORed between fixed public permutations.
+
+Hidenori Kuwakado and Masakatu Morii saw in 2012 that a quantum attacker can build a
+function with period $k_1$ out of things it can compute:
+
+$$
+f(x) = E(x) \oplus P(x) = P(x \oplus k_1) \oplus k_2 \oplus P(x),
+$$
+
+$$
+f(x \oplus k_1) = P(x) \oplus k_2 \oplus P(x \oplus k_1) = f(x) .
+$$
+
+Simon's algorithm finds $k_1$ from about $n$ queries to $f$, each needing one query to
+$E$ and one to $P$, and then $k_2 = E(0) \oplus P(k_1)$. Polynomial time, for any
+block size (Figure 20.8). In 2010 the same authors had used Simon's algorithm to tell
+three Feistel rounds from a random permutation, its first use in cryptanalysis.
+
+Unlike §20.3, $f$ is not exactly two-to-one: unrelated inputs can collide by chance,
+and a run may then return a $y$ not orthogonal to $k_1$. Marc Kaplan, Gaëtan Leurent,
+Anthony Leverrier and María Naya-Plasencia (2016) proved that unless some other period
+holds for a large fraction of inputs, a small multiple of $n$ runs still pins down
+$k_1$, and a few classical queries confirm it.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 250" width="640" role="img" aria-label="Even-Mansour: x is XORed with k1, passed through the public permutation P, and XORed with k2 to give E(x). The attacker forms f(x) = E(x) XOR P(x), which satisfies f(x XOR k1) = f(x); Simon's algorithm finds the period k1 from about n superposition queries, and then k2 = E(0) XOR P(k1)" fill="currentColor" font-size="14">
+<g stroke="currentColor" stroke-width="1.5" fill="none">
+<path d="M50 60H100M130 60H230M310 60H410M440 60H520M100 60H130M115 45V75M410 60H440M425 45V75M115 20V45M425 20V45M290 158H348"/>
+<circle cx="115" cy="60" r="15"/><circle cx="425" cy="60" r="15"/>
+<rect x="230" y="35" width="80" height="50" rx="6"/><rect x="60" y="130" width="230" height="56" rx="8"/><rect x="350" y="130" width="250" height="56" rx="8"/>
+</g>
+<path d="M520 55L530 60L520 65ZM342 153L350 158L342 163ZM110 40L115 46L120 40ZM420 40L425 46L430 40Z"/>
+<text x="30" y="65">x</text><text x="536" y="65">E(x)</text>
+<g text-anchor="middle"><text x="270" y="66">P</text><text x="175" y="153">f(x) = E(x) ⊕ P(x)</text><text x="475" y="153">Simon: about n queries</text>
+<g font-size="13"><text x="115" y="14">k₁</text><text x="425" y="14">k₂</text><text x="175" y="175">f(x ⊕ k₁) = f(x)</text><text x="475" y="175">→ k₁, then k₂ = E(0) ⊕ P(k₁)</text></g>
+<g font-size="12"><text x="270" y="105" fill-opacity=".75">P is public; only k₁ and k₂ are secret</text><text x="320" y="225">superposition queries to E: polynomial time. Classical queries only: about 2^(n/3) at best (offline Simon).</text></g></g>
+</svg>
+<figcaption>Figure 20.8. Even-Mansour and its quantum break. The attacker XORs the cipher with the public permutation; the result has period k1, which Simon's algorithm finds with about n superposition queries. With classical queries only, the best known quantum attack takes about 2^(n/3).</figcaption>
+</figure>
+
+### CBC-MAC and its relatives
+
+Kaplan, Leurent, Leverrier and Naya-Plasencia went further in 2016 and found hidden
+periods in the modes of operation everyone uses. Take CBC-MAC ([book 1, chapter 10](../../book/10-Message-Authentication.md); classical
+attacks in [Cryptanalysis chapter 10](../cryptanalysis/10-Attacks-on-Modes-and-MACs.md))
+on two-block messages:
+$T(m_1, m_2) = E_K(E_K(m_1) \oplus m_2)$. Fix two different first blocks $\alpha_0,
+\alpha_1$ and define, for a bit $b$ and a block $x$,
+
+$$
+g(b, x) = T(\alpha_b, x) = E_K\bigl(E_K(\alpha_b) \oplus x\bigr).
+$$
+
+Since $E_K$ is a permutation, $g(b, x) = g(b', x')$ exactly when $E_K(\alpha_b) \oplus x =
+E_K(\alpha_{b'}) \oplus x'$, so $g$ has the period
+
+$$
+s = \bigl(1,\; \Delta\bigr), \qquad \Delta = E_K(\alpha_0) \oplus E_K(\alpha_1),
+$$
+
+and here $g$ is exactly two-to-one, with no chance collisions at all. Simon's
+algorithm finds $\Delta$ with about $n$ superposition queries to the MAC. Then every
+classical tag gives a forgery for free: $T(\alpha_0, m) = T(\alpha_1, m \oplus \Delta)$
+for every $m$, so the attacker asks for the tag of $(\alpha_0, m)$ and outputs the
+same tag for $(\alpha_1, m \oplus \Delta)$, a message it never asked about. Their
+paper applied the same idea to PMAC, GMAC, GCM and OCB, and used it to speed up slide
+attacks, which find related pairs in ciphers whose rounds all look alike.
+
+### Code it: both breaks on 4-bit toys
+
+The listing reuses `simon_run` and `candidates` from §20.3, with random permutations
+of the sixteen 4-bit blocks as cipher and permutation, and simulates superposition
+access to $E$ and to the MAC, the assumption the attacks need.
+
+```python
+# Even-Mansour on 4-bit blocks, E(x) = P(x XOR k1) XOR k2, attacked with superposition queries.
+rng = random.Random(2012)
+P = list(range(16))
+rng.shuffle(P)                                     # the public permutation
+k1, k2 = 0b1101, 0b0110                            # the secret keys
+E = lambda x: P[x ^ k1] ^ k2                       # the attacker may query E in superposition
+f = lambda x: E(x) ^ P[x]                          # f(x XOR k1) = f(x): the period is k1
+ys = []
+while len(candidates(ys, 4)) > 1:
+    ys.append(simon_run(f, 4, 4, rng)[0])
+for c in candidates(ys, 4):                        # check each candidate with classical queries
+    c2 = E(0) ^ P[c]                               # k2 = E(0) XOR P(k1)
+    if all(E(x) == P[x ^ c] ^ c2 for x in range(16)):
+        print("runs", len(ys), "k1 =", format(c, "04b"), "k2 =", format(c2, "04b"))
+
+# CBC-MAC of two blocks: T(a, x) = E_K(E_K(a) XOR x). Put a one-bit choice b in front of x:
+# g(b, x) = T(alpha_b, x) has period (1, E_K(alpha_0) XOR E_K(alpha_1)).
+K = list(range(16))
+rng.shuffle(K)                                     # a secret 4-bit block cipher E_K
+T = lambda a, x: K[K[a] ^ x]
+alpha = (0b0000, 0b0001)
+g = lambda i: T(alpha[i >> 4], i % 16)             # 5 input bits: x low, b on top
+ys = []
+while len(candidates(ys, 5)) > 1:
+    ys.append(simon_run(g, 5, 4, rng)[0])
+delta = candidates(ys, 5)[0] % 16
+m = 0b1001
+tag = T(alpha[0], m)                               # one classical query
+print("runs", len(ys), "delta =", format(delta, "04b"), "true", format(K[0] ^ K[1], "04b"))
+print("tag of (0000, 1001):", tag, "| forged for (0001, %s):" % format(m ^ delta, "04b"), tag,
+      "| real:", T(alpha[1], m ^ delta))
+```
+
+```text
+runs 3 k1 = 1101 k2 = 0110
+runs 5 delta = 1111 true 1111
+tag of (0000, 1001): 14 | forged for (0001, 0110): 14 | real: 14
+```
+
+Three runs recover both Even-Mansour keys; five recover $\Delta$, and the forged tag
+for $(0001, 0110)$, never queried, is correct. At $n = 128$ the attacks take a few
+hundred quantum queries, against about $2^{64}$ classically.
+
+### Why the model matters
+
+Both attacks need **superposition queries**: the attacker sends the keyed device a
+superposition $\sum_x |x\rangle|0\rangle$ and gets back $\sum_x |x\rangle|E(x)\rangle$.
+This is the **Q2** model. In the **Q1** model the attacker has a quantum computer but
+the keyed device answers only classical questions, as deployed systems do:
+
+| model | Even-Mansour key recovery | source |
+|---|---|---|
+| classical | about $2^{n/2}$ | Even and Mansour (1991); Daemen (1991) |
+| Q1: classical queries, quantum computer offline | about $2^{n/3}$ time, $2^{n/3}$ classical queries | Bonnetain and others (2019) |
+| Q2: superposition queries | about $n$ queries, polynomial time | Kuwakado and Morii (2012) |
+
+The Q1 line is the **offline Simon** algorithm of Xavier Bonnetain, Akinori Hosoyamada,
+María Naya-Plasencia, Yu Sasaki and André Schrottenloher (2019), which combines Simon
+with Grover and needs $O(n^2)$ qubits. For $n = 128$: about $2^{43}$ against $2^{64}$,
+a gain but not a break.
+
+Whether Q2 is realistic depends on where the key lives. A MAC computed on a server
+answers classically: the wire and the radio measure every query. Arcadia City's
+telemetry to Earth is the extreme case: each tag crosses 3 to 22 light-minutes of radio
+as ordinary bits, and no one on Earth can make the city's MAC unit answer a
+superposition. Q2 bites when the attacker can run the keyed function on its own quantum
+computer (a white-box or obfuscated implementation, a key inside a circuit someone else
+executes, future quantum networks), and inside proofs, where a reduction may have to
+answer quantum queries.
+
+The conservative practice is to prefer designs secure even in Q2. Dan Boneh and Mark
+Zhandry (2013) defined MACs secure against superposition queries and built them from
+pseudorandom functions secure against quantum queries, which Zhandry (2012) showed
+exist under standard assumptions. For today's systems, which answer classically, this
+section is a warning about structure, not a reason to replace AES-GCM.
+
+## 20.10 What it means for key sizes
 
 *Level: expert.*
 
@@ -699,6 +1530,10 @@ and migration deadlines; the mathematics is the same as here.
   collisions see little practical quantum gain. SHA-256 and SHA-3 stay.
 - **Lattices, codes, hash-based signatures**: no known quantum algorithm beyond Grover
   and modest sieving speedups (Chapter 14's $2^{0.257\beta}$).
+- **Constructions with an XOR period** (Even-Mansour, CBC-MAC, PMAC, GMAC, GCM, OCB):
+  broken in polynomial time only if the attacker can query the keyed function in
+  superposition (§20.9). With classical queries, which is how deployed systems answer,
+  the best quantum attacks gain only polynomially, as for Even-Mansour's $2^{n/3}$.
 
 ### Break it: harvest now, decrypt later
 
@@ -717,18 +1552,22 @@ except for long-lived keys such as firmware roots of trust.
 
 ## Going deeper
 
-- *Phase estimation* (Kitaev, 1995): the general tool behind Shor, which estimates an
-  eigenvalue $e^{2\pi i\phi}$ of a unitary to $t$ bits with $t$ controlled powers and an
-  inverse QFT.
-- *Simon's algorithm* (1994) finds a hidden XOR-period exponentially faster than any
-  classical algorithm; it breaks some symmetric constructions (Even-Mansour, CBC-MAC)
-  in the model where the attacker can query them in superposition (Kaplan, Leurent,
-  Leverrier and Naya-Plasencia, 2016).
+- *Regev's factoring algorithm* (Oded Regev, 2023) replaces Shor's one-dimensional
+  period finding with a lattice of several small bases: each run uses about $n^{3/2}$
+  gates instead of about $n^2$, at the price of about $\sqrt n$ runs and a classical
+  lattice reduction ([Chapter 14](14-Lattices.md)) to combine them; whether that helps
+  in practice is still being settled.
 - *Quantum walks and collision finding*: the Brassard-Høyer-Tapp algorithm finds
   collisions in $N^{1/3}$ queries, but with $N^{1/3}$ memory, which makes it no better
   than classical parallel collision search in realistic cost models (Bernstein, 2009).
-- *Error correction*: the surface code, the threshold theorem, and the overheads that
-  turn logical qubits into thousands of physical ones.
+- *Beyond the surface code*: quantum low-density parity-check codes, such as the
+  "bivariate bicycle" codes of Bravyi and colleagues (2024), encode many logical qubits
+  in one block with several times fewer physical qubits than surface-code patches, but
+  need longer-range connections; the 2026 estimates with far fewer physical qubits for
+  RSA-2048 mostly rest on such codes.
+- *Dihedral hidden subgroups and isogenies*: Kuperberg's subexponential algorithm is
+  the basis of quantum attacks on CSIDH; see the *Post-quantum cryptography* book's
+  [chapter 16](../post-quantum/16-Isogenies.md).
 
 ## Check yourself
 
@@ -741,40 +1580,51 @@ except for long-lived keys such as firmware roots of trust.
     $2^{50} \approx 10^{15}$. A measurement returns one basis state and destroys the
     superposition, so each run yields only $n$ classical bits.
 
-??? question "3. Why is $HH = I$ an example of interference?"
+??? question "3. In Simon's algorithm with $n = 3$ and hidden period $s = 101$, which outcomes $y$ can appear, and with what probability?"
 
-    The two computational paths to $|1\rangle$ carry amplitudes $+\frac{1}{2}$ and
-    $-\frac{1}{2}$ and cancel; the paths to $|0\rangle$ add to 1.
+    Exactly the $y$ with $y \cdot 101 = 0$, that is $y_2 \oplus y_0 = 0$: 000, 010, 101
+    and 111, each with probability $\frac14$. Two independent ones, such as 010 and
+    101, leave $s = 101$ as the only nonzero solution.
 
 ??? question "4. In Shor's algorithm with $N = 21$, why must $Q$ be at least $N^2 = 441$?"
 
-    So that $y/Q$ approximates $k/r$ within $1/(2N^2)$, which guarantees that $k/r$ is
-    a convergent of the continued fraction of $y/Q$ and can be recovered.
+    So that $y/Q$ approximates $k/r$ within $1/(2Q) \le 1/(2N^2) < 1/(2r^2)$, which by
+    Legendre's theorem makes $k/r$ a convergent of the continued fraction of $y/Q$, so
+    it can be recovered.
 
 ??? question "5. The order of $a = 4$ modulo 15 is 2. Does it give a factor?"
 
     $4^{1} = 4$, $\gcd(3, 15) = 3$ and $\gcd(5, 15) = 5$. Yes, both factors.
 
-??? question "6. Why doesn't doubling the RSA key size protect against Shor?"
+??? question "6. Phase estimation with $t = 3$ counting qubits runs on an eigenvector with $\varphi = \frac58$. What does it return? And for order finding with $Q = 512$, what does $y = 85$ give?"
+
+    $\frac58 = 0.101$ in binary fits three bits, so the outcome is $m = 5$ with
+    certainty. For $y = 85$: $512 = 6 \cdot 85 + 2$, $85 = 42 \cdot 2 + 1$, so
+    $\frac{85}{512} = [0; 6, 42, 2]$ with convergents $\frac16, \frac{42}{253}, \ldots$;
+    the denominator below 21 is 6, the order of 2 modulo 21.
+
+??? question "7. Why doesn't doubling the RSA key size protect against Shor?"
 
     Shor runs in polynomial time: doubling $n$ multiplies the cost by a constant factor
     (about 8 for $O(n^3)$), not by an exponential.
 
-??? question "7. How many Grover iterations for a 64-bit key, and what is the success probability if you do twice that many?"
+??? question "8. How many Grover iterations for a 64-bit key, and what is the success probability if you do twice that many?"
 
     About $\frac{\pi}{4}2^{32} \approx 3.4 \times 10^9$. Twice as many rotate the state
     past the target to angle about $\pi$, and the success probability falls close to 0.
 
-??? question "8. Why does the dihedral hidden subgroup problem matter for lattices?"
+??? question "9. In the bit-flip code, an error gives the syndrome $(q_0 \oplus q_1, q_1 \oplus q_2) = (0, 1)$. What does the decoder do, and why can a physical error rate of $5 \times 10^{-3}$ make a surface code almost useless for Shor?"
 
-    Regev reduced a lattice problem (unique SVP) to it; an efficient quantum algorithm
-    for the dihedral HSP would threaten lattice cryptography. None is known: the best,
-    Kuperberg's, is subexponential.
+    It flips $q_2$ back. At $p = 5 \times 10^{-3}$, each step $d \to d + 2$ only halves
+    the logical error rate, so $10^{-15}$ needs $d$ above 90: some 17,000 physical
+    qubits per logical one, against about 1,500 at $p = 10^{-3}$.
 
-??? question "9. Which is more urgent to migrate, key exchange or signatures, and why?"
+??? question "10. Simon's algorithm breaks Even-Mansour in polynomial time. Why is a MAC computed by a server on the network not in danger from it?"
 
-    Key exchange: recorded traffic can be decrypted later, while forging a signature
-    requires the quantum computer at the time of the forgery.
+    The attack needs superposition queries to the keyed function (the Q2 model). A server
+    answering over a network answers classical questions: the channel measures every
+    query. With classical queries only, the best known quantum attack on Even-Mansour,
+    offline Simon, takes about $2^{n/3}$, a polynomial gain rather than a break.
 
 ## What you learned
 
@@ -788,8 +1638,20 @@ except for long-lived keys such as firmware roots of trust.
   continued fractions and a gcd finish. Discrete logarithms, including on elliptic
   curves, fall the same way. All are abelian hidden subgroup problems.
 - Lattices relate to the non-abelian dihedral HSP, with no efficient algorithm known.
+- Simon's algorithm finds a hidden XOR period with about $n$ queries and linear
+  algebra mod 2, where classical algorithms need about $2^{n/2}$.
+- Phase estimation reads an eigenvalue $e^{2\pi i\varphi}$ with controlled powers and an
+  inverse QFT; order finding is phase estimation of multiplication by $a$, and the
+  convergents of $m/Q$ recover $r$.
 - Grover finds a needle among $N$ in $\frac{\pi}{4}\sqrt N$ iterations, and BBBV
-  proves no algorithm does better; parallelism helps only by a square root.
+  proves no algorithm does better, because a query spreads only weight 1 over $N$ items;
+  parallelism helps only by a square root.
+- Error correction measures parities, never data. The surface code weaves bit-flip and
+  phase-flip checks into a grid of $2d^2 - 1$ qubits per logical qubit, with logical
+  errors falling like $(p/p_{th})^{(d+1)/2}$; at $p = 10^{-3}$ RSA-2048 needs $d \approx
+  27$ and on the order of a million physical qubits.
+- With superposition queries, Simon breaks Even-Mansour and CBC-MAC outright; with
+  classical queries, the gain is only polynomial.
 - Estimates for RSA-2048 fell from 20 million physical qubits (2019) to under a
   million (2025); public-key cryptography must migrate, symmetric keys need at most
   doubling.
@@ -813,6 +1675,43 @@ chapter that defines it.
   RSA Integers with Less than a Million Noisy Qubits" (2025).
 - Martin Roetteler, Michael Naehrig, Krysta Svore and Kristin Lauter, "Quantum Resource
   Estimates for Computing Elliptic Curve Discrete Logarithms", ASIACRYPT 2017.
+- Daniel Simon, "On the Power of Quantum Computation", *SIAM Journal on Computing* 26
+  (1997); conference version FOCS 1994.
+- Alexei Kitaev, "Quantum Measurements and the Abelian Stabilizer Problem" (1995,
+  arXiv quant-ph/9511026).
+- Robert Griffiths and Chi-Sheng Niu, "Semiclassical Fourier Transform for Quantum
+  Computation", *Physical Review Letters* 76 (1996); Stéphane Beauregard, "Circuit for
+  Shor's Algorithm Using 2n+3 Qubits", *Quantum Information and Computation* 3 (2003).
+- Lieven Vandersypen and others, "Experimental Realization of Shor's Quantum Factoring
+  Algorithm Using Nuclear Magnetic Resonance", *Nature* 414 (2001).
+- Christof Zalka, "Grover's Quantum Searching Algorithm Is Optimal", *Physical Review
+  A* 60 (1999).
+- Peter Shor, "Scheme for Reducing Decoherence in Quantum Computer Memory", *Physical
+  Review A* 52 (1995); Andrew Steane, "Error Correcting Codes in Quantum Theory",
+  *Physical Review Letters* 77 (1996).
+- Sergey Bravyi and Alexei Kitaev, "Quantum Codes on a Lattice with Boundary" (1998,
+  arXiv quant-ph/9811052); Austin Fowler, Matteo Mariantoni, John Martinis and Andrew
+  Cleland, "Surface Codes: Towards Practical Large-Scale Quantum Computation",
+  *Physical Review A* 86 (2012).
+- Google Quantum AI and collaborators, "Quantum Error Correction below the Surface Code
+  Threshold", *Nature* (published December 2024).
+- Craig Gidney, Noah Shutty and Cody Jones, "Magic State Cultivation: Growing T States
+  as Cheap as CNOT Gates" (2024, arXiv 2409.17595).
+- Sergey Bravyi and others, "High-Threshold and Low-Overhead Fault-Tolerant Quantum
+  Memory", *Nature* 627 (2024).
+- Shimon Even and Yishay Mansour, "A Construction of a Cipher from a Single
+  Pseudorandom Permutation", ASIACRYPT 1991; *Journal of Cryptology* 10 (1997).
+- Hidenori Kuwakado and Masakatu Morii, "Quantum Distinguisher between the 3-Round
+  Feistel Cipher and the Random Permutation", ISIT 2010; "Security on the Quantum-Type
+  Even-Mansour Cipher", ISITA 2012.
+- Marc Kaplan, Gaëtan Leurent, Anthony Leverrier and María Naya-Plasencia, "Breaking
+  Symmetric Cryptosystems Using Quantum Period Finding", CRYPTO 2016.
+- Xavier Bonnetain, Akinori Hosoyamada, María Naya-Plasencia, Yu Sasaki and André
+  Schrottenloher, "Quantum Attacks without Superposition Queries: The Offline Simon's
+  Algorithm", ASIACRYPT 2019.
+- Mark Zhandry, "How to Construct Quantum Random Functions", FOCS 2012; Dan Boneh and
+  Mark Zhandry, "Quantum-Secure Message Authentication Codes", EUROCRYPT 2013.
+- Oded Regev, "An Efficient Quantum Factoring Algorithm" (2023, arXiv 2308.06572).
 - Ronald de Wolf, *Quantum Computing: Lecture Notes* (arXiv 1907.09415, updated
   regularly), free.
 - In *The cryptography book*: [Chapter 20](../../book/20-Quantum-Computers.md).
