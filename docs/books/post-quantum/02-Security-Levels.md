@@ -7,8 +7,9 @@ is a key search, and the attacker may own a quantum computer. This chapter expla
 cryptographers compare such different attacks: bit security, NIST's five categories,
 the depth limit called MAXDEPTH, and the "core-SVP" yardstick for lattices. You will
 estimate the strength of RSA from the number field sieve, compute the block size of a
-lattice attack on ML-KEM and see it land on the published numbers, and learn which
-level to choose and why.*
+lattice attack on ML-KEM and see it land on the published numbers, rebuild NIST's
+$2^{143}$ from the gates of one AES circuit, price a sieve's memory three ways, and learn
+which level to choose and why, down to an archive that must stay secret for fifty years.*
 
 !!! abstract "In this chapter"
     **You will learn:**
@@ -21,13 +22,18 @@ level to choose and why.*
     - how lattice schemes are measured with BKZ block size and core-SVP, with a working
       estimate for ML-KEM;
     - why memory, multiple targets and tightness change the numbers;
-    - which parameter set of each standard sits in which category, and how to choose.
+    - which parameter set of each standard sits in which category, and how to choose;
+    - where NIST's $2^{143}$ comes from, gate by gate, and why Grover's algorithm spread
+      over many machines gains only the square root of their number;
+    - how the argument over ML-KEM-512's category ran from 2020 to 2023, in numbers;
+    - how margins have shrunk in the past, from DES to SIKE, and how to pick a level for
+      an archive that must stay secret for fifty years.
 
     **You need:** [Chapter 1](01-The-Quantum-Threat-Measured.md); logarithms base 2; the
     idea of a lattice from book 1's [Chapter 21](../../book/21-Lattice-Cryptography.md)
     (this chapter uses only the picture, Chapter 6 does the details).
 
-    **Levels:** §2.1 to §2.3 are for beginners, §2.4 to §2.11 are intermediate, §2.12 is
+    **Levels:** §2.1 to §2.3 are for beginners, §2.4 to §2.13 are intermediate, §2.14 is
     expert.
 
 ## 2.1 The problem
@@ -295,6 +301,79 @@ there. Figure 2.1 shows the ladder.
 <figcaption>Figure 2.1. The five categories and where the standard parameter sets sit. Category 3, in accent, is NIST's recommended default for ML-KEM; most deployments use ML-KEM-768.</figcaption>
 </figure>
 
+### Where $2^{143}$ comes from, by hand
+
+The classical column is the gate count of a real circuit, worth rebuilding once. An AES-128 encryption has ten rounds. In each, the 16 bytes of the state pass through the
+S-box, and the key schedule sends 4 more bytes through it, so one encryption makes
+$10 \times 16 + 10 \times 4 = 200$ S-box evaluations. The S-box is an inversion in
+$\mathrm{GF}(2^8)$ followed by an affine map, and the small circuits for it found by Joan
+Boyar and René Peralta in 2010 use about 115 two-input gates; later circuits shave off a
+few. MixColumns multiplies each four-byte column by a fixed matrix; the best published
+circuits use 92 to 97 XOR gates per column, four columns, in nine of the ten rounds.
+AddRoundKey is 128 XORs, done eleven times, and the key schedule adds about 128 XORs per
+round. Adding up:
+
+$$200 \times 115 + 36 \times 97 + 11 \times 128 + 10 \times 128 = 23{,}000 + 3{,}492 + 1{,}408 + 1{,}280 = 29{,}180 \approx 2^{14.8}.$$
+
+Trying all $2^{128}$ keys therefore costs $2^{128} \times 2^{14.8} = 2^{142.8}$ gates, which
+NIST rounds to $2^{143}$. Checking the rare false match on a second plaintext block costs
+nothing that shows in the exponent.
+
+**Code it.** The same tally as a program, so the parts can be changed.
+
+```python
+from math import log2
+
+SBOX = 115            # gates in one AES S-box circuit (Boyar and Peralta, 2010)
+MIXCOL = 97           # XOR gates in one MixColumns column (Kranz and others, 2017)
+parts = [("S-boxes in the rounds, 10 x 16", 10 * 16 * SBOX),
+         ("S-boxes in the key schedule, 10 x 4", 10 * 4 * SBOX),
+         ("MixColumns, 9 rounds x 4 columns", 9 * 4 * MIXCOL),
+         ("AddRoundKey, 11 x 128 XORs", 11 * 128),
+         ("key schedule XORs, 10 x 128", 10 * 128)]
+total = sum(g for _, g in parts)
+for name, g in parts:
+    print("%-36s %6d" % (name, g))
+print("%-36s %6d gates = 2^%.1f" % ("one AES-128 encryption", total, log2(total)))
+print("all 2^128 keys: 2^%.1f gates" % (128 + log2(total)))
+```
+
+It prints:
+
+```text
+S-boxes in the rounds, 10 x 16        18400
+S-boxes in the key schedule, 10 x 4    4600
+MixColumns, 9 rounds x 4 columns       3492
+AddRoundKey, 11 x 128 XORs             1408
+key schedule XORs, 10 x 128            1280
+one AES-128 encryption                29180 gates = 2^14.8
+all 2^128 keys: 2^142.8 gates
+```
+
+The S-boxes are four fifths of the circuit, yet doubling the S-box to 230 gates only lifts
+the total to about $2^{143.7}$; halving it gives about $2^{142.1}$.
+
+### What $2^{143}$ gates means
+
+The largest sustained computation on Earth is the Bitcoin network, which first passed
+$10^{21}$ hashes per second, one zettahash, in 2025. That is about $2^{70}$ hashes a
+second and $2^{95}$ a year. If every hash were instead an AES-128 trial (generous, since a
+double SHA-256 costs several times more gates), then $2^{128}$ keys take $2^{128}/10^{21} \approx 3.4 \times
+10^{17}$ seconds, about ten billion years, most of the age of the universe. The same
+machinery would search DES's $2^{56}$ keys in under a tenth of a millisecond.
+
+So category 1 is not a weak level. Interest in the higher categories is about margin: what
+happens if an estimate turns out wrong (§2.12), and what data that must stay secret for a
+lifetime needs (§2.13).
+
+### Lattices against the classical column
+
+Grover's algorithm gives a full square-root speed-up against AES, while the known quantum speed-ups for lattice sieving are far
+smaller and need quantum memory that may never exist (§2.14). So for a lattice scheme the
+quantum column of category 1, $2^{157}/\text{MAXDEPTH}$, is the easy bar to clear; the hard
+one is the classical $2^{143}$. NIST said so explicitly in its December 2023 note on
+Kyber-512, which is why §2.5 and §2.7 are about classical gates and classical memory.
+
 ## 2.4 MAXDEPTH: why Grover is weaker than it looks
 
 *Level: intermediate.*
@@ -304,11 +383,11 @@ observation into a rule. The attacker is assumed to be limited to quantum circui
 depth at most **MAXDEPTH**, the number of gates that can be done in a row, and the 2016
 call gave three plausible values:
 
-- $2^{40}$ logical gates, roughly what the quantum architectures foreseen then could do
-  in a row in a year;
-- $2^{64}$, roughly a decade of such a machine;
-- $2^{96}$, roughly what atomic-scale qubits switching at the speed limits of physics
-  could do in a thousand years.
+- $2^{40}$ logical gates, roughly what the quantum architectures foreseen then were
+  expected to do in a row in a year;
+- $2^{64}$, roughly what classical computer chips can do in a row in a decade;
+- $2^{96}$, roughly what atomic-scale qubits, with signals crossing them at the speed of
+  light, could do in a thousand years.
 
 **Why depth turns into total cost.** Suppose a Grover search over $N = 2^{128}$ keys
 needs about $2^{64}$ iterations and each iteration is an AES circuit of depth $D$ and
@@ -328,10 +407,19 @@ attacker must buy enormous parallelism, and the square-root speed-up mostly vani
 
 **By hand.** Take the revised category 1 figure, $2^{157}/\text{MAXDEPTH}$. With
 $\text{MAXDEPTH} = 2^{40}$ the quantum search costs $2^{117}$ gates; with $2^{64}$ it costs
-$2^{93}$; with $2^{96}$, $2^{61}$. Compare the classical $2^{143}$. Only with the most
-generous depth, a machine running for a millennium, does the quantum attack become
-dramatically cheaper than the classical one in gate count, and even then each gate is an
-error-corrected logical operation costing thousands of physical ones.
+$2^{93}$. Compare the classical $2^{143}$. Counted in gates, the quantum search is the
+cheaper one whenever MAXDEPTH is above $2^{157-143} = 2^{14}$, which any useful machine
+is. What keeps AES-128 standing is what a gate count leaves out: each quantum gate is an
+error-corrected logical operation that costs thousands of physical operations and takes
+microseconds where a classical gate takes picoseconds, and a short depth limit forces the
+attacker to build an absurd number of machines.
+
+The formula also has a floor. It holds only while the search must be split, that is
+while MAXDEPTH is less than the depth of one whole Grover search, about $2^{64}$
+iterations times the depth of an AES circuit. A deeper allowance than that buys nothing:
+the cost stays at one unsplit search, $2^{64}$ iterations of at least $2^{15}$ gates each,
+about $2^{79}$ gates. So at $\text{MAXDEPTH} = 2^{96}$ the figure is about $2^{79}$, not the
+$2^{61}$ the bare formula would give.
 
 **Code it.** The program below shows the trade-off for a toy key search, splitting the
 work as the formula says and comparing total cost with a classical search.
@@ -372,6 +460,146 @@ With a one-year depth limit, the quantum attacker needs $2^{72}$ quantum compute
 working in parallel to search a 128-bit key. Nobody will ever build $2^{72}$ of
 anything. The figures are toys, but the shape is NIST's.
 
+### Why Grover parallelizes badly, by hand
+
+Take $N = 2^{128}$ keys and $P = 2^{20}$ machines, about a million. Classically, each
+machine takes $2^{108}$ keys and the job finishes $2^{20}$ times sooner, with the same total
+work. With Grover, each machine needs $\sqrt{2^{108}} = 2^{54}$ iterations, so the job
+finishes only $2^{64}/2^{54} = 2^{10}$ times sooner, and the total work grows from $2^{64}$
+to $2^{20} \cdot 2^{54} = 2^{74}$. A million machines bought a thousandfold speed-up and
+a thousandfold increase in work. In general, $P$ machines give
+a speed-up of only $\sqrt P$, and the total work is $P\sqrt{N/P} = \sqrt{NP}$.
+
+An attacker with a deadline sees it from the other side. Suppose no machine may run more
+than $T$ steps in a row. Classically that takes $N/T$ machines. With Grover, each machine
+can cover $T^2$ keys in its $T$ iterations, so it takes $N/T^2$ machines and $N/T$
+iterations in all. With $T = 2^{40}$: classically $2^{88}$ machines; with Grover $2^{48}$
+machines, about 280 trillion quantum computers, running $2^{88}$ iterations between them.
+The quantum attacker still does $2^{40}$ times less work, but each unit of it is a
+reversible AES circuit on an error-corrected machine.
+
+**Code it.** The program works in base-2 logarithms throughout, first for a fixed number of
+machines, then for a fixed deadline. It ignores the depth $D$ of one iteration, which only
+shifts every line by the same amount.
+
+```python
+# Everything in log2: a search over N = 2^128 keys split across P = 2^p machines.
+print("machines  classical each/total  Grover each/total")
+for p in (0, 20, 40, 64, 88, 128):
+    c_each, c_total = 128 - p, 128            # N/P steps each, N in all
+    g_each = (128 - p) / 2                    # sqrt(N/P) iterations each
+    g_total = g_each + p                      # P * sqrt(N/P) = sqrt(N*P)
+    print("2^%-3d       2^%-3d / 2^%d          2^%-3.0f / 2^%.0f" % (p, c_each, c_total, g_each, g_total))
+
+print()
+for depth in (40, 64, 96):                    # the deadline, in sequential steps
+    p_c = 128 - depth                         # classical: N/T machines
+    p_g = max(0, 128 - 2 * depth)             # Grover: N/T^2 machines
+    print("deadline 2^%d steps: classical 2^%d machines, Grover 2^%d machines, 2^%d iterations in all"
+          % (depth, p_c, p_g, p_g + min(depth, 64)))
+```
+
+It prints:
+
+```text
+machines  classical each/total  Grover each/total
+2^0         2^128 / 2^128          2^64  / 2^64
+2^20        2^108 / 2^128          2^54  / 2^74
+2^40        2^88  / 2^128          2^44  / 2^84
+2^64        2^64  / 2^128          2^32  / 2^96
+2^88        2^40  / 2^128          2^20  / 2^108
+2^128       2^0   / 2^128          2^0   / 2^128
+
+deadline 2^40 steps: classical 2^88 machines, Grover 2^48 machines, 2^88 iterations in all
+deadline 2^64 steps: classical 2^64 machines, Grover 2^0 machines, 2^64 iterations in all
+deadline 2^96 steps: classical 2^32 machines, Grover 2^0 machines, 2^64 iterations in all
+```
+
+With one machine per key the quantum search is no better than the classical one; between
+the ends, each doubling of the machines buys only $\sqrt 2$ in time. The last two deadline
+rows show the floor: once one machine may run all $2^{64}$ iterations, a longer deadline
+saves nothing. Figure 2.3 draws the same trade-off with NIST's numbers.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 310" width="640" role="img" aria-label="Total gates of a Grover search for an AES-128 key against MAXDEPTH, falling one bit per bit of depth to a floor near 2 to the 79" fill="currentColor" font-size="13">
+<line x1="80" y1="260" x2="600" y2="260" stroke="currentColor"/>
+<line x1="80" y1="30" x2="80" y2="260" stroke="currentColor"/>
+<text x="80" y="280" text-anchor="middle">0</text>
+<text x="184" y="280" text-anchor="middle">20</text>
+<text x="288" y="280" text-anchor="middle">40</text>
+<text x="392" y="280" text-anchor="middle">60</text>
+<text x="496" y="280" text-anchor="middle">80</text>
+<text x="600" y="280" text-anchor="middle">100</text>
+<text x="70" y="264" text-anchor="end">60</text>
+<text x="70" y="220" text-anchor="end">80</text>
+<text x="70" y="176" text-anchor="end">100</text>
+<text x="70" y="132" text-anchor="end">120</text>
+<text x="70" y="88" text-anchor="end">140</text>
+<text x="70" y="44" text-anchor="end">160</text>
+<text x="340" y="302" text-anchor="middle">log2 of MAXDEPTH (gates in a row)</text>
+<text x="22" y="145" text-anchor="middle" transform="rotate(-90 22 145)">log2 of total gates</text>
+<line x1="80" y1="77.4" x2="600" y2="77.4" stroke="currentColor" stroke-dasharray="6 4"/>
+<text x="596" y="69.4" text-anchor="end">classical search, 2^143</text>
+<polyline points="80.0,46.6 485.6,218.2 600.0,218.2" fill="none" stroke="currentColor" stroke-width="2.4"/>
+<text x="244.0" y="106.6">Grover, 2^157 / MAXDEPTH</text>
+<text x="600.0" y="236.2" text-anchor="end" fill-opacity=".7">floor: no split needed</text>
+<circle cx="288.0" cy="134.6" r="5"/>
+<text x="296.0" y="126.6" font-weight="bold">2^117</text>
+<circle cx="412.8" cy="187.4" r="5"/>
+<text x="420.8" y="179.4" font-weight="bold">2^93</text>
+<circle cx="579.2" cy="218.2" r="5"/>
+<text x="587.2" y="208.2" font-weight="bold">2^79</text>
+<circle cx="152.8" cy="77.4" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
+<text x="146" y="97" text-anchor="end" font-weight="bold">2^14</text>
+</svg>
+<figcaption>Figure 2.3. Grover on AES-128 under a depth limit, with NIST's revised figure $2^{157}/\text{MAXDEPTH}$. Each extra bit of allowed depth saves a bit of total gates until the search no longer needs splitting; the dots mark NIST's three depths. Counted in gates, the quantum search is cheaper than the classical one at any depth above $2^{14}$; what it costs in machines and in error correction is not on this chart.</figcaption>
+</figure>
+
+### The three depths in time
+
+Each of NIST's three depths implies a speed for one logical gate. Dividing a year, a
+decade and a millennium by them, then applying the cost formula with its floor, gives:
+
+```python
+YEAR = 365.25 * 24 * 3600
+for md, years, who in [(40, 1, "quantum designs of 2016"),
+                       (64, 10, "classical chips"),
+                       (96, 1000, "atomic-scale qubits")]:
+    print("MAXDEPTH 2^%d in %4d years: %.1e s per gate (%s)"
+          % (md, years, years * YEAR / 2 ** md, who))
+print()
+for cat, key, classical, q in [(1, 128, 143, 157), (3, 192, 207, 221), (5, 256, 272, 285)]:
+    floor = key // 2 + 15          # unsplit Grover: 2^(k/2) iterations, at least 2^15 gates each
+    costs = ["2^%d" % max(q - md, floor) for md in (40, 64, 96)]
+    print("category %d: classical 2^%d | quantum at 2^40, 2^64, 2^96: %s"
+          % (cat, classical, ", ".join(costs)))
+```
+
+It prints:
+
+```text
+MAXDEPTH 2^40 in    1 years: 2.9e-05 s per gate (quantum designs of 2016)
+MAXDEPTH 2^64 in   10 years: 1.7e-11 s per gate (classical chips)
+MAXDEPTH 2^96 in 1000 years: 4.0e-19 s per gate (atomic-scale qubits)
+
+category 1: classical 2^143 | quantum at 2^40, 2^64, 2^96: 2^117, 2^93, 2^79
+category 3: classical 2^207 | quantum at 2^40, 2^64, 2^96: 2^181, 2^157, 2^125
+category 5: classical 2^272 | quantum at 2^40, 2^64, 2^96: 2^245, 2^221, 2^189
+```
+
+Seventeen picoseconds is the clock period of a fast classical chip, a speed no quantum
+design comes near; the third figure is a physical limit, not a plan. Today's surface-code
+estimates (Chapter 1, §1.5) put a logical gate at around a microsecond, so even the
+smallest depth, $2^{40}$ gates in a row, keeps one machine busy for about two weeks, and
+$2^{64}$ would take about 600,000 years.
+
+At categories 3 and 5 no depth brings a quantum key search within reach: the cheapest
+entry is $2^{125}$ gates. At category 1 the gate counts do fall
+far below the classical $2^{143}$, and that is the honest reason long-lived data is
+encrypted with AES-256 (§2.13): not because Grover breaks AES-128 today, but because
+$2^{93}$ logical gates is not a number anyone wants to bet fifty years against.
+
+
 **What MAXDEPTH does not cover.** It limits only the depth of quantum circuits. A
 classical attack, which parallelizes perfectly, is not limited at all, and an attack that
 mixes classical and quantum steps is judged by its total cost. For lattice schemes the
@@ -383,7 +611,7 @@ classical attack is usually the one that sets the category.
     for the Post-Quantum Cryptography Standardization Process* · **Purpose:** to let
     schemes with completely different attacks be compared by one yardstick, the cost of
     attacking AES or SHA-2 · **Helped:** every parameter set in FIPS 203, 204 and 205, and
-    in the later calls, is labelled by its category; the MAXDEPTH idea shaped how quantum
+    in the later calls, is labeled by its category; the MAXDEPTH idea shaped how quantum
     attacks are costed · **Status:** current; the quantum gate figures were revised
     downward after Jaques and others costed AES circuits in detail (2020)
 
@@ -508,6 +736,22 @@ is the **lattice estimator** of Albrecht, Player and Scott (2015), maintained si
 community of contributors, which runs all known attacks under several cost models and
 reports the cheapest. Chapter 6 opens it up.
 
+### From β to bits, by hand
+
+The step from block size to bits is one multiplication, and doing it by hand shows how
+sensitive the answer is. For ML-KEM-512, $\beta = 406$:
+
+- classical core-SVP: $0.292 \times 406 = 118.6$ bits;
+- quantum core-SVP: $0.265 \times 406 = 107.6$ bits;
+- sieve memory: $0.2075 \times 406 = 84.2$, so about $2^{84}$ stored vectors.
+
+For ML-KEM-768 and ML-KEM-1024 the products are 182.2 and 255.2. Each unit of $\beta$ is
+worth 0.292 bits, so taking 25 bits off ML-KEM-512 would mean lowering the block size an
+attack needs by about 86, a fifth of the whole. No published improvement has come near
+that; the refinements of recent years (§2.7) were worth a few bits each, and some were
+later disputed. That is what lattice designers mean by estimates that are stable but not
+exact.
+
 ## 2.6 Yardsticks for the other families
 
 *Level: intermediate.*
@@ -604,6 +848,22 @@ How much should memory cost? There are three common models.
    roughly proportional to the distance, so random access to a memory of size $M$ costs
    something like $\sqrt M$ or $\sqrt[3] M$ per access.
 
+### Area-time cost, by hand
+
+Michael Wiener made the argument precise in 2004 under the name **full cost**: an attack
+costs the hardware it needs times the time that hardware is tied up. A key search is the
+friendly case. Its state is a few hundred bits, so $P$ search units for $2^{128}/P$ steps
+cost $2^{128}$ whatever $P$ is, and the RAM and area-time models agree.
+
+A sieve is the unfriendly case. With $\beta = 406$ it holds about $2^{84}$ vectors of a few
+hundred bytes each, more than $2^{92}$ bytes. All the digital storage in the world is a few
+tens of zettabytes at most, under $2^{75}$ bytes. Even with one processor per stored vector,
+the run lasts $2^{119-84} = 2^{35}$ steps and the bill, memory times time, is $2^{119}$:
+the RAM figure, but only if every processor reaches any vector in one step. In a machine
+that size it cannot. A random access into $M$ items laid out on a plane travels about
+$\sqrt M$; packed in three dimensions, about $\sqrt[3]{M}$. Those are the third model's
+charges.
+
 **Code it.** The program below takes the sieve's time, $2^{0.292\beta}$, and its memory,
 $2^{0.2075\beta}$ vectors, for the three ML-KEM block sizes of §2.5, and prints the cost
 under the RAM model and under two communication-cost models in which each memory access
@@ -630,13 +890,138 @@ of its accesses local, but they show the size of the gap. The truth lies somewhe
 the RAM column and the others, and that range, tens of bits wide, is where arguments about
 ML-KEM-512 take place.
 
-The choice can move a lattice estimate by twenty bits or more. NIST, in its third-round
-report, accepted that realistic memory costs push ML-KEM-512 above category 1 even
-where the pure gate count might sit near the line; critics, notably Daniel Bernstein in
-2023, argued that NIST's arithmetic was wrong and that ML-KEM-512 might fall short.
-NIST kept ML-KEM-512 in FIPS 203 and recommends ML-KEM-768 as the default. That
-recommendation, made with a margin to spare, is the practical answer: pick a parameter
-set strong enough that the argument does not matter.
+### Memory-aware sieving, NIST's way
+
+Real sieves can trade memory traffic for arithmetic. The RAM-model sieve of Becker,
+Ducas, Gama and Laarhoven (2016), the source of the 0.292, makes random accesses across
+the whole table. Sieves with larger buckets, tuned for GPUs by Léo Ducas, Marc Stevens and
+Wessel van Woerden (2021), do more arithmetic but keep most of it inside a bucket. With
+parameter $k = 1$ the bucket is the square root of the memory and the exponent rises to
+$0.349$; with $k = 2$, the cube root and $0.3294$; with $k = 3$, the fourth root and
+$0.3198$. An attacker who pays $\sqrt M$ per access picks $k = 1$, one who pays
+$\sqrt[3]{M}$ picks $k = 2$.
+
+NIST's December 2023 note on Kyber-512 did exactly this calculation. The program repeats
+it, applied to the sieving dimension left after dimensions for free (§2.14) rather than to
+$\beta$ itself.
+
+```python
+from math import log, pi, e
+
+def d4f(beta):
+    """Dimensions for free (Ducas 2018): how many fewer dimensions the sieve needs."""
+    return beta * log(4 / 3) / log(beta / (2 * pi * e))
+
+MODELS = [("RAM (BDGL)", 0.292), ("k=3, fourth root", 0.3198),
+          ("k=2, cube root", 0.3294), ("k=1, square root", 0.349)]
+for name, beta in [("ML-KEM-512", 406), ("ML-KEM-768", 624), ("ML-KEM-1024", 874)]:
+    dim = beta - d4f(beta)
+    print("%s: beta %d, sieving dimension about %.0f" % (name, beta, dim))
+    for label, c in MODELS:
+        print("    %-17s 2^%.0f  (+%2.0f bits)" % (label, c * dim, (c - 0.292) * dim))
+```
+
+It prints:
+
+```text
+ML-KEM-512: beta 406, sieving dimension about 369
+    RAM (BDGL)        2^108  (+ 0 bits)
+    k=3, fourth root  2^118  (+10 bits)
+    k=2, cube root    2^122  (+14 bits)
+    k=1, square root  2^129  (+21 bits)
+ML-KEM-768: beta 624, sieving dimension about 574
+    RAM (BDGL)        2^168  (+ 0 bits)
+    k=3, fourth root  2^184  (+16 bits)
+    k=2, cube root    2^189  (+21 bits)
+    k=1, square root  2^200  (+33 bits)
+ML-KEM-1024: beta 874, sieving dimension about 810
+    RAM (BDGL)        2^237  (+ 0 bits)
+    k=3, fourth root  2^259  (+23 bits)
+    k=2, cube root    2^267  (+30 bits)
+    k=1, square root  2^283  (+46 bits)
+```
+
+For ML-KEM-512 the sieve runs in dimension about 369 (the Kyber documentation used 375),
+and the memory models add 10, 14 and 21 bits, the figures NIST's note gives. These are
+exponents of abstract operations: the RAM line, $2^{108}$, sits about 27 bits below the
+$2^{137}$ gates the Kyber documentation counted for one sieve in dimension 375, because each
+operation hides an inner product and polynomial factors. The memory bonus is the part that
+carries over to a gate count. The larger sets gain more, because their tables are larger.
+
+### ML-KEM-512 on trial, 2020 to 2023
+
+The memory question decided whether ML-KEM-512, then Kyber-512, belonged in category 1.
+The third-round Kyber specification (2020, revised 2021) gave a core-SVP figure of 118
+bits, so the team went "beyond core-SVP": they counted the gates of the best sieve,
+included the many calls BKZ makes and the dimensions for free, and arrived at about
+$2^{151}$ gates in the RAM model. Eight sources of uncertainty, labeled Q1 to Q8, widened
+that to a range of $2^{135}$ to $2^{165}$, part of it below the line. The team's case, and
+NIST's, was that the RAM model gives memory away free. In August 2020 Ray Perlner of NIST
+had posted to the public pqc-forum an analysis of how much memory a category 1 attacker
+could plausibly build; NIST later quoted it as about $2^{96.5}$ bits.
+
+In April 2022 MATZOV, the cryptography center of the Israel Defense Forces, reported an
+improved dual attack claiming about $2^{137}$ gates, 14 bits lower. Léo Ducas and Ludo
+Pulles then questioned the heuristic behind such dual-sieve attacks (CRYPTO 2023), leaving
+the main claim unproven; about 6 of its 14 bits came from sieving refinements that did not
+depend on it. Meanwhile NIST selected Kyber in July 2022 (NIST IR 8413) and wrote on its
+forum that, barring major improvements in cryptanalysis, it seemed unlikely that memory
+access would ever become cheap enough to push Kyber-512 below category 1.
+
+In October 2023 Daniel Bernstein published "The inability to count correctly", arguing
+that NIST had charged a per-access memory cost to the total number of bit operations in
+the attack, when only the memory accesses, a smaller number NIST had not stated, should be
+charged that way. If so, the memory bonus was much smaller than NIST had said. The forum
+exchange was long and sharp; others, among them John Mattsson of Ericsson, argued that
+Kyber-512 was still likely as hard to break as AES-128 once memory was costed properly.
+
+In December 2023 NIST answered with a short FAQ on Kyber-512. It started from the lattice
+estimator with MATZOV's sieving refinements, $2^{142.2}$, and added the "hidden overheads"
+Ducas had measured in practical sieves in 2022, about a factor of $2^5$: a best RAM-model
+estimate of about $2^{147}$ gates, uncertainty window $2^{135}$ to $2^{158}$. Pricing
+memory at the cube root of its size, which NIST's extrapolation suggested was close to
+real, added about 14 bits. Its best guess for the realistic cost was about $2^{160}$ gates,
+plausible range $2^{140}$ to $2^{180}$, and it called it "highly unlikely" that the known
+uncertainties made Kyber-512 significantly less secure than AES-128. FIPS 203 (August 2024)
+kept ML-KEM-512 as the category 1 set and recommended ML-KEM-768 as the default. Figure
+2.4 puts the numbers side by side.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 280" width="640" role="img" aria-label="Estimates of the cost of attacking ML-KEM-512, from core-SVP to NIST's memory-aware figure, against the AES-128 line at 143 bits" fill="currentColor" font-size="13">
+<text x="10" y="44">core-SVP, quantum (0.265 β)</text>
+<circle cx="278.8" cy="40" r="6"/><text x="278.8" y="30" font-weight="bold" text-anchor="middle">107</text>
+<text x="10" y="78">core-SVP, classical (0.292 β)</text>
+<circle cx="324.0" cy="74" r="6"/><text x="324.0" y="64" font-weight="bold" text-anchor="middle">118</text>
+<text x="10" y="112">one sieve, dimension 375, gates</text>
+<circle cx="402.1" cy="108" r="6"/><text x="402.1" y="98" font-weight="bold" text-anchor="middle">137</text>
+<text x="10" y="146">Kyber team 2021, gates</text>
+<rect x="393.9" y="136" width="123.3" height="12" rx="3" fill-opacity=".18" stroke="currentColor" stroke-opacity=".5"/>
+<circle cx="459.7" cy="142" r="6"/><text x="459.7" y="132" font-weight="bold" text-anchor="middle">151</text>
+<text x="10" y="180">NIST 2023, gates (RAM)</text>
+<rect x="393.9" y="170" width="94.6" height="12" rx="3" fill-opacity=".18" stroke="currentColor" stroke-opacity=".5"/>
+<circle cx="443.2" cy="176" r="6"/><text x="443.2" y="166" font-weight="bold" text-anchor="middle">147</text>
+<text x="10" y="214">NIST 2023, with memory</text>
+<rect x="414.4" y="204" width="164.4" height="12" rx="3" fill-opacity=".18" stroke="currentColor" stroke-opacity=".5"/>
+<circle cx="496.7" cy="210" r="6"/><text x="496.7" y="200" font-weight="bold" text-anchor="middle">160</text>
+<line x1="426.8" y1="18" x2="426.8" y2="234" stroke="currentColor" stroke-width="2" stroke-dasharray="6 4"/>
+<line x1="250" y1="234" x2="620" y2="234" stroke="currentColor"/>
+<line x1="250.0" y1="234" x2="250.0" y2="239" stroke="currentColor"/><text x="250.0" y="254" text-anchor="middle">100</text>
+<line x1="332.2" y1="234" x2="332.2" y2="239" stroke="currentColor"/><text x="332.2" y="254" text-anchor="middle">120</text>
+<line x1="414.4" y1="234" x2="414.4" y2="239" stroke="currentColor"/><text x="414.4" y="254" text-anchor="middle">140</text>
+<line x1="496.7" y1="234" x2="496.7" y2="239" stroke="currentColor"/><text x="496.7" y="254" text-anchor="middle">160</text>
+<line x1="578.9" y1="234" x2="578.9" y2="239" stroke="currentColor"/><text x="578.9" y="254" text-anchor="middle">180</text>
+<text x="426.8" y="14" text-anchor="middle" font-weight="bold">AES-128: 143</text>
+<text x="435" y="274" text-anchor="middle">log2 of the cost</text>
+</svg>
+<figcaption>Figure 2.4. ML-KEM-512 on one scale. The two core-SVP figures count abstract sieve operations; the four below them count gates, first for one sieve and then for the whole attack, and the bars are the uncertainty ranges their authors gave. The dashed line is category 1. Every gate-count estimate lands within about twenty bits of it, which is why the argument could not be settled by arithmetic alone.</figcaption>
+</figure>
+
+Two lessons stand. The argument was never about whether ML-KEM-512 is weak in practice:
+every estimate in Figure 2.4 is beyond any computation anyone can run. It was about which
+side of a line a scheme sits on when the honest uncertainty is wider than the distance to
+the line. And the way to make such an argument irrelevant is a margin larger than the
+uncertainty. Nobody on either side argued that ML-KEM-768 falls short of category 3; even
+its pessimistic core-SVP figure, 182 bits, lies above the whole range in dispute.
 
 ## 2.8 Multiple targets and tight proofs
 
@@ -829,7 +1214,7 @@ be kept for years. Apple's PQ3 for iMessage (2024) uses Kyber-1024 for the initi
 establishment and Kyber-768 for its periodic rekeying, trading a little margin for smaller
 messages on a frequent operation. NSA's CNSA 2.0 requires the category 5 sets.
 
-**The cost of being wrong.** Security levels are only as good as the best attack anyone
+**Two falls in one year.** Security levels are only as good as the best attack anyone
 has found, and in 2022 two schemes showed how quickly that can change. Rainbow, a
 multivariate signature in NIST's final round, claimed category 1 for its smallest set;
 in February 2022 Ward Beullens recovered a key in about 53 hours on a laptop (Chapter 15).
@@ -838,15 +1223,14 @@ Wouter Castryck and Thomas Decru broke it in about an hour on one processor core
 (Chapter 16). No refinement of bit-counting would have caught either: the attacks were
 new mathematics. The response of the standards was diversity: a lattice KEM backed by a
 code-based one (HQC), lattice signatures backed by hash-based ones (SLH-DSA), and a new
-call for signatures based on yet other problems.
+call for signatures based on yet other problems. §2.12 sets the two falls in a longer
+history.
 
-**The Kyber-512 debate.** In October 2023 Daniel Bernstein published a long criticism of
-NIST's reasoning that Kyber-512 met category 1, arguing that NIST had combined two
-of its cost figures incorrectly. NIST and others replied on its public
-forum that the conclusion held once memory access was costed realistically. The
-disagreement was never fully settled. Its effect in practice was small, because almost
-nobody deploys ML-KEM-512: the recommended default, ML-KEM-768, has a margin that no
-participant in the debate questioned.
+**The Kyber-512 debate.** The argument over whether ML-KEM-512 meets category 1, told
+in §2.7, ran from 2020 to the end of 2023 and was never settled to everyone's
+satisfaction. Its effect in practice was small, because almost nobody deploys ML-KEM-512:
+the recommended default, ML-KEM-768, has a margin that no participant in the debate
+questioned.
 
 !!! note "Life story: core-SVP"
     **Born:** 2016, Erdem Alkim, Léo Ducas, Thomas Pöppelmann and Peter Schwabe, in the
@@ -856,7 +1240,241 @@ participant in the debate questioned.
     NIST process; Kyber, Dilithium, Saber, NTRU and others reported it · **Status:**
     still quoted; refined in practice by the lattice estimator's fuller cost models
 
-## 2.12 Going deeper
+## 2.12 The cost of being wrong
+
+*Level: intermediate.*
+
+Every security level is a forecast that the best attack known today, plus the hardware
+of the coming decades, will not reach the line. Forecasts have failed in four ways, each
+calling for a different defense. Figure 2.5 puts the best-known cases on one line.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 330" width="640" role="img" aria-label="Timeline of designs from publication to practical break, from DES to SIKE, with AES-128 still standing" fill="currentColor" font-size="13">
+<text x="10" y="45" font-weight="bold">DES</text>
+<rect x="148.5" y="35" width="193.8" height="12" rx="3" fill-opacity=".2" stroke="currentColor"/>
+<line x1="342.3" y1="31" x2="342.3" y2="51" stroke="currentColor" stroke-width="3"/>
+<text x="148.5" y="28" font-size="12">1998: a 56-bit key found in 56 hours</text>
+<text x="10" y="83" font-weight="bold">RSA-129</text>
+<rect x="148.5" y="73" width="156.9" height="12" rx="3" fill-opacity=".2" stroke="currentColor"/>
+<line x1="305.4" y1="69" x2="305.4" y2="89" stroke="currentColor" stroke-width="3"/>
+<text x="148.5" y="66" font-size="12">1994: "40 quadrillion years" took 8 months</text>
+<text x="10" y="121" font-weight="bold">MD5</text>
+<rect x="286.9" y="111" width="110.8" height="12" rx="3" fill-opacity=".2" stroke="currentColor"/>
+<line x1="397.7" y1="107" x2="397.7" y2="127" stroke="currentColor" stroke-width="3"/>
+<text x="286.9" y="104" font-size="12">2004: collisions</text>
+<text x="10" y="159" font-weight="bold">SHA-1</text>
+<rect x="314.6" y="149" width="203.1" height="12" rx="3" fill-opacity=".2" stroke="currentColor"/>
+<line x1="517.7" y1="145" x2="517.7" y2="165" stroke="currentColor" stroke-width="3"/>
+<text x="314.6" y="142" font-size="12">2017: a collision, 2^63 work</text>
+<text x="10" y="197" font-weight="bold">Rainbow</text>
+<rect x="406.9" y="187" width="156.9" height="12" rx="3" fill-opacity=".2" stroke="currentColor"/>
+<line x1="563.8" y1="183" x2="563.8" y2="203" stroke="currentColor" stroke-width="3"/>
+<text x="406.9" y="180" font-size="12">2022: a key in a weekend</text>
+<text x="10" y="235" font-weight="bold">SIDH, SIKE</text>
+<rect x="462.3" y="225" width="101.5" height="12" rx="3" fill-opacity=".2" stroke="currentColor"/>
+<line x1="563.8" y1="221" x2="563.8" y2="241" stroke="currentColor" stroke-width="3"/>
+<text x="462.3" y="218" font-size="12">2022: a key in an hour</text>
+<text x="10" y="273" font-weight="bold">AES-128</text>
+<rect x="342.3" y="263" width="267.7" height="12" rx="3" fill-opacity=".45" stroke="currentColor"/>
+<text x="342.3" y="256" font-size="12">still standing; best attack 2^126 (2011)</text>
+<line x1="130.0" y1="298" x2="610.0" y2="298" stroke="currentColor"/>
+<text x="130.0" y="318" text-anchor="middle">1975</text>
+<text x="176.2" y="318" text-anchor="middle">1980</text>
+<text x="222.3" y="318" text-anchor="middle">1985</text>
+<text x="268.5" y="318" text-anchor="middle">1990</text>
+<text x="314.6" y="318" text-anchor="middle">1995</text>
+<text x="360.8" y="318" text-anchor="middle">2000</text>
+<text x="406.9" y="318" text-anchor="middle">2005</text>
+<text x="453.1" y="318" text-anchor="middle">2010</text>
+<text x="499.2" y="318" text-anchor="middle">2015</text>
+<text x="545.4" y="318" text-anchor="middle">2020</text>
+<text x="591.5" y="318" text-anchor="middle">2025</text>
+</svg>
+<figcaption>Figure 2.5. Fifty years of shrinking margins. Each bar runs from the year a design was published (for RSA-129, the year the challenge was set) to its practical break. Hardware ended DES, better algorithms ended RSA-129, cryptanalysis of structure ended MD5 and SHA-1, and new mathematics ended Rainbow and SIKE. The darker bar is the counterexample: a quarter century of attack has taken under two bits from AES-128.</figcaption>
+</figure>
+
+**Hardware: DES.** The Data Encryption Standard (FIPS 46, 1977) had a 56-bit key. That
+year Whitfield Diffie and Martin Hellman estimated that a \$20 million machine could search
+it in about a day. The best attack never improved much on brute force; the price of
+hardware fell. In July 1998 the Electronic Frontier Foundation's \$250,000 Deep Crack found
+a key in 56 hours, and in January 1999, with the distributed.net volunteers, in 22 hours
+and 15 minutes. A level with no margin above today's hardware falls to hardware alone
+within a working lifetime.
+
+**Algorithms: RSA.** In August 1977 Martin Gardner's *Scientific American* column set a
+129-digit (426-bit) RSA challenge and quoted Ron Rivest's estimate that factoring it would
+take 40 quadrillion years. In April 1994 Derek Atkins, Michael Graff, Arjen Lenstra and
+Paul Leyland factored it in eight months with about 600 volunteers and the quadratic sieve.
+Hardware had improved by thousands; the algorithms had improved by far more. RSA-155, 512
+bits, fell in August 1999, yet 512-bit "export-grade" keys stayed in use, and in 2015 Luke
+Valenta and colleagues factored them in about four hours for about \$75 of cloud time. The
+public record is RSA-250, 829 bits, factored in February 2020 by Fabrice Boudot and five
+colleagues with about 2,700 core-years of computation.
+
+**Code it: how fast do factoring records move?** The program fits a straight line, by
+least squares, to the year and size of the main RSA challenge records, over the first
+two decades, the last one, and the whole span, and asks when the line reaches 1,024 bits.
+
+```python
+records = [(1991, 330), (1992, 364), (1993, 397), (1994, 426), (1999, 463), (1999, 512),
+           (2003, 576), (2005, 663), (2009, 768), (2019, 795), (2020, 829)]
+
+def fit(points):
+    """Least-squares line through (year, bits); returns slope and intercept."""
+    n = len(points)
+    mx = sum(x for x, _ in points) / n
+    my = sum(y for _, y in points) / n
+    slope = sum((x - mx) * (y - my) for x, y in points) / sum((x - mx) ** 2 for x, _ in points)
+    return slope, my - slope * mx
+
+for label, pts in [("1991-2009", records[:9]), ("2009-2020", records[8:]), ("all", records)]:
+    a, b = fit(pts)
+    print("%-10s %4.1f bits a year; 1024 bits reached about %d" % (label, a, (1024 - b) / a))
+```
+
+It prints:
+
+```text
+1991-2009  22.6 bits a year; 1024 bits reached about 2021
+2009-2020   4.4 bits a year; 1024 bits reached about 2067
+all        17.1 bits a year; 1024 bits reached about 2029
+```
+
+The three lines disagree by forty years: the rate depends on which decade you measure,
+which is why key-size tables carry margins. In bits of security, by the calibration of
+§2.2, the 330-bit record of 1991 cost about $2^{43}$ operations, RSA-768 in 2009 about
+$2^{67}$, RSA-250 about $2^{70}$: some thirteen bits a decade while the number field sieve
+matured, under three since. As of November 2026 no 1,024-bit RSA challenge number (about
+$2^{77}$ by the same calibration) has been publicly factored.
+
+**Structure: MD5 and SHA-1.** Hash functions lose margin to cryptanalysis of their
+structure. MD5 (1992, 64-bit collision security) gave its first collisions in 2004 to
+Xiaoyun Wang and colleagues; in 2008 MD5 collisions forged a certificate authority
+certificate, and in 2012 the Flame malware forged a Microsoft code-signing certificate.
+SHA-1 (1995) promised 80-bit collision security. In 2005 Wang, Yiqun Lisa Yin and Hongbo
+Yu found a $2^{69}$ attack; in 2017 the SHAttered team from CWI Amsterdam and Google
+published a collision costing about $2^{63.1}$ SHA-1 computations; in 2020 Gaëtan Leurent
+and Thomas Peyrin made a chosen-prefix collision, the kind that forges certificates, for a
+few tens of thousands of dollars of rented GPUs. Seventeen bits in twenty-two years, about
+eight a decade. NIST has announced that SHA-1 is to be phased out entirely by the end of
+2030.
+
+**New mathematics: Rainbow and SIKE.** Rainbow (Jintai Ding and Dieter Schmidt, 2005)
+survived seventeen years and three NIST rounds before Ward Beullens's weekend on a laptop
+(§2.11). SIDH (David Jao and Luca De Feo, 2011) became SIKE and reached the fourth round
+before Castryck and Decru broke it in polynomial time, every parameter set alike. No
+margin would have helped.
+
+**The counterexample: AES.** The best key-recovery attack on full AES-128, the biclique
+attack of Andrey Bogdanov, Dmitry Khovratovich and Christian Rechberger (2011), costs about
+$2^{126.1}$: under two bits in a quarter century of intense cryptanalysis.
+
+Four lessons follow.
+
+1. **Against hardware**, plan for growth of a million or more over a few decades.
+2. **Against better algorithms on well-studied problems**, expect a few bits a decade,
+   more in a problem's early years; twenty or thirty bits of margin absorb a lifetime.
+3. **Against new mathematics**, no margin helps. Diversity does: standards on more than one
+   family, and hybrids that survive the failure of one part.
+4. **Retirement takes longer than breaking.** SHA-1 had twelve years' warning before its
+   first collision and is still being retired; 512-bit RSA was in use sixteen years after
+   it was factored.
+
+## 2.13 Picking a level for a fifty-year archive
+
+*Level: intermediate.*
+
+Chapter 1 met the Mars settlement whose charter keeps medical and personal records sent
+to Earth private for fifty years (§1.8). Mosca's inequality said to start migrating now.
+At which level?
+
+**Which parts must last fifty years.** A KEM sets up each session key, a symmetric
+cipher encrypts the records, hashes and key derivation bind the pieces, and signatures
+prove origin. The first three protect confidentiality, and must hold for fifty years from
+the moment the data crosses the link, because an eavesdropper keeps a recording.
+Re-encrypting the archive later protects the settlement's disks, not the recorded copy.
+
+Signatures need to hold only until they are checked or renewed: an archive can be
+re-signed or re-time-stamped under a newer algorithm before the old one weakens, as
+RFC 4998 (Evidence Record Syntax) describes for long-term archives.
+
+**Why the link makes harvesting easy.** Even a narrow beam from a large antenna on Mars
+is wider than the Earth when it arrives, so any large dish on the facing side can record
+it, passively and undetectably. The light delay that shapes the settlement's handshakes
+plays no part here.
+
+**A model with numbers.** The program sets a deliberately generous attacker against six
+choices. Its budget starts from the Bitcoin network of §2.3, about $2^{95}$ hashes a year at
+roughly $2^{17}$ gates per double SHA-256 (a rough count), doubles every two years until
+2076, and runs for ten years. Cryptanalysis advances "calm", 1.5 bits a decade (AES's
+record), or "steady", 8 bits a decade (SHA-1's). For ML-KEM-768 and ML-KEM-1024 the model
+adds to core-SVP the 29-bit gap NIST found for ML-KEM-512 between core-SVP (118) and its RAM
+gate estimate (147), an assumption and probably an understatement.
+
+```python
+YEARS = 50
+# log2 of the attacker's budget in gates: 2^95 Bitcoin-scale hashes a year at about
+# 2^17 gates each, doubling every two years until 2076, then run for ten years.
+BUDGET = 95 + 17 + YEARS / 2 + 3.3
+PACE = {"calm": 1.5, "steady": 8.0}   # bits lost per decade: AES's record, SHA-1's record
+
+SCHEMES = [("AES-128, classical", 143),         # log2 of the best attack today, in gates
+           ("AES-128, Grover at MAXDEPTH 2^64", 93),
+           ("AES-256, Grover at MAXDEPTH 2^64", 221),
+           ("ML-KEM-512 (NIST 2023 estimate)", 147),
+           ("ML-KEM-768 (core-SVP + 29)", 182 + 29),
+           ("ML-KEM-1024 (core-SVP + 29)", 255 + 29)]
+
+print("attacker's budget in %d: 2^%.0f gates" % (2026 + YEARS, BUDGET))
+for name, bits in SCHEMES:
+    left = ["%s %+4.0f" % (k, bits - r * YEARS / 10 - BUDGET) for k, r in PACE.items()]
+    print("%-34s 2^%d   margin: %s" % (name, bits, "   ".join(left)))
+```
+
+It prints:
+
+```text
+attacker's budget in 2076: 2^140 gates
+AES-128, classical                 2^143   margin: calm   -5   steady  -37
+AES-128, Grover at MAXDEPTH 2^64   2^93   margin: calm  -55   steady  -87
+AES-256, Grover at MAXDEPTH 2^64   2^221   margin: calm  +73   steady  +41
+ML-KEM-512 (NIST 2023 estimate)    2^147   margin: calm   -1   steady  -33
+ML-KEM-768 (core-SVP + 29)         2^211   margin: calm  +63   steady  +31
+ML-KEM-1024 (core-SVP + 29)        2^284   margin: calm +136   steady +104
+```
+
+The negative margins are not predictions: the budget assumes fifty years of uninterrupted
+doubling aimed at one archive, and the quantum row prices logical gates like classical
+ones. Read the table as a ranking under stress. Category 1 has no margin left; category 3
+keeps thirty bits even in the steady case; category 5 keeps a hundred. The Grover row is
+why CNSA 2.0 and most long-term guidance require AES-256 for the bulk cipher.
+
+**The decision, step by step.**
+
+<div class="mars-steps" markdown>
+
+1. Bulk encryption: AES-256 in an authenticated mode, a fresh key per archive volume.
+2. Key establishment: ML-KEM-1024 in a hybrid with X25519 (Chapter 18). Over ML-KEM-768
+   it adds 384 bytes of public key and 480 of ciphertext, under a kilobyte per session on
+   a transfer of gigabytes.
+3. Against new mathematics (§2.12): for the most sensitive volumes, wrap the session key
+   again with a KEM from another family: HQC, selected by NIST in 2025, once its standard
+   is published, or Classic McEliece, not a NIST standard as of November 2026, whose
+   public key of about a megabyte is a one-time cost if placed at the receiver in advance.
+4. Hashes and key derivation: SHA-384, SHA-512, SHA3 or SHAKE256, collision resistance at
+   category 4 or above.
+5. Signatures on the archive's manifests: ML-DSA-87, an SLH-DSA root key, and a renewal
+   schedule written into the archive's procedures from the start.
+6. Not covered by the level: random number generators, key storage and side channels
+   (Chapter 17). List them as separate requirements.
+
+</div>
+
+The whole plan costs a few kilobytes per transfer over "category 3 everywhere". For data
+that must outlive the people who encrypted it, buy the margin: it is the only part of the
+forecast you control.
+
+## 2.14 Going deeper
 
 *Level: expert.*
 
@@ -907,21 +1525,24 @@ means is a small open area of its own.
     thousands of physical operations, and the attack needs a huge number of machines in
     parallel.
 
-??? question "4. Using the formula in §2.4, how does the total cost of a depth-limited Grover search change if MAXDEPTH is halved?"
+??? question "4. A Grover search over 2^128 keys is split evenly across 2^30 quantum computers. How many iterations does each run, how much sooner does the job finish than on one machine, and what is the total work?"
 
-    It doubles. The total cost is about $N D^2 W / \text{MAXDEPTH}$, inversely proportional
-    to MAXDEPTH.
+    Each machine searches $2^{98}$ keys in $\sqrt{2^{98}} = 2^{49}$ iterations. One machine
+    alone would need $2^{64}$, so the job finishes $2^{15}$ times sooner, the square root of
+    $2^{30}$. The total work is $2^{30} \cdot 2^{49} = 2^{79}$ iterations, $2^{15}$ times more
+    than a single machine would do. A classical search split the same way would finish
+    $2^{30}$ times sooner with no extra work.
 
 ??? question "5. A BKZ block size of 500 is needed to break a lattice scheme. What is its classical core-SVP estimate, and roughly how many vectors would the sieve store?"
 
     $0.292 \times 500 = 146$ bits. The sieve stores about $2^{0.2075 \times 500} \approx
     2^{104}$ vectors.
 
-??? question "6. Run the code of §2.5 with sigma doubled for ML-KEM-768. Does the block size go up or down, and why?"
+??? question "6. NIST's December 2023 note priced memory access at the cube root of the memory size, which raises the sieve's exponent from 0.292 to 0.3294 per dimension. For a sieving dimension of 375, how many bits does that add, and what overall estimate did NIST reach for ML-KEM-512?"
 
-    Up. A larger error makes the secret vector longer, so a better-reduced basis (a larger
-    $\beta$) is needed before it becomes the shortest vector. Larger errors make LWE harder,
-    at the price of more decryption failures.
+    $(0.3294 - 0.292) \times 375 \approx 14$ bits. Added to NIST's best RAM-model gate count of
+    about $2^{147}$, it gives NIST's best guess of about $2^{160}$ gates, with a plausible range of
+    $2^{140}$ to $2^{180}$, against $2^{143}$ for category 1.
 
 ??? question "7. Why does ML-KEM hash the public key into the shared secret?"
 
@@ -935,11 +1556,14 @@ means is a small open area of its own.
     impersonate a party. Against a passive recorder: category 5, because the recorded key
     exchange is protected by ML-KEM-1024 and forging signatures later does not help.
 
-??? question "9. Why are categories 2 and 4 defined by collision search, with no quantum figure?"
+??? question "9. A settlement's archive must stay secret for fifty years. Why can its signatures be renewed later while its key exchange and cipher cannot, and what does that imply for the levels chosen?"
 
-    Some schemes, notably hash-based ones, are naturally limited by collision resistance. NIST
-    judged that no quantum collision algorithm beats the classical $2^{n/2}$ once the cost of
-    its quantum memory is counted, so the classical figure is the reference.
+    An eavesdropper records the ciphertext as it crosses the link, and that copy can be
+    attacked for decades; re-encrypting the stored archive later does not touch it. So the
+    KEM, the cipher and the hashes must carry a fifty-year margin from the day of sending:
+    ML-KEM-1024 (in a hybrid), AES-256, SHA-384 or stronger. Signatures need to hold only
+    until they are checked or renewed: the archive can be re-signed or re-time-stamped under
+    newer algorithms before the old ones weaken, as RFC 4998 evidence records do.
 
 ??? question "10. Explain in two sentences why core-SVP figures for ML-KEM are below the category gate counts and yet the parameter sets meet their categories."
 
@@ -955,12 +1579,23 @@ means is a small open area of its own.
   by experiments.
 - NIST's five categories compare every scheme with key search on AES-128, AES-192 and
   AES-256 and collision search on SHA-256 and SHA-384, counted in gates.
+- One AES-128 encryption is about $2^{14.8}$ gates, so a key search is $2^{143}$: about ten
+  billion years for the whole Bitcoin network of 2025, had it searched keys instead.
 - Quantum attacks are costed under a depth limit, MAXDEPTH. A depth-limited Grover search
-  costs $N D^2 W / \text{MAXDEPTH}$ gates and needs vast parallelism.
+  costs $N D^2 W / \text{MAXDEPTH}$ gates and needs vast parallelism: $P$ machines give a
+  speed-up of only $\sqrt P$, for total work $\sqrt{NP}$.
 - Lattice schemes are measured by the BKZ block size $\beta$ needed to find the secret, and
   core-SVP gives $0.292\beta$ bits classically. Twenty lines of Python reproduce ML-KEM's
   published figures.
 - Memory, multiple targets, proof tightness and decryption failures all move the numbers.
+  For ML-KEM-512, NIST's 2023 estimates were about $2^{147}$ gates in the RAM model and
+  about $2^{160}$ with memory costed, against $2^{143}$ for category 1; the dispute was over
+  a line inside the error bars.
+- Margins have been lost to hardware (DES), algorithms (RSA), structural cryptanalysis
+  (MD5, SHA-1) and new mathematics (Rainbow, SIKE). Margins answer the first three;
+  only diversity and hybrids answer the fourth.
+- Data that must stay secret for decades needs category 5 key exchange and AES-256,
+  chosen on the day it is sent; signatures can be renewed.
 - ML-KEM-768 and ML-DSA-65 are the general defaults; category 5 sets are for policy or very
   long-lived data; SLH-DSA is the conservative choice for signatures.
 - Security levels are only as good as the attacks known; Rainbow and SIKE fell to new ideas,
@@ -998,3 +1633,27 @@ key-encapsulation mechanisms, signatures, and the security definitions behind th
   Standardization Process* (2022).
 - Daniel J. Bernstein, "The inability to count correctly: Debunking NIST's calculation of
   the Kyber-512 security level" (blog, October 2023), and the replies on NIST's pqc-forum.
+- NIST, *FAQ on Kyber512* (December 2023); Ray Perlner, "Update on category 1 security",
+  NIST pqc-forum (August 2020).
+- MATZOV, *Report on the Security of LWE: Improved Dual Lattice Attack* (2022); Léo Ducas
+  and Ludo Pulles, "Does the dual-sieve attack on learning with errors even work?" (CRYPTO
+  2023); Léo Ducas, "Estimating the hidden overheads in the BDGL lattice sieving
+  algorithm" (PQCrypto 2022).
+- Léo Ducas, Marc Stevens and Wessel van Woerden, "Advanced lattice sieving on GPUs, with
+  tensor cores" (EUROCRYPT 2021).
+- Michael Wiener, "The full cost of cryptanalytic attacks", *Journal of Cryptology* (2004).
+- Joan Boyar and René Peralta, "A new combinational logic minimization technique with
+  applications to cryptology" (SEA 2010).
+- Arjen Lenstra and Eric Verheul, "Selecting cryptographic key sizes", *Journal of
+  Cryptology* (2001).
+- Whitfield Diffie and Martin Hellman, "Exhaustive cryptanalysis of the NBS Data
+  Encryption Standard", *Computer* (1977); Electronic Frontier Foundation, *Cracking DES*
+  (1998).
+- Fabrice Boudot and others, "Comparing the difficulty of factorization and discrete
+  logarithm: a 240-digit experiment" (CRYPTO 2020); Luke Valenta and others, "Factoring as
+  a service" (Financial Cryptography 2016).
+- Marc Stevens and others, "The first collision for full SHA-1" (CRYPTO 2017); Gaëtan
+  Leurent and Thomas Peyrin, "SHA-1 is a shambles" (USENIX Security 2020).
+- Andrey Bogdanov, Dmitry Khovratovich and Christian Rechberger, "Biclique cryptanalysis of
+  the full AES" (ASIACRYPT 2011).
+- RFC 4998, *Evidence Record Syntax (ERS)* (2007).

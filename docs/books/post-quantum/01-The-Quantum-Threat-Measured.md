@@ -431,8 +431,11 @@ and against it the quantum key search loses badly.
 Put together, NIST's analysis (which §2 of the next chapter follows in detail) treats
 a key search on AES-128 as the yardstick for its lowest security category, not as a
 broken cipher, and assumes an attacker limited to a circuit depth of about $2^{40}$
-to $2^{96}$ gates in a row. Under any such limit, a quantum search for an AES-128 key
-costs more in total gates than a classical one would. AES-256 is used where people
+to $2^{96}$ gates in a row. Under such a limit a quantum search for an AES-128 key still
+needs from about $2^{117}$ logical gates (at depth $2^{40}$) down to about $2^{79}$ (at
+depth $2^{96}$), on NIST's revised figures, and each error-corrected logical gate costs
+many physical operations, so in practice the search stays out of reach and loses to cheap
+classical hardware ([Chapter 2, §2.4](02-Security-Levels.md#24-maxdepth-why-grover-is-weaker-than-it-looks)). AES-256 is used where people
 want a wide margin, as the NSA's CNSA 2.0 suite requires, and that is a matter of
 caution, not of need.
 
