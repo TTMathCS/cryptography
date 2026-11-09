@@ -15,12 +15,18 @@ RSA four times faster and, with one flipped bit, gives the key away.*
     - congruence as an equivalence relation, and residue classes;
     - why addition and multiplication of classes are well defined, and what
       makes $\mathbb{Z}/n\mathbb{Z}$ a ring;
-    - which elements have inverses, the group of units, and zero divisors;
+    - which elements have inverses, the group of units, and zero divisors, and
+      how to find an inverse with a one-column Euclid table;
     - Euler's $\varphi$ function and its formula;
     - when $ax \equiv b \pmod n$ has solutions, and how many;
     - the Chinese remainder theorem, its proof, Garner's algorithm, and the
       ring isomorphism behind it;
-    - Montgomery and Barrett reduction, and why constant time matters;
+    - Montgomery and Barrett reduction, what each costs word by word, where
+      each wins, and what Python timings can and cannot tell you;
+    - a constant-time conditional subtraction written with masks, and the
+      cache and branch attacks of 2005 to 2007 that made it standard;
+    - three ways to compute an inverse (Fermat, Euclid, the binary gcd) and
+      the constant-time safegcd of Bernstein and Yang;
     - RSA with the Chinese remainder theorem, and the Bellcore fault attack.
 
     **You need:** [Chapter 2](02-Divisibility-Primes-and-Factoring.md) (division
@@ -40,7 +46,36 @@ Arcadia City keeps Mars time. A Martian solar day, a **sol**, lasts 24 hours,
 24 Martian hours. If the night shift at the water plant starts at hour 21 and
 lasts 7 hours, it ends at hour 4, not hour 28. Everyone knows how to do this:
 add, then subtract 24 if you went past the end of the day. A Mars year is 668
-sols and a bit, and the sol-of-year counter wraps in the same way.
+sols and a bit, and the sol-of-year counter wraps in the same way. Figure 3.1
+shows the shift on a Martian clock face.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 290" width="640" role="img" aria-label="A 24-hour Martian clock face with an arrow running 7 hours clockwise from hour 21, past 0, to hour 4" fill="currentColor" font-size="14">
+<circle cx="170" cy="150" r="105" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<g stroke="currentColor" stroke-width="1.2"><line x1="170.0" y1="52.0" x2="170.0" y2="45.0"/><line x1="195.4" y1="55.3" x2="197.2" y2="48.6"/><line x1="219.0" y1="65.1" x2="222.5" y2="59.1"/><line x1="239.3" y1="80.7" x2="244.2" y2="75.8"/><line x1="254.9" y1="101.0" x2="260.9" y2="97.5"/><line x1="264.7" y1="124.6" x2="271.4" y2="122.8"/><line x1="268.0" y1="150.0" x2="275.0" y2="150.0"/><line x1="264.7" y1="175.4" x2="271.4" y2="177.2"/><line x1="254.9" y1="199.0" x2="260.9" y2="202.5"/><line x1="239.3" y1="219.3" x2="244.2" y2="224.2"/><line x1="219.0" y1="234.9" x2="222.5" y2="240.9"/><line x1="195.4" y1="244.7" x2="197.2" y2="251.4"/><line x1="170.0" y1="248.0" x2="170.0" y2="255.0"/><line x1="144.6" y1="244.7" x2="142.8" y2="251.4"/><line x1="121.0" y1="234.9" x2="117.5" y2="240.9"/><line x1="100.7" y1="219.3" x2="95.8" y2="224.2"/><line x1="85.1" y1="199.0" x2="79.1" y2="202.5"/><line x1="75.3" y1="175.4" x2="68.6" y2="177.2"/><line x1="72.0" y1="150.0" x2="65.0" y2="150.0"/><line x1="75.3" y1="124.6" x2="68.6" y2="122.8"/><line x1="85.1" y1="101.0" x2="79.1" y2="97.5"/><line x1="100.7" y1="80.7" x2="95.8" y2="75.8"/><line x1="121.0" y1="65.1" x2="117.5" y2="59.1"/><line x1="144.6" y1="55.3" x2="142.8" y2="48.6"/></g>
+<text x="170.0" y="34.0" text-anchor="middle">0</text>
+<text x="255.6" y="69.4" text-anchor="middle">3</text>
+<text x="291.0" y="155.0" text-anchor="middle">6</text>
+<text x="255.6" y="240.6" text-anchor="middle">9</text>
+<text x="170.0" y="276.0" text-anchor="middle">12</text>
+<text x="84.4" y="240.6" text-anchor="middle">15</text>
+<text x="49.0" y="155.0" text-anchor="middle">18</text>
+<text x="84.4" y="69.4" text-anchor="middle" font-weight="bold">21</text>
+<text x="274.8" y="94.5" text-anchor="middle" font-weight="bold">4</text>
+<circle cx="95.8" cy="75.8" r="5"/><circle cx="260.9" cy="97.5" r="5"/>
+<path d="M113.4 93.4 A80 80 0 0 1 239.3 110.0" fill="none" stroke="currentColor" stroke-width="2"/>
+<path d="M239.3 110.0 L230.9 104.5 L238.7 100.0 Z"/>
+<text x="170" y="112" text-anchor="middle">+7 hours</text>
+<text x="170" y="155" text-anchor="middle" fill-opacity=".7" font-size="12">one sol = 24 Martian hours</text>
+<text x="470" y="80" text-anchor="middle">the shift starts at hour 21</text>
+<text x="470" y="102" text-anchor="middle">and lasts 7 hours:</text>
+<text x="470" y="140" text-anchor="middle">21 + 7 = 28 = 1 · 24 + 4,</text>
+<text x="470" y="164" text-anchor="middle" font-weight="bold">so 21 + 7 ≡ 4 (mod 24)</text>
+<text x="470" y="202" text-anchor="middle">the hand passes 0 once and</text>
+<text x="470" y="224" text-anchor="middle">the shift ends at hour 4 of the next sol</text>
+</svg>
+<figcaption>Figure 3.1. Clock arithmetic on Mars. Adding 7 hours to hour 21 goes once around past 0 and lands on 4: the remainder of 28 on division by 24.</figcaption>
+</figure>
 
 Arithmetic that wraps is the arithmetic of cryptography, for three reasons.
 
@@ -130,7 +165,7 @@ remainder. Modulo 4: $[0] = \{\dots, -4, 0, 4, 8, \dots\}$, $[1] = \{\dots, -3,
 <text x="470" y="130" text-anchor="middle">each point is one residue class,</text>
 <text x="470" y="150" text-anchor="middle">and adding 1 moves one step clockwise</text>
 </svg>
-<figcaption>Figure 3.1. Residue classes modulo 7. Every integer lands on one of seven points; integers on the same point are congruent.</figcaption>
+<figcaption>Figure 3.2. Residue classes modulo 7. Every integer lands on one of seven points; integers on the same point are congruent.</figcaption>
 </figure>
 
 ## 3.3 Arithmetic on classes
@@ -311,6 +346,85 @@ except ValueError as e:
 38 1
 no inverse: base is not invertible for the given modulus
 ```
+
+### The inverse as a table
+
+Back-substitution, as in the hand example above, is fine for three steps and
+easy to get wrong for ten. Chapter 2 runs the extended algorithm forward
+instead, as a table with two coefficient columns
+([§2.5](02-Divisibility-Primes-and-Factoring.md#the-extended-euclidean-algorithm)).
+For an inverse modulo $n$ only one of the two columns is needed, because the
+other one multiplies $n$ and vanishes modulo $n$. Keep rows $(r_i, t_i)$ with
+the invariant
+
+$$r_i \equiv t_i \cdot a \pmod n.$$
+
+Start with $(r_0, t_0) = (n, 0)$ and $(r_1, t_1) = (a, 1)$, which satisfy it
+trivially. At each step take the quotient $q = \lfloor r_{i-1} / r_i \rfloor$
+and form
+
+$$r_{i+1} = r_{i-1} - q\,r_i, \qquad t_{i+1} = t_{i-1} - q\,t_i.$$
+
+The new row is the old row two places up minus $q$ times the row just above.
+Both of those satisfy the invariant, and a combination of two congruences is a
+congruence, so the new row satisfies it too. The $r$ column is exactly
+Euclid's sequence of remainders. When $r$ reaches 1 the invariant reads $1
+\equiv t \cdot a$, and that $t$ is the inverse. If $r$ jumps to 0 without
+passing through 1, the last non-zero $r$ is $\gcd(a, n) > 1$ and there is no
+inverse.
+
+*By hand.* The classic small RSA key has $p = 53$ and $q = 61$, so $N =
+3233$ and $\varphi(N) = 3120$ (question 6 below runs this backward). With
+public exponent $e = 17$, the private exponent is $d = 17^{-1} \bmod 3120$.
+Figure 3.3 shows the whole table.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="The one-column extended Euclid table for the inverse of 17 modulo 3120: rows of quotient, remainder and coefficient, with the row where the remainder is 1 highlighted and giving 2753" fill="currentColor" font-size="14">
+<text x="320" y="22" text-anchor="middle">each new row = (row two above) − q × (row above); invariant r ≡ t · 17 (mod 3120)</text>
+<rect x="40" y="187" width="560" height="28" fill="currentColor" fill-opacity=".12"/>
+<g font-weight="bold"><text x="80" y="55" text-anchor="middle">row</text><text x="160" y="55" text-anchor="middle">q</text><text x="250" y="55" text-anchor="middle">r</text><text x="350" y="55" text-anchor="middle">t</text><text x="500" y="55" text-anchor="middle">t · 17 mod 3120</text></g>
+<line x1="40" y1="64" x2="600" y2="64" stroke="currentColor"/>
+<text x="80" y="86" text-anchor="middle">0</text><text x="160" y="86" text-anchor="middle">–</text><text x="250" y="86" text-anchor="middle">3120</text><text x="350" y="86" text-anchor="middle">0</text><text x="500" y="86" text-anchor="middle">0 ≡ 3120</text>
+<text x="80" y="116" text-anchor="middle">1</text><text x="160" y="116" text-anchor="middle">–</text><text x="250" y="116" text-anchor="middle">17</text><text x="350" y="116" text-anchor="middle">1</text><text x="500" y="116" text-anchor="middle">17</text>
+<text x="80" y="146" text-anchor="middle">2</text><text x="160" y="146" text-anchor="middle">183</text><text x="250" y="146" text-anchor="middle">9</text><text x="350" y="146" text-anchor="middle">−183</text><text x="500" y="146" text-anchor="middle">9</text>
+<text x="80" y="176" text-anchor="middle">3</text><text x="160" y="176" text-anchor="middle">1</text><text x="250" y="176" text-anchor="middle">8</text><text x="350" y="176" text-anchor="middle">184</text><text x="500" y="176" text-anchor="middle">8</text>
+<text x="80" y="206" text-anchor="middle">4</text><text x="160" y="206" text-anchor="middle">1</text><text x="250" y="206" text-anchor="middle" font-weight="bold">1</text><text x="350" y="206" text-anchor="middle" font-weight="bold">−367</text><text x="500" y="206" text-anchor="middle">1</text>
+<text x="80" y="236" text-anchor="middle">5</text><text x="160" y="236" text-anchor="middle">8</text><text x="250" y="236" text-anchor="middle">0</text><text x="350" y="236" text-anchor="middle">3120</text><text x="500" y="236" text-anchor="middle">0</text>
+<path d="M386 116 C420 126 420 136 386 144" fill="none" stroke="currentColor" stroke-opacity=".6"/>
+<text x="420" y="134" font-size="12" fill-opacity=".7">t₂ = t₀ − 183 · t₁</text>
+<text x="320" y="276" text-anchor="middle">row 4: 1 ≡ −367 · 17, so d = 17⁻¹ ≡ −367 + 3120 = 2753 (mod 3120)</text>
+</svg>
+<figcaption>Figure 3.3. Euclid's algorithm with one coefficient column, computing the private exponent of a toy RSA key. The r column is Euclid's sequence of remainders; the highlighted row, where r = 1, holds the inverse.</figcaption>
+</figure>
+
+Read the steps off the table: $3120 = 183 \cdot 17 + 9$ gives $t_2 = 0 - 183
+\cdot 1 = -183$; then $17 = 1 \cdot 9 + 8$ gives $t_3 = 1 - 1 \cdot (-183) =
+184$; then $9 = 1 \cdot 8 + 1$ gives $t_4 = -183 - 184 = -367$. So $d \equiv
+-367 \equiv 2753 \pmod{3120}$. Check: $17 \cdot 2753 = 46801 = 15 \cdot 3120 +
+1$. The last row is a free check of the arithmetic: when $r$ reaches 0, $t$ is
+always $\pm n / \gcd(a, n)$, here $3120$.
+
+### How many rows?
+
+The table has one row per division step of Euclid's algorithm, and Chapter 2
+counts those exactly
+([§2.4](02-Divisibility-Primes-and-Factoring.md#the-worst-case-fibonacci-numbers)).
+Gabriel Lamé proved in 1844 that the worst inputs are consecutive Fibonacci
+numbers, where every quotient is 1, and that the count is at most about $1.44
+\log_2 n$; random inputs need about $0.843 \ln n$. For the 255-bit prime
+$p = 2^{255} - 19$ of Curve25519 that is at most about 368 steps and about 149
+on average.
+
+The worst case has a pretty inverse. With $F_7 = 13$ and $F_8 = 21$ the table
+runs $r = 21, 13, 8, 5, 3, 2, 1$ with every $q = 1$, and $t = 0, 1, -1, 2, -3, 5,
+-8$: the coefficients are Fibonacci numbers too. So $13^{-1} \equiv -8 \equiv 13
+\pmod{21}$, and indeed $13^2 = 169 = 8 \cdot 21 + 1$. This is Cassini's identity
+$F_{k-1}F_{k+1} - F_k^2 = (-1)^k$ read modulo $F_{k+1}$.
+
+The number of rows depends on $a$. That is harmless when $a$ is public, as $e$
+is above, and dangerous when $a$ is a secret, because a program whose running
+time depends on a secret can leak it. Section 3.10 returns to inverses that
+take the same time for every input.
 
 ## 3.5 Euler's function
 
@@ -500,7 +614,7 @@ operations is a **ring isomorphism**. So:
 $$\mathbb{Z}/N\mathbb{Z} \cong \mathbb{Z}/n_1\mathbb{Z} \times \mathbb{Z}/n_2\mathbb{Z} \quad\text{when } \gcd(n_1, n_2) = 1.$$
 
 Arithmetic modulo 15 *is* arithmetic modulo 3 and modulo 5 done side by side,
-in two independent coordinates. Figure 3.2 shows the 15 numbers laid out on a
+in two independent coordinates. Figure 3.4 shows the 15 numbers laid out on a
 3-by-5 grid by their two remainders: every cell is filled exactly once.
 
 <figure class="mars-fig">
@@ -519,7 +633,7 @@ in two independent coordinates. Figure 3.2 shows the 15 numbers laid out on a
 <text x="220" y="171" text-anchor="middle">5</text><text x="280" y="171" text-anchor="middle">11</text><text x="340" y="171" text-anchor="middle" class="acc-fill" font-weight="bold">2</text><text x="400" y="171" text-anchor="middle" class="acc-fill" font-weight="bold">8</text><text x="460" y="171" text-anchor="middle">14</text>
 <text x="340" y="218" text-anchor="middle" font-size="13">8 ↔ (2, 3): the system x ≡ 2 (mod 3), x ≡ 3 (mod 5) has the one answer 8</text>
 </svg>
-<figcaption>Figure 3.2. The Chinese remainder theorem for 15 = 3 × 5. Each number 0 to 14 has its own pair of remainders, and every pair occurs once.</figcaption>
+<figcaption>Figure 3.4. The Chinese remainder theorem for 15 = 3 × 5. Each number 0 to 14 has its own pair of remainders, and every pair occurs once.</figcaption>
 </figure>
 
 Two consequences follow at once.
@@ -561,6 +675,74 @@ print(crt([1, 2, 3, 4], [5, 7, 9, 11]))
 (23, 105)
 (1731, 3465)
 ```
+
+### Garner's numbers are digits
+
+The values of $t$ that Garner's loop computes are worth keeping. Each step
+adds $t$ times the product of the earlier moduli, so the answer comes out as
+
+$$x = v_1 + v_2\,m_1 + v_3\,m_1m_2 + \cdots + v_k\,m_1m_2\cdots m_{k-1}, \qquad 0 \leq v_i < m_i.$$
+
+This is a **mixed-radix** representation: like decimal, except that each place
+has its own base. For Sunzi's puzzle the loop finds $t = 2$, then $(3 - 2)
+\cdot 3^{-1} \equiv 1 \cdot 2 = 2 \pmod 5$, then $(2 - 8) \cdot 15^{-1} \equiv
+-6 \cdot 1 \equiv 1 \pmod 7$, so the digits are $(2, 2, 1)$ and $23 = 2 + 2
+\cdot 3 + 1 \cdot 15$. Residues hide the size of a number (is $(1, 1, 1)$
+bigger than $(0, 4, 6)$ modulo $3, 5, 7$?), but mixed-radix digits show it,
+because they compare like ordinary digits, most significant first. That is
+why hardware that computes in residues (§3.11) converts to mixed radix
+whenever it needs to compare or to reduce.
+
+### When the moduli share a factor
+
+The theorem asks for coprime moduli. Without that, a system may have no
+solution: $x \equiv 3 \pmod 8$ makes $x$ odd and $x \equiv 6 \pmod{12}$ makes
+it even.
+
+**Theorem.** Let $g = \gcd(n_1, n_2)$. The system $x \equiv a_1 \pmod{n_1}$,
+$x \equiv a_2 \pmod{n_2}$ has a solution if and only if $a_1 \equiv a_2
+\pmod g$, and then the solution is unique modulo $\operatorname{lcm}(n_1, n_2)
+= n_1 n_2 / g$.
+
+*Proof.* Both congruences hold modulo $g$, since $g$ divides both moduli, so a
+solution forces $a_1 \equiv x \equiv a_2 \pmod g$. Conversely, write $x = a_1
++ n_1 t$; the second congruence becomes $n_1 t \equiv a_2 - a_1 \pmod{n_2}$, a
+linear congruence that §3.6 solves exactly when $g \mid a_2 - a_1$. Its
+solutions $t$ form one class modulo $n_2 / g$, and $x = a_1 + n_1 t$ then runs
+over one class modulo $n_1 n_2 / g$. $\blacksquare$
+
+*By hand.* $x \equiv 3 \pmod 8$, $x \equiv 7 \pmod{12}$. Here $g = 4$ and $3
+\equiv 7 \pmod 4$, so there is a solution. Put $x = 3 + 8t$: then $8t \equiv 4
+\pmod{12}$, divide by 4: $2t \equiv 1 \pmod 3$, $t \equiv 2$, $x = 19$. The
+answer is unique modulo 24: check $19 = 2 \cdot 8 + 3 = 12 + 7$.
+
+```python
+from math import gcd
+
+def crt_general(a1, n1, a2, n2):
+    """Solve x = a1 (mod n1), x = a2 (mod n2); None if there is no solution."""
+    g = gcd(n1, n2)
+    if (a2 - a1) % g:
+        return None
+    m = n2 // g                              # solve (n1/g) t = (a2 - a1)/g  (mod n2/g)
+    t = (a2 - a1) // g * pow(n1 // g, -1, m) % m
+    return (a1 + n1 * t) % (n1 * m), n1 * m  # unique modulo lcm(n1, n2) = n1 * m
+
+print(crt_general(3, 8, 7, 12), crt_general(3, 8, 6, 12), crt_general(2, 3, 3, 5))
+```
+
+It prints:
+
+```text
+(19, 24) None (8, 15)
+```
+
+Shared factors matter in cryptography for a reason that runs the other way.
+Håstad's broadcast attack combines one message encrypted under several RSA
+moduli with the CRT and needs those moduli to be coprime
+([Cryptanalysis, §13.3](../cryptanalysis/13-Attacks-on-RSA.md#133-one-message-many-keys-hastads-broadcast-attack)).
+If two of them are not, the attacker has something better than a CRT: $\gcd(N_1,
+N_2)$ is a shared prime, and both keys are factored at once.
 
 ## 3.8 How computers reduce
 
@@ -610,7 +792,40 @@ $N$.
 
 In a long exponentiation, numbers enter Montgomery form once at the start, stay
 there through thousands of multiplications, and leave once at the end. Every
-step uses only multiplication, addition, and shifts by a word size.
+step uses only multiplication, addition, and shifts by a word size. Figure 3.5 shows
+the round trip.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="Two bands: ordinary residues mod 97 above and Montgomery forms below. 45 and 73 go down into the Montgomery band as 37 and 32, are multiplied there with REDC to give 82, and 82 comes back up as 84" fill="currentColor" font-size="14">
+<defs><marker id="m3a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+<rect x="20" y="20" width="600" height="70" rx="8" fill="currentColor" fill-opacity=".06" stroke="currentColor" stroke-opacity=".5"/>
+<rect x="20" y="190" width="600" height="70" rx="8" fill="currentColor" fill-opacity=".14" stroke="currentColor" stroke-opacity=".5"/>
+<text x="30" y="40" font-size="12" fill-opacity=".7">ordinary residues mod 97</text>
+<text x="30" y="210" font-size="12" fill-opacity=".7">Montgomery forms: x̄ = 128 · x mod 97</text>
+<text x="100" y="70" text-anchor="middle" font-weight="bold">a = 45</text>
+<text x="200" y="70" text-anchor="middle" font-weight="bold">b = 73</text>
+<text x="540" y="70" text-anchor="middle" font-weight="bold">ab mod 97 = 84</text>
+<text x="100" y="240" text-anchor="middle" font-weight="bold">ā = 37</text>
+<text x="200" y="240" text-anchor="middle" font-weight="bold">b̄ = 32</text>
+<text x="390" y="236" text-anchor="middle" font-weight="bold">REDC(37 · 32) = 82</text><text x="390" y="253" text-anchor="middle" font-size="12" fill-opacity=".7">the Montgomery form of 84</text>
+<g stroke="currentColor" stroke-width="1.5" fill="none" marker-end="url(#m3a)">
+<path d="M100 78 L100 222"/><path d="M200 78 L200 222"/>
+<path d="M232 231 L318 231"/>
+<path d="M540 222 L540 80"/>
+</g>
+<text x="150" y="130" text-anchor="middle" font-size="13">enter once:</text>
+<text x="150" y="148" text-anchor="middle" font-size="13">x · 128 mod 97</text>
+<text x="150" y="166" text-anchor="middle" font-size="13" fill-opacity=".7">(one division)</text>
+<text x="555" y="130" font-size="13">leave once:</text>
+<text x="555" y="148" font-size="13">REDC(82)</text>
+<text x="555" y="166" font-size="13">= 84</text>
+<text x="370" y="130" text-anchor="middle" font-size="13">stay below for the whole computation:</text>
+<text x="370" y="148" text-anchor="middle" font-size="13">each step is one product and one REDC,</text>
+<text x="370" y="166" text-anchor="middle" font-size="13">and REDC needs only masks, shifts and adds</text>
+<text x="320" y="285" text-anchor="middle" font-size="13">REDC(x̄ · ȳ) = xR · yR · R⁻¹ = xyR = (xy)‾ : the bar survives multiplication</text>
+</svg>
+<figcaption>Figure 3.5. The Montgomery domain, with the numbers of the hand example. Values cross into Montgomery form once, are multiplied there as often as needed, and cross back once at the end.</figcaption>
+</figure>
 
 ```python
 def montgomery_setup(N, bits):
@@ -639,7 +854,7 @@ reduction" happens leaks RSA keys, and in 2003 David Brumley and Dan Boneh
 measured timing differences across a network to extract a private key from an
 OpenSSL web server. Libraries now compute the subtraction always and select the
 result with masks, so that the time does not depend on the data. Such code is
-called **constant-time**.
+called **constant-time**; §3.10 writes the masked subtraction out.
 
 ### Barrett reduction
 
@@ -686,11 +901,202 @@ print(all(barrett(x, n, k, mu) == x % n for x in (rng.randrange(n * n) for _ in 
 True
 ```
 
-Montgomery is usually faster for long exponentiations; Barrett suits a single
-reduction or a fixed modulus where conversion costs would not pay off. Many
-post-quantum implementations use small versions of both: ML-KEM's reference code
-reduces modulo $q = 3329$ with a 16-bit Montgomery reduction and a Barrett
-reduction (Chapter 15).
+### Counting the cost
+
+Which of the two is faster? Start with a count. Real code stores a big number
+as $k$ **words** (limbs) of 64 bits, and the unit of cost is one word
+multiplication. A 2,048-bit modulus has $k = 32$ words, and the schoolbook
+product of two such numbers costs $k^2$ word multiplications
+([Engineering, §6.3](../engineering/06-Big-Numbers-and-Public-Key-Code.md#63-multiplying-faster-karatsuba)
+shows how Karatsuba lowers that). Then each method reduces the product:
+
+- **Montgomery, a word at a time.** REDC can clear the low words one by one.
+  For each low word $t_i$ it computes $m_i = t_i N' \bmod 2^{64}$ (one
+  multiplication, using only the lowest word of $N'$) and adds $m_i N$
+  shifted into place ($k$ more), which turns $t_i$ into zero: $k(k + 1)$ in all.
+- **Barrett, two half products.** The quotient estimate needs only the top
+  words of $\lfloor x / 2^{64(k-1)} \rfloor \cdot \mu$, and the product of
+  the estimate with $n$ is needed only modulo $2^{64(k+1)}$, so about half the
+  partial products of each can be skipped (at worst one more final
+  subtraction). The two halves come to $k^2 + 4k + 1$.
+
+The code below does both reductions word by word and counts every word
+multiplication it performs.
+
+```python
+import random
+
+W = 64                                       # bits per word
+B = 1 << W
+
+def words(x, k):                             # x as k words, low word first
+    return [(x >> (W * i)) % B for i in range(k)]
+
+def partial_product(a, b, keep, tally):      # schoolbook, only the a[i]*b[j] with keep(i + j)
+    s = 0
+    for i, ai in enumerate(a):
+        for j, bj in enumerate(b):
+            if keep(i + j):
+                s += ai * bj << (W * (i + j))
+                tally[0] += 1
+    return s
+
+def montgomery_words(T, N, k, n0, tally):    # REDC one word at a time; n0 = -1/N mod 2^64
+    for i in range(k):
+        m = ((T >> (W * i)) % B) * n0 % B
+        tally[0] += 1
+        T += partial_product([m], words(N, k), lambda s: True, tally) << (W * i)
+    T >>= W * k
+    return T - N if T >= N else T
+
+def barrett_words(x, n, k, mu, tally):       # mu = floor(2^(128k) / n)
+    q1 = x >> (W * (k - 1))
+    q3 = partial_product(words(q1, k + 1), words(mu, k + 1), lambda s: s >= k - 1, tally) >> (W * (k + 1))
+    r2 = partial_product(words(q3, k + 1), words(n, k), lambda s: s <= k, tally)
+    r = (x - r2) % B ** (k + 1)
+    while r >= n:
+        r -= n
+    return r
+
+rng = random.Random(3)
+for k in (4, 8, 32):                         # 256-, 512- and 2048-bit moduli
+    n = rng.getrandbits(W * k) | 1 << (W * k - 1) | 1
+    x = rng.randrange(n * n)
+    tm, tb = [0], [0]
+    assert montgomery_words(x, n, k, -pow(n, -1, B) % B, tm) == x * pow(B ** k, -1, n) % n
+    assert barrett_words(x, n, k, B ** (2 * k) // n, tb) == x % n
+    print(f"k = {k:2}: product {k * k:4}, Montgomery {tm[0]:4}, Barrett {tb[0]:4}")
+
+k = 32
+mont, barr = k * k + k * (k + 1), k * k + k * k + 4 * k + 1   # one modular multiplication
+overhead = mont + k * (k + 1)                # convert in (one Montgomery multiplication), convert out (one REDC)
+L = 1
+while overhead + L * mont > L * barr:
+    L += 1
+print("per multiplication:", mont, barr, "  Montgomery wins from L =", L)
+```
+
+It prints:
+
+```text
+k =  4: product   16, Montgomery   20, Barrett   33
+k =  8: product   64, Montgomery   72, Barrett   97
+k = 32: product 1024, Montgomery 1056, Barrett 1153
+per multiplication: 2080 2177   Montgomery wins from L = 33
+```
+
+So for a 2,048-bit modulus a full modular multiplication costs 2,080 word
+multiplications with Montgomery and 2,177 with Barrett: Montgomery saves about
+4.5 percent per step. But Montgomery has an entry fee. Entering the domain is
+itself a Montgomery multiplication, by the precomputed constant $R^2 \bmod N$
+($\mathrm{REDC}(a \cdot R^2) = aR$), and leaving is one more REDC; together
+3,136 word multiplications. (Both methods also need one long division per
+modulus, for $R^2 \bmod N$ or for $\mu$, so that cost cancels.) A chain of $L$
+multiplications costs $3136 + 2080L$ one way and $2177L$ the other, and the
+lines cross at $L = 33$. Figure 3.6 plots the cost per multiplication.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="Cost per modular multiplication against the length of the chain, on a log scale from 1 to 4096. Barrett is flat at 2177 word multiplications. Montgomery starts far higher because of its conversions and falls below Barrett at 33 multiplications, levelling off at 2080." fill="currentColor" font-size="13">
+<g stroke="currentColor" stroke-opacity=".25"><line x1="80" y1="50" x2="600" y2="50"/><line x1="80" y1="100" x2="600" y2="100"/><line x1="80" y1="150" x2="600" y2="150"/><line x1="80" y1="200" x2="600" y2="200"/></g>
+<line x1="80" y1="250" x2="600" y2="250" stroke="currentColor"/><line x1="80" y1="20" x2="80" y2="250" stroke="currentColor"/>
+<g text-anchor="end" font-size="12"><text x="74" y="254">2000</text><text x="74" y="204">2200</text><text x="74" y="154">2400</text><text x="74" y="104">2600</text><text x="74" y="54">2800</text></g>
+<g text-anchor="middle" font-size="12"><text x="80" y="267">1</text><text x="166.7" y="267">4</text><text x="253.3" y="267">16</text><text x="340" y="267">64</text><text x="426.7" y="267">256</text><text x="513.3" y="267">1024</text><text x="600" y="267">4096</text></g>
+<text x="340" y="290" text-anchor="middle">L, multiplications in the chain (log scale)</text>
+<text x="20" y="140" text-anchor="middle" transform="rotate(-90 20 140)">word multiplications per step</text>
+<line x1="80" y1="205.8" x2="600" y2="205.8" stroke="currentColor" stroke-width="2" stroke-dasharray="6 4"/>
+<polyline fill="none" stroke="currentColor" stroke-width="2.5" points="163.8,24.8 177.7,65.8 191.7,98.6 205.6,124.9 219.6,145.9 233.5,162.7 247.5,176.2 261.4,187.0 275.4,195.6 289.3,202.5 303.3,208.0 345.1,218.7 387.0,224.2 428.8,227.0 470.7,228.5 512.5,229.2 554.4,229.6 596.2,229.8 600.0,229.8"/>
+<circle cx="298.6" cy="205.8" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<line x1="298.6" y1="205.8" x2="298.6" y2="250" stroke="currentColor" stroke-dasharray="2 3"/>
+<text x="304" y="244" font-size="12">L = 33</text>
+<text x="440" y="198" font-size="12">Barrett: 2,177 at every L</text>
+<text x="440" y="244" font-size="12">Montgomery → 2,080</text>
+<text x="186" y="40" font-size="12">Montgomery, conversions included</text>
+<text x="186" y="56" font-size="12" fill-opacity=".7">(5,216 at L = 1, 3,648 at L = 2: off the top)</text>
+<line x1="582" y1="250" x2="582" y2="120" stroke="currentColor" stroke-dasharray="2 3"/>
+<text x="578" y="114" text-anchor="end" font-size="12">one RSA-2048 power ≈ 3,000</text>
+</svg>
+<figcaption>Figure 3.6. Average cost of one modular multiplication for a 2,048-bit modulus, in 64-bit word multiplications, as computed by the listing above. Montgomery pays for its conversions after 33 multiplications; a single RSA exponentiation does about 3,000.</figcaption>
+</figure>
+
+The count is close, and it leaves out what decides the matter in practice.
+Montgomery's quotient word comes from the *lowest* word of the running sum, so
+the reduction can be interleaved with the multiplication word by word (the
+"coarsely integrated operand scanning" schedule that Çetin Koç, Tolga Acar and
+Burton Kaliski compared with four others in 1996), carries flow in one
+direction only, and there is no comparison of top words until the single final
+subtraction. Barrett has to wait for the top half of the full product before it
+can estimate anything, and its correction loop runs zero, one or two times
+depending on the data. On the other side, Barrett keeps numbers in their
+ordinary form, needs no conversions, and works for any modulus, even an even
+one; Montgomery needs $\gcd(R, N) = 1$, so an odd $N$.
+
+### Timing them in Python
+
+The listing below runs a whole 2,048-bit exponentiation, about 3,000 modular
+multiplications of random-looking numbers, with each reduction, with Python's
+own `%`, and with the built-in `pow`.
+
+```python
+import random, timeit
+
+def redc(T, N, R, Np, bits):                 # the two reductions from the listings above,
+    m = ((T & (R - 1)) * Np) & (R - 1)       # repeated so that this block runs on its own
+    t = (T + m * N) >> bits
+    return t - N if t >= N else t
+
+def barrett(x, n, k, mu):
+    q = ((x >> (k - 1)) * mu) >> (k + 1)
+    r = x - q * n
+    while r >= n:
+        r -= n
+    return r
+
+def power(a, e, n, mul):                     # left-to-right square and multiply
+    r = 1
+    for bit in bin(e)[2:]:
+        r = mul(r, r)
+        if bit == "1":
+            r = mul(r, a)
+    return r
+
+rng = random.Random(7)
+bits = 2048
+n = rng.getrandbits(bits) | 1 << (bits - 1) | 1
+k, mu = bits, (1 << (2 * bits)) // n
+R, Np = 1 << bits, -pow(n, -1, 1 << bits) % (1 << bits)
+a, e = rng.randrange(n), rng.getrandbits(bits)
+am = a * R % n                               # a in Montgomery form; R mod n stands for 1
+chain = {"x % n": lambda: power(a, e, n, lambda x, y: x * y % n),
+         "Barrett": lambda: power(a, e, n, lambda x, y: barrett(x * y, n, k, mu)),
+         "Montgomery": lambda: redc(power(am, e, n, lambda x, y: redc(x * y, n, R, Np, bits)), n, R, Np, bits),
+         "pow()": lambda: pow(a, e, n)}
+for name, f in chain.items():
+    t = min(timeit.repeat(f, number=5, repeat=3)) / 5
+    print(f"2048-bit power, {name:10}: {t * 1e3:6.1f} milliseconds")
+```
+
+Timings change from machine to machine and run to run, so they are not quoted
+as fixed output. Two runs with CPython 3.13 on a 2.3 GHz Xeon server gave these
+numbers, which agreed to within 2 percent:
+
+| | `x % n` | Barrett | Montgomery | built-in `pow` |
+|---|---|---|---|---|
+| 2,048-bit exponentiation | 33.0 ms | 32.6 ms | 33.3 ms | 25.1 ms |
+
+(Timed one reduction at a time on 1,000 random 4,096-bit products, all three
+took 8.1 to 8.3 µs.)
+
+In Python the three are indistinguishable, and the built-in `pow`, which runs
+the whole exponentiation in C, beats all of them. That is the honest result,
+and it says almost nothing about C. CPython stores big integers in 30-bit
+digits, its long division of a 4,096-bit number by a 2,048-bit one costs about
+as much as the two multiplications that Barrett and Montgomery replace it
+with, and every line of Python adds interpreter overhead on top. In C with
+64-bit words, where the counts above are what the processor executes and the
+interleaving matters, libraries such as OpenSSL use Montgomery for RSA and
+finite-field Diffie-Hellman. To measure that, time a C library (for example
+`openssl speed rsa2048`), not a Python model of it. Section 3.10 sums up where
+each method wins.
 
 !!! note "Life story: Montgomery multiplication"
     **Born:** 1985, Peter Montgomery, "Modular Multiplication Without Trial
@@ -725,6 +1131,67 @@ quarter. That factor of about four is why every RSA private key file stores
 $p$, $q$, $d_p$, $d_q$ and $q^{-1} \bmod p$, which PKCS #1 (RFC 8017) names
 `prime1`, `prime2`, `exponent1`, `exponent2` and `coefficient`.
 
+### Measured: how much faster?
+
+The factor of four is a prediction from operation counts. Measuring it needs a
+real-size key, so the listing below makes two 1,024-bit primes with the
+Miller-Rabin test of Chapter 6, builds a 2,048-bit RSA key, and times one
+private-key operation both ways.
+
+```python
+import random, timeit
+
+def probable_prime(n, rng, rounds=20):       # Miller-Rabin (Chapter 6)
+    d, s = n - 1, 0
+    while d % 2 == 0:
+        d, s = d // 2, s + 1
+    for _ in range(rounds):
+        x = pow(rng.randrange(2, n - 1), d, n)
+        if x in (1, n - 1):
+            continue
+        for _ in range(s - 1):
+            x = x * x % n
+            if x == n - 1:
+                break
+        else:
+            return False
+    return True
+
+def random_prime(bits, rng):
+    while True:
+        n = rng.getrandbits(bits) | 3 << (bits - 2) | 1      # top two bits set, odd
+        if n % 65537 != 1 and probable_prime(n, rng):
+            return n
+
+rng = random.Random(2026)
+p, q = random_prime(1024, rng), random_prime(1024, rng)
+N, e = p * q, 65537
+d = pow(e, -1, (p - 1) * (q - 1))
+dp, dq, qinv = d % (p - 1), d % (q - 1), pow(q, -1, p)
+c = rng.randrange(N)
+
+def plain():
+    return pow(c, d, N)
+
+def with_crt():
+    mp, mq = pow(c, dp, p), pow(c, dq, q)
+    return mq + q * ((mp - mq) * qinv % p)
+
+print(N.bit_length(), plain() == with_crt())
+t1 = min(timeit.repeat(plain, number=10, repeat=3)) / 10
+t2 = min(timeit.repeat(with_crt, number=10, repeat=3)) / 10
+print(f"plain {t1 * 1000:.1f} ms, CRT {t2 * 1000:.1f} ms, ratio {t1 / t2:.1f}")
+```
+
+The first line it prints is `2048 True`: the two ways agree. The second line
+is a timing. On the same CPython 3.13 machine as in §3.8, three runs gave
+24.7 to 25.2 ms for the plain exponentiation and 7.5 to 7.7 ms with the CRT, a
+speed-up of 3.3 each time. Here the measurement is meaningful even in Python,
+because both versions spend nearly all their time inside the same C routine
+for `pow`, so the ratio compares like with like. It falls a little short of 4,
+most likely because not every cost halves: the Garner join and the reduction
+of $c$ modulo $p$ and $q$ do not.
+
 <figure class="mars-fig">
 <svg viewBox="0 0 640 250" width="640" role="img" aria-label="RSA with the Chinese remainder theorem: the message is split into a part mod p and a part mod q, each is exponentiated, and Garner's formula joins them; a fault in one half lets a gcd reveal the other prime" fill="currentColor" font-size="13">
 <g stroke="currentColor" stroke-width="1.4" fill="none">
@@ -746,7 +1213,7 @@ $p$, $q$, $d_p$, $d_q$ and $q^{-1} \bmod p$, which PKCS #1 (RFC 8017) names
 <text x="470" y="180" text-anchor="middle">s′^e − m is still 0 mod q,</text>
 <text x="470" y="198" text-anchor="middle">so gcd(s′^e − m, N) = q</text>
 </svg>
-<figcaption>Figure 3.3. RSA signing with the Chinese remainder theorem. Two half-size exponentiations, one per prime, joined by Garner's formula: about four times faster. If a fault strikes one half, the released signature is right modulo one prime and wrong modulo the other, and one gcd factors N.</figcaption>
+<figcaption>Figure 3.7. RSA signing with the Chinese remainder theorem. Two half-size exponentiations, one per prime, joined by Garner's formula: about four times faster. If a fault strikes one half, the released signature is right modulo one prime and wrong modulo the other, and one gcd factors N.</figcaption>
 </figure>
 
 ### Break it: one wrong bit
@@ -801,6 +1268,22 @@ signatures, and recovered their private keys this way; a 2022 study by George
 Arnold Sullivan, Jackson Sippe, Nadia Heninger and Eric Wustrow found more such
 TLS servers, and a 2023 study by Keegan Ryan, Kaiwen He, Sullivan and Heninger
 found faulty RSA signatures in SSH traffic and recovered keys from them.
+[Cryptanalysis, §13.12](../cryptanalysis/13-Attacks-on-RSA.md#1312-the-crt-fault-attack)
+tells the attack from the attacker's side, and
+[Engineering, §6.7](../engineering/06-Big-Numbers-and-Public-Key-Code.md#67-rsa-private-key-code-blinding-and-the-fault-check)
+builds the check into real key code.
+
+On Mars the check matters more, for two reasons. The surface has a thin
+atmosphere and no global magnetic field, so energetic particles reach the
+electronics far more often than at sea level on Earth, and particle strikes
+are one of the causes of the transient bit flips this attack feeds on. And a
+signature from Arcadia City is usually on its way before anyone could object:
+a firmware image or a certificate signed in the city reaches Earth 3 to 22
+minutes later, and no one on Earth can ask "was that signature right?" and
+get an answer in less than 6 to 44 minutes. Whatever leaves the signing device
+has to be correct when it leaves, so a Martian signer verifies every RSA-CRT
+signature before releasing it, at the cost of one short exponentiation by $e =
+65537$.
 
 !!! note "Life story: the Bellcore fault attack"
     **Born:** 1996, announced by Dan Boneh, Richard DeMillo and Richard Lipton
@@ -837,7 +1320,279 @@ subtractions of 32-bit words. Chapter 12 returns to these choices.
 a remainder or the size of an intermediate value. A classic one in constant-time
 code: computing $a - b \bmod p$ as `a - b` and adding $p$ "if negative", where
 the "if" is a branch that leaks timing. The constant-time idiom is to compute
-`a - b + p` and subtract $p$ under a mask.
+`a - b + p` and subtract $p$ under a mask, as below.
+
+### Montgomery or Barrett: which one when
+
+Put together, the count of §3.8, the structure and the conversions give a
+simple rule:
+
+- **Long chains with one odd modulus:** Montgomery. An RSA or Diffie-Hellman
+  exponentiation does thousands of multiplications modulo the same $N$, far past
+  the break-even point of Figure 3.6.
+- **One reduction, or a modulus that keeps changing:** Barrett, or plain
+  division. Reducing a 512-bit hash modulo a curve's group order, as EdDSA
+  signing does twice per signature, is a one-off reduction; converting into
+  Montgomery form first would cost more than it saves.
+- **Special moduli:** neither. Primes like $2^{255} - 19$ are chosen so that
+  reduction is a few additions, as above.
+- **Small moduli in vector code:** both, side by side. Many post-quantum
+  implementations use small versions of each: ML-KEM's reference code reduces
+  modulo $q = 3329$ with a 16-bit Montgomery reduction after products, where
+  the stray factor $R^{-1}$ can be folded into precomputed constants, and with
+  a Barrett reduction after sums (Chapter 15).
+
+### Fix it: the conditional subtraction, in constant time
+
+The last line of REDC, the correction loop of Barrett and the fix for
+negative remainders all have one shape: *subtract $n$ if the value is at least
+$n$*. Written the obvious way,
+
+```
+if t >= n:
+    t -= n
+```
+
+it leaks in three separate ways when $t$ depends on a secret. The *time*
+differs, because the subtraction runs or does not, and for multi-word numbers
+the comparison `t >= n` usually stops at the first word that differs, so even
+the test takes a data-dependent time. The *branch predictor* differs: the
+processor guesses which way each branch will go and keeps a history that
+another program on the same core can probe. And the *instruction cache*
+differs, because the two outcomes run different code. Any one of these is
+enough to tell an attacker, step by step, whether the extra reduction
+happened, and that, as Schindler showed (§3.8), is correlated with the
+private key.
+
+The fix is to do the same work every time and choose the answer with
+arithmetic instead of a branch. Always compute $d = t - n$. If $t < n$ the
+subtraction borrows, and the borrow is a bit that can be turned into a
+**mask**: $-1$ in two's complement is a word of all ones, and $-0$ is a word of
+zeros. Then select with bit operations: $d \oplus ((d \oplus t) \wedge
+\text{mask})$ is $t$ when the mask is all ones and $d$ when it is zero.
+
+```python
+W = 64
+ALL = (1 << W) - 1                           # a 64-bit word of ones
+
+def reduce_branch(t, n):                     # leaks: the subtraction runs or it does not
+    if t >= n:
+        t -= n
+    return t
+
+def reduce_masked(t, n):                     # needs n < 2^63 and t < 2n
+    d = (t - n) & ALL                        # always subtract; wraps around if t < n
+    borrow = d >> (W - 1)                    # top bit: 1 exactly when t < n
+    mask = -borrow & ALL                     # all ones if t < n, else all zeros
+    return d ^ ((d ^ t) & mask)              # select t under the mask, else d
+
+n = 97
+print([reduce_masked(t, n) for t in (0, 50, 96, 97, 150, 193)])
+print(format(-1 & ALL, "x"), format(-0 & ALL, "x"))
+
+import random
+rng = random.Random(4)
+ok = True
+for _ in range(100000):
+    n = rng.randrange(1, 1 << 63)
+    t = rng.randrange(2 * n)
+    ok = ok and reduce_masked(t, n) == reduce_branch(t, n)
+print(ok)
+```
+
+It prints:
+
+```text
+[0, 50, 96, 0, 53, 96]
+ffffffffffffffff 0
+True
+```
+
+Why is the top bit of $d$ the borrow? If $t \geq n$ then $d = t - n < n <
+2^{63}$, so the top bit is 0. If $t < n$ the subtraction wraps to $d = 2^{64} -
+(n - t)$, and since $n - t \leq n < 2^{63}$, $d > 2^{63}$ and the top bit is 1.
+For a $k$-word number the same idea runs over all the words: subtract word by
+word with the borrow carried right to the end (never stopping early), make the
+mask from the final borrow, and select every word under it.
+
+Two warnings go with this listing. Python cannot run it in constant time
+(its integers have variable length), so the code shows the *logic* of the fix,
+not its timing
+([Engineering, §5.9](../engineering/05-Constant-Time-Programming.md#59-why-python-cannot-be-constant-time-and-what-it-is-still-for)).
+And in C a compiler that recognizes the pattern may turn the masks back into
+a branch, which is why libraries check their compiled code
+([Engineering, §5.4](../engineering/05-Constant-Time-Programming.md#54-masks-from-comparisons-select-and-swap)
+builds the masks and the select properly).
+
+**The attacks that made this the rule.** Kocher's timing attack of 1996 and
+the extra-reduction attacks of Schindler (2000) and Brumley and Boneh (2003)
+measured total running time
+([Cryptanalysis, §17.3](../cryptanalysis/17-Side-Channels-the-Attackers-View.md#173-kochers-timing-attack)).
+Between 2005 and 2007 attackers learned to look inside the processor. In May
+2005 Colin Percival showed that on a Pentium 4 with Hyper-Threading, a spy
+process on the other logical core of the same physical core could watch
+which cache lines OpenSSL's RSA code touched and recover much of the private
+key. The same year Dag Arne Osvik, Adi Shamir and Eran Tromer, and separately
+Daniel Bernstein, pulled AES keys out of the cache through the cipher's table
+lookups, and Onur Acıiçmez and Werner Schindler sharpened the Brumley-Boneh
+attack on the extra reduction (CCS 2005). Then Acıiçmez, Çetin Koç and
+Jean-Pierre Seifert turned the branch predictor into a spy (CT-RSA 2007),
+and showed that a popular half-fix, always performing a dummy subtraction but
+still choosing the result with a branch, leaks through the predictor anyway; a
+follow-up with Shay Gueron found more such branches in OpenSSL. The lesson
+that came out of those three years is the rule constant-time code follows
+today: no branch and no memory address may depend on a secret
+([Cryptanalysis, §17.4](../cryptanalysis/17-Side-Channels-the-Attackers-View.md#174-cache-attacks-primeprobe-and-flushreload)).
+
+### Inverses in practice: Fermat, Euclid and safegcd
+
+Elliptic-curve code inverts a secret-dependent number at least once per
+scalar multiplication, to leave projective coordinates (Chapter 12). There are
+three ways to do it.
+
+**Fermat.** For a prime $p$, Fermat's little theorem (Chapter 4) gives $a^{p-1}
+\equiv 1$, so $a^{-1} \equiv a^{p-2} \pmod p$. This is an exponentiation with a
+public, fixed exponent, so a constant-time exponentiation gives a
+constant-time inverse with no new code. The price is size: for $p = 2^{255} -
+19$ the standard addition chain takes 254 squarings and 11 multiplications,
+about 265 modular multiplications for one inverse.
+
+**Euclid.** The table of §3.4 needs about 149 division steps for a 255-bit
+modulus, and since nearly all the quotients are small, most steps are far
+cheaper than a modular multiplication, so it is much faster.
+But the number of steps, the quotients and the branches all depend on the
+input; Lamé's bound limits the count, it does not fix it.
+
+**The binary gcd.** Josef Stein observed in 1967 that division can be replaced
+by halving and subtracting, using three facts: $\gcd(2a, 2b) = 2\gcd(a, b)$;
+$\gcd(a, 2b) = \gcd(a, b)$ when $a$ is odd; and $\gcd(a, b) = \gcd(a, b - a)$,
+which for two odd numbers gives an even difference to halve. *By hand,* $\gcd(48,
+180)$: both even, twice, so take out $4$ and continue with $(12, 45)$; $12 \to 6
+\to 3$; then $(3, 45) \to (3, 42) \to (3, 21) \to (3, 18) \to (3, 9) \to (3, 6)
+\to (3, 3) \to (3, 0)$, so the gcd is $4 \cdot 3 = 12$. On a computer, shifts and
+subtractions are cheap; but the branches still depend on the data.
+
+**safegcd.** In 2019 Daniel Bernstein and Bo-Yin Yang published a variant
+built from one tiny step, the **divstep**, which acts on a counter $\delta$, an
+odd $f$ and any $g$:
+
+$$\operatorname{divstep}(\delta, f, g) = \begin{cases} (1 - \delta,\ g,\ (g - f)/2) & \text{if } \delta > 0 \text{ and } g \text{ odd,}\\ (1 + \delta,\ f,\ (g + (g \bmod 2)\, f)/2) & \text{otherwise.} \end{cases}$$
+
+Every divstep keeps $\gcd(f, g)$ unchanged (up to sign and the factor 2, which
+cannot divide the odd $f$), and $g$ eventually reaches 0, leaving $\pm\gcd$ in
+$f$. The point of the design is that Bernstein and Yang *proved* a bound on how
+many divsteps are ever needed for inputs of a given size. So a constant-time
+program simply runs that many divsteps every time, whatever the input, and
+each divstep becomes masks and selects as above. For 256-bit inputs their bound
+is 741 divsteps. Pieter Wuille later brought it down to 724 with a
+computer-assisted method, and a variant with $\delta$ starting at $1/2$ needs at
+most 590, a bound Russell O'Connor and Andrew Poelstra verified in the Coq proof
+assistant; the Bitcoin library libsecp256k1 uses that variant. Real code runs
+divsteps in batches of 62 on single 64-bit words and applies them to the big
+numbers as a $2 \times 2$ matrix, which is what makes it fast; Bernstein and
+Yang report it beating Fermat for Curve25519, which had been thought to be
+Fermat's home ground. To get the inverse and not just the gcd, carry two more
+numbers $d, e$ with $f \equiv d\,x$ and $g \equiv e\,x \pmod M$ through every
+step, exactly the invariant of the one-column table in §3.4.
+
+```python
+def binary_gcd(a, b):                        # Stein (1967): shifts and subtractions only
+    if a == 0 or b == 0:
+        return a | b
+    shift = 0
+    while (a | b) & 1 == 0:                  # both even: gcd(2a, 2b) = 2 gcd(a, b)
+        a, b, shift = a >> 1, b >> 1, shift + 1
+    while a & 1 == 0:
+        a >>= 1
+    while b:
+        while b & 1 == 0:                    # b even, a odd: gcd(a, 2b) = gcd(a, b)
+            b >>= 1
+        if a > b:
+            a, b = b, a
+        b -= a                               # both odd: gcd(a, b) = gcd(a, b - a)
+    return a << shift
+
+def div2(M, x):                              # x / 2 modulo the odd number M
+    return (x + M if x & 1 else x) >> 1
+
+def safegcd_inverse(x, M, steps):            # Bernstein-Yang divsteps, a fixed count
+    delta, f, g, d, e = 1, M, x, 0, 1        # invariants: f = d*x and g = e*x (mod M)
+    for _ in range(steps):
+        if delta > 0 and g & 1:
+            delta, f, g, d, e = 1 - delta, g, (g - f) >> 1, e, div2(M, e - d)
+        elif g & 1:
+            delta, f, g, d, e = 1 + delta, f, (g + f) >> 1, d, div2(M, e + d)
+        else:
+            delta, f, g, d, e = 1 + delta, f, g >> 1, d, div2(M, e)
+    assert g == 0 and abs(f) == 1            # f is now +-gcd(x, M)
+    return d * f % M
+
+def divsteps_used(x, M):                     # how many divsteps until g first hits 0
+    delta, f, g, count = 1, M, x, 0
+    while g:
+        if delta > 0 and g & 1:
+            delta, f, g = 1 - delta, g, (g - f) >> 1
+        else:
+            delta, g = 1 + delta, (g + (g & 1) * f) >> 1
+        count += 1
+    return count
+
+def euclid_steps(a, n):
+    count = 0
+    while a:
+        n, a, count = a, n % a, count + 1
+    return count
+
+print(binary_gcd(1071, 462), binary_gcd(48, 180), safegcd_inverse(17, 43, 22))
+p = 2**255 - 19
+print(safegcd_inverse(2, p, 741) == (p + 1) // 2)
+
+import random
+rng = random.Random(1)
+xs = [rng.randrange(1, p) for _ in range(2000)]
+print(all(safegcd_inverse(x, p, 741) * x % p == 1 for x in xs[:100]))
+ds, es = [divsteps_used(x, p) for x in xs], [euclid_steps(x, p) for x in xs]
+print("divsteps:", min(ds), max(ds), "  Euclid steps:", min(es), max(es))
+```
+
+It prints:
+
+```text
+21 12 38
+True
+True
+divsteps: 501 556   Euclid steps: 115 183
+```
+
+The inverse of 17 modulo 43 comes out as 38 again, after a fixed 22 divsteps
+(the bound for 6-bit inputs). The last line is the argument for safegcd: over
+2,000 random inputs modulo $2^{255} - 19$, Euclid took from 115 to 183 steps,
+a spread an attacker can time; the divsteps needed ranged from 501 to 556, and
+the constant-time loop runs 741 regardless, so the spread never shows.
+
+A last comparison, timed in Python with the same caution as before:
+
+```python
+# Uses safegcd_inverse() from the listing above.
+import random, timeit
+
+p = 2**255 - 19
+rng = random.Random(2)
+xs = [rng.randrange(1, p) for _ in range(200)]
+ways = {"pow(x, -1, p), Euclid in C": lambda: [pow(x, -1, p) for x in xs],
+        "pow(x, p - 2, p), Fermat in C": lambda: [pow(x, p - 2, p) for x in xs],
+        "safegcd, 741 divsteps in Python": lambda: [safegcd_inverse(x, p, 741) for x in xs]}
+for name, f in ways.items():
+    t = min(timeit.repeat(f, number=5, repeat=3)) / 1000
+    print(f"{name:32} {t * 1e6:7.1f} microseconds per inverse")
+```
+
+On the machine of §3.8 two runs gave about 15 µs per inverse for the built-in
+`pow(x, -1, p)` (extended Euclid in C), about 113 µs for Fermat's $x^{p-2}$
+(also in C) and about 170 µs for safegcd in Python. Euclid is fastest and the
+only one not constant time in principle; Fermat pays about seven times as much
+for constant time; the Python safegcd is slow only because it is interpreted,
+and its speed shows in the batched C versions.
 
 ## 3.11 Going deeper
 
@@ -881,28 +1636,25 @@ homomorphic encryption libraries, which do most of their arithmetic this way.
     $-23 - 17 = -40 = -5 \cdot 8$, so yes. $-23 = -3 \cdot 8 + 1$, so $-23
     \bmod 8 = 1$; and $17 \bmod 8 = 1$ too.
 
-??? question "2. Find the last two digits of $7^{100}$ without a computer."
+??? question "2. Use the one-column Euclid table to find $11^{-1} \bmod 26$, the number that undoes the affine-cipher key $a = 11$."
 
-    Work mod 100. $7^2 = 49$, $7^4 = 2401 \equiv 1$. So $7^{100} = (7^4)^{25}
-    \equiv 1$. The last two digits are 01.
+    Rows $(r, t)$: $(26, 0)$, $(11, 1)$; $26 = 2 \cdot 11 + 4$ gives $(4, -2)$;
+    $11 = 2 \cdot 4 + 3$ gives $(3, 5)$; $4 = 1 \cdot 3 + 1$ gives $(1, -7)$. So
+    $11^{-1} \equiv -7 \equiv 19 \pmod{26}$. Check: $11 \cdot 19 = 209 = 8
+    \cdot 26 + 1$.
 
 ??? question "3. Which elements of $\mathbb{Z}/20\mathbb{Z}$ are units? Find the inverse of 13."
 
     Those coprime to 20: 1, 3, 7, 9, 11, 13, 17, 19, so $\varphi(20) = 8$.
     $13 \cdot 17 = 221 = 11 \cdot 20 + 1$, so $13^{-1} = 17$.
 
-??? question "4. Compute $\varphi(2^{16})$, $\varphi(10^6)$ and $\varphi(77)$."
-
-    $2^{15} = 32768$; $10^6 = 2^6 5^6$ gives $2^5 \cdot 5^5 \cdot 4 = 400000$;
-    $77 = 7 \cdot 11$ gives $6 \cdot 10 = 60$.
-
-??? question "5. Solve $9x \equiv 6 \pmod{15}$."
+??? question "4. Solve $9x \equiv 6 \pmod{15}$."
 
     $\gcd(9, 15) = 3$ divides 6, so there are 3 solutions. Divide by 3: $3x
     \equiv 2 \pmod 5$, $x \equiv 2 \cdot 2 = 4 \pmod 5$. Modulo 15: $x = 4, 9,
     14$.
 
-??? question "6. Solve $x \equiv 1 \pmod 4$, $x \equiv 2 \pmod 9$, $x \equiv 3 \pmod{25}$."
+??? question "5. Solve $x \equiv 1 \pmod 4$, $x \equiv 2 \pmod 9$, $x \equiv 3 \pmod{25}$."
 
     Garner: $x \equiv 1 \pmod 4$; next, $1 + 4t \equiv 2 \pmod 9$ gives $4t \equiv
     1$, $t = 7$, $x = 29 \pmod{36}$; next, $29 + 36t \equiv 3 \pmod{25}$ gives
@@ -910,22 +1662,32 @@ homomorphic encryption libraries, which do most of their arithmetic this way.
     = 29 + 324 = 353 \pmod{900}$. Check: $353 = 88 \cdot 4 + 1 = 39 \cdot 9 + 2 = 14
     \cdot 25 + 3$.
 
-??? question "7. Given $N = 3233$ and $\varphi(N) = 3120$, find the factors."
+??? question "6. Given $N = 3233$ and $\varphi(N) = 3120$, find the factors."
 
     $s = N - \varphi(N) + 1 = 114$. $s^2 - 4N = 12996 - 12932 = 64$, square root 8.
     So $p, q = (114 \pm 8)/2 = 53, 61$.
 
-??? question "8. Find all four square roots of 1 modulo 21, and use one to factor 21."
+??? question "7. Find all four square roots of 1 modulo 21, and use one to factor 21."
 
     Mod 3 and mod 7 the roots are $\pm 1$. Combining: 1, 20, and the mixed
     ones 8 ($\equiv 2 \equiv -1 \pmod 3$, $\equiv 1 \pmod 7$) and 13 ($\equiv 1
     \pmod 3$, $\equiv -1 \pmod 7$). Then $\gcd(8 - 1, 21) = 7$ and $\gcd(13 - 1,
     21) = 3$.
 
-??? question "9. In Montgomery's method with $N = 97$, $R = 128$, what is the Montgomery form of 1, and why is it not 1?"
+??? question "8. In Montgomery's method with $N = 97$, $R = 128$, what is the Montgomery form of 1, and why is it not 1?"
 
     $\bar 1 = R \bmod N = 128 - 97 = 31$. The form of $a$ is $aR \bmod N$, so the
     number that acts as 1 in Montgomery arithmetic is $R \bmod N$.
+
+??? question "9. Why does `return t - n if t >= n else t` leak in a Montgomery multiplication with a secret operand, and what does the masked version compute instead? Check it by hand for $n = 97$ and $t = 50$ with 8-bit words."
+
+    The branch makes the time, the branch-predictor state and the code fetched
+    depend on whether the extra reduction happened, which is correlated with
+    the secret. The masked version always computes $d = t - n$ and picks $t$ or
+    $d$ with bit operations. With 8-bit words, $d = (50 - 97) \bmod 256 = 209$,
+    whose top bit is 1 (since $209 \geq 128$), so the mask is $255$ and the
+    result is $209 \oplus ((209 \oplus 50) \wedge 255) = 50$: no subtraction,
+    the same operations as when $t \geq n$.
 
 ??? question "10. A device computes RSA-CRT signatures and a fault corrupts $m_q$ instead of $m_p$. What does $\gcd(s'^e - m, N)$ give, and why does verifying before output stop the attack?"
 
@@ -948,8 +1710,21 @@ homomorphic encryption libraries, which do most of their arithmetic this way.
 - The CRT says $\mathbb{Z}/n_1n_2\mathbb{Z} \cong \mathbb{Z}/n_1\mathbb{Z}
   \times \mathbb{Z}/n_2\mathbb{Z}$ for coprime moduli: arithmetic splits into
   independent coordinates. Garner's algorithm computes it.
-- Montgomery and Barrett reduction avoid division; their data-dependent steps
-  must run in constant time.
+- An inverse comes from Euclid with one coefficient column, kept so that
+  $r \equiv t \cdot a$; the number of steps varies with the input (Lamé's
+  bound caps it).
+- Without coprime moduli, the CRT system is solvable exactly when the
+  residues agree modulo the gcd; Garner's $t$ values are mixed-radix digits.
+- Montgomery and Barrett reduction avoid division. Per 2,048-bit modular
+  multiplication they cost 2,080 and 2,177 word multiplications; Montgomery's
+  conversions pay off after 33 multiplications, so it wins long chains and
+  Barrett wins one-off reductions. Python timings cannot show the difference.
+- The conditional subtraction must be done with a borrow mask and a select,
+  never a branch: the cache and branch-predictor attacks of 2005 to 2007 read
+  exactly such branches.
+- Inverses: Euclid is fast but variable-time, Fermat's $a^{p-2}$ is constant
+  time but slow, and Bernstein-Yang safegcd runs a proven fixed number of
+  divsteps and is both.
 - RSA-CRT is four times faster, and a single fault in it reveals the key unless
   the result is verified before release.
 
@@ -966,15 +1741,44 @@ fast exponentiation, Fermat's and Euler's theorems, orders and generators.
   Theory*, 2nd edition (Springer, 1990).
 - Peter Montgomery, "Modular Multiplication Without Trial Division",
   *Mathematics of Computation* 44 (1985).
+- Harvey L. Garner, "The Residue Number System", *IRE Transactions on
+  Electronic Computers* EC-8 (1959).
+- Gabriel Lamé, "Note sur la limite du nombre des divisions dans la recherche
+  du plus grand commun diviseur entre deux nombres entiers", *Comptes rendus
+  de l'Académie des Sciences* 19 (1844).
+- Josef Stein, "Computational Problems Associated with Racah Algebra",
+  *Journal of Computational Physics* 1 (1967): the binary gcd.
+- Donald Knuth, *The Art of Computer Programming*, volume 2, *Seminumerical
+  Algorithms*, 3rd edition (Addison-Wesley, 1997), §4.5.2 and §4.5.3 on the
+  binary gcd and the analysis of Euclid's algorithm.
 - Paul Barrett, "Implementing the Rivest Shamir and Adleman Public Key
   Encryption Algorithm on a Standard Digital Signal Processor" (CRYPTO 1986).
 - Alfred Menezes, Paul van Oorschot and Scott Vanstone, *Handbook of Applied
   Cryptography* (CRC, 1996; free online), chapter 14 on efficient arithmetic.
+- Antoon Bosselaers, René Govaerts and Joos Vandewalle, "Comparison of Three
+  Modular Reduction Functions" (CRYPTO 1993): classical, Barrett and
+  Montgomery side by side.
+- Çetin Kaya Koç, Tolga Acar and Burton S. Kaliski Jr., "Analyzing and
+  Comparing Montgomery Multiplication Algorithms", *IEEE Micro* 16(3) (1996).
+- Daniel J. Bernstein and Bo-Yin Yang, "Fast Constant-Time gcd Computation and
+  Modular Inversion", *IACR Transactions on Cryptographic Hardware and
+  Embedded Systems* 2019(3); the libsecp256k1 note "The safegcd
+  implementation in libsecp256k1 explained" for the 590-divstep variant.
 - Dan Boneh, Richard DeMillo and Richard Lipton, "On the Importance of Checking
   Cryptographic Protocols for Faults" (EUROCRYPT 1997).
 - Werner Schindler, "A Timing Attack against RSA with the Chinese Remainder
   Theorem" (CHES 2000); David Brumley and Dan Boneh, "Remote Timing Attacks are
   Practical" (USENIX Security 2003).
+- Colin Percival, "Cache Missing for Fun and Profit" (BSDCan 2005); Dag Arne
+  Osvik, Adi Shamir and Eran Tromer, "Cache Attacks and Countermeasures: the
+  Case of AES" (CT-RSA 2006); Daniel J. Bernstein, "Cache-Timing Attacks on
+  AES" (2005).
+- Onur Acıiçmez and Werner Schindler, "Improving Brumley and Boneh Timing
+  Attack on Unprotected SSL Implementations" (CCS 2005); Onur Acıiçmez, Çetin
+  Kaya Koç and Jean-Pierre Seifert, "Predicting Secret Keys via Branch
+  Prediction" (CT-RSA 2007); Onur Acıiçmez, Shay Gueron and Jean-Pierre
+  Seifert, "New Branch Prediction Vulnerabilities in OpenSSL and Necessary
+  Software Countermeasures" (IACR ePrint 2007/039).
 - Florian Weimer, "Factoring RSA Keys With TLS Perfect Forward Secrecy" (Red Hat,
   2015).
 - George Arnold Sullivan, Jackson Sippe, Nadia Heninger and Eric Wustrow, "Open
@@ -984,3 +1788,9 @@ fast exponentiation, Fermat's and Euler's theorems, orders and generators.
 - RFC 8017, PKCS #1: RSA Cryptography Specifications Version 2.2 (2016).
 - In *The cryptography book*: [Chapter 3](../../book/03-The-Arithmetic-of-Secrets.md),
   [Chapter 13](../../book/13-RSA.md), [Chapter 18](../../book/18-Side-Channels.md).
+- In the sibling books: [Cryptographic engineering, Chapter 5](../engineering/05-Constant-Time-Programming.md)
+  (constant-time code) and [Chapter 6](../engineering/06-Big-Numbers-and-Public-Key-Code.md)
+  (limbs, Montgomery and Barrett in word code);
+  [Cryptanalysis, Chapter 13](../cryptanalysis/13-Attacks-on-RSA.md) (the CRT fault
+  attack) and [Chapter 17](../cryptanalysis/17-Side-Channels-the-Attackers-View.md)
+  (side channels).
