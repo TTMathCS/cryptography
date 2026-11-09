@@ -69,7 +69,7 @@ before Alice writes, which most people never do. Alice must be able to fetch
 Bob's certificate, which means a directory that answers for the whole world. And
 Alice must check the certificate's chain and whether it has been revoked. If Bob
 has not set any of this up, Alice cannot encrypt at all. The protocols book's
-[Chapter 15](../protocols/index.md) tells the story of
+[Chapter 15](../protocols/15-Email-OpenPGP-and-SMIME.md) tells the story of
 OpenPGP and S/MIME, two serious attempts that most people never used.
 
 In 1984 Adi Shamir, the S in RSA, asked a question that cuts through all of
@@ -1072,7 +1072,7 @@ still sold.
 Elsewhere, identity-based encryption stayed in niches. It appears in MIKEY-SAKKE
 (§13.6) and in some sensor-network and vehicle-to-vehicle research systems, but
 the mainstream went the other way: end-to-end messengers (the protocols book's
-[Chapter 16](../protocols/index.md)) let each device make
+[Chapter 16](../protocols/16-Signal-and-the-Double-Ratchet.md)) let each device make
 its own keys and solve key distribution with a server directory plus key
 transparency ([Chapter 3](03-Commitments.md)), which avoids escrow entirely.
 

@@ -1252,7 +1252,7 @@ Michael Hayden, a former director of both the NSA and the CIA, said in a public
 debate in 2014: "We kill people based on metadata." Hiding metadata takes
 different tools: mixes, onion routing and cover traffic
 ([Chapter 15](15-Anonymous-Communication.md)), and messenger features such as
-sealed sender ([Protocols, Chapter 16](../protocols/index.md)).
+sealed sender ([Protocols, Chapter 16](../protocols/16-Signal-and-the-Double-Ratchet.md)).
 The strongest form, **unobservability**, hides even whether a communication
 took place.
 

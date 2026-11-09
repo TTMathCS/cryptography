@@ -1224,7 +1224,7 @@ cheaper and reveals less. BIP-327 (2023), by Jonas Nick, Tim Ruffing and Elliott
 Jin, specifies MuSig2 for BIP-340 keys, and the secp256k1 library used by Bitcoin
 Core added a MuSig2 module in 2024. Lightning Network implementations use MuSig2 for
 "simple Taproot channels". How Bitcoin's transactions and scripts work is the
-protocols book's [Chapter 19](../protocols/index.md).
+protocols book's [Chapter 19](../protocols/19-Ledgers-Bitcoin.md).
 
 A multisignature is $n$-of-$n$; it does not give "any 3 of 5" on its own. For that
 you need either a threshold scheme (§4.5) or a script that offers several

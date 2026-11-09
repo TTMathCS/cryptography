@@ -36,7 +36,7 @@ from both sides.*
     - what a ledger cannot hide at all, and the arguments on both sides.
 
     **You need:** the Bitcoin protocol (transactions, inputs and outputs,
-    addresses, scripts) from [Protocols, Chapter 19](../protocols/index.md);
+    addresses, scripts) from [Protocols, Chapter 19](../protocols/19-Ledgers-Bitcoin.md);
     smart contracts from [Chapter 17](17-Consensus-and-Smart-Contracts.md);
     Pedersen commitments and Merkle trees from [Chapter 3](03-Commitments.md);
     ring signatures and key images from
@@ -60,7 +60,7 @@ download your statement, and a stranger cannot read what you bought ten years ag
 
 Bitcoin turned that around. To let strangers check that nobody spends the same
 coin twice without a bank in the middle, it publishes every transaction to
-everyone ([Protocols, Chapter 19](../protocols/index.md) tells how,
+everyone ([Protocols, Chapter 19](../protocols/19-Ledgers-Bitcoin.md) tells how,
 and [Chapter 17](17-Consensus-and-Smart-Contracts.md) why the copies agree).
 Each transaction names the earlier outputs it spends, the new outputs it
 creates, the amount of each, and, through the block that holds it, the time to
@@ -2001,7 +2001,7 @@ are shielded notes, with the whole pool as the anonymity set, because rings of
 it can hand to the auditor once a year, and the auditor's full report is
 encrypted to the council's threshold key ([Chapter 4](04-Threshold-Cryptography.md)).
 Pools have public totals, so a counterfeiting flaw cannot drain the reserve
-unseen. And the link to Earth's banks, 4 to 24 light-minutes away, crosses one
+unseen. And the link to Earth's banks, 3 to 22 light-minutes away, crosses one
 public turnstile, run by the treasury office, where Earth's rules on knowing the
 customer apply and the settlement's do not. The privacy charter that governs
 who may ask for which key is in [Chapter 19](19-Differential-Privacy.md).
@@ -2278,5 +2278,5 @@ what can be published about a population without exposing any one person in it.
   flaws, the circomlib bug), [Chapter 8](08-STARKs-Bulletproofs-and-Recursion.md)
   (Bulletproofs in Monero, Halo 2), [Chapter 14](14-Blind-Signatures-and-Anonymous-Credentials.md)
   (ring signatures and key images), [Chapter 15](15-Anonymous-Communication.md)
-  (Tor and the network layer); [Protocols, Chapter 19](../protocols/index.md)
+  (Tor and the network layer); [Protocols, Chapter 19](../protocols/19-Ledgers-Bitcoin.md)
   for Bitcoin itself.

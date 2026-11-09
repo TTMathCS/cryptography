@@ -1046,7 +1046,7 @@ make nodes reject a valid block (the life story below). And because leaves and
 nodes are hashed alike, a 64-byte transaction can be mistaken for an inner node,
 which can fool lightweight wallets that check Merkle proofs. Both are covered
 with Bitcoin itself in
-[Chapter 19 of the protocols book](../protocols/index.md).
+[Chapter 19 of the protocols book](../protocols/19-Ledgers-Bitcoin.md).
 
 !!! note "Life story: Bitcoin's duplicate-transaction tree bug (CVE-2012-2459)"
     **Born:** 2012, found by Forrest Voight in Bitcoin's Merkle tree, which

@@ -1793,7 +1793,7 @@ Differential privacy is a precise promise, and its limits are as precise.
 *Level: intermediate.*
 
 Arcadia City, on the slopes of Erebus Montes, is a few thousand people in sealed
-domes, 4 to 24 light-minutes from Earth, where everyone knows everyone and any
+domes, 3 to 22 light-minutes from Earth, where everyone knows everyone and any
 "anonymous" record of the clinic or the airlocks is a portrait of a neighbor.
 Chapters 10, 12 and 14 mentioned in passing that the settlement's charter
 forbids some things. Here is the charter. Each rule is short, and each points to

@@ -1839,7 +1839,7 @@ not yet established by independent measurement.
 ### Mars: mail that is slow anyway
 
 The trilemma looks different from Arcadia City. A message from Mars to Earth takes
-between 4 and 24 minutes at the speed of light, and in practice longer, since it
+between 3 and 22 minutes at the speed of light, and in practice longer, since it
 waits for a relay orbiter's pass or a deep-space antenna's schedule and travels as a
 store-and-forward bundle (the Bundle Protocol, RFC 9171). Nobody on either planet
 expects a reply in seconds. A high-latency mix-net costs almost nothing here: if the
@@ -1956,7 +1956,7 @@ must know where to deliver a message, so by default it learns who writes to whom
 when, even when it cannot read a word. Signal's **sealed sender** (2018) hides the
 sender from the server by putting the sender's identity inside the encrypted envelope
 and authorizing delivery with a short-lived certificate; it is told in full in the
-protocols book, [Chapter 16](../protocols/index.md), and
+protocols book, [Chapter 16](../protocols/16-Signal-and-the-Double-Ratchet.md), and
 not retold here. Sealed sender still leaves the recipient, the timing and the
 sender's IP address visible to the server, which is why some messengers route
 traffic through Tor (Briar, Ricochet Refresh, Cwtch use onion services) or plan to
@@ -2211,7 +2211,7 @@ data needed, aggregate it, and add noise where it can.
     Delays of tens of seconds make the web unusable, and Tor chose low latency and
     low overhead (the anonymity trilemma). Loopix uses shorter exponential delays
     plus Poisson cover traffic and loops, acceptable for messaging. Earth-Mars mail
-    already takes 4 to 24 minutes, so it can afford real mixing delays and
+    already takes 3 to 22 minutes, so it can afford real mixing delays and
     constant-rate padding of each relay pass at almost no cost to its users.
 
 ## What you learned

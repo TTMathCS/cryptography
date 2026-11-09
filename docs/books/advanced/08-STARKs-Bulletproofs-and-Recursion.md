@@ -951,7 +951,7 @@ codeword of a different cubic, at least 5 of the 8 values would have to change.
 The prover cannot send millions of values; it sends one hash. Hash each value
 into a leaf, hash leaves in pairs, pairs of pairs, and so on to a single
 **Merkle root** ([Chapter 3](03-Commitments.md) builds the tree;
-[Protocols, chapter 19](../protocols/index.md) shows the same
+[Protocols, chapter 19](../protocols/19-Ledgers-Bitcoin.md) shows the same
 structure in Bitcoin blocks). To reveal the value at position $i$, the prover
 sends the value and the $\log_2 N$ sibling hashes on the path to the root, and
 the verifier rehashes up the path. If the hash function is collision resistant,

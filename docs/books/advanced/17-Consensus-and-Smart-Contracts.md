@@ -38,7 +38,7 @@ with Earth.*
     - how rollups scale a chain, and why the data must stay available.
 
     **You need:** the Bitcoin protocol from
-    [Protocols, Chapter 19](../protocols/index.md) (transactions,
+    [Protocols, Chapter 19](../protocols/19-Ledgers-Bitcoin.md) (transactions,
     scripts, proof of work, Merkle trees, wallets; this chapter assumes it and
     does not retell it), hash functions from
     [Chapter 9 of book 1](../../book/09-Hash-Functions.md), signatures from
@@ -91,7 +91,7 @@ problem up in the 1980s, Paxos and its descendants now run the coordination
 services inside every large cloud, and in 2008 a pseudonymous author named
 Satoshi Nakamoto found a way to run consensus among keepers who do not even know
 how many of them there are. You have met Nakamoto's system from the inside in
-[Protocols, Chapter 19](../protocols/index.md): its transactions,
+[Protocols, Chapter 19](../protocols/19-Ledgers-Bitcoin.md): its transactions,
 scripts, proof of work and Merkle trees. This chapter looks at it from the
 outside, as one answer among several to the question of agreement, and asks
 how good an answer it is.
@@ -504,7 +504,7 @@ message delay to be safe: the analyses of Bitcoin (Garay, Kiayias and Leonardos,
 2015; Pass, Seeman and shelat, 2017) assume that blocks reach everyone in a time
 much shorter than the block interval. Bitcoin thus trades the model: it is live
 in any network, but safe only while the network is fast compared with ten minutes.
-That trade matters a great deal for a city 4 to 24 light-minutes away (§17.13).
+That trade matters a great deal for a city 3 to 22 light-minutes away (§17.13).
 
 **A relative: the CAP theorem.** Eric Brewer's conjecture of 2000, proved by Seth
 Gilbert and Nancy Lynch in 2002, says a replicated store cannot be always
@@ -828,7 +828,7 @@ once. This is the $3f + 1$ bound of §17.2, seen from the engineering side.
 Every protocol so far counts votes from a known list of replicas. In 2008 Satoshi
 Nakamoto's whitepaper, "Bitcoin: A Peer-to-Peer Electronic Cash System", proposed
 consensus among keepers nobody has listed. Its mechanics are in
-[Protocols, Chapter 19](../protocols/index.md): blocks of
+[Protocols, Chapter 19](../protocols/19-Ledgers-Bitcoin.md): blocks of
 transactions chained by hashes, each block carrying a proof of work, an
 expected 10 minutes between blocks. Here we look only at the consensus rule and
 what it guarantees.
@@ -1476,7 +1476,7 @@ embedded in property itself, such as a car loan whose car stops starting when
 payments stop. What he lacked was a place to run such code that no single party
 controlled.
 
-Bitcoin's script language ([Protocols, Chapter 19](../protocols/index.md))
+Bitcoin's script language ([Protocols, Chapter 19](../protocols/19-Ledgers-Bitcoin.md))
 is a deliberately small version of the idea: a coin can require several signatures,
 a time lock or a hash preimage before it moves. It has no loops and little state.
 In late 2013 Vitalik Buterin, then 19, wrote the **Ethereum whitepaper**, proposing a
@@ -1899,7 +1899,7 @@ latest finalized block header with a threshold signature from at least $2f + 1$ 
 validators ([Chapter 4](04-Threshold-Cryptography.md)), and each side checks the
 other's header as a light client. Cross-planet payments are locked on one side and
 released on the other against a proof of inclusion under a signed header, or simply
-netted and settled once a day. The light delay then costs latency only, the 4 to 24
+netted and settled once a day. The light delay then costs latency only, the 3 to 22
 minutes a letter takes anyway, never safety, and a conjunction blackout pauses
 settlement without forking anyone's history: PBFT's choice of consistency over
 availability, made on purpose. The trust assumption is explicit: each side trusts
@@ -2172,4 +2172,4 @@ surveillance tool, and what Monero, Zcash and mixers can and cannot hide.
   [Chapter 4](04-Threshold-Cryptography.md) (threshold signatures, VRFs, beacons),
   [Chapter 7](07-SNARKs.md) and [Chapter 8](08-STARKs-Bulletproofs-and-Recursion.md)
   (the proofs inside zk-rollups), [Chapter 18](18-Privacy-on-Ledgers.md) (privacy on
-  ledgers). Bitcoin itself: [Protocols, Chapter 19](../protocols/index.md).
+  ledgers). Bitcoin itself: [Protocols, Chapter 19](../protocols/19-Ledgers-Bitcoin.md).

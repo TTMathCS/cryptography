@@ -1915,7 +1915,7 @@ paper not out of nostalgia, but because it is the one part of the system that
 no software update can rewrite.
 
 <figure class="mars-fig">
-<svg viewBox="0 0 640 300" width="640" role="img" aria-label="Arcadia City's election: paper ballots go into boxes and are audited in the city; the scanner's encrypted record goes to a public board; three of five guardians, one on Earth, decrypt the tally; verifiers on Earth recheck the record after a 4 to 24 minute delay" fill="currentColor" font-size="14">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="Arcadia City's election: paper ballots go into boxes and are audited in the city; the scanner's encrypted record goes to a public board; three of five guardians, one on Earth, decrypt the tally; verifiers on Earth recheck the record after a 3 to 22 minute delay" fill="currentColor" font-size="14">
 <rect x="10" y="20" width="390" height="270" rx="8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.7"/>
 <text x="24" y="40" font-weight="bold">Arcadia City</text>
 <rect x="30" y="56" width="120" height="50" rx="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
@@ -1957,7 +1957,7 @@ no software update can rewrite.
 <text x="550" y="266" text-anchor="middle">(optional)</text>
 <line x1="380" y1="175" x2="477" y2="175" stroke="currentColor" stroke-width="1.6"/>
 <polygon points="485,175 475,170 475,180"/>
-<text x="432" y="166" text-anchor="middle" font-size="13">4 to 24</text>
+<text x="432" y="166" text-anchor="middle" font-size="13">3 to 22</text>
 <text x="432" y="194" text-anchor="middle" font-size="13">minutes</text>
 <line x1="380" y1="252" x2="477" y2="252" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 3"/>
 </svg>
