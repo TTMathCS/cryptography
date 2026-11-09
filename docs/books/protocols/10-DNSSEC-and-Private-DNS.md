@@ -7,7 +7,8 @@ has trusted whatever answer arrived first. This chapter covers the two
 separate fixes. DNSSEC signs the answers, so a resolver can check that a record
 is the one the zone's owner published; you will verify a real signature from
 an RFC, build a chain of trust from a trust anchor down to a name, hash and then
-un-hash NSEC3 records, and compute the root zone's own key fingerprint. Private
+un-hash NSEC3 records, compute the root zone's own key fingerprint, and publish
+the DANE record that lets a mail server prove its key without a CA. Private
 DNS encrypts the questions, so the network in between cannot read or change
 them; you will build a DNS-over-HTTPS request byte for byte. In between: cache
 poisoning, the Kaminsky attack, the key ceremonies that guard the root, and why
@@ -20,11 +21,12 @@ signed data suits a city twenty light-minutes from its nearest root server.*
       poisoning, the Kaminsky attack, and hijacking;
     - DNSSEC's records (DNSKEY, RRSIG, DS) and the chain of trust from the root,
       by verifying real signatures;
+    - how to compute a key tag and a DS digest, by hand and in code;
     - how DNSSEC proves that a name does *not* exist, with NSEC and NSEC3, and
-      how that leaks the zone's contents;
+      how that leaks the zone's contents (RFC 5155's example zone cracked);
     - how validation fails in practice, and the KeyTrap denial of service;
-    - the root key, its ceremonies and its rollovers;
-    - DANE and other uses of signed DNS;
+    - the root key, its ceremonies, and key and algorithm rollovers;
+    - DANE and other uses of signed DNS, with DANE for mail and MTA-STS;
     - DNS over TLS, HTTPS and QUIC, Oblivious DoH, and what each hides from whom.
 
     **You need:** [Chapter 2](02-Certificates-and-PKI.md) (chains of trust) and
@@ -32,8 +34,8 @@ signed data suits a city twenty light-minutes from its nearest root server.*
     ECDSA and RSA signatures from Chapters
     [13](../../book/13-RSA.md) and [15](../../book/15-Elliptic-Curves.md) of book 1.
 
-    **Levels:** §10.1 to §10.3 are for beginners, §10.4 to §10.11 are
-    intermediate, §10.12 is expert.
+    **Levels:** §10.1 to §10.3 are for beginners, §10.4 to §10.13 are
+    intermediate, §10.14 is expert.
 
 ## 10.1 The problem
 
@@ -282,7 +284,55 @@ public, and DNSSEC answers only "is this the record the owner published?" Second
 **signatures are made in advance**, not per query, so any server or cache can
 hand them out without holding a private key, and a signed zone can be copied
 anywhere. That is the opposite of TLS, which authenticates a live connection,
-and it is why DNSSEC suits delayed and disconnected networks (§10.10).
+and it is why DNSSEC suits delayed and disconnected networks (§10.12).
+
+### By hand: a key tag and a DS digest
+
+Every DS and every RRSIG names its key by a **key tag**, a 16-bit number
+computed from the DNSKEY's RDATA (RFC 4034 Appendix B): add up the RDATA as
+16-bit big-endian words, fold the carry above bit 16 back in once, and keep the
+low 16 bits:
+
+$$
+\begin{aligned}
+A &= \textstyle\sum_i w_i, \\
+\text{tag} &= \left(A + \left\lfloor A / 2^{16} \right\rfloor\right) \bmod 2^{16}.
+\end{aligned}
+$$
+
+Take a toy DNSKEY whose key is only four bytes long. Its RDATA is `01 01`
+(flags 257: a zone key with the "secure entry point" bit, a KSK), `03` (the
+protocol field, always 3), `0D` (algorithm 13, ECDSA P-256 with SHA-256), then
+the key bytes `AB CD EF 12`:
+
+| Word | Hex | Decimal |
+| --- | --- | ---: |
+| flags | `0101` | 257 |
+| protocol, algorithm | `030D` | 781 |
+| key, first half | `ABCD` | 43,981 |
+| key, second half | `EF12` | 61,202 |
+| sum $A$ | `19EED` | 106,221 |
+
+The sum overflows by one carry: `0x9EED + 0x1 = 0x9EEE`, so the tag is
+**40,686**. A key tag is an end-around-carry checksum, like an IP header's:
+cheap, good enough for quick lookup, and trivial to aim, since the last two
+bytes of a key can make the tag anything. §10.6 shows what an attacker does
+with that.
+
+The binding between parent and child is the **DS digest**, not the tag: a
+hash of the child's owner name in wire form followed by the same DNSKEY RDATA:
+
+$$
+\text{DS digest} = \text{SHA-256}\big(\text{owner name} \,\|\, \text{DNSKEY RDATA}\big).
+$$
+
+For `arcadia.mars.` the owner name is fourteen bytes, each label preceded by
+its length and the whole ended by a zero: `07` `a r c a d i a` `04` `m a r s`
+`00`. The DS RDATA is then 36 bytes: key tag (2), algorithm (1), digest type
+(1; type 2 is SHA-256) and digest (32). SHA-1 DS records
+(type 1) linger in old zones; RFC 8624 (2019) forbade creating new ones, and
+RFC 9905 (2025) repeats it. §10.7 runs these steps on RFC 4034's own example
+and on the root zone's keys.
 
 ## 10.4 Code it: verifying real signatures
 
@@ -385,8 +435,9 @@ plays the role of the trust anchor), and validates an answer the way a resolver
 does, link by link.
 
 ```python
+# Uses wire(), key_tag(), rrsig_data(), mul() and ecdsa_verify() from the listing above.
 # Sign a small zone with a KSK and a ZSK, publish a DS in the parent, and
-# validate down the chain from a trust anchor. Continue from above.
+# validate down the chain from a trust anchor.
 def ecdsa_sign(priv, digest):             # deterministic nonce for a repeatable run;
     k = int.from_bytes(hashlib.sha256(priv.to_bytes(32, "big") + digest).digest(), "big") % n
     r = mul(k, G)[0] % n                  # real signers use RFC 6979 or a fresh random k
@@ -495,6 +546,31 @@ hashes". An observer collects hashes, not names. But the hash is unkeyed, so
 anyone can hash candidate names and compare: zone walking becomes a dictionary
 attack, and ordinary host names fall quickly.
 
+<figure class="mars-fig">
+<svg viewBox="0 0 640 250" width="640" role="img" aria-label="NSEC versus NSEC3: NSEC records chain the zone's names in order, revealing them; NSEC3 records chain hashes of the names, which a dictionary can still reverse" fill="currentColor" font-size="13">
+<text x="20" y="22" font-weight="bold">NSEC: chain of names</text>
+<rect x="20" y="34" width="110" height="34" rx="5" class="soft" stroke="currentColor"/><text x="75" y="56" text-anchor="middle">arcadia.mars</text>
+<rect x="165" y="34" width="80" height="34" rx="5" class="soft" stroke="currentColor"/><text x="205" y="56" text-anchor="middle">mail</text>
+<rect x="280" y="34" width="80" height="34" rx="5" class="soft" stroke="currentColor"/><text x="320" y="56" text-anchor="middle">vpn</text>
+<rect x="395" y="34" width="80" height="34" rx="5" class="soft" stroke="currentColor"/><text x="435" y="56" text-anchor="middle">www</text>
+<line x1="130" y1="51" x2="165" y2="51" stroke="currentColor"/><polygon points="165,51 155,46 155,56"/>
+<line x1="245" y1="51" x2="280" y2="51" stroke="currentColor"/><polygon points="280,51 270,46 270,56"/>
+<line x1="360" y1="51" x2="395" y2="51" stroke="currentColor"/><polygon points="395,51 385,46 385,56"/>
+<text x="490" y="56" font-size="12.5" class="acc-fill">walk: every name</text>
+<text x="20" y="112" font-weight="bold">NSEC3: chain of hashes</text>
+<rect x="20" y="124" width="110" height="34" rx="5" class="soft" stroke="currentColor"/><text x="75" y="146" text-anchor="middle">0p9mhave…</text>
+<rect x="165" y="124" width="110" height="34" rx="5" class="soft" stroke="currentColor"/><text x="220" y="146" text-anchor="middle">2t7b4g4v…</text>
+<rect x="310" y="124" width="110" height="34" rx="5" class="soft" stroke="currentColor"/><text x="365" y="146" text-anchor="middle">35mthgpg…</text>
+<line x1="130" y1="141" x2="165" y2="141" stroke="currentColor"/><polygon points="165,141 155,136 155,146"/>
+<line x1="275" y1="141" x2="310" y2="141" stroke="currentColor"/><polygon points="310,141 300,136 300,146"/>
+<text x="435" y="146" font-size="12.5">walk: every hash</text>
+<rect x="20" y="186" width="600" height="44" rx="5" class="soft-acc" stroke="currentColor"/>
+<text x="320" y="205" text-anchor="middle" class="acc-fill">then hash a dictionary offline: SHA-1(name ‖ salt), iterated</text>
+<text x="320" y="222" text-anchor="middle" class="acc-fill">common names are recovered; only unguessable ones stay hidden</text>
+</svg>
+<figcaption>Figure 10.4. Two ways to sign a gap. NSEC3 turns zone walking into an offline dictionary attack, which is slower but still works.</figcaption>
+</figure>
+
 ### Code it: NSEC3 hashes, and reversing them
 
 ```python
@@ -540,42 +616,220 @@ The program reproduces the hashes listed in RFC 5155's example zone (salt
 names of a zone from their hashes with a nine-word dictionary. Only the name no
 one would guess survives.
 
-Iterations and salts were meant to slow the dictionary down. They slow down
-the zone's own servers and every validating resolver by the same factor, which
-made high iteration counts a denial-of-service lever. RFC 9276 (2022) now asks
-for **zero** extra iterations and no salt, admitting that NSEC3 gives only
-modest protection against enumeration. Two newer ideas go further. **Compact
-denial of existence**, first deployed by Cloudflare as "black lies", has an
-online signer answer every non-existent name with a freshly signed NSEC record
-that covers only that name, so nothing can be walked; it requires the signing
-key on the server. **NSEC5** (Sharon Goldberg and colleagues, 2015) replaces the
-hash with a verifiable random function, so that only the zone's server can
-compute the hash of a name, but any resolver can verify it.
+### The RFC's whole zone: a hashed ring and a denial
+
+The hash is defined recursively, with $H$ the SHA-1 function, $x$ the owner
+name in wire form, $s$ the salt and $k$ the number of extra iterations:
+
+$$
+\begin{aligned}
+IH(s, x, 0) &= H(x \,\|\, s), \\
+IH(s, x, k) &= H\big(IH(s, x, k-1) \,\|\, s\big),
+\end{aligned}
+$$
+
+written in base32 with the "extended hex" alphabet, digits first, so that
+sorting the text sorts the hashes. Twelve iterations mean 13 SHA-1 calls per
+name. RFC 5155's Appendix A is a complete signed zone, `example.`, and its
+Appendix B shows the server's answers. The program hashes every name that gets
+an NSEC3 record, sorts the hashes into the ring the records form (the last
+points back to the first), and builds the proof for the RFC's first question,
+`a.c.x.w.example`, which does not exist.
+
+```python
+# Uses nsec3_hash() from the listing above.
+# RFC 5155 Appendix A: the whole example zone. Hash every name that gets an NSEC3
+# record, sort the hashes into a ring, then answer the RFC's query a.c.x.w.example.
+salt, its = bytes.fromhex("aabbccdd"), 12
+names = ["example", "a.example", "ai.example", "ns1.example", "ns2.example", "w.example",
+         "*.w.example", "x.w.example", "y.w.example", "x.y.w.example", "xx.example",
+         "2t7b4g4vsa5smi47k61mv5bv1a22bojr.example"]
+owner = {nsec3_hash(n, salt, its): n for n in names}
+ring = sorted(owner)
+for i, h in enumerate(ring):
+    print(f"{h[:8]}  ({owner[h]:>14.14s})  next {ring[(i + 1) % len(ring)][:8]}")
+rfc = "0p9mhave 35mthgpg gjeqe526 2t7b4g4v q04jkcev k8udemvp r53bq7cc b4um86eg ji6neoae 2vptu5ti t644ebqk"
+print("all 11 listed hashes match RFC 5155:",
+      [nsec3_hash(n, salt, its)[:8] for n in names[:11]] == rfc.split())
+
+def covering(h):                          # the NSEC3 record whose gap contains h
+    for i, a in enumerate(ring):
+        b = ring[(i + 1) % len(ring)]
+        if (a < h < b) or (b < a and (h > a or h < b)):   # last record wraps around
+            return a
+def closest_encloser_proof(qname):
+    labels = qname.split(".")
+    for i in range(1, len(labels)):
+        ce = ".".join(labels[i:])                     # longest ancestor that exists
+        if nsec3_hash(ce, salt, its) in owner:
+            nc = ".".join(labels[i - 1:])            # the "next closer" name
+            return [("matches closest encloser", ce, nsec3_hash(ce, salt, its)),
+                    ("covers next closer", nc, covering(nsec3_hash(nc, salt, its))),
+                    ("covers wildcard", "*." + ce, covering(nsec3_hash("*." + ce, salt, its)))]
+for why, name, rec in closest_encloser_proof("a.c.x.w.example"):
+    print(f"{why:25s} {name:16s} -> record {rec[:8]}")
+```
+
+It prints the ring, the check against the RFC's table, and the proof:
+
+```text
+0p9mhave  (       example)  next 2t7b4g4v
+2t7b4g4v  (   ns1.example)  next 2vptu5ti
+2vptu5ti  ( x.y.w.example)  next 35mthgpg
+35mthgpg  (     a.example)  next b4um86eg
+b4um86eg  (   x.w.example)  next gjeqe526
+gjeqe526  (    ai.example)  next ji6neoae
+ji6neoae  (   y.w.example)  next k8udemvp
+k8udemvp  (     w.example)  next kohar7mb
+kohar7mb  (2t7b4g4vsa5smi)  next q04jkcev
+q04jkcev  (   ns2.example)  next r53bq7cc
+r53bq7cc  (   *.w.example)  next t644ebqk
+t644ebqk  (    xx.example)  next 0p9mhave
+all 11 listed hashes match RFC 5155: True
+matches closest encloser  x.w.example      -> record b4um86eg
+covers next closer        c.x.w.example    -> record 0p9mhave
+covers wildcard           *.x.w.example    -> record 35mthgpg
+```
+
+Hashing destroys the order that let one NSEC record do everything, so an NSEC3
+denial needs three facts. The **closest encloser**, the longest ancestor that
+exists: `x.w.example`, whose hash owns a record. The **next closer name**, one
+label longer: `c.x.w.example` hashes into the gap after `0p9mhave`, so nothing
+exists on that branch. And the **wildcard** at the closest encloser:
+`*.x.w.example` falls in the gap after `35mthgpg`, so no wildcard could have
+answered. These are exactly the three records of the RFC's Appendix B.1, each
+with its own RRSIG.
+
+The records read `NSEC3 1 1 12 aabbccdd`: SHA-1, flags 1, 12 iterations, the
+salt. Flag 1 is **opt-out**: a record may skip unsigned delegations, which is
+why `c.example` has no hash in the ring. Opt-out spares registries like `.com`
+millions of records, at the price that an attacker can slip a fake unsigned
+delegation into an opt-out gap.
 
 <figure class="mars-fig">
-<svg viewBox="0 0 640 250" width="640" role="img" aria-label="NSEC versus NSEC3: NSEC records chain the zone's names in order, revealing them; NSEC3 records chain hashes of the names, which a dictionary can still reverse" fill="currentColor" font-size="13">
-<text x="20" y="22" font-weight="bold">NSEC: chain of names</text>
-<rect x="20" y="34" width="110" height="34" rx="5" class="soft" stroke="currentColor"/><text x="75" y="56" text-anchor="middle">arcadia.mars</text>
-<rect x="165" y="34" width="80" height="34" rx="5" class="soft" stroke="currentColor"/><text x="205" y="56" text-anchor="middle">mail</text>
-<rect x="280" y="34" width="80" height="34" rx="5" class="soft" stroke="currentColor"/><text x="320" y="56" text-anchor="middle">vpn</text>
-<rect x="395" y="34" width="80" height="34" rx="5" class="soft" stroke="currentColor"/><text x="435" y="56" text-anchor="middle">www</text>
-<line x1="130" y1="51" x2="165" y2="51" stroke="currentColor"/><polygon points="165,51 155,46 155,56"/>
-<line x1="245" y1="51" x2="280" y2="51" stroke="currentColor"/><polygon points="280,51 270,46 270,56"/>
-<line x1="360" y1="51" x2="395" y2="51" stroke="currentColor"/><polygon points="395,51 385,46 385,56"/>
-<text x="490" y="56" font-size="12.5" class="acc-fill">walk: every name</text>
-<text x="20" y="112" font-weight="bold">NSEC3: chain of hashes</text>
-<rect x="20" y="124" width="110" height="34" rx="5" class="soft" stroke="currentColor"/><text x="75" y="146" text-anchor="middle">0p9mhave…</text>
-<rect x="165" y="124" width="110" height="34" rx="5" class="soft" stroke="currentColor"/><text x="220" y="146" text-anchor="middle">2t7b4g4v…</text>
-<rect x="310" y="124" width="110" height="34" rx="5" class="soft" stroke="currentColor"/><text x="365" y="146" text-anchor="middle">35mthgpg…</text>
-<line x1="130" y1="141" x2="165" y2="141" stroke="currentColor"/><polygon points="165,141 155,136 155,146"/>
-<line x1="275" y1="141" x2="310" y2="141" stroke="currentColor"/><polygon points="310,141 300,136 300,146"/>
-<text x="435" y="146" font-size="12.5">walk: every hash</text>
-<rect x="20" y="186" width="600" height="44" rx="5" class="soft-acc" stroke="currentColor"/>
-<text x="320" y="205" text-anchor="middle" class="acc-fill">then hash a dictionary offline: SHA-1(name ‖ salt), iterated</text>
-<text x="320" y="222" text-anchor="middle" class="acc-fill">common names are recovered; only unguessable ones stay hidden</text>
+<svg viewBox="0 0 640 420" width="640" role="img" aria-label="The NSEC3 ring of the RFC 5155 example zone, with the three records that prove a.c.x.w.example does not exist marked" fill="currentColor" font-size="13">
+<circle cx="250" cy="215" r="150" fill="none" stroke="currentColor" stroke-width="1.4"/>
+<circle cx="250" cy="65" r="6"/>
+<text x="250" y="37" text-anchor="middle" font-weight="bold">0p9mhave</text>
+<text x="250" y="52" text-anchor="middle" font-size="12" fill-opacity=".7">example</text>
+<circle cx="325" cy="85" r="4" fill-opacity=".6"/>
+<text x="333" y="69" text-anchor="start">2t7b4g4v</text>
+<text x="333" y="84" text-anchor="start" font-size="12" fill-opacity=".7">ns1</text>
+<circle cx="380" cy="140" r="4" fill-opacity=".6"/>
+<text x="394" y="130" text-anchor="start">2vptu5ti</text>
+<text x="394" y="145" text-anchor="start" font-size="12" fill-opacity=".7">x.y.w</text>
+<circle cx="400" cy="215" r="6"/>
+<text x="416" y="213" text-anchor="start" font-weight="bold">35mthgpg</text>
+<text x="416" y="228" text-anchor="start" font-size="12" fill-opacity=".7">a</text>
+<circle cx="380" cy="290" r="6"/>
+<text x="394" y="296" text-anchor="start" font-weight="bold">b4um86eg</text>
+<text x="394" y="311" text-anchor="start" font-size="12" fill-opacity=".7">x.w</text>
+<circle cx="325" cy="345" r="4" fill-opacity=".6"/>
+<text x="333" y="357" text-anchor="start">gjeqe526</text>
+<text x="333" y="372" text-anchor="start" font-size="12" fill-opacity=".7">ai</text>
+<circle cx="250" cy="365" r="4" fill-opacity=".6"/>
+<text x="250" y="393" text-anchor="middle">ji6neoae</text>
+<text x="250" y="408" text-anchor="middle" font-size="12" fill-opacity=".7">y.w</text>
+<circle cx="175" cy="345" r="4" fill-opacity=".6"/>
+<text x="167" y="357" text-anchor="end">k8udemvp</text>
+<text x="167" y="372" text-anchor="end" font-size="12" fill-opacity=".7">w</text>
+<circle cx="120" cy="290" r="4" fill-opacity=".6"/>
+<text x="106" y="296" text-anchor="end">kohar7mb</text>
+<text x="106" y="311" text-anchor="end" font-size="12" fill-opacity=".7">2t7b4g4v…</text>
+<circle cx="100" cy="215" r="4" fill-opacity=".6"/>
+<text x="84" y="213" text-anchor="end">q04jkcev</text>
+<text x="84" y="228" text-anchor="end" font-size="12" fill-opacity=".7">ns2</text>
+<circle cx="120" cy="140" r="4" fill-opacity=".6"/>
+<text x="106" y="130" text-anchor="end">r53bq7cc</text>
+<text x="106" y="145" text-anchor="end" font-size="12" fill-opacity=".7">*.w</text>
+<circle cx="175" cy="85" r="4" fill-opacity=".6"/>
+<text x="167" y="69" text-anchor="end">t644ebqk</text>
+<text x="167" y="84" text-anchor="end" font-size="12" fill-opacity=".7">xx</text>
+<line x1="286" y1="82" x2="292" y2="59" stroke="currentColor" stroke-width="2.5"/>
+<text x="283" y="95" text-anchor="end" font-size="12">0va5bpr2 = H(c.x.w)</text>
+<line x1="383" y1="251" x2="406" y2="257" stroke="currentColor" stroke-width="2.5"/>
+<text x="374" y="252" text-anchor="end" font-size="12">92pqneeg = H(*.x.w)</text>
+<text x="470" y="40" font-weight="bold">question: a.c.x.w.example</text>
+<rect x="462" y="56" width="170" height="168" rx="6" fill="currentColor" fill-opacity=".07" stroke="currentColor"/>
+<text x="472" y="80">1. b4um86eg matches</text>
+<text x="486" y="97" font-size="12" fill-opacity=".7">closest encloser x.w</text>
+<text x="472" y="138">2. 0p9mhave covers</text>
+<text x="486" y="155" font-size="12" fill-opacity=".7">next closer c.x.w</text>
+<text x="472" y="196">3. 35mthgpg covers</text>
+<text x="486" y="213" font-size="12" fill-opacity=".7">wildcard *.x.w</text>
 </svg>
-<figcaption>Figure 10.4. Two ways to sign a gap. NSEC3 turns zone walking into an offline dictionary attack, which is slower but still works.</figcaption>
+<figcaption>Figure 10.5. The NSEC3 ring of RFC 5155's example zone, salt aabbccdd, 12 extra iterations, with the name behind each hash in grey. Each record names the next hash clockwise; three of them prove that a.c.x.w.example does not exist.</figcaption>
 </figure>
+
+### Walking and cracking the example zone
+
+Collecting the hashes is the online half: each denial hands out neighboring
+hashes, and since the parameters are public, the attacker can pick query names
+that land in unseen gaps. The offline half is a dictionary, run
+here against the RFC's zone: every label of one or two letters or digits and a
+few common words, under `example` and then under each name found.
+
+```python
+# Uses nsec3_hash(), owner, salt and its from the listing above.
+# Zone walking, then an offline dictionary: guess every label of one or two
+# characters, plus a few common words, below each name already recovered.
+import itertools, string
+chars = string.ascii_lowercase + string.digits
+labels = ["*", "ns1", "ns2", "www", "mail"] + list(chars) + \
+         ["".join(p) for p in itertools.product(chars, repeat=2)]
+found, todo, sha1_calls = {}, ["example"], 0
+while todo:
+    parent = todo.pop()
+    for lab in labels:
+        name = lab + "." + parent
+        sha1_calls += its + 1
+        if nsec3_hash(name, salt, its) in owner and name not in found.values():
+            found[nsec3_hash(name, salt, its)] = name
+            if lab != "*":
+                todo.append(name)
+print("recovered:", sorted(found.values(), key=len))
+print("hidden:", [owner[h] for h in owner if h not in found and owner[h] != "example"])
+guesses = sha1_calls // (its + 1)
+print(f"{guesses:,} guesses: {sha1_calls:,} SHA-1 calls at 12 iterations, "
+      f"{guesses:,} at RFC 9276's 0")
+```
+
+```text
+recovered: ['a.example', 'w.example', 'ai.example', 'xx.example', 'ns1.example', 'ns2.example', '*.w.example', 'x.w.example', 'y.w.example', 'x.y.w.example']
+hidden: ['2t7b4g4vsa5smi47k61mv5bv1a22bojr.example']
+13,370 guesses: 173,810 SHA-1 calls at 12 iterations, 13,370 at RFC 9276's 0
+```
+
+Ten of the eleven names fall to 13,370 guesses, a fraction of a second in
+Python; only the label that is itself a random-looking string survives. NSEC3
+protects names the way a password hash protects passwords: only the ones
+nobody would guess. Twelve iterations made the work thirteen times larger, but
+a graphics card computes billions of SHA-1 hashes a second, and password
+crackers such as hashcat have a mode for NSEC3.
+
+### Why RFC 9276 asks for no salt and no extra iterations
+
+Iterations slow the attacker, but they slow the zone's servers and every
+validating resolver by the same factor, online and for every negative answer,
+so a high count became a denial-of-service lever. The salt was meant to stop
+precomputed tables, but the owner name already contains the zone's name, so a
+table never carries from one zone to another; and a published salt that
+changes only when the whole chain is rebuilt and re-signed adds nothing during
+an attack.
+
+RFC 9276 (2022, BCP 236), by Wes Hardaker and Viktor Dukhovni, draws the
+conclusion: prefer plain NSEC; if NSEC3 is needed, use zero extra iterations
+and an empty salt (`NSEC3PARAM 1 0 0 -`), and skip opt-out in small zones.
+Validators may treat higher counts as insecure or fail them; at publication,
+"insecure above 100, fail above 500" caused no notable trouble.
+
+Two newer ideas go further. **Compact denial of existence**, first deployed by
+Cloudflare as "black lies", has an online signer answer every non-existent
+name with a freshly signed NSEC record that covers only that name, so nothing
+can be walked; it requires the signing key on the server. **NSEC5** (Sharon
+Goldberg and colleagues, 2015) replaces the hash with a verifiable random
+function, so that only the zone's server can compute the hash of a name, but
+any resolver can verify it.
 
 ## 10.6 When validation fails
 
@@ -616,7 +870,65 @@ not validate themselves; they believe the bit, which arrives over the same
 unauthenticated path as the answer. DNSSEC therefore protects the hop from
 the authoritative servers to the resolver, and the user is protected only if
 the hop from resolver to device is also protected. That is one more reason for
-the encrypted transports of §10.9.
+the encrypted transports of §10.11.
+
+### Code it: keys that share a tag
+
+The program makes five P-256 keys with tag 20326, KSK-2017's tag, by choosing
+each key's last two bytes to make up the checksum, then counts a validator's
+work under the old rules.
+
+```python
+# KeyTrap's raw material: many different keys with the same 16-bit key tag,
+# and the work an old-style validator does with them.
+import hashlib, struct
+def key_tag(rdata):                                # RFC 4034 Appendix B
+    acc = sum(b if i % 2 else b << 8 for i, b in enumerate(rdata))
+    return (acc + (acc >> 16)) & 0xffff
+def colliding_key(target, seed):
+    """A P-256 DNSKEY RDATA (flags 256, algorithm 13) whose tag is target."""
+    body = hashlib.sha256(seed).digest() + hashlib.sha256(seed + b"2").digest()[:30]
+    rd = struct.pack(">HBB", 256, 3, 13) + body + b"\0\0"
+    fix = (target - key_tag(rd)) % 0xffff          # the last 16-bit word closes the gap
+    return rd[:-2] + struct.pack(">H", fix)
+keys = [colliding_key(20326, bytes([i])) for i in range(5)]
+print("five different keys:", len(set(keys)) == 5, " tags:", [key_tag(k) for k in keys])
+# Every key with the right tag is tried against every signature over the RRset.
+for k, s in ((1, 1), (100, 100), (400, 200)):
+    size = k * 80 + s * 105                        # bytes: DNSKEY and RRSIG records, P-256
+    print(f"{k:4d} keys x {s:4d} signatures = {k * s:6,d} checks, about {size:6,d} bytes")
+```
+
+```text
+five different keys: True  tags: [20326, 20326, 20326, 20326, 20326]
+   1 keys x    1 signatures =      1 checks, about    185 bytes
+ 100 keys x  100 signatures = 10,000 checks, about 18,500 bytes
+ 400 keys x  200 signatures = 80,000 checks, about 53,000 bytes
+```
+
+Every key with the tag is tried against every signature, and none verifies:
+$k \cdot s$ checks. Four hundred keys and two
+hundred signatures fit in one 53-kilobyte answer, inside the 64-kilobyte limit
+of DNS over TCP, and cost 80,000 verifications; retries against the zone's
+other servers multiplied that. The researchers measured stalls of 170
+seconds to 16 hours from a single response. The
+fixes cap the key and signature combinations tried per answer, and Unbound
+1.19.1 also suspends such a validation and serves other clients meanwhile.
+
+A sibling disclosed the same day, CVE-2023-50868, floods a resolver with
+random names in an NSEC3 zone, so that building closest encloser proofs
+(§10.5) with high iteration counts exhausts the CPU.
+
+!!! note "Life story: KeyTrap"
+    **Born:** found in 2023 by Elias Heftrig, Haya Schulmann, Niklas Vogel and
+    Michael Waidner at the ATHENE center in Darmstadt; disclosed on 13
+    February 2024 as CVE-2023-50387, after coordinated work with resolver
+    vendors · **Purpose:** show that DNSSEC's tolerance rules (try every key,
+    try every signature) let one answer stall a validating resolver ·
+    **Helped:** every major validating resolver add limits on validation
+    work; by the researchers' account the rules it abused dated back to 1999
+    · **Status:** patched in February 2024; key tags are now treated as
+    hints, and work per query is capped
 
 ## 10.7 The root key
 
@@ -633,54 +945,220 @@ open them, and no one person can do it alone. In each ceremony the KSK signs
 the root's DNSKEY set for the coming quarter, including the ZSKs that Verisign,
 the root zone maintainer, uses daily. Backup copies of the key are encrypted,
 and a further group of recovery shareholders holds pieces of the key needed to
-rebuild the system if both facilities were lost, using secret sharing.
+rebuild the system if both facilities were lost, using secret sharing. How
+those shares are split, and why a quorum of them can rebuild the key while any
+smaller group learns nothing, is told in [Advanced protocols, §2.9](../advanced/02-Secret-Sharing.md#29-the-dns-root-keys-recovery-shares).
 
 ### Code it: the root's own fingerprint
 
-The root KSK in use since October 2026 is called KSK-2024, after the year it was
-generated. IANA publishes its DS record as the trust anchor that resolvers ship
-with. The program below computes its key tag and DS digest from the public key.
+The root KSK in use since October 2026 is KSK-2024, named for the year it was
+generated; it replaced KSK-2017. IANA publishes their DS records as the trust
+anchors resolvers ship with. The program checks the method on the example in
+RFC 4034 §5.4 (an RSA/SHA-1 key with a SHA-1 DS), then computes both root
+keys' tags and DS digests from the public keys alone, and sets each one's RFC
+5011 REVOKE flag, which §10.8 explains.
 
 ```python
-# The root of DNSSEC: key tag and DS of the root zone's key-signing key KSK-2024,
-# compared with the trust anchor IANA publishes (root-anchors.xml). Continue from above.
-ksk2024 = base64.b64decode(
-    "AwEAAa96jeuknZlaeSrvyAJj6ZHv28hhOKkx3rLGXVaC6rXTsDc449/cidltpkyG"
-    "wCJNnOAlFNKF2jBosZBU5eeHspaQWOmOElZsjICMQMC3aeHbGiShvZsx4wMYSjH8"
-    "e7Vrhbu6irwCzVBApESjbUdpWWmEnhathWu1jo+siFUiRAAxm9qyJNg/wOZqqzL/"
-    "dL/q8PkcRU5oUKEpUge71M3ej2/7CPqpdVwuMoTvoB+ZOT4YeGyxMvHmbrxlFzGO"
-    "HOijtzN+u1TQNatX2XBuzZNQ1K+s2CXkPIZo7s6JgZyvaBevYtxPvYLw4z9mR7K2"
-    "vaF18UYH9Z9GNUUeayffKC73PYc=")
-rdata = struct.pack(">HBB", 257, 3, 8) + ksk2024          # flags 257 (KSK), RSA/SHA-256
-print("modulus:", (len(ksk2024) - 1 - ksk2024[0]) * 8, "bits; exponent:",
-      int.from_bytes(ksk2024[1:1 + ksk2024[0]], "big"))
-print("key tag:", key_tag(rdata))
-print("DS digest:", hashlib.sha256(wire(".") + rdata).hexdigest().upper())
-print("matches IANA:", hashlib.sha256(wire(".") + rdata).hexdigest().upper() ==
-      "683D2D0ACB8C9B712A1948B27F741219298D0A450D612C483AF444A4C0FB2B16")
+# Key tags and DS digests from the public key alone: RFC 4034's own example,
+# then the root zone's two key-signing keys, KSK-2017 and KSK-2024.
+import base64, hashlib, struct
+def wire(name):                           # owner name in wire form, lowercase
+    return b"".join(bytes([len(l)]) + l.lower().encode() for l in name.split(".") if l) + b"\0"
+def key_tag(rdata):                       # RFC 4034 Appendix B
+    acc = sum(b if i % 2 else b << 8 for i, b in enumerate(rdata))
+    return (acc + (acc >> 16)) & 0xffff
+def dnskey(flags, alg, b64):              # DNSKEY RDATA: flags, protocol 3, algorithm, key
+    return struct.pack(">HBB", flags, 3, alg) + base64.b64decode(b64)
+def ds(owner, rdata, digest="sha256"):
+    return hashlib.new(digest, wire(owner) + rdata).hexdigest().upper()
+
+# RFC 4034 section 5.4: a zone key (flags 256), RSA/SHA-1 (5), DS digest type 1 (SHA-1).
+ex = dnskey(256, 5, "AQOeiiR0GOMYkDshWoSKz9XzfwJr1AYtsmx3TGkJaNXVbfi/2pHm822aJ5iI9BMzNXxeYCmZ"
+                    "DRD99WYwYqUSdjMmmAphXdvxegXd/M5+X7OrzKBaMbCVdFLUUh6DhweJBjEVv5f2wwjM9Xzc"
+                    "nOf+EPbtG9DMBmADjFDc2w/rljwvFw==")
+print("RFC 4034 example: tag", key_tag(ex), " DS", ds("dskey.example.com.", ex, "sha1"))
+print("  matches the RFC:", ds("dskey.example.com.", ex, "sha1") ==
+      "2BB183AF5F22588179A53B0A98631FAD1A292118")
+
+roots = {
+ "KSK-2017": ("AwEAAaz/tAm8yTn4Mfeh5eyI96WSVexTBAvkMgJzkKTOiW1vkIbzxeF3+/4RgWOq"
+              "7HrxRixHlFlExOLAJr5emLvN7SWXgnLh4+B5xQlNVz8Og8kvArMtNROxVQuCaSnI"
+              "DdD5LKyWbRd2n9WGe2R8PzgCmr3EgVLrjyBxWezF0jLHwVN8efS3rCj/EWgvIWgb"
+              "9tarpVUDK/b58Da+sqqls3eNbuv7pr+eoZG+SrDK6nWeL3c6H5Apxz7LjVc1uTId"
+              "sIXxuOLYA4/ilBmSVIzuDWfdRUfhHdY6+cn8HFRm+2hM8AnXGXws9555KrUB5qih"
+              "ylGa8subX2Nn6UwNR1AkUTV74bU=",
+              "E06D44B80B8F1D39A95C0B0D7C65D08458E880409BBC683457104237C7F8EC8D"),
+ "KSK-2024": ("AwEAAa96jeuknZlaeSrvyAJj6ZHv28hhOKkx3rLGXVaC6rXTsDc449/cidltpkyG"
+              "wCJNnOAlFNKF2jBosZBU5eeHspaQWOmOElZsjICMQMC3aeHbGiShvZsx4wMYSjH8"
+              "e7Vrhbu6irwCzVBApESjbUdpWWmEnhathWu1jo+siFUiRAAxm9qyJNg/wOZqqzL/"
+              "dL/q8PkcRU5oUKEpUge71M3ej2/7CPqpdVwuMoTvoB+ZOT4YeGyxMvHmbrxlFzGO"
+              "HOijtzN+u1TQNatX2XBuzZNQ1K+s2CXkPIZo7s6JgZyvaBevYtxPvYLw4z9mR7K2"
+              "vaF18UYH9Z9GNUUeayffKC73PYc=",
+              "683D2D0ACB8C9B712A1948B27F741219298D0A450D612C483AF444A4C0FB2B16")}
+for name, (key, published) in roots.items():
+    rd = dnskey(257, 8, key)                       # flags 257 = zone key + SEP, RSA/SHA-256
+    raw = base64.b64decode(key)                    # RFC 3110: exponent length, exponent, modulus
+    bits, e = (len(raw) - 1 - raw[0]) * 8, int.from_bytes(raw[1:1 + raw[0]], "big")
+    revoked = dnskey(257 | 0x80, 8, key)           # RFC 5011 REVOKE bit set: flags 385
+    print(f"{name}: RSA-{bits}, e = {e}, tag {key_tag(rd)}, "
+          f"DS matches IANA: {ds('.', rd) == published}, revoked tag {key_tag(revoked)}")
+print("KSK-2024 DS:", ds(".", dnskey(257, 8, roots["KSK-2024"][0])))
 ```
 
 ```text
-modulus: 2048 bits; exponent: 65537
-key tag: 38696
-DS digest: 683D2D0ACB8C9B712A1948B27F741219298D0A450D612C483AF444A4C0FB2B16
-matches IANA: True
+RFC 4034 example: tag 60485  DS 2BB183AF5F22588179A53B0A98631FAD1A292118
+  matches the RFC: True
+KSK-2017: RSA-2048, e = 65537, tag 20326, DS matches IANA: True, revoked tag 20454
+KSK-2024: RSA-2048, e = 65537, tag 38696, DS matches IANA: True, revoked tag 38824
+KSK-2024 DS: 683D2D0ACB8C9B712A1948B27F741219298D0A450D612C483AF444A4C0FB2B16
 ```
 
-**Rollovers.** Replacing the root KSK means every validating resolver in the
-world must learn the new key. RFC 5011 (2007) lets a resolver accept a new key
-automatically if it appears, signed by the old one, for 30 days. The first
-rollover, from KSK-2010 to KSK-2017, was planned for October 2017 and postponed
-by a year when telemetry from resolvers (RFC 8145) showed that a noticeable
-number had not picked up the new key; it happened on 11 October 2018 with
-little disruption. KSK-2024 was published in the root zone in January 2025 and
-began signing on 11 October 2026; ICANN reported that it went as planned.
-KSK-2017 is to be revoked in January 2027. Both are 2048-bit RSA keys, and ICANN
-has proposed moving the root to ECDSA P-256, an algorithm rollover that is
-harder than a key rollover because old resolvers that do not support the new
-algorithm treat the root as insecure.
+Both root keys are 2048-bit RSA with exponent 65537, packed as RFC 3110
+describes. Every validating resolver on Earth holds the 32 bytes on the last
+line, or the key itself.
 
-## 10.8 What signed DNS makes possible
+## 10.8 Rolling keys and algorithms
+
+*Level: intermediate.*
+
+Keys change as routine, after a compromise, and when the algorithm itself must
+go. Any answer may sit in a cache for its TTL, so every rollover obeys one
+rule: no resolver may ever hold a signature it cannot match to a key it
+has, or a DS that matches no published key. RFC 6781 (2012) and RFC 7583
+(2015) give the timelines.
+
+### Three kinds of rollover
+
+**A ZSK rollover** stays inside the zone. With **pre-publish**, the new ZSK
+joins the DNSKEY set first; once cached copies of the old set have expired,
+signing switches to the new key; once old signatures have expired from caches,
+the old key goes.
+
+**A KSK rollover** involves the parent, because the DS must change. With
+**double-DS**, the parent publishes a DS for the new KSK beside the old one
+before the keys switch; with **double-KSK**, the child publishes both keys and
+signs its DNSKEY set with both before the DS changes. CDS and CDNSKEY records
+(§10.13) let the parent pick up the change by itself.
+
+**The root's KSK** has no parent. Its anchors live in resolver configurations,
+and RFC 5011 (2007) updates them. A validator that sees a new KSK in the root's
+DNSKEY set, signed by a key it trusts, starts a 30-day **add hold-down**; if
+the key is still there and validly signed when the timer ends, it becomes a
+trust anchor. To retire a key, the zone publishes it with the **REVOKE** bit
+(0x0080) set, signed by itself. The flags are part of the RDATA, so revoking
+changes the tag by 128, as §10.7 shows: KSK-2017 is 20326 in service and 20454
+revoked. A validator that misses the process, such as a device restored from
+an old image, needs a software update instead.
+
+### 2018: the first root rollover
+
+KSK-2010, tag 19036, signed the root from 15 July 2010. Its successor KSK-2017
+was published in the root zone on 11 July 2017, to sign from 11 October 2017.
+But RFC 8145 (2017) had just given resolvers a way to report their trust
+anchors to the root, and in September 2017 an analysis of those reports by
+Duane Wessels at Verisign showed a few percent of reporting resolvers still
+trusting only KSK-2010. On 27 September 2017 ICANN postponed the roll. It
+happened a year later, on 11 October 2018, with only a handful of small
+problems. KSK-2010 was revoked on 11 January 2019 and
+removed on 22 March 2019. The episode also produced RFC 8509 (2018), the root
+KSK **sentinel**, which measures from the user's side which keys a resolver
+trusts.
+
+!!! note "Life story: KSK-2017"
+    **Born:** generated in 2016 at the Culpeper key management facility and
+    published in the root zone on 11 July 2017; key tag 20326, RSA-2048 ·
+    **Purpose:** the second trust anchor of the DNS, signing the root's DNSKEY
+    set · **Helped:** sign the root from 11 October 2018 to 11 October 2026;
+    its postponed rollover showed how to change a key that billions of
+    lookups depend on · **Retired:** replaced as signer on 11 October 2026;
+    revocation planned for January 2027 · **Replaced by:** KSK-2024, tag 38696
+
+### 2024 to 2026: KSK-2024
+
+KSK-2024 was generated in April
+2024 and published in the root's DNSKEY set on 11 January 2025, giving RFC 5011
+validators twenty-one months, not three, to pick it up. ICANN reported in July
+2026 that more than 95 percent of resolvers reporting their trust anchors had
+adopted it; sentinel measurements from end users' side gave lower figures. On
+11 October 2026 KSK-2024 began signing. ICANN's reports afterwards described no
+widespread disruption; isolated failures were reported from validators whose
+built-in anchors held only KSK-2017. KSK-2017 is to be revoked in January
+2027 and then removed.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 380" width="640" role="img" aria-label="Timeline of the root KSKs: KSK-2010 signing 2010 to 2018, KSK-2017 2018 to 2026, KSK-2024 from October 2026, and a proposed ECDSA key" fill="currentColor" font-size="13">
+<line x1="40" y1="300" x2="600" y2="300" stroke="currentColor" stroke-width="1.2"/>
+<line x1="40" y1="296" x2="40" y2="304" stroke="currentColor"/>
+<text x="40" y="322" text-anchor="middle" font-size="12">2010</text>
+<line x1="152" y1="296" x2="152" y2="304" stroke="currentColor"/>
+<text x="152" y="322" text-anchor="middle" font-size="12">2014</text>
+<line x1="264" y1="296" x2="264" y2="304" stroke="currentColor"/>
+<text x="264" y="322" text-anchor="middle" font-size="12">2018</text>
+<line x1="376" y1="296" x2="376" y2="304" stroke="currentColor"/>
+<text x="376" y="322" text-anchor="middle" font-size="12">2022</text>
+<line x1="488" y1="296" x2="488" y2="304" stroke="currentColor"/>
+<text x="488" y="322" text-anchor="middle" font-size="12">2026</text>
+<line x1="600" y1="296" x2="600" y2="304" stroke="currentColor"/>
+<text x="600" y="322" text-anchor="middle" font-size="12">2030</text>
+<text x="40" y="46" font-weight="bold">KSK-2010</text>
+<text x="118" y="46" font-size="12" fill-opacity=".7">tag 19036, RSA-2048</text>
+<rect x="55" y="52" width="231" height="16" rx="3" fill="currentColor" fill-opacity=".3" stroke="currentColor"/>
+<line x1="293" y1="48" x2="293" y2="72" stroke="currentColor" stroke-width="3"/>
+<text x="40" y="106" font-weight="bold">KSK-2017</text>
+<text x="118" y="106" font-size="12" fill-opacity=".7">tag 20326, RSA-2048</text>
+<circle cx="230" cy="120" r="4"/>
+<line x1="251" y1="120" x2="286" y2="120" stroke="currentColor" stroke-width="2" stroke-dasharray="5 3"/>
+<rect x="286" y="112" width="224" height="16" rx="3" fill="currentColor" fill-opacity=".3" stroke="currentColor"/>
+<line x1="517" y1="108" x2="517" y2="132" stroke="currentColor" stroke-width="3"/>
+<text x="40" y="166" font-weight="bold">KSK-2024</text>
+<text x="118" y="166" font-size="12" fill-opacity=".7">tag 38696, RSA-2048</text>
+<circle cx="440" cy="180" r="4"/>
+<line x1="461" y1="180" x2="510" y2="180" stroke="currentColor" stroke-width="2" stroke-dasharray="5 3"/>
+<rect x="510" y="172" width="90" height="16" rx="3" fill="currentColor" fill-opacity=".3" stroke="currentColor"/>
+<text x="300" y="65" font-size="11.5">revoked Jan 2019, removed Mar 2019</text>
+<text x="230" y="146" font-size="11.5">published Jul 2017; roll postponed a year, done 11 Oct 2018</text>
+<text x="523" y="124" font-size="11.5">revoke Jan 2027</text>
+<text x="600" y="206" text-anchor="end" font-size="11.5">generated Apr 2024; published 11 Jan 2025; signing from 11 Oct 2026</text>
+<text x="40" y="236" font-weight="bold">next: ECDSA P-256</text>
+<text x="180" y="236" font-size="12" fill-opacity=".7">proposed by ICANN in February 2026</text>
+<rect x="516" y="242" width="84" height="16" rx="3" fill="none" stroke="currentColor" stroke-dasharray="4 3"/>
+<text x="600" y="276" text-anchor="end" font-size="11.5">new key from 2027; RSA KSK retired around 2030</text>
+<circle cx="48" cy="352" r="4"/><text x="58" y="356" font-size="12">generated</text>
+<line x1="135" y1="352" x2="170" y2="352" stroke="currentColor" stroke-width="2" stroke-dasharray="5 3"/><text x="176" y="356" font-size="12">published, not signing</text>
+<rect x="320" y="345" width="34" height="14" rx="3" fill="currentColor" fill-opacity=".3" stroke="currentColor"/><text x="360" y="356" font-size="12">signs the root DNSKEY set</text>
+<line x1="540" y1="342" x2="540" y2="362" stroke="currentColor" stroke-width="3"/><text x="548" y="356" font-size="12">revoked</text>
+</svg>
+<figcaption>Figure 10.6. Three root keys and a fourth proposed. Each new key sits published but idle long enough for validators to learn it, then signs; the old one is revoked a quarter later.</figcaption>
+</figure>
+
+### Algorithm rollovers
+
+Changing algorithm is harder, because RFC 4035 requires every RRset to be
+signed with each algorithm in the zone's DNSKEY set, and a validator that sees
+an algorithm in the keys but not in the signatures may suspect a stripped
+signature. The safe order runs backwards: add signatures with the new
+algorithm everywhere and let them reach the caches; publish the new keys;
+change the DS; remove the old keys; remove the old signatures. For weeks every
+answer carries two sets of signatures.
+
+DNSSEC's algorithms have moved three times: from **RSA/SHA-1** (algorithms 5
+and 7) to **RSA/SHA-256** (8, RFC 5702, 2009, the root's algorithm since 2010),
+then **ECDSA P-256** (13, RFC 6605, 2012), whose 64-byte signatures keep
+answers small, and **Ed25519** (15, RFC 8080, 2017). Gaëtan Leurent and Thomas
+Peyrin's chosen-prefix collision (2020) made SHA-1 signatures over data an
+attacker can influence unsafe. RFC 8624 (2019) had advised against signing
+with RSA/SHA-1; RFC 9905 (November 2025) says MUST NOT, and tells validators to treat zones signed only with algorithms 5 or 7 as
+insecure rather than bogus, so they keep resolving, unprotected. RFC 9904
+moved the list of recommended algorithms into IANA's registries.
+
+The root is next. In February 2026 ICANN proposed rolling the root KSK from
+RSA to ECDSA P-256 with double signing, the new key generated in 2027 and the
+RSA key retired around 2030; ICANN's Security and Stability Advisory Committee
+endorsed the plan while asking whether it could be faster (SAC133). A
+post-quantum root, if one comes, would follow the same path with much larger
+answers (§10.13).
+
+## 10.9 What signed DNS makes possible
 
 *Level: intermediate.*
 
@@ -693,8 +1171,8 @@ Once DNS answers can be trusted, DNS can carry keys.
   partly because many networks and devices could not deliver DNSSEC records
   reliably. Email did: RFC 7672 (2015) uses DANE to tell sending mail servers
   that a receiving server supports TLS and which key it uses, which defeats the
-  STARTTLS stripping attacks of [Chapter 15](15-Email-OpenPGP-and-SMIME.md).
-  Several large mail providers support it.
+  STARTTLS stripping attacks of [Chapter 15](15-Email-OpenPGP-and-SMIME.md);
+  §10.10 works through it.
 - **SSHFP** records hold SSH host key fingerprints
   ([Chapter 6](06-SSH.md), §6.5).
 - **CAA** records (RFC 8659) tell certificate authorities which of them may
@@ -714,7 +1192,194 @@ Africa, then obtained valid certificates for them. DNSSEC was no obstacle,
 because the attackers changed the records at the source. Registrar locks and
 strong authentication on registrar accounts are as important as signatures.
 
-## 10.9 Private DNS: encrypting the questions
+## 10.10 DANE for mail, worked through
+
+*Level: intermediate.*
+
+Mail between servers is where DANE took hold, because mail had a problem the
+web did not. A sending mail server (an MTA, mail transfer agent) looks up the
+recipient domain's MX records, connects to port 25, and upgrades to TLS if the
+server offers STARTTLS (RFC 3207). The offer travels in plaintext, so an
+attacker on the path can delete it and the sender delivers in the clear: a
+**STARTTLS downgrade**. And even with TLS, the sender has nothing to check the
+certificate against: the MX name came from DNS that may be forged, mail servers
+share no list of CAs, and no user can click through a warning. So most
+MTAs accepted any certificate. A 2015 study of mail arriving at Gmail by Zakir
+Durumeric and colleagues found networks in several countries stripping the
+STARTTLS offer from a large share of messages.
+
+### How a sending server uses DANE
+
+RFC 7672 (2015), by Viktor Dukhovni and Wes Hardaker, makes signed DNS both the
+signal and the key. For mail to `user@arcadia.mars`, a validating sender:
+
+<div class="mars-steps" markdown>
+
+1. Looks up the MX records of `arcadia.mars`. The answer must be **secure**; an
+   insecure MX could be forged, so DANE does not apply.
+2. Looks up TLSA records at `_25._tcp.mx.arcadia.mars` (port 25, TCP) for the
+   chosen host. If a secure, usable record exists, TLS is now **mandatory**.
+3. Requires STARTTLS. If the offer is missing or the handshake fails, it
+   defers the message and retries later; it never falls back to plaintext.
+4. Compares the server's certificate with the TLSA records, and delivers only
+   if one matches.
+
+</div>
+
+Step 2 defeats the downgrade: an attacker can delete a STARTTLS offer but not
+a signed TLSA record, whose absence must itself be proven (§10.5).
+
+A TLSA record has a **usage**, a **selector**, a **matching type** and the data.
+Usages PKIX-TA (0) and PKIX-EE (1) constrain the CA system; DANE-TA (2) and
+DANE-EE (3) replace it with a trust anchor or a server key named in DNS. The
+selector picks the full certificate (0) or its public key (1), and the
+matching type the item itself (0), SHA-256 (1) or SHA-512 (2). RFC
+7672 recommends **3 1 1**, with "2 0 1" as second choice, and tells mail
+servers not to publish the PKIX usages at all. Under DANE-EE the certificate's
+names and expiry are ignored; the binding lasts as long as the TLSA record's
+signature.
+
+### Code it: a TLSA record from a public key
+
+A "3 1 1" record is the SHA-256 of the DER-encoded SubjectPublicKeyInfo, the
+same bytes that sit inside the certificate: for P-256, a fixed 26-byte header
+naming the algorithm and curve, then the 65-byte point. The program computes
+the record and runs the sender's comparison in three cases.
+
+```python
+# DANE for mail (RFC 7672): the TLSA record "3 1 1" is the SHA-256 of the server's
+# SubjectPublicKeyInfo. Compute it from a P-256 public key, then check two servers.
+import base64, hashlib
+SPKI_P256 = bytes.fromhex("3059301306072a8648ce3d020106082a8648ce3d030107034200")  # DER header
+def spki(xy):                             # uncompressed point: 04 || X || Y
+    return SPKI_P256 + b"\x04" + xy
+def tlsa(usage, selector, mtype, der):
+    assert (usage, selector) == (3, 1)    # DANE-EE, public key only
+    return f"{usage} {selector} {mtype} " + {1: hashlib.sha256, 2: hashlib.sha512}[mtype](der).hexdigest()
+
+# The public key of RFC 6605's example, used here as the mail server's key.
+key = base64.b64decode("GojIhhXUN/u4v54ZQqGSnyhWJwaubCvTmeexv7bR6edb"
+                       "krSqQpF64cYbcB7wNcP+e+MAnLr+Wi9xMWyQLc8NAA==")
+der = spki(key)
+print(len(der), "bytes of SPKI;", base64.b64encode(der).decode()[:36] + "...")
+record = tlsa(3, 1, 1, der)
+print("_25._tcp.mx.arcadia.mars. IN TLSA")
+print("   ", record)
+
+def dane_check(tlsa_rrset, presented_spki):
+    """A sending MTA's check after STARTTLS: any record matching is enough."""
+    for r in tlsa_rrset:
+        u, s, m, data = r.split()
+        if data == tlsa(int(u), int(s), int(m), presented_spki).split()[3]:
+            return "authenticated: deliver"
+    return "no match: defer delivery, do not fall back to plaintext"
+renewed = spki(hashlib.sha512(b"a new key made at renewal").digest())   # stand-in X, Y
+print("same key, new certificate: ", dane_check([record], der))
+print("new key, record not updated:", dane_check([record], renewed))
+print("next key published first:   ", dane_check([record, tlsa(3, 1, 1, renewed)], renewed))
+```
+
+```text
+91 bytes of SPKI; MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE...
+_25._tcp.mx.arcadia.mars. IN TLSA
+    3 1 1 4cebf02cf648a32441326ee9556100a8949cc9715c83c90a32da145d72157c42
+same key, new certificate:  authenticated: deliver
+new key, record not updated: no match: defer delivery, do not fall back to plaintext
+next key published first:    authenticated: deliver
+```
+
+For a real server, the same digest comes from
+`openssl x509 -in cert.pem -noout -pubkey | openssl pkey -pubin -outform DER | openssl dgst -sha256`.
+
+The three checks are the operational story of DANE for mail. Selector 1 hashes
+only the key, so a renewed certificate with the same key still matches. A
+renewal that quietly makes a new key, as some ACME clients did by default,
+breaks the match, and DANE senders defer mail to that host until the record is
+fixed; deferred mail is retried for days, so nothing is lost, but nothing
+arrives. The fix is §10.8's rollover rule: publish the *next* key's record first.
+
+### MTA-STS: the same promise without DNSSEC
+
+Providers whose domains were not signed wrote **MTA-STS** (RFC 8461, 2018). A
+domain publishes a TXT record at `_mta-sts.arcadia.mars` with a policy
+identifier (`v=STSv1; id=20261109`) and serves a policy over HTTPS at
+`https://mta-sts.arcadia.mars/.well-known/mta-sts.txt`:
+
+```text
+version: STSv1
+mode: enforce
+mx: mx.arcadia.mars
+max_age: 1209600
+```
+
+A sender fetches the policy, checking the web server's certificate against the
+usual CAs, and caches it for `max_age` seconds, here two weeks. In `enforce`
+mode it delivers only to listed MX hosts, over TLS, with a certificate valid
+for the host's name; `testing` mode only reports.
+**TLS-RPT** (RFC 8460, 2018) names an address, in a TXT record at
+`_smtp._tls`, to which senders mail daily JSON reports of failures; DANE
+senders use it too.
+
+The difference is the anchor. DANE trusts the DNS root and works from the first
+message, but needs signed zones and a validating sender. MTA-STS needs only a
+web server, but trusts every CA that could issue for the domain and works by
+**trust on first use**: an attacker who blocks the first policy fetch can still
+downgrade, and the TXT record itself is unprotected. Gmail adopted MTA-STS in 2019 and
+has relied on it rather than DANE; Exchange Online added DANE for outgoing mail
+in 2022 and, as an option, for incoming mail in October 2024; Postfix has had
+DANE since version 2.11 (2014). A domain can publish both.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 250" width="640" role="img" aria-label="Two ways for a sending mail server to require TLS: the DANE checks and the MTA-STS checks, step by step" fill="currentColor" font-size="13">
+<text x="20" y="24" font-weight="bold">DANE for SMTP (RFC 7672): trust from the DNS root</text>
+<rect x="20" y="36" width="138" height="54" rx="6" fill="currentColor" fill-opacity=".06" stroke="currentColor"/>
+<text x="89" y="59" text-anchor="middle">MX for the domain?</text>
+<text x="89" y="78" text-anchor="middle" font-size="12" fill-opacity=".75">must be secure</text>
+<line x1="158" y1="63" x2="174" y2="63" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="174,63 167,59 167,67"/>
+<rect x="174" y="36" width="138" height="54" rx="6" fill="currentColor" fill-opacity=".06" stroke="currentColor"/>
+<text x="243" y="59" text-anchor="middle">TLSA _25._tcp.mx?</text>
+<text x="243" y="78" text-anchor="middle" font-size="12" fill-opacity=".75">secure: TLS required</text>
+<line x1="312" y1="63" x2="328" y2="63" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="328,63 321,59 321,67"/>
+<rect x="328" y="36" width="138" height="54" rx="6" fill="currentColor" fill-opacity=".06" stroke="currentColor"/>
+<text x="397" y="59" text-anchor="middle">STARTTLS offered?</text>
+<text x="397" y="78" text-anchor="middle" font-size="12" fill-opacity=".75">no: defer delivery</text>
+<line x1="466" y1="63" x2="482" y2="63" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="482,63 475,59 475,67"/>
+<rect x="482" y="36" width="138" height="54" rx="6" fill="currentColor" fill-opacity=".14" stroke="currentColor"/>
+<text x="551" y="59" text-anchor="middle">SHA-256(SPKI)</text>
+<text x="551" y="78" text-anchor="middle" font-size="12" fill-opacity=".75">= TLSA data? deliver</text>
+<text x="20" y="134" font-weight="bold">MTA-STS (RFC 8461): trust from the CAs and the first fetch</text>
+<rect x="20" y="146" width="138" height="54" rx="6" fill="currentColor" fill-opacity=".06" stroke="currentColor"/>
+<text x="89" y="169" text-anchor="middle">TXT _mta-sts?</text>
+<text x="89" y="188" text-anchor="middle" font-size="12" fill-opacity=".75">policy id</text>
+<line x1="158" y1="173" x2="174" y2="173" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="174,173 167,169 167,177"/>
+<rect x="174" y="146" width="138" height="54" rx="6" fill="currentColor" fill-opacity=".06" stroke="currentColor"/>
+<text x="243" y="169" text-anchor="middle">HTTPS GET policy</text>
+<text x="243" y="188" text-anchor="middle" font-size="12" fill-opacity=".75">CA-checked, cached</text>
+<line x1="312" y1="173" x2="328" y2="173" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="328,173 321,169 321,177"/>
+<rect x="328" y="146" width="138" height="54" rx="6" fill="currentColor" fill-opacity=".06" stroke="currentColor"/>
+<text x="397" y="169" text-anchor="middle">MX in policy list?</text>
+<text x="397" y="188" text-anchor="middle" font-size="12" fill-opacity=".75">STARTTLS required</text>
+<line x1="466" y1="173" x2="482" y2="173" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="482,173 475,169 475,177"/>
+<rect x="482" y="146" width="138" height="54" rx="6" fill="currentColor" fill-opacity=".14" stroke="currentColor"/>
+<text x="551" y="169" text-anchor="middle">certificate valid</text>
+<text x="551" y="188" text-anchor="middle" font-size="12" fill-opacity=".75">for MX name? deliver</text>
+<text x="320" y="236" text-anchor="middle" font-size="12.5">a promised check that fails: defer and retry; report it with TLS-RPT (RFC 8460)</text>
+</svg>
+<figcaption>Figure 10.7. Two ways to stop STARTTLS stripping. DANE anchors the promise and the key in signed DNS; MTA-STS anchors the promise in a cached web policy and the key in the CA system.</figcaption>
+</figure>
+
+For a city on Mars the choice is easy. Fetching Arcadia City's MTA-STS policy
+from Earth takes three round trips (TCP, TLS, the request), over two hours at
+the far end, again whenever the cache expires. TLSA records travel inside the
+signed zone like any other record.
+
+## 10.11 Private DNS: encrypting the questions
 
 *Level: intermediate.*
 
@@ -724,7 +1389,11 @@ read it, log it or block it. Three standards encrypt the path between a device
 and its resolver:
 
 - **DNS over TLS** (DoT, RFC 7858, 2016) runs DNS inside TLS on port 853.
-  Android calls it "Private DNS".
+  Android has offered it as "Private DNS" since Android 9 (2018), in the two
+  profiles of RFC 8310: **opportunistic**, which encrypts when it can and
+  falls back to plain DNS (stopping only a passive listener), and
+  **strict**, where the user names a resolver whose certificate is checked
+  and failure means no answer.
 - **DNS over HTTPS** (DoH, RFC 8484, 2018) sends DNS messages as HTTPS requests,
   on port 443, where they look like any other web traffic and are hard to block
   without blocking the web. Browsers adopted it first: Firefox turned it on by
@@ -732,6 +1401,12 @@ and its resolver:
 - **DNS over QUIC** (DoQ, RFC 9250, 2022) uses QUIC
   ([Chapter 5](05-TLS-in-Practice.md)) for lower latency and no head-of-line
   blocking.
+
+A device learns its resolver's address by DHCP or router advertisement, in
+the clear. **DDR** (RFC 9462, 2023) lets it ask that resolver, with an SVCB
+query, which encrypted endpoints it offers, accepting them only if their
+certificates also cover the original address; **DNR** (RFC 9463, 2023) puts
+the encrypted resolver's name into DHCP itself.
 
 ### Code it: a DoH request
 
@@ -765,6 +1440,13 @@ requests to responses and a fixed ID makes identical queries cacheable by HTTP
 caches. Twelve bytes of header, the name as length-prefixed labels, type A,
 class IN: thirty-three bytes in all, inside TLS.
 
+Encryption hides the bytes but not their number, and a query's length depends
+mostly on the name. RFC 7830 (2016) adds an EDNS(0) **padding** option, and
+RFC 8467 (2018) gives the policy: pad queries to a multiple of 128 bytes and
+responses to a multiple of 468, so that the three queries for
+`www.example.com` (33 bytes), `clinic.example` (32) and a 49-byte name all
+travel as 128.
+
 **Who sees what.** Encryption moves the trust; it does not remove it. With DoH,
 the network operator no longer sees the questions, but the resolver sees all of
 them, along with the user's IP address. When browsers began sending everyone's
@@ -780,6 +1462,34 @@ its query with HPKE to the resolver's public key and sends it through a
 the query but not the address. Unless the two collude, no one sees both. The
 same idea, applied to HTTP generally, is **Oblivious HTTP** (RFC 9458, 2024),
 and Apple's iCloud Private Relay uses a related two-hop design.
+
+A run of ODoH: the resolver, here called the **target**, publishes an HPKE
+public key and cipher suite (X25519, HKDF-SHA256 and AES-128-GCM, for example).
+The client seals its DNS message to that key and POSTs it to the **proxy**,
+naming the target in the URL, as `application/oblivious-dns-message`. The
+proxy forwards it over its own TLS connection; the target opens it, resolves
+the name, and seals the answer under a key derived from the same HPKE exchange
+and a fresh nonce, so only that client can read it. The proxy holds no keys.
+RFC 9230 is an Experimental RFC by engineers from Apple, Cloudflare and Fastly;
+Cloudflare's resolver has accepted ODoH since late 2020.
+
+### What each one hides, and from whom
+
+| | Network on the path | Resolver | Proves the answer? |
+| --- | --- | --- | --- |
+| Plain DNS | reads and can change everything | question and address | no |
+| DoT | sees DNS on port 853, not what | question and address | no |
+| DoH | sees HTTPS to the resolver | question and address | no |
+| ODoH | sees HTTPS to the proxy | proxy: address; target: question | no |
+| DNSSEC alone | reads everything | everything | yes, if validated |
+
+Three leaks sit outside the table. The device next connects to the address it
+got, and the TLS Server Name Indication names the site unless it uses Encrypted
+Client Hello ([Chapter 3](03-TLS-1.3-Message-by-Message.md)). The resolver
+still asks authoritative servers in the clear, usually without the user's
+address (unless it passes part of it on as EDNS Client Subnet, RFC 7871). And
+the resolver, the one party every row trusts, can keep logs; the standards say
+nothing about retention.
 
 <figure class="mars-fig">
 <svg viewBox="0 0 640 300" width="640" role="img" aria-label="Who sees DNS queries: with plain DNS everyone on the path; with DoH only the resolver; with Oblivious DoH the proxy sees the address but not the query and the resolver sees the query but not the address" fill="currentColor" font-size="13">
@@ -802,7 +1512,7 @@ and Apple's iCloud Private Relay uses a related two-hop design.
 <line x1="370" y1="240" x2="490" y2="240" stroke="currentColor" stroke-width="3" stroke-dasharray="8 4"/>
 <text x="320" y="288" text-anchor="middle" font-size="12.5">dashed: encrypted. Private DNS hides questions; only DNSSEC proves answers.</text>
 </svg>
-<figcaption>Figure 10.5. Three ways to ask a question. Each step moves who can see the question; none of them proves the answer is genuine.</figcaption>
+<figcaption>Figure 10.8. Three ways to ask a question. Each step moves who can see the question; none of them proves the answer is genuine.</figcaption>
 </figure>
 
 The two halves of this chapter answer different questions and are needed
@@ -812,7 +1522,7 @@ clear tells everyone on the path what you asked. Encrypted transport to a
 validating resolver protects both, as long as the resolver itself can be
 trusted; a device that validates DNSSEC itself trusts nobody.
 
-## 10.10 Mars: signed data travels well
+## 10.12 Mars: signed data travels well
 
 *Level: intermediate.*
 
@@ -840,7 +1550,57 @@ going bogus. The city's own names would live in a zone signed in the city, with
 keys whose DS sits in the parent zone on Earth, so that residents keep
 resolving local names even when Earth is behind the Sun.
 
-## 10.11 In the real world
+### Code it: a habitat resolver across a blackout
+
+A cold lookup of `www.example.com` needs a round trip per level (root,
+`com.`, `example.com.`): 18 minutes at the closest, over two hours at the
+farthest. A local signed copy costs nothing and is as trustworthy, until its
+signatures expire. The program sets zones the city mirrors, with the signature
+lifetimes their owners chose, against a two-week conjunction blackout.
+
+```python
+# A habitat resolver in Arcadia City mirrors signed zones from Earth. How long does
+# each stay valid when the link goes quiet at solar conjunction?
+blackout = 14                                      # days with no link (illustrative)
+zones = {                                          # signature lifetime, re-signing interval (days)
+    "news.example (Earth)":              (7, 3),
+    "bank.example (Earth)":              (14, 7),
+    "mars. (TLD, run from Earth)":       (30, 7),
+    "shop.example (Earth, signed long)": (45, 7),
+    "arcadia.mars. (signed in the city)": (None, None)}
+for zone, (life, resign) in zones.items():
+    if life is None:
+        print(f"{zone:36s} re-signed locally: never expires")
+        continue
+    left = life - resign                           # worst case: last copy signed resign days ago
+    verdict = "stays secure" if left > blackout else f"bogus from day {left}"
+    print(f"{zone:36s} {left:2d} days of signatures left: {verdict}")
+```
+
+```text
+news.example (Earth)                  4 days of signatures left: bogus from day 4
+bank.example (Earth)                  7 days of signatures left: bogus from day 7
+mars. (TLD, run from Earth)          23 days of signatures left: stays secure
+shop.example (Earth, signed long)    38 days of signatures left: stays secure
+arcadia.mars. (signed in the city)   re-signed locally: never expires
+```
+
+Survival depends only on the owner's choices. The remedy is a request, not a
+protocol: before each conjunction the city asks the zones it depends on for
+signatures that outlast the blackout, and signs its own zones locally.
+Serving stale data (RFC 8767, 2020) does not help: it relaxes TTLs, not
+signature expiry, and a validator that accepted expired signatures would
+accept replayed old records.
+
+Three more details matter on Mars. **Clocks**: validators allow only a small
+skew, so the city needs a time source an attacker on the link cannot spoof.
+**Trust anchors**: RFC 5011's hold-down is just data in the root zone, so the city learned KSK-2024 like any Earth resolver; for a compromised
+root key it keeps IANA's signed `root-anchors.xml` on file.
+**Privacy**: residents query the city's resolvers over DoT or DoH locally, and
+only zone copies cross the gap, so Earth's networks learn which zones the city
+mirrors, never which names a resident looked up.
+
+## 10.13 In the real world
 
 *Level: intermediate.*
 
@@ -854,7 +1614,7 @@ resolving local names even when Earth is behind the Sun.
   SHA-256 (8). Ed25519 (15) is recommended but less widely supported by
   registrars. SHA-1 signing algorithms are forbidden for new signatures since
   RFC 9905 (2025), and validators now treat zones signed only with them as
-  insecure.
+  insecure (§10.8).
 - **Automation.** Most DNSSEC outages are DS records left pointing at old keys.
   CDS and CDNSKEY records (RFC 7344, RFC 8078) let a child publish the DS it
   wants, signed, so the parent can update itself, and many registries now do.
@@ -862,8 +1622,11 @@ resolving local names even when Earth is behind the Sun.
   the day it exists; there is no recorded traffic to decrypt later, so DNSSEC is
   less urgent than key exchange. The obstacle is size: an ML-DSA-44 signature is
   2,420 bytes and its key 1,312, against 64 each for P-256, and DNS answers over
-  about 1,232 bytes must fall back to TCP. In August 2026 IANA assigned ML-DSA-44
-  an algorithm number from an individual draft. **Merkle Tree Ladder** mode,
+  about 1,232 bytes must fall back to TCP. In 2026 an individual Internet-Draft
+  by engineers at Cloudflare and Google specified ML-DSA-44 for DNSSEC; reports
+  say that IANA allocated it algorithm number 18 and that Cloudflare's public
+  resolver began validating it, but as of November 2026 it is an experiment,
+  not a standard. **Merkle Tree Ladder** mode,
   proposed by Verisign, signs a whole batch of records at once and gives each
   RRSIG only a short authentication path, keeping answers small.
 - **What to do as a domain owner.** Sign with algorithm 13, let your DNS host
@@ -872,7 +1635,7 @@ resolving local names even when Earth is behind the Sun.
   authentication. As a network operator: run a validating resolver, and offer
   DoT or DoH to your users.
 
-## 10.12 Going deeper
+## 10.14 Going deeper
 
 *Level: expert.*
 
@@ -891,10 +1654,13 @@ signatures they try.
 **Multi-signer and algorithm rollovers.** A zone served by two DNS providers,
 each signing with its own keys, needs each provider's DNSKEYs in the other's
 DNSKEY set (RFC 8901). An algorithm rollover must sign every RRset with both
-algorithms for a while, because RFC 4035 requires a validator to find a valid
-signature for each algorithm listed in the DS. The rules follow from a
-downgrade argument: if signatures with one algorithm could be dropped, an
-attacker could strip the stronger one.
+algorithms for a while (§10.8), because RFC 4035 requires a zone to sign each
+RRset with every algorithm in its DNSKEY set. Validators, as RFC 6840 (2013)
+clarified, need only one valid path, so a validator that understands only one
+of the two algorithms still validates. The zone-side rule is what makes that
+safe: whichever algorithm a validator supports, every answer carries a
+signature it can check, so a missing signature is always a sign of tampering
+rather than of a half-finished rollover.
 
 **Formal and empirical studies.** Measurement papers have repeatedly found
 large fractions of signed domains with broken or weak configurations, such as
@@ -905,8 +1671,10 @@ explains much of the low adoption among `.com` names.
 
 **DNS as a covert channel.** Even encrypted DNS leaks through sizes and timing,
 and plain DNS is used by malware to tunnel data out of networks in query names.
-Padding (RFC 7830 and RFC 8467) pads encrypted DNS messages to fixed block
-sizes to reduce the first leak.
+Padding (RFC 7830 and RFC 8467, coded in §10.11) reduces the first leak;
+detecting tunnels in the second means watching for long, high-entropy query
+names and unusual volumes to one domain, which is how most networks look for
+them.
 
 ## Check yourself
 
@@ -916,51 +1684,61 @@ sizes to reduce the first leak.
     non-existent names and putting the poison in a referral, so failed races
     cost nothing.
 
-??? question "2. Name DNSSEC's three main record types and what each signs or holds."
-    DNSKEY: a zone's public keys (KSK and ZSK). RRSIG: a signature over one
-    RRset by one key. DS: in the parent, a hash of the child's KSK, signed by
-    the parent.
-
-??? question "3. Why do most zones have both a KSK and a ZSK?"
-    Only the KSK's hash is in the parent's DS. The ZSK, which signs the zone's
-    data, can be replaced often without contacting the parent; the KSK signs
-    only the DNSKEY set and changes rarely.
-
-??? question "4. What is the difference between secure, insecure and bogus?"
+??? question "2. What is the difference between secure, insecure and bogus?"
     Secure: a full chain of valid signatures to the trust anchor. Insecure: a
     proven absence of DS at some delegation, so the zone is unsigned and
     resolves without protection. Bogus: a chain that should exist fails; the
     resolver returns SERVFAIL.
 
-??? question "5. How does NSEC prove that a name does not exist, and what does it leak?"
-    It signs a record naming the next existing name in canonical order; a name
-    between the two does not exist. Following the chain lists every name in the
-    zone.
+??? question "3. Compute the key tag of the DNSKEY RDATA 01 00 03 0D 12 34 (flags 256, protocol 3, algorithm 13, a two-byte toy key). What is it once the REVOKE bit is set?"
+    The words are 0x0100 = 256, 0x030D = 781 and 0x1234 = 4,660. Their sum is
+    5,697, below $2^{16}$, so there is no carry to fold in: the tag is 5,697.
+    The REVOKE bit (0x0080) turns the flags word into 0x0180 = 384, adding 128:
+    the revoked key's tag is 5,825. This is why a revoked root key shows up
+    under a new tag.
 
-??? question "6. Why does NSEC3 only slow zone walking down?"
-    The hash is unkeyed: anyone can hash candidate names, with the published
-    salt and iterations, and compare them with the collected hashes. Common
-    names are recovered by a dictionary.
+??? question "4. In RFC 5155's example zone, a resolver asks for a.c.x.w.example. Which three facts must the NSEC3 records prove?"
+    That the closest encloser x.w.example exists (a record owned by its
+    hash, b4um86eg...); that the next closer name c.x.w.example does not (a
+    record whose gap covers its hash, 0p9mhave...); and that there is no
+    wildcard *.x.w.example (the record at 35mthgpg... covers its hash).
 
-??? question "7. What did KeyTrap exploit?"
-    The rule that resolvers should try every matching key and signature: an
-    attacker's zone with many keys sharing a key tag and many signatures forced
-    millions of signature checks for one query.
+??? question "5. Iterations and salt were meant to slow down zone walking. Why does RFC 9276 ask for zero extra iterations and no salt?"
+    Iterations slow servers and validators as much as the attacker, online
+    and for every negative answer, which made high counts a denial-of-service
+    lever. The salt adds nothing: the zone name is already hashed in, so
+    tables never carry between zones, and the salt is public and rarely
+    changes.
 
-??? question "8. What does DNS over HTTPS hide, and from whom? What does it not do?"
-    It hides queries and answers from the network between the device and the
-    resolver. The resolver still sees everything, and it does not prove the
-    answers are genuine; only DNSSEC does.
+??? question "6. What did KeyTrap exploit, and why was it easy to set up?"
+    The rule to try every matching key with every signature: many keys
+    sharing one tag and many signatures forced tens of thousands of checks
+    per answer. Easy, because the tag is a 16-bit checksum that the last two
+    bytes of a key can set to anything.
 
-??? question "9. How does Oblivious DoH split trust?"
-    The query is encrypted to the resolver and sent through a proxy. The proxy
-    sees the client's address but not the query; the resolver sees the query
-    but not the address. They must collude to link the two.
+??? question "7. A mail server publishes _25._tcp.mx.example. TLSA 3 1 1 followed by a hash. What is hashed, what in the certificate is ignored, and what breaks at renewal?"
+    The SHA-256 of the DER-encoded SubjectPublicKeyInfo. The certificate's
+    names and expiry are ignored. A renewal that keeps the key still matches;
+    one that makes a new key does not, and DANE senders defer mail until a
+    record for it appears, so the next key's record goes in first.
 
-??? question "10. Why is DNSSEC well suited to a city with a long delay to Earth?"
-    It protects data, not a session: signed zones can be copied across the gap
-    in advance and validated locally against the root key, with no live round
-    trips. The constraint is time, since signatures expire.
+??? question "8. Where do DANE and MTA-STS each get their trust, and what can an attacker do against MTA-STS that it cannot do against DANE?"
+    DANE gets the "use TLS" signal and the key from DNSSEC. MTA-STS gets the
+    signal from a cached HTTPS policy and checks the key with the CA system.
+    An attacker who blocks the first policy fetch can still strip STARTTLS,
+    and any CA that misissues for the MX name can impersonate it.
+
+??? question "9. What does DNS over HTTPS hide, and from whom? What does Oblivious DoH add, and what does neither do?"
+    DoH hides questions from the network between device and resolver; the
+    resolver still sees the question and the address. ODoH relays a question
+    encrypted to the resolver through a proxy, which sees the address but not
+    the question. Neither proves the answer; only DNSSEC does.
+
+??? question "10. A habitat resolver mirrors signed zones from Earth. Why does a two-week blackout at solar conjunction make some zones bogus, and what can be done?"
+    Validation needs unexpired signatures, and each owner chooses their
+    lifetime; a copy with a few days left goes bogus mid-blackout. The city
+    asks for signatures that outlast the blackout and signs its own zones
+    locally.
 
 ## What you learned
 
@@ -968,15 +1746,21 @@ sizes to reduce the first leak.
   SAD DNS show that guessing defenses only raise the cost.
 - DNSSEC signs RRsets in advance with ZSKs, signs the keys with a KSK, and
   links each zone to its parent with a DS record, up to the root's trust anchor.
-- Denial of existence uses NSEC (which allows zone walking) or NSEC3 (which
-  turns it into a dictionary attack); compact denial and NSEC5 go further.
+- A key tag is a 16-bit checksum, a hint; the DS digest binds parent to child.
+- Denial of existence uses NSEC (zone walking) or NSEC3 (a dictionary attack);
+  RFC 9276 asks for no salt and no extra iterations; compact denial and NSEC5
+  go further.
 - Strict validation turns operator mistakes into outages, and generous
   validation rules allowed KeyTrap; registrar compromise bypasses DNSSEC
   entirely.
-- The root KSK is guarded by ceremonies and rolled over through RFC 5011; KSK-2024
-  has signed the root since October 2026.
+- The root KSK is guarded by ceremonies and rolled through RFC 5011; KSK-2024
+  has signed the root since 11 October 2026, and an ECDSA root is planned.
+- DANE for mail ("3 1 1" TLSA records) stops STARTTLS stripping; MTA-STS does
+  it without DNSSEC, trusting CAs and the first policy fetch.
 - DoT, DoH and DoQ encrypt the questions; ODoH splits who sees the asker and
   the question; only DNSSEC proves the answer.
+- On Mars, signed zone copies replace 44-minute round trips, limited by
+  signature lifetimes and a trusted clock.
 
 **Next:** [Chapter 11](11-One-Time-Codes-and-Password-Protocols.md), proving who
 you are with a code from your phone, and with passwords that are never sent.
@@ -984,14 +1768,17 @@ you are with a code from your phone, and with passwords that are never sent.
 ## Further reading
 
 - RFC 1034 and RFC 1035 (DNS, 1987); RFC 4033, RFC 4034 and RFC 4035 (DNSSEC,
-  2005); RFC 5155 (NSEC3), RFC 9276 (NSEC3 parameters); RFC 6605 (ECDSA), RFC 8080
-  (EdDSA); RFC 5011 (trust anchor updates); RFC 6781 (operational practices);
-  RFC 9364 (BCP 237); RFC 9904 and RFC 9905 (algorithm process, deprecating
-  SHA-1).
-- RFC 6698 (DANE), RFC 7672 (DANE for SMTP), RFC 9460 (SVCB and HTTPS records),
-  RFC 8806 (local root).
-- RFC 7858 (DNS over TLS), RFC 8484 (DNS over HTTPS), RFC 9250 (DNS over QUIC),
-  RFC 9230 (Oblivious DoH), RFC 9458 (Oblivious HTTP).
+  2005); RFC 5155 (NSEC3), RFC 9276 (NSEC3 parameters); RFC 3110, RFC 5702,
+  RFC 6605 (ECDSA), RFC 8080 (EdDSA); RFC 6840; RFC 5011 (trust anchor
+  updates), RFC 8145 (anchor telemetry), RFC 8509 (sentinel); RFC 6781 and
+  RFC 7583 (operations and rollover timing); RFC 9364 (BCP 237); RFC 8624,
+  RFC 9904 and RFC 9905 (algorithms, deprecating SHA-1, 2025).
+- RFC 6698 (DANE), RFC 7671, RFC 7672 (DANE for SMTP), RFC 3207 (STARTTLS),
+  RFC 8461 (MTA-STS), RFC 8460 (TLS reporting), RFC 9460 (SVCB and HTTPS
+  records), RFC 8806 (local root), RFC 8767 (serving stale data).
+- RFC 7858 (DNS over TLS), RFC 8310, RFC 8484 (DNS over HTTPS), RFC 9250 (DNS
+  over QUIC), RFC 9230 (Oblivious DoH), RFC 9458 (Oblivious HTTP); RFC 7830
+  and RFC 8467 (padding); RFC 9462 and RFC 9463 (resolver discovery); RFC 7871.
 - Dan Kaminsky, "Black ops 2008: it's the end of the cache as we know it"
   (Black Hat 2008).
 - Keyu Man, Zhiyun Qian et al., "DNS cache poisoning attack reloaded:
@@ -1003,7 +1790,17 @@ you are with a code from your phone, and with passwords that are never sent.
   deployment" (IMC 2017).
 - Elias Heftrig, Haya Schulmann, Niklas Vogel and Michael Waidner, "The KeyTrap
   denial-of-service algorithmic complexity attacks on DNS" (2024).
+- Zakir Durumeric et al., "Neither snow nor rain nor MITM...: an empirical
+  analysis of email delivery security" (IMC 2015).
+- Gaëtan Leurent and Thomas Peyrin, "SHA-1 is a shambles: first chosen-prefix
+  collision on SHA-1 and application to the PGP web of trust" (USENIX Security
+  2020).
+- ICANN, "Proposal for root zone KSK algorithm rollover" (February 2026), and
+  SSAC, SAC133, comments on the proposed root KSK algorithm rollover (2026).
+- Microsoft Exchange Team, "Announcing general availability of inbound SMTP
+  DANE with DNSSEC for Exchange Online" (October 2024).
 - Cisco Talos, "DNS hijacking abuses trust in core Internet service" (Sea
   Turtle, April 2019).
-- ICANN's root KSK rollover pages and ceremony archives, and IANA's
-  `root-anchors.xml`.
+- ICANN's root KSK rollover pages and ceremony archives, including the 2018
+  rollover's postponement notice (27 September 2017) and the KSK-2024
+  guidance (2026), and IANA's `root-anchors.xml`.
