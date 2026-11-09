@@ -18,20 +18,24 @@ Diffie-Hellman.*
     - quadratic residues and why exactly half the units modulo an odd prime are
       squares;
     - Euler's criterion, and the Legendre symbol with its rules;
-    - quadratic reciprocity, with Gauss's lemma and a sketch of a proof;
+    - quadratic reciprocity, with Gauss's lemma and Eisenstein's lattice-point proof;
     - the Jacobi symbol, how to compute it as fast as a gcd, and what it does
       not tell you;
-    - square roots modulo a prime: the easy case $p \equiv 3 \pmod 4$ and the
-      Tonelli-Shanks algorithm for the rest;
-    - why square roots modulo $N = pq$ are as hard as factoring $N$, with proof;
-    - Rabin encryption, Goldwasser-Micali encryption, and point compression.
+    - square roots modulo a prime: the easy case $p \equiv 3 \pmod 4$, the case
+      $p \equiv 5 \pmod 8$, and the Tonelli-Shanks algorithm, traced on a prime
+      with $2^{12} \mid p - 1$;
+    - Cipolla's algorithm, and square roots in $\mathbb{F}_{p^2}$ for pairing curves;
+    - why square roots modulo $N = pq$ are as hard as factoring $N$, with proof and
+      the reduction run as a program;
+    - Rabin encryption, Goldwasser-Micali encryption with its security argument,
+      and point decompression on P-256 and Ed25519.
 
     **You need:** [Chapter 3](03-Modular-Arithmetic.md) (the Chinese remainder
     theorem) and [Chapter 4](04-Powers-and-Primitive-Roots.md) (Fermat, orders,
     primitive roots).
 
-    **Levels:** §5.1 to §5.4 are for beginners, §5.5 to §5.10 are
-    intermediate, §5.11 is expert.
+    **Levels:** §5.1 to §5.4 are for beginners, §5.5 to §5.11 are
+    intermediate, §5.12 is expert.
 
 ## 5.1 The problem
 
@@ -125,6 +129,86 @@ So for residues the arithmetic is like signs: residue times residue is a
 residue, residue times non-residue is a non-residue, and non-residue times
 non-residue is a residue (even + even = even, even + odd = odd, odd + odd =
 even). Modulo 11: $2 \cdot 6 = 12 \equiv 1$, a residue made of two non-residues.
+
+### Where the squares sit
+
+Put the units modulo $p$ around a circle, like the hours on a clock, and mark the
+squares (Figure 5.2). Modulo 13 the marks are symmetric about the vertical axis:
+$a$ and $13 - a$ are always both squares or both non-squares. Modulo 11 the
+picture is the opposite: wherever $a$ is a square, $11 - a$ is not. The rule of
+signs explains it. Since $-a = (-1) \cdot a$, the numbers $a$ and $-a$ are of the
+same kind exactly when $-1$ is a square, and $-1$ is a square modulo 13 ($5^2 = 25
+\equiv -1$) but not modulo 11. The picture already shows a theorem, the "first
+supplement" of §5.4: $-1$ is a square modulo $p$ exactly when $p \equiv 1 \pmod 4$.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="The units modulo 13 and modulo 11 on two circles, squares filled: symmetric about the vertical axis for 13, opposite across it for 11" fill="currentColor" font-size="13">
+<text x="165" y="26" text-anchor="middle">p = 13, which is 1 mod 4</text>
+<circle cx="165" cy="150" r="90" fill="none" stroke="currentColor" stroke-opacity=".35"/>
+<line x1="165" y1="46" x2="165" y2="254" stroke="currentColor" stroke-dasharray="4 4" stroke-opacity=".6"/>
+<circle cx="165.0" cy="60.0" r="2.5"/>
+<text x="165.0" y="47.5" text-anchor="middle" fill-opacity=".7">0</text>
+<circle cx="206.8" cy="70.3" r="6.5"/>
+<text x="214.7" y="59.8" text-anchor="middle">1</text>
+<circle cx="239.1" cy="98.9" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="253.1" y="93.7" text-anchor="middle">2</text>
+<circle cx="254.3" cy="139.2" r="6.5"/>
+<text x="271.2" y="141.6" text-anchor="middle">3</text>
+<circle cx="249.2" cy="181.9" r="6.5"/>
+<text x="265.0" y="192.4" text-anchor="middle">4</text>
+<circle cx="224.7" cy="217.4" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="236.0" y="234.6" text-anchor="middle">5</text>
+<circle cx="186.5" cy="237.4" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="190.6" y="258.4" text-anchor="middle">6</text>
+<circle cx="143.5" cy="237.4" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="139.4" y="258.4" text-anchor="middle">7</text>
+<circle cx="105.3" cy="217.4" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="94.0" y="234.6" text-anchor="middle">8</text>
+<circle cx="80.8" cy="181.9" r="6.5"/>
+<text x="65.0" y="192.4" text-anchor="middle">9</text>
+<circle cx="75.7" cy="139.2" r="6.5"/>
+<text x="58.8" y="141.6" text-anchor="middle">10</text>
+<circle cx="90.9" cy="98.9" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="76.9" y="93.7" text-anchor="middle">11</text>
+<circle cx="123.2" cy="70.3" r="6.5"/>
+<text x="115.3" y="59.8" text-anchor="middle">12</text>
+<text x="475" y="26" text-anchor="middle">p = 11, which is 3 mod 4</text>
+<circle cx="475" cy="150" r="90" fill="none" stroke="currentColor" stroke-opacity=".35"/>
+<line x1="475" y1="46" x2="475" y2="254" stroke="currentColor" stroke-dasharray="4 4" stroke-opacity=".6"/>
+<circle cx="475.0" cy="60.0" r="2.5"/>
+<text x="475.0" y="47.5" text-anchor="middle" fill-opacity=".7">0</text>
+<circle cx="523.7" cy="74.3" r="6.5"/>
+<text x="532.8" y="64.5" text-anchor="middle">1</text>
+<circle cx="556.9" cy="112.6" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="572.3" y="110.1" text-anchor="middle">2</text>
+<circle cx="564.1" cy="162.8" r="6.5"/>
+<text x="580.9" y="169.7" text-anchor="middle">3</text>
+<circle cx="543.0" cy="208.9" r="6.5"/>
+<text x="555.9" y="224.6" text-anchor="middle">4</text>
+<circle cx="500.4" cy="236.4" r="6.5"/>
+<text x="505.1" y="257.2" text-anchor="middle">5</text>
+<circle cx="449.6" cy="236.4" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="444.9" y="257.2" text-anchor="middle">6</text>
+<circle cx="407.0" cy="208.9" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="394.1" y="224.6" text-anchor="middle">7</text>
+<circle cx="385.9" cy="162.8" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="369.1" y="169.7" text-anchor="middle">8</text>
+<circle cx="393.1" cy="112.6" r="6.5"/>
+<text x="377.7" y="110.1" text-anchor="middle">9</text>
+<circle cx="426.3" cy="74.3" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+<text x="417.2" y="64.5" text-anchor="middle">10</text>
+<circle cx="190" cy="285" r="6"/><text x="202" y="290">square (residue)</text>
+<circle cx="360" cy="285" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><text x="372" y="290">non-square</text>
+</svg>
+<figcaption>Figure 5.2. The units modulo 13 and modulo 11 around a circle, squares filled. Modulo 13 the picture is mirror-symmetric, because −1 is a square; modulo 11 every square faces a non-square across the axis, because −1 is not.</figcaption>
+</figure>
+
+Apart from that symmetry, the squares look scattered, and for large $p$ they behave
+much like a random half of the units: the Pólya-Vinogradov inequality (1918) says that
+over any stretch of consecutive numbers the squares and non-squares never get ahead
+of each other by more than about $\sqrt p \ln p$. Ivan Damgård proposed in 1988 to
+use this sequence as a pseudorandom generator. The scattering also has a cost: no fast
+rule is known that points to a non-square without trying candidates (§5.7).
 
 ## 5.3 Euler's criterion
 
@@ -262,7 +346,52 @@ Cancel the factorial and apply Euler's criterion. $\blacksquare$
 *Check: $a = 2$, $p = 11$.* The multiples $2, 4, 6, 8, 10$ reduce to $2, 4, -5,
 -3, -1$: three negatives, so $\left(\frac{2}{11}\right) = -1$. In general, for $a
 = 2$ the negatives are the even numbers between $p/2$ and $p$, and counting them
-gives the second supplement $(-1)^{(p^2 - 1)/8}$.
+gives the second supplement $(-1)^{(p^2 - 1)/8}$ (the parity argument below proves
+it in one line).
+
+*By hand: is 5 a square modulo 13?* Half of 12 is 6, so take $5, 10, 15, 20, 25,
+30$. Modulo 13 they are 5, 10, 2, 7, 12, 4, and moved into the range from $-6$ to
+$6$ they are $5, -3, 2, -6, -1, 4$ (Figure 5.3). Their sizes are 5, 3, 2, 6, 1, 4:
+each of 1 to 6 exactly once, as the proof says. Three are negative, so
+$\left(\frac{5}{13}\right) = (-1)^3 = -1$. Check against the list: the squares
+modulo 13 are 1, 3, 4, 9, 10, 12, and 5 is not among them.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 210" width="640" role="img" aria-label="Gauss&#39;s lemma for a equals 5 and p equals 13: the multiples 5, 10, 15, 20, 25, 30 reduce to 5, minus 3, 2, minus 6, minus 1, 4; three land on the negative side, so 5 is not a square modulo 13" fill="currentColor" font-size="13">
+<rect x="70" y="40" width="250" height="90" fill="currentColor" fill-opacity=".08"/>
+<text x="195" y="30" text-anchor="middle" fill-opacity=".7">negative half: counted in μ</text>
+<text x="445" y="30" text-anchor="middle" fill-opacity=".7">positive half</text>
+<line x1="60" y1="110" x2="580" y2="110" stroke="currentColor" stroke-width="1.2"/>
+<line x1="80" y1="105" x2="80" y2="115" stroke="currentColor"/><text x="80" y="132" text-anchor="middle" font-size="12">-6</text>
+<line x1="120" y1="105" x2="120" y2="115" stroke="currentColor"/><text x="120" y="132" text-anchor="middle" font-size="12">-5</text>
+<line x1="160" y1="105" x2="160" y2="115" stroke="currentColor"/><text x="160" y="132" text-anchor="middle" font-size="12">-4</text>
+<line x1="200" y1="105" x2="200" y2="115" stroke="currentColor"/><text x="200" y="132" text-anchor="middle" font-size="12">-3</text>
+<line x1="240" y1="105" x2="240" y2="115" stroke="currentColor"/><text x="240" y="132" text-anchor="middle" font-size="12">-2</text>
+<line x1="280" y1="105" x2="280" y2="115" stroke="currentColor"/><text x="280" y="132" text-anchor="middle" font-size="12">-1</text>
+<line x1="320" y1="105" x2="320" y2="115" stroke="currentColor"/><text x="320" y="132" text-anchor="middle" font-size="12">0</text>
+<line x1="360" y1="105" x2="360" y2="115" stroke="currentColor"/><text x="360" y="132" text-anchor="middle" font-size="12">1</text>
+<line x1="400" y1="105" x2="400" y2="115" stroke="currentColor"/><text x="400" y="132" text-anchor="middle" font-size="12">2</text>
+<line x1="440" y1="105" x2="440" y2="115" stroke="currentColor"/><text x="440" y="132" text-anchor="middle" font-size="12">3</text>
+<line x1="480" y1="105" x2="480" y2="115" stroke="currentColor"/><text x="480" y="132" text-anchor="middle" font-size="12">4</text>
+<line x1="520" y1="105" x2="520" y2="115" stroke="currentColor"/><text x="520" y="132" text-anchor="middle" font-size="12">5</text>
+<line x1="560" y1="105" x2="560" y2="115" stroke="currentColor"/><text x="560" y="132" text-anchor="middle" font-size="12">6</text>
+<circle cx="520" cy="110" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/>
+<text x="520" y="88" text-anchor="middle">1·5</text>
+<circle cx="200" cy="110" r="7"/>
+<text x="200" y="88" text-anchor="middle">2·5</text>
+<circle cx="400" cy="110" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/>
+<text x="400" y="88" text-anchor="middle">3·5</text>
+<circle cx="80" cy="110" r="7"/>
+<text x="80" y="88" text-anchor="middle">4·5</text>
+<circle cx="280" cy="110" r="7"/>
+<text x="280" y="88" text-anchor="middle">5·5</text>
+<circle cx="480" cy="110" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/>
+<text x="480" y="88" text-anchor="middle">6·5</text>
+<text x="320" y="165" text-anchor="middle">5, 10, 15, 20, 25, 30 reduce to 5, −3, 2, −6, −1, 4: sizes 1 to 6, each once</text>
+<text x="320" y="190" text-anchor="middle">three negatives, so (5/13) = (−1)³ = −1: 5 is not a square modulo 13</text>
+</svg>
+<figcaption>Figure 5.3. Gauss's lemma for a = 5, p = 13. The six multiples 5, 10, …, 30, moved into the range −6 to 6, cover the sizes 1 to 6 once each; three land on the negative side, so 5 is not a square modulo 13.</figcaption>
+</figure>
 
 ### The idea of the proof
 
@@ -281,7 +410,7 @@ is all the points in the rectangle:
 
 $$N_1 + N_2 = \frac{p-1}{2} \cdot \frac{q-1}{2}.$$
 
-That is quadratic reciprocity. Figure 5.2 shows the count for $p = 11$, $q = 7$.
+That is quadratic reciprocity. Figure 5.4 shows the count for $p = 11$, $q = 7$.
 
 <figure class="mars-fig">
 <svg viewBox="0 0 640 280" width="640" role="img" aria-label="Eisenstein's lattice-point proof of quadratic reciprocity for p equals 11 and q equals 7: 15 points in a 5 by 3 rectangle split by the diagonal into 7 below and 8 above" fill="currentColor" font-size="13">
@@ -305,13 +434,80 @@ That is quadratic reciprocity. Figure 5.2 shows the count for $p = 11$, $q = 7$.
 <text x="440" y="214">total 5 × 3 = 15, odd:</text>
 <text x="440" y="232">the two symbols differ</text>
 </svg>
-<figcaption>Figure 5.2. Eisenstein's proof of quadratic reciprocity, for p = 11, q = 7. The diagonal from the corner splits the 5 × 3 points of the rectangle into two counts whose parities give the two Legendre symbols. Their product is (−1)¹⁵ = −1.</figcaption>
+<figcaption>Figure 5.4. Eisenstein's proof of quadratic reciprocity, for p = 11, q = 7. The diagonal from the corner splits the 5 × 3 points of the rectangle into two counts whose parities give the two Legendre symbols. Their product is (−1)¹⁵ = −1.</figcaption>
 </figure>
 
 (The count below the line is $\lfloor 7/11 \rfloor + \lfloor 14/11 \rfloor +
 \lfloor 21/11 \rfloor + \lfloor 28/11 \rfloor + \lfloor 35/11 \rfloor = 0 + 1 +
 1 + 2 + 3 = 7$, and $(-1)^7 = -1$; indeed 7 is not among the squares 1, 3, 4, 5, 9
 modulo 11. The count above is 8, and 11 ≡ 4 is a square modulo 7.)
+
+### Why the count has the right parity
+
+The step from Gauss's lemma to the lattice count was stated, not proved. It takes
+three lines of bookkeeping. Let $p \nmid a$ and, for $k = 1, \dots, \frac{p-1}{2}$,
+divide with remainder: $ka = p \lfloor ka/p \rfloor + r_k$ with $0 < r_k < p$. Call
+the remainders below $p/2$ the small ones and those above $p/2$ the large ones; the
+large ones are exactly the multiples Gauss's lemma counts as negative, since a
+large $r$ moves to $r - p < 0$. So there are $\mu$ large remainders. Write $S$ and
+$L$ for the sums of the small and the large remainders, $T = \sum_k \lfloor ka/p
+\rfloor$, and $K = 1 + 2 + \dots + \frac{p-1}{2} = \frac{p^2-1}{8}$.
+
+1. Adding up the divisions: $aK = pT + S + L$.
+2. The proof of Gauss's lemma showed that the small remainders and the numbers $p -
+   r$ for the large ones are $1, \dots, \frac{p-1}{2}$ in some order, so $K = S +
+   \mu p - L$.
+3. Subtracting: $(a - 1)K = p(T - \mu) + 2L$.
+
+Now read the last line modulo 2. If $a$ is odd, $a - 1$ is even and $p$ is odd, so
+$T \equiv \mu \pmod 2$: the lattice count and Gauss's count have the same parity,
+which is what Eisenstein's picture needs. If $a = 2$, every $\lfloor 2k/p \rfloor$
+is 0, so $T = 0$ and the line says $K \equiv \mu \pmod 2$, that is,
+$\left(\frac{2}{p}\right) = (-1)^{(p^2-1)/8}$: the second supplement again, this
+time without the table. $\blacksquare$
+
+**Code it.** The three statements of this section, Gauss's lemma, the parity of
+the lattice count and the law itself, checked on every ordered pair of distinct odd
+primes below 300:
+
+```python
+def gauss_mu(a, p):
+    """Gauss's lemma: how many of a, 2a, ..., ((p-1)/2)a reduce into the upper half."""
+    return sum(1 for k in range(1, (p + 1) // 2) if k * a % p > p // 2)
+
+def lattice_count(a, p):
+    """Eisenstein: points (k, j) with 0 < k < p/2 and 0 < j < ka/p."""
+    return sum(k * a // p for k in range(1, (p + 1) // 2))
+
+def euler(a, p):
+    return 1 if pow(a, (p - 1) // 2, p) == 1 else -1
+
+print(gauss_mu(5, 13), lattice_count(5, 13), euler(5, 13))
+
+primes = [n for n in range(3, 300) if all(n % d for d in range(2, int(n ** 0.5) + 1))]
+pairs = agree = 0
+for p in primes:
+    for q in primes:
+        if p != q:
+            pairs += 1
+            lemma = (-1) ** gauss_mu(q, p) == euler(q, p)
+            parity = gauss_mu(q, p) % 2 == lattice_count(q, p) % 2
+            law = euler(p, q) * euler(q, p) == (-1) ** ((p - 1) // 2 * (q - 1) // 2)
+            agree += lemma and parity and law
+print(pairs, agree)
+```
+
+It prints:
+
+```text
+3 5 -1
+3660 3660
+```
+
+The first line is the example of Figure 5.3: three negatives, five lattice points
+(the same parity), and Euler's criterion agrees. The second line says that all
+3,660 ordered pairs from the 61 odd primes below 300 pass all three tests. A check
+is not a proof, but it is how Euler found the law in the first place.
 
 ## 5.6 The Jacobi symbol
 
@@ -356,13 +552,9 @@ print(jacobi(2, 15), [x for x in range(15) if x * x % 15 == 2])
 1 []
 ```
 
-The algorithm runs in the same time as Euclid's, $O(n^2)$ bit operations for
-$n$-bit inputs, and is faster than Euler's criterion. That is what libraries use
-to test squareness modulo a prime.
-
 ### What the Jacobi symbol does not say
 
-The second line is the warning. $\left(\frac{2}{15}\right) = \left(\frac{2}{3}\right)
+The second line of the output is the warning. $\left(\frac{2}{15}\right) = \left(\frac{2}{3}\right)
 \left(\frac{2}{5}\right) = (-1)(-1) = 1$, yet 2 is not a square modulo 15 (the
 empty list). A Jacobi symbol of $-1$ proves $a$ is a non-residue modulo $n$; a
 symbol of $+1$ means only that $a$ is a residue modulo both primes **or modulo
@@ -380,6 +572,55 @@ top half with the Jacobi symbol. Telling the first row from the second, without
 the factors, is the **quadratic residuosity problem**, and nobody knows how to do
 it faster than factoring $N$. Goldwasser and Micali built an encryption scheme on
 exactly this gap (§5.10).
+
+The algorithm runs in the same time as Euclid's, $O(n^2)$ bit operations for
+$n$-bit inputs, and is faster than Euler's criterion. That is what libraries use
+to test squareness modulo a prime.
+
+### By hand: the algorithm at work
+
+Here is `jacobi(1001, 9907)` done by hand, without factoring 1001. Each step pulls
+out factors of 2 (each one costs a sign when the bottom number is $\equiv 3$ or $5
+\pmod 8$), then flips the symbol (which costs a sign when both numbers are $\equiv
+3 \pmod 4$), then reduces the new top number modulo the new bottom one.
+
+<div class="mars-steps" markdown>
+1. $\left(\frac{1001}{9907}\right)$: no 2s. $1001 \equiv 1 \pmod 4$, so flip with no
+   sign: $\left(\frac{9907}{1001}\right) = \left(\frac{898}{1001}\right)$, since
+   $9907 = 9 \cdot 1001 + 898$.
+2. $898 = 2 \cdot 449$, and $1001 \equiv 1 \pmod 8$, so the 2 costs nothing. $449
+   \equiv 1 \pmod 4$: flip, and reduce $1001 = 2 \cdot 449 + 103$:
+   $\left(\frac{103}{449}\right)$.
+3. $449 \equiv 1 \pmod 4$: flip freely, $449 = 4 \cdot 103 + 37$:
+   $\left(\frac{37}{103}\right)$.
+4. $37 \equiv 1 \pmod 4$: $103 = 2 \cdot 37 + 29$, so $\left(\frac{29}{37}\right)$.
+5. $29 \equiv 1 \pmod 4$: $37 = 29 + 8$, so $\left(\frac{8}{29}\right)$.
+6. $8 = 2^3$ and $29 \equiv 5 \pmod 8$, so each 2 costs a sign: $(-1)^3 = -1$. What
+   is left is $\left(\frac{1}{29}\right) = 1$. The answer is $-1$.
+</div>
+
+That agrees with §5.5, where we factored $1001 = 7 \cdot 11 \cdot 13$ first. The
+middle numbers 898, 449, 103, 37 are whatever the divisions produce, some prime and
+some not, and the algorithm does not care.
+
+### Why the rules survive for composites
+
+The Jacobi symbol is defined as a product of Legendre symbols, so multiplicativity
+is immediate. Reciprocity needs one more fact. For odd $m = \prod p_i$ and $n =
+\prod q_j$, apply the law to every pair:
+
+$$\left(\frac{m}{n}\right)\left(\frac{n}{m}\right) = \prod_{i,j} \left(\frac{p_i}{q_j}\right)\left(\frac{q_j}{p_i}\right) = (-1)^{\sum_{i,j} \frac{p_i - 1}{2} \cdot \frac{q_j - 1}{2}}.$$
+
+The exponent factors as $\left(\sum_i \frac{p_i-1}{2}\right)\left(\sum_j
+\frac{q_j-1}{2}\right)$, and for odd $u, v$,
+
+$$\frac{uv - 1}{2} - \frac{u - 1}{2} - \frac{v - 1}{2} = \frac{(u-1)(v-1)}{2} \equiv 0 \pmod 2,$$
+
+because $(u-1)(v-1)$ is a multiple of 4. So $\sum_i \frac{p_i - 1}{2} \equiv \frac{m
+- 1}{2} \pmod 2$, and likewise for $n$: the composite law has the same form as the
+prime one. The same trick with $\frac{u^2v^2 - 1}{8}$ carries over the second
+supplement. A shared prime factor makes some $\left(\frac{a}{p_i}\right) = 0$, which
+is why the code returns 0 when the gcd is not 1.
 
 ## 5.7 Square roots modulo a prime
 
@@ -430,7 +671,8 @@ $c = z^q$.
    $r \leftarrow rb$.
 4. Return $r$.
 
-Each pass strictly lowers the order of $t$, so there are at most $s$ passes.
+Each pass strictly lowers the order of $t$, so there are at most $s$ passes (in
+fact at most $s - 1$, as the proof below shows).
 
 *By hand.* Square root of 10 mod 13. $p - 1 = 12 = 2^2 \cdot 3$: $s = 2$, $q =
 3$. The number 2 is a non-residue mod 13 ($2^6 = 64 \equiv -1$).
@@ -497,6 +739,191 @@ assuming the generalized Riemann hypothesis (under which one is below $2(\ln
 p)^2$, by Eric Bach in 1990). In practice the first few small numbers always
 work.
 
+### Why the loop is correct
+
+The invariant of step 2 does all the work: $r^2 = at$, the order of $t$ divides
+$2^{m-1}$, and $c$ has order exactly $2^m$.
+
+*At the start.* $r^2 = a^{q+1} = at$, and $t^{2^{s-1}} = a^{(p-1)/2} = 1$ by Euler's
+criterion. And $c^{2^{s-1}}
+= z^{(p-1)/2} = -1$ because $z$ is a non-square, so $c$ has order exactly $2^s$.
+
+*One pass.* If $t \neq 1$, its order is exactly $2^i$ with $1 \le i < m$, so
+$t^{2^{i-1}} = -1$ (the only element of order 2 in a field is $-1$). The element
+$b = c^{2^{m-i-1}}$ has order $2^{i+1}$, so $b^2$ has order exactly $2^i$ and also
+$(b^2)^{2^{i-1}} = -1$. Then $(tb^2)^{2^{i-1}} = (-1)(-1) = 1$: the new $t$ has
+order dividing $2^{i-1}$, which is the invariant for the new $m = i$; the new $c =
+b^2$ has order exactly $2^i$; and $(rb)^2 = r^2 b^2 = a \cdot tb^2$. The invariant
+holds again, and $m$ has dropped.
+
+*At the end.* When $t = 1$, the invariant reads $r^2 = a$. $\blacksquare$
+
+The first $i$ is at most $s - 1$ and $i$ falls on every pass, so there are at most
+$s - 1$ passes, each costing at most about $m$ squarings: the loop adds up to about
+$s^2/2$ multiplications to the exponentiations. Nothing when $s = 2$; a great deal
+when $s$ is large.
+
+### A long run: the square root of 2 modulo 12289
+
+Some primes are chosen *because* $p - 1$ has a high power of 2: the number-theoretic
+transform ([Chapter 11](11-Polynomials-at-Work.md), [Chapter
+15](15-Learning-with-Errors.md)) needs roots of unity of order $2^k$, which exist
+only when $2^k \mid p - 1$. The prime $12289 = 3 \cdot 2^{12} + 1$ is the modulus of
+the NewHope key exchange (2016) and of the Falcon signature scheme, and $7681 = 15
+\cdot 2^9 + 1$ was the modulus of the first version of Kyber (2017). For
+Tonelli-Shanks these are the awkward primes: for 12289, $s = 12$ and $q = 3$.
+
+Take $a = 2$, a square because $12289 \equiv 1 \pmod 8$. First find a non-square.
+Reciprocity does it without any exponentiation: $12289 \equiv 1 \pmod 4$, so
+$\left(\frac{\ell}{12289}\right) = \left(\frac{12289}{\ell}\right)$ for odd primes
+$\ell$, and $12289$ leaves remainder 1 modulo 3, 4 modulo 5 and 4 modulo 7 (all
+squares), but 2 modulo 11, and 2 is not a square modulo 11. So $z = 11$, and the start
+is
+
+$$c = 11^3 = 1331, \qquad t = 2^3 = 8, \qquad r = 2^2 = 4, \qquad m = 12,$$
+
+with $r^2 = 16 = 2 \cdot 8 = at$ as the invariant says.
+
+*Pass 1.* Square $t$ until it reaches 1: $8 \to 64 \to 4096 \to 2731 \to 11227 \to
+9545 \to 8668 \to 11567 \to 5146 \to 10810 \to 12288 \to 1$. The tenth square is
+$12288 = -1$ and the eleventh is 1, so $i = 11$ and $b = c^{2^{12-11-1}} = c = 1331$.
+Then $c \leftarrow 1331^2 = 1771561 = 144 \cdot 12289 + 1945$, so $c = 1945$; $t
+\leftarrow 8 \cdot 1945 = 15560 \equiv 3271$; $r \leftarrow 4 \cdot 1331 = 5324$.
+Check: $5324^2 \equiv 6542 = 2 \cdot 3271$.
+
+The other passes go the same way (in pass 2, nine squarings bring $t = 3271$ to 1, so
+$i = 9$ and $b = 1945^2 \equiv 10302$), and the code below prints the whole run. So $\sqrt 2 \equiv 9189$, and the other root is $12289 - 9189 = 3100$; indeed $3100^2
+= 9610000 = 782 \cdot 12289 + 2$. Nine passes: the order of $t$ went $2^{11}, 2^9,
+2^8, 2^6, 2^5, 2^4, 2^3, 2^2, 2, 1$, skipping $2^{10}$ and $2^7$ (Figure 5.5).
+
+```python
+def tonelli_shanks_trace(a, p):
+    """Tonelli-Shanks, printing one row per pass of the loop."""
+    q, s = p - 1, 0
+    while q % 2 == 0:
+        q, s = q // 2, s + 1
+    z = 2
+    while pow(z, (p - 1) // 2, p) != p - 1:
+        z += 1
+    m, c, t, r = s, pow(z, q, p), pow(a, q, p), pow(a, (q + 1) // 2, p)
+    print(f"s = {s}, q = {q}, z = {z}")
+    print("pass   i      b      c      t      r")
+    print(f"{0:4} {'':>3} {'':>6} {c:6} {t:6} {r:6}")
+    n = 0
+    while t != 1:
+        i, t2 = 0, t
+        while t2 != 1:                    # least i with t^(2^i) = 1
+            t2 = t2 * t2 % p
+            i += 1
+        b = pow(c, 1 << (m - i - 1), p)
+        m, c, t, r = i, b * b % p, t * b * b % p, r * b % p
+        n += 1
+        print(f"{n:4} {i:3} {b:6} {c:6} {t:6} {r:6}")
+        assert r * r % p == a * t % p     # the invariant holds on every pass
+    return r
+
+r = tonelli_shanks_trace(2, 12289)
+print(r, r * r % 12289)
+```
+
+It prints:
+
+```text
+s = 12, q = 3, z = 11
+pass   i      b      c      t      r
+   0              1331      8      4
+   1  11   1331   1945   3271   5324
+   2   9  10302   3400  12144   2041
+   3   8   3400   8340   7311   8404
+   4   6  12149   7311   5860   3184
+   5   5   7311   5860   4134   2858
+   6   4   5860   4134   8246  10262
+   7   3   4134   8246   1479   1480
+   8   2   8246   1479  12288   1103
+   9   1   1479  12288      1   9189
+9189 2
+```
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 320" width="640" role="img" aria-label="The Tonelli-Shanks loop, and the order of t falling from 2 to the 11 to 1 in nine passes for the square root of 2 modulo 12289" fill="currentColor" font-size="13">
+<g fill="none" stroke="currentColor" stroke-width="1.3">
+<rect x="20" y="30" width="250" height="40" rx="6"/>
+<rect x="20" y="95" width="250" height="40" rx="6"/>
+<rect x="20" y="160" width="250" height="40" rx="6"/>
+<rect x="20" y="225" width="250" height="40" rx="6"/>
+<path d="M145 70 L145 95"/><path d="M145 135 L145 160"/><path d="M145 200 L145 225"/>
+<path d="M145 265 L145 285 L290 285 L290 115 L270 115"/>
+</g>
+<g fill="currentColor"><path d="M141 89 L145 95 L149 89 Z"/><path d="M141 154 L145 160 L149 154 Z"/><path d="M141 219 L145 225 L149 219 Z"/><path d="M276 111 L270 115 L276 119 Z"/></g>
+<g text-anchor="middle">
+<text x="145" y="55">r = a^((q+1)/2), t = a^q, m = s</text>
+<text x="145" y="120">t = 1? then r² = a: stop</text>
+<text x="155" y="152" text-anchor="start" font-size="12" fill-opacity=".7">no</text>
+<text x="145" y="185">least i with t^(2^i) = 1</text>
+<text x="145" y="250">b = c^(2^(m−i−1))</text>
+<text x="145" y="303" font-size="12">r ← rb, t ← tb², c ← b², m ← i</text>
+</g>
+<line x1="337" y1="270" x2="625" y2="270" stroke="currentColor"/>
+<line x1="337" y1="270" x2="337" y2="54" stroke="currentColor"/>
+<text x="332" y="274" text-anchor="end" font-size="11">1</text>
+<text x="332" y="220" text-anchor="end" font-size="11">2³</text>
+<text x="332" y="166" text-anchor="end" font-size="11">2⁶</text>
+<text x="332" y="112" text-anchor="end" font-size="11">2⁹</text>
+<text x="332" y="76" text-anchor="end" font-size="11">2¹¹</text>
+<rect x="345" y="72" width="20" height="198" fill-opacity=".55"/>
+<text x="355" y="286" text-anchor="middle" font-size="11">0</text>
+<text x="355" y="67" text-anchor="middle" font-size="11">11</text>
+<rect x="373" y="108" width="20" height="162" fill-opacity=".55"/>
+<text x="383" y="286" text-anchor="middle" font-size="11">1</text>
+<text x="383" y="103" text-anchor="middle" font-size="11">9</text>
+<rect x="401" y="126" width="20" height="144" fill-opacity=".55"/>
+<text x="411" y="286" text-anchor="middle" font-size="11">2</text>
+<text x="411" y="121" text-anchor="middle" font-size="11">8</text>
+<rect x="429" y="162" width="20" height="108" fill-opacity=".55"/>
+<text x="439" y="286" text-anchor="middle" font-size="11">3</text>
+<text x="439" y="157" text-anchor="middle" font-size="11">6</text>
+<rect x="457" y="180" width="20" height="90" fill-opacity=".55"/>
+<text x="467" y="286" text-anchor="middle" font-size="11">4</text>
+<text x="467" y="175" text-anchor="middle" font-size="11">5</text>
+<rect x="485" y="198" width="20" height="72" fill-opacity=".55"/>
+<text x="495" y="286" text-anchor="middle" font-size="11">5</text>
+<text x="495" y="193" text-anchor="middle" font-size="11">4</text>
+<rect x="513" y="216" width="20" height="54" fill-opacity=".55"/>
+<text x="523" y="286" text-anchor="middle" font-size="11">6</text>
+<text x="523" y="211" text-anchor="middle" font-size="11">3</text>
+<rect x="541" y="234" width="20" height="36" fill-opacity=".55"/>
+<text x="551" y="286" text-anchor="middle" font-size="11">7</text>
+<text x="551" y="229" text-anchor="middle" font-size="11">2</text>
+<rect x="569" y="252" width="20" height="18" fill-opacity=".55"/>
+<text x="579" y="286" text-anchor="middle" font-size="11">8</text>
+<text x="579" y="247" text-anchor="middle" font-size="11">1</text>
+<text x="607" y="286" text-anchor="middle" font-size="11">9</text>
+<text x="607" y="265" text-anchor="middle" font-size="11">0</text>
+<text x="480" y="304" text-anchor="middle" font-size="12">pass</text>
+<text x="485" y="24" text-anchor="middle">order of t, square root of 2 mod 12289</text>
+</svg>
+<figcaption>Figure 5.5. The Tonelli-Shanks loop (left) and its run for the square root of 2 modulo 12289 (right): each pass cancels t's top power of 2, and its order falls from 2¹¹ to 1 in nine passes.</figcaption>
+</figure>
+
+Two things stand out. First, every $b$ and every $c$ in the run comes from one
+list, the repeated squares of the first $c$: 1331, 1945, 10302, 3400, 8340, 12149,
+7311, 5860, 4134, 8246, 1479, 12288. The list depends on $p$ only, not on $a$, so a
+library can compute it once per prime and look up $b$. Daniel Bernstein (2001) and
+Palash Sarkar (2020) extended the idea with tables that also shorten the search for
+$i$; the Pasta curves of Zcash's Halo 2, whose primes both have $s = 32$, use Sarkar's
+method.
+
+Second, the number of passes follows a simple rule. Over all 6,144 squares modulo
+12289 it ranges from 0 to 11, with counts $3\binom{11}{k}$: $t = a^q$ can be written as
+$c^{-2e}$ with $0 \le e < 2^{11}$, each pass clears the lowest 1 bit of $e$, and so
+the passes are the 1 bits of $e$ (for $a = 2$, $e = 2029 = 11111101101_2$, nine of
+them). A random square needs about $(s - 1)/2$ passes, and at most $s - 1$.
+
+A constant-time implementation cannot stop early, since a secret-dependent number of
+passes leaks timing. RFC 9380 (Appendix I.4) gives a Tonelli-Shanks that always runs
+the same steps, with conditional moves in place of each "if": the worst case becomes
+the only case.
+
 ## 5.8 Square roots modulo $pq$
 
 *Level: intermediate.*
@@ -533,6 +960,14 @@ divides one factor and $q$ the other, and $\gcd(x - y, N)$ is $p$ or $q$. Repeat
 until it works; after $k$ tries the chance of failure is $2^{-k}$.
 $\blacksquare$
 
+*By hand.* Take $N = 253 = 11 \cdot 23$ and pretend not to know the factors. Pick $x =
+20$ and send $a = 400 - 253 = 147$ to the root-finder. The square 147 has four roots
+modulo 253: 20, 112, 141 and 233 (they are $\pm 2$ or $\pm 9$ modulo 11, combined
+with $\pm 3$ or $\pm 20$ modulo 23). If the finder answers 20 or $233 = -20$, we
+learned nothing and try another $x$. If it answers 141, then $\gcd(20 - 141, 253) =
+\gcd(121, 253) = 11$, and $253 / 11 = 23$. If it answers 112, $\gcd(20 - 112, 253) =
+\gcd(92, 253) = 23$.
+
 <figure class="mars-fig">
 <svg viewBox="0 0 640 240" width="640" role="img" aria-label="The four square roots of a square mod pq combine the two roots mod p with the two roots mod q; the root-finder returns one, and if it is not plus or minus x, a gcd factors N" fill="currentColor" font-size="13">
 <g stroke="currentColor" stroke-width="1.3" fill="none">
@@ -551,7 +986,7 @@ $\blacksquare$
 <text x="500" y="168" class="acc-fill">gcd(x − y, N) = p</text>
 <text x="330" y="226" text-anchor="middle">x ≡ y mod p, x ≢ y mod q: so p divides x − y and q does not</text>
 </svg>
-<figcaption>Figure 5.3. Why square roots modulo N = pq factor N. A square has four roots, from the sign choices modulo p and modulo q. Half of them are "mixed" (±y), and any mixed root together with x reveals a prime factor through one gcd.</figcaption>
+<figcaption>Figure 5.6. Why square roots modulo N = pq factor N. A square has four roots, from the sign choices modulo p and modulo q. Half of them are "mixed" (±y), and any mixed root together with x reveals a prime factor through one gcd.</figcaption>
 </figure>
 
 The converse is also true (knowing the factors gives roots), so **computing
@@ -559,6 +994,108 @@ square roots modulo $N$ is equivalent to factoring $N$**. This is a reduction in
 the sense of Chapter 1 and Chapter 19: an attacker on square roots is turned
 into a factoring algorithm. It is also the precise form of Fermat's idea from
 Chapter 2: two squares congruent modulo $N$ factor it.
+
+### Code it: the reduction
+
+The proof is an algorithm, so it can be run. The square-root box below knows $p$ and
+$q$ and answers with the smallest of the four roots, a rule as good as any other. The
+reducer gets only $N$ and the box, and follows the proof (Figure 5.7):
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 260" width="640" role="img" aria-label="Rabin's reduction as a loop: pick a random x, send its square to the square-root box, get back a root y; if y is plus or minus x, try again, which happens half the time; otherwise the gcd of x minus y and N is a prime factor. The example N equals 253, x equals 20, square 147, returned root 141, gcd 11" fill="currentColor" font-size="13">
+<g fill="none" stroke="currentColor" stroke-width="1.3">
+<rect x="20" y="40" width="250" height="150" rx="8"/>
+<rect x="420" y="40" width="200" height="90" rx="8" stroke-dasharray="6 4"/>
+<path d="M270 75 L420 75"/>
+<path d="M420 110 L270 110"/>
+<path d="M145 190 L145 215 L20 215"/>
+<path d="M10 215 L10 60 L20 60"/>
+</g>
+<g fill="currentColor">
+<path d="M414 71 L420 75 L414 79 Z"/><path d="M276 106 L270 110 L276 114 Z"/><path d="M14 56 L20 60 L14 64 Z"/>
+</g>
+<text x="145" y="30" text-anchor="middle">the reducer: knows only N</text>
+<text x="520" y="30" text-anchor="middle">square-root box: knows p, q</text>
+<text x="40" y="66">1. random x</text>
+<text x="40" y="98">2. a = x² mod N</text>
+<text x="40" y="130">3. receive y with y² = a</text>
+<text x="40" y="162">4. y = ±x ? try again</text>
+<text x="40" y="182" font-weight="bold">5. else gcd(x − y, N)</text>
+<text x="345" y="68" text-anchor="middle">a</text>
+<text x="345" y="128" text-anchor="middle">y</text>
+<text x="520" y="80" text-anchor="middle">returns one of the</text>
+<text x="520" y="100" text-anchor="middle">four roots of a</text>
+<text x="40" y="232" font-size="12" fill-opacity=".7">probability 1/2 each time</text>
+<text x="300" y="170">N = 253: x = 20, a = 147,</text>
+<text x="300" y="190">box returns y = 141,</text>
+<text x="300" y="210" font-weight="bold">gcd(20 − 141, 253) = 11</text>
+<text x="300" y="230">and 253 = 11 · 23</text>
+</svg>
+<figcaption>Figure 5.7. Rabin's reduction as a program. The reducer never learns p or q; it only squares, asks, compares and takes one gcd. Half of the answers are useless and half factor N, whatever rule the box uses to pick a root.</figcaption>
+</figure>
+
+```python
+import random
+from math import gcd
+
+def make_oracle(p, q):
+    """A square-root box for N = pq. It knows p and q; its caller does not."""
+    def oracle(a):
+        rp, rq = pow(a, (p + 1) // 4, p), pow(a, (q + 1) // 4, q)  # p, q are 3 mod 4
+        roots = [s + p * ((t - s) * pow(p, -1, q) % q)
+                 for s in (rp, p - rp) for t in (rq, q - rq)]
+        return min(roots)                 # any rule at all for choosing a root
+    return p * q, oracle
+
+def factor_with(N, oracle, rng):
+    """Rabin's reduction: factor N using only N and the oracle."""
+    tries = 0
+    while True:
+        tries += 1
+        x = rng.randrange(2, N)
+        if gcd(x, N) > 1:                 # never happens in practice
+            return gcd(x, N), tries
+        y = oracle(x * x % N)
+        if y != x and y != N - x:
+            return gcd(x - y, N), tries
+
+rng = random.Random(2026)
+N, oracle = make_oracle(10007, 10039)
+print([factor_with(N, oracle, rng) for _ in range(6)])
+tries = [factor_with(N, oracle, rng)[1] for _ in range(10000)]
+print(sum(tries) / len(tries), max(tries))
+```
+
+It prints:
+
+```text
+[(10007, 2), (10007, 1), (10007, 1), (10007, 3), (10039, 3), (10039, 1)]
+1.9897 19
+```
+
+Each run finds a prime factor of $N = 100{,}460{,}273$, after 1 to 3 calls to the box.
+Over 10,000 runs the average is 1.99 calls, as a success chance of $1/2$ per call
+predicts (the expected number of tries is 2), and the worst run needed 19. Nothing in
+`factor_with` depends on how the box chooses its root, which is the whole point of
+the theorem: the box cannot avoid helping.
+
+The same congruence $x^2 \equiv y^2$ with $x \not\equiv \pm y$ is what the quadratic
+sieve and the number field sieve produce in bulk, without any box, by multiplying
+many small relations together ([*Cryptanalysis*,
+§11.7](../cryptanalysis/11-Factoring.md#117-congruent-squares-and-the-quadratic-sieve-by-hand)).
+
+### More primes, prime powers
+
+Nothing above needs exactly two primes. If $N$ has $k$ distinct odd prime factors,
+the CRT gives $2^k$ square roots of each square, and a random root differs from $\pm x$
+with probability $1 - 2^{1-k}$, so the reduction works even better. Modulo a prime
+power $p^e$ a square still has just two roots, and they are found by **Hensel
+lifting**: from a root modulo $p$, correct it one power of $p$ at a time. *By hand:*
+modulo 7, $3^2 = 9 \equiv 2$. Look for a root of 2 modulo 49 of the form $3 + 7k$:
+$(3 + 7k)^2 = 9 + 42k + 49k^2 \equiv 9 + 42k \pmod{49}$, and $9 + 42k \equiv 2$ means
+$42k \equiv -7$, that is $6k \equiv -1 \equiv 6 \pmod 7$, so $k = 1$ and the root is
+10. Check: $100 = 2 \cdot 49 + 2$. Each lift solves one linear congruence, so roots
+modulo $p^e$ cost little more than roots modulo $p$.
 
 ## 5.9 Rabin encryption
 
@@ -649,6 +1186,17 @@ So a 0 becomes a random square, and a 1 becomes a random pseudosquare.
 **Decrypt:** check whether $c$ is a square mod $p$ with Euler's criterion. Squares
 mean 0; non-squares mean 1.
 
+*By hand, with $N = 77 = 7 \cdot 11$.* The squares modulo 7 are 1, 2, 4 and modulo
+11 they are 1, 3, 4, 5, 9. The number $y = 24$ is $3 \bmod 7$ and $2 \bmod 11$, a
+non-square modulo both, so it is a pseudosquare: $\left(\frac{24}{77}\right) =
+(-1)(-1) = +1$. To encrypt the bit 1 with $r = 5$: $c = 24 \cdot 25 = 600 \equiv 61$.
+To encrypt the bit 0 with $r = 13$: $c = 169 \equiv 15$. The owner decrypts with
+Euler's criterion modulo 7: $61 \equiv 5$ and $5^3 = 125 \equiv 6 = -1$, a
+non-square, so the bit is 1; $15 \equiv 1$ and $1^3 = 1$, a square, so the bit is 0.
+An outsider computes $\left(\frac{61}{77}\right) = \left(\frac{5}{7}\right)
+\left(\frac{6}{11}\right) = (-1)(-1) = +1$ and $\left(\frac{15}{77}\right) = +1$, the
+same for both.
+
 <figure class="mars-fig">
 <svg viewBox="0 0 640 220" width="640" role="img" aria-label="Goldwasser-Micali: the units mod N with Jacobi symbol plus one split into true squares, which encrypt 0, and pseudosquares, which encrypt 1; nobody without the factors can tell them apart" fill="currentColor" font-size="13">
 <g stroke="currentColor" stroke-width="1.3" fill="none">
@@ -664,7 +1212,7 @@ mean 0; non-squares mean 1.
 <text x="465" y="100" text-anchor="middle">never used:</text><text x="465" y="120" text-anchor="middle">anyone can spot them</text>
 <text x="175" y="210" text-anchor="middle" class="acc-fill">the dashed line is visible only with p and q</text>
 </svg>
-<figcaption>Figure 5.4. Goldwasser-Micali encryption. A 0 is sent as a random square and a 1 as a random pseudosquare. Both have Jacobi symbol +1, so the public computation reveals nothing; telling them apart is the quadratic residuosity problem.</figcaption>
+<figcaption>Figure 5.8. Goldwasser-Micali encryption. A 0 is sent as a random square and a 1 as a random pseudosquare. Both have Jacobi symbol +1, so the public computation reveals nothing; telling them apart is the quadratic residuosity problem.</figcaption>
 </figure>
 
 Both kinds of ciphertext have Jacobi symbol $+1$, so the public Jacobi
@@ -686,6 +1234,11 @@ def enc(bit):
 
 def dec(c):
     return 0 if pow(c, (p - 1) // 2, p) == 1 else 1
+
+def jacobi(c, n):                        # here from the factors, for brevity; the
+    lp = 1 if pow(c, (p - 1) // 2, p) == 1 else -1   # public jacobi() of §5.6 gives
+    lq = 1 if pow(c, (q - 1) // 2, q) == 1 else -1   # the same without p and q
+    return lp * lq
 
 bits = [1, 0, 1, 1, 0, 0, 1, 0]
 cs = [enc(b) for b in bits]
@@ -709,6 +1262,27 @@ Encryption" (1982, journal version 1984), defined semantic security and proved
 it for a concrete scheme; it is the foundation of modern provable security, and
 they received the 2012 Turing Award for it.
 
+### Why it is secure, in outline
+
+The proof is a reduction in the style of §5.8. Suppose an attacker $A$, given a public
+key $(N, y)$ and a ciphertext, guesses the bit with probability $\frac12 +
+\varepsilon$. Use $A$ to decide whether a number $z$ with Jacobi symbol $+1$ is a
+square modulo $N$: hand $A$ the "public key" $(N, z)$, choose a bit $b$ and a random
+$r$, and give it $c = z^b r^2$.
+
+- If $z$ is a pseudosquare, $(N, z)$ is a genuine key and $c$ a genuine encryption of
+  $b$, so $A$ finds $b$ with probability $\frac12 + \varepsilon$.
+- If $z$ is a square, then $c$ is a uniformly random square whatever $b$ is. Nothing
+  $A$ sees depends on $b$, and it is right with probability exactly $\frac12$.
+
+So "$A$ was right" is evidence that $z$ is a pseudosquare, with an edge of
+$\varepsilon$: an attack on the encryption becomes, at the same cost, an algorithm for
+the quadratic residuosity problem. That is the shape of every later proof of
+semantic security, which is why this small scheme matters so much more than its
+deployment. The *Advanced protocols and privacy* book takes it up as the first
+homomorphic scheme and goes on to Paillier ([*Advanced*,
+§12.3](../advanced/12-Homomorphic-Encryption.md#123-goldwasser-micali-encrypted-bits-that-add)).
+
 ## 5.11 In the real world
 
 *Level: intermediate.*
@@ -721,7 +1295,93 @@ Ed25519 always compresses: a public key is 32 bytes, the $y$-coordinate plus one
 bit for the sign of $x$, and decoding takes a square root modulo $2^{255} - 19$
 with the $p \equiv 5 \pmod 8$ method. A decoder must also reject an $x$ for which
 the square root does not exist, or it may accept a point on the wrong curve, the
-start of an **invalid-curve attack**.
+start of an **invalid-curve attack**. Chapter 12 treats compression as part of the
+curve's encoding ([§12.9](12-Elliptic-Curve-Group.md#129-point-compression)); here
+is the square root inside it.
+
+### Decompression in code
+
+Here is SEC 1 decompression on P-256 itself, applied to the standard base point $G$,
+whose compressed form starts with `03` because its $y$ is odd. The decoder rejects a
+prefix other than `02` or `03`, an $x$ that is not reduced, and an $x$ for which
+$x^3 - 3x + b$ has no square root:
+
+```python
+# Decompress a SEC 1 point on P-256: prefix 02 or 03, then 32 bytes of x.
+p = 2**256 - 2**224 + 2**192 + 2**96 - 1
+b = 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
+
+def decompress(blob):
+    if len(blob) != 33 or blob[0] not in (2, 3):
+        return None
+    x = int.from_bytes(blob[1:], "big")
+    if x >= p:
+        return None
+    rhs = (x**3 - 3 * x + b) % p
+    y = pow(rhs, (p + 1) // 4, p)         # p = 3 mod 4: one exponentiation
+    if y * y % p != rhs:                  # not a square: no point has this x
+        return None
+    if y % 2 != blob[0] % 2:              # 02 means y even, 03 means y odd
+        y = p - y
+    return x, y
+
+G = bytes.fromhex("03" "6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296")
+x, y = decompress(G)
+print(hex(y))
+bad = next(x for x in range(1, 100) if decompress(bytes([2]) + x.to_bytes(32, "big")) is None)
+print(bad, decompress(bytes([2]) + (bad + 1).to_bytes(32, "big")) is not None)
+valid = sum(decompress(bytes([2]) + x.to_bytes(32, "big")) is not None for x in range(1, 1001))
+print(valid)
+```
+
+It prints:
+
+```text
+0x4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5
+1 False
+515
+```
+
+The first line is the $y$-coordinate of $G$ as printed in SP 800-186.
+The second shows that neither $x = 1$ nor $x = 2$ is the $x$-coordinate of any point:
+their right-hand sides are non-squares. The third counts the valid $x$ among $1,
+\dots, 1000$: 515, close to half, as §5.2 predicts for the right-hand side behaving
+like a random number. The line `if y * y % p != rhs` is the whole defense against
+being handed an $x$ that is not on the curve. Without it, the decoder returns a
+"point" with $y^2 = -\text{rhs}$, which is not on P-256 at all. The addition formulas
+never look at $b$, so the device goes on computing in the group of some other curve
+$y^2 = x^3 - 3x + b'$, picked by the attacker, whose order may have small factors;
+Chapter 12 builds that attack
+([§12.10](12-Elliptic-Curve-Group.md#1210-break-it-the-invalid-curve-attack)), and
+the *Cryptanalysis* book shows it against real protocols ([*Cryptanalysis*,
+§12.9](../cryptanalysis/12-Discrete-Logarithms.md#129-small-subgroups-and-invalid-curves)).
+
+### The case $p \equiv 5 \pmod 8$: Ed25519
+
+For $p = 2^{255} - 19$ the prime is $\equiv 5 \pmod 8$, and two short formulas
+replace Tonelli-Shanks.
+
+*The one RFC 8032 uses.* Let $x = a^{(p+3)/8}$. Then $x^4 = a^{(p+3)/2} = a^2 \cdot
+a^{(p-1)/2} = a^2$, so $x^2 = \pm a$. If $x^2 = a$, done. If $x^2 = -a$, multiply by a
+square root of $-1$: since $p \equiv 5 \pmod 8$, 2 is a non-square (the second
+supplement), so $i = 2^{(p-1)/4}$ satisfies $i^2 = 2^{(p-1)/2} = -1$, and $(xi)^2 =
+-x^2 = a$. That is the `recover_x` function of
+[§12.8](12-Elliptic-Curve-Group.md#128-twisted-edwards-curves-and-complete-formulas),
+where the $a$ is $(y^2 - 1)/(dy^2 + 1)$.
+
+*Atkin's (1992).* Let $v = (2a)^{(p-5)/8}$ and $i = 2av^2$. Then $i^2 = 4a^2 v^4 =
+(2a)^2 (2a)^{(p-5)/2} = (2a)^{(p-1)/2} = \left(\frac{2}{p}\right)\left(\frac{a}{p}
+\right) = -1$, so $i$ is a square root of $-1$, and $x = av(i - 1)$ has $x^2 = a^2v^2
+(i^2 - 2i + 1) = -2i \cdot a^2 v^2 = -i^2 a = a$, using $av^2 = i/2$. One exponentiation
+and no branch at all.
+
+*By hand, $p = 13$, $a = 10$.* $(p + 3)/8 = 2$: $x = 10^2 = 100 \equiv 9$, and $9^2 =
+81 \equiv 3 = -10$, the wrong sign. The square root of $-1$ is $2^{(13-1)/4} = 8$, and
+$9 \cdot 8 = 72 \equiv 7$, with $7^2 = 49 \equiv 10$. Atkin: $(p - 5)/8 = 1$, $v = 20
+\equiv 7$, $i = 2 \cdot 10 \cdot 49 = 980 \equiv 5$ (and $5^2 = 25 \equiv -1$), $x = 10
+\cdot 7 \cdot 4 = 280 \equiv 7$. Both give 7, the root that Tonelli-Shanks found in
+§5.7. RFC 9380 (Appendix I.2) writes the first method in constant time: compute both
+$x$ and $xi$, and keep the right one with a conditional move instead of a branch.
 
 **One bit of Diffie-Hellman leaks.** In the full group $(\mathbb{Z}/p\mathbb{Z})^*$,
 the Legendre symbol of $g^x$ is $(-1)^x$ when $g$ is a primitive root (§5.2), so
@@ -744,17 +1404,209 @@ it shows up in courses and proofs to this day.
 
 *Level: expert.*
 
-**Cipolla's algorithm.** Michele Cipolla (in the early 1900s; sources give dates from 1903 to 1907) gave a second square-root method
-that works well when $p - 1$ is divisible by a high power of 2. Find $t$ with $t^2
-- a$ a non-residue, work in the field $\mathbb{F}_{p^2} = \mathbb{F}_p(\omega)$
-with $\omega^2 = t^2 - a$ (Chapter 8), and compute $(t + \omega)^{(p+1)/2}$, which
-lands in $\mathbb{F}_p$ and is a root of $a$. Its cost does not depend on $s$.
+### Cipolla's algorithm
 
-**Square roots in other fields.** The same questions arise in $\mathbb{F}_{p^k}$.
-Pairing-based cryptography (Chapter 13) needs square roots in $\mathbb{F}_{p^2}$
-for hashing to curves; RFC 9380 (2023), "Hashing to Elliptic Curves", specifies
-constant-time square roots for each field it covers, and constant-time quadratic
-residue tests, because these steps run on secret data.
+Michele Cipolla (in the early 1900s; sources give dates from 1903 to 1907) gave a
+second square-root method whose cost does not depend on $s$. It steps out of
+$\mathbb{F}_p$ into a field twice as large and comes back with the answer.
+
+**The method.** Given a square $a$ modulo $p$:
+
+1. Find $t$ with $t^2 - a$ a non-square (try $t = 0, 1, 2, \dots$; about half work).
+2. Let $w = t^2 - a$ and work in $\mathbb{F}_{p^2} = \mathbb{F}_p(\omega)$, the numbers
+   $u_0 + u_1\omega$ with $\omega^2 = w$ ([Chapter 8](08-Rings-Fields-and-Polynomials.md)
+   builds such fields; this one exists because $w$ has no square root in
+   $\mathbb{F}_p$).
+3. Return $x = (t + \omega)^{(p+1)/2}$, which turns out to lie in $\mathbb{F}_p$.
+
+*Why it works.* First, $\omega^p = \omega \cdot (\omega^2)^{(p-1)/2} = \omega \cdot
+w^{(p-1)/2} = -\omega$, by Euler's criterion for the non-square $w$. Next, raising to
+the power $p$ is additive in characteristic $p$ (the binomial coefficients
+$\binom{p}{k}$ for $0 < k < p$ are multiples of $p$), so $(t + \omega)^p = t^p +
+\omega^p = t - \omega$, using Fermat for $t$. Therefore
+
+$$x^2 = (t + \omega)^{p+1} = (t + \omega)(t - \omega) = t^2 - w = a.$$
+
+Finally, $a$ already has two square roots in $\mathbb{F}_p$, and the polynomial $X^2 -
+a$ has only two roots in the larger field too, so $x$ is one of them: its
+$\omega$-part is 0. $\blacksquare$
+
+*By hand: the square root of 10 modulo 13 again.* $t = 0$ gives $-10 \equiv 3$, a
+square; $t = 1$ gives $-9 \equiv 4$, a square; $t = 2$ gives $4 - 10 \equiv 7$, a
+non-square. So $\omega^2 = 7$ and we need $(2 + \omega)^7$:
+
+- $(2 + \omega)^2 = 4 + 4\omega + 7 = 11 + 4\omega$;
+- $(2 + \omega)^4 = (11 + 4\omega)^2 = 121 + 88\omega + 16 \cdot 7 = 233 + 88\omega \equiv
+  12 + 10\omega$;
+- $(2 + \omega)^6 = (12 + 10\omega)(11 + 4\omega) = 132 + 280 + (48 + 110)\omega = 412 +
+  158\omega \equiv 9 + 2\omega$;
+- $(2 + \omega)^7 = (9 + 2\omega)(2 + \omega) = 18 + 14 + (9 + 4)\omega = 32 + 13\omega
+  \equiv 6 + 0\omega$.
+
+The $\omega$-part vanished, as promised, and $6^2 = 36 \equiv 10$. (Tonelli-Shanks found
+7, the other root.)
+
+```python
+def cipolla(a, p):
+    """A square root of the residue a modulo the odd prime p, by Cipolla's method."""
+    t = 0
+    while pow(t * t - a, (p - 1) // 2, p) != p - 1:   # t^2 - a must be a non-residue
+        t += 1
+    w = (t * t - a) % p                   # F_p^2 = F_p(omega) with omega^2 = w
+
+    def mul(u, v):                        # (u0 + u1 omega)(v0 + v1 omega)
+        return ((u[0] * v[0] + u[1] * v[1] * w) % p, (u[0] * v[1] + u[1] * v[0]) % p)
+
+    result, base, e = (1, 0), (t, 1), (p + 1) // 2
+    while e:                              # (t + omega)^((p+1)/2)
+        if e & 1:
+            result = mul(result, base)
+        base, e = mul(base, base), e >> 1
+    assert result[1] == 0                 # the answer lies in F_p
+    return t, w, result[0]
+
+print(cipolla(10, 13))
+print(cipolla(2, 12289), 12289 - 9189)
+```
+
+It prints:
+
+```text
+(2, 7, 6)
+(5, 23, 9189) 3100
+```
+
+For $\sqrt 2$ modulo 12289 Cipolla needs no loop at all: $t = 5$ makes $25 - 2 = 23$ a
+non-square, and one exponentiation in $\mathbb{F}_{p^2}$ lands on 9189, the root of the
+long Tonelli-Shanks run in §5.7.
+
+### When Cipolla wins
+
+Each multiplication in $\mathbb{F}_{p^2}$ costs about five in $\mathbb{F}_p$ the way
+the code does it (three or four with care), so Cipolla's exponentiation is several
+times dearer than one in $\mathbb{F}_p$. Tonelli-Shanks pays one exponentiation in
+$\mathbb{F}_p$ plus up to about $s^2/2$ for the loop. So Tonelli-Shanks wins when $s$ is
+small and Cipolla wins when $s^2$ grows past a few times $\log_2 p$. Counting
+multiplications in plain Python versions of both, averaged over 20 random squares
+for each of three real primes (Tonelli-Shanks shares one exponentiation between $r$
+and $t$: $w = a^{(q-1)/2}$, $r = aw$, $t = rw$; Cipolla's search for $t$ is not
+counted):
+
+| prime | $s$ | Tonelli-Shanks | Cipolla |
+|---|---|---|---|
+| $2^{255} - 19$ | 2 | 505 | 2,525 |
+| Pallas (Pasta) | 32 | 575 | 1,495 |
+| P-224 | 96 | 2,763 | 1,750 |
+
+For Curve25519's prime Tonelli-Shanks is five times cheaper (and the formulas of
+§5.11 cheaper still). For the Pasta prime with $s = 32$ it still wins on average,
+though an input that needs all 31 passes costs it far more than the average. For P-224, whose prime $2^{224} - 2^{96} + 1$
+has $p - 1 = 2^{96}(2^{128} - 1)$ and so $s = 96$, Cipolla is cheaper, and a
+constant-time Tonelli-Shanks, which must always pay the worst case of about $96^2/2
+\approx 4{,}600$ squarings, is far worse. Cipolla has its own catch: its search for $t$
+depends on $a$, which constant-time code must hide. Siguna Müller (2004) and later work
+refine both families for the awkward cases.
+
+### Square roots in $\mathbb{F}_{p^2}$
+
+Pairing-friendly curves ([Chapter 13](13-Counting-Points-and-Pairings.md#139-pairing-friendly-curves))
+put their second group, $G_2$, on a curve over $\mathbb{F}_{p^2}$. For BN254 and
+BLS12-381 the prime is $\equiv 3 \pmod 4$, so $-1$ is a non-square and $\mathbb{F}_{p^2} =
+\mathbb{F}_p(i)$ with $i^2 = -1$: the "complex numbers" modulo $p$. A compressed
+$G_2$ point (96 bytes on BLS12-381, against 192 uncompressed) is decompressed with a
+square root in this field, and hashing to $G_2$ (RFC 9380) needs one too. Since
+$p^2 \equiv 1 \pmod 8$ always, the easy formulas do not apply in $\mathbb{F}_{p^2}$, but
+the "complex method" (used in 2007 by Augusto Jun Devegili, Michael Scott and
+Ricardo Dahab for BN curves; Gora Adj and Francisco Rodríguez-Henríquez studied it and
+its relatives in 2014) reduces the problem to two
+square roots in $\mathbb{F}_p$, exactly as one takes square roots of complex numbers by
+hand.
+
+**Which elements are squares.** The **norm** $N(a_0 + a_1 i) = a_0^2 + a_1^2 = (a_0 + a_1
+i)(a_0 - a_1 i)$ lies in $\mathbb{F}_p$ and is multiplicative. It equals $\alpha^{p+1}$
+for $\alpha = a_0 + a_1 i$, because $\alpha^p = a_0 - a_1 i$ (the same Frobenius step
+as in Cipolla). So $\alpha^{(p^2 - 1)/2} = (\alpha^{p+1})^{(p-1)/2} = N(\alpha)^{(p-1)/2}$,
+and by Euler's criterion in both fields, $\alpha$ is a square in $\mathbb{F}_{p^2}$
+exactly when its norm is a square in $\mathbb{F}_p$. That is the `is_square` of RFC
+9380, Appendix I.5: a test in the big field done with one Legendre symbol in the small
+one.
+
+**The root.** Want $x_0 + x_1 i$ with $(x_0 + x_1 i)^2 = a_0 + a_1 i$, that is $x_0^2 -
+x_1^2 = a_0$ and $2x_0x_1 = a_1$. Taking norms, $x_0^2 + x_1^2 = \alpha$ with $\alpha^2 =
+a_0^2 + a_1^2$. Add the two equations: $x_0^2 = (a_0 + \alpha)/2$. So:
+
+1. Compute $\alpha = \sqrt{a_0^2 + a_1^2}$ in $\mathbb{F}_p$ (if there is none, $a$ is
+   not a square).
+2. Compute $x_0 = \sqrt{(a_0 + \alpha)/2}$; if that is not a square, use $-\alpha$
+   instead. Exactly one of the two works, because their product is $(a_0^2 -
+   \alpha^2)/4 = -a_1^2/4$, a non-square when $a_1 \neq 0$.
+3. Set $x_1 = a_1 / (2x_0)$. (If $a_1 = 0$, the root is $\sqrt{a_0}$ or $i\sqrt{-a_0}$.)
+
+*Check:* $x_0^2 - x_1^2 = \frac{a_0 + \alpha}{2} - \frac{a_1^2}{2(a_0 + \alpha)} =
+\frac{(a_0 + \alpha)^2 - a_1^2}{2(a_0 + \alpha)} = \frac{2a_0^2 + 2a_0\alpha}{2(a_0 +
+\alpha)} = a_0$, using $\alpha^2 = a_0^2 + a_1^2$.
+
+*By hand, $p = 11$, $a = 3 + 5i$.* The norm is $9 + 25 = 34 \equiv 1$, a square, with
+$\alpha = \pm 1$. With $\alpha = 1$: $(3 + 1)/2 = 2$, not a square modulo 11. With
+$\alpha = -1$: $(3 - 1)/2 = 1$, so $x_0 = 1$. Then $x_1 = 5/2 = 5 \cdot 6 = 30 \equiv
+8$. Check: $(1 + 8i)^2 = 1 - 64 + 16i = -63 + 16i \equiv 3 + 5i$.
+
+```python
+# Square roots in F_p^2 = F_p(i), i^2 = -1, for p = 3 mod 4: the "complex method".
+import random
+
+def sqrt_fp(a, p):                        # p = 3 mod 4
+    x = pow(a, (p + 1) // 4, p)
+    return x if x * x % p == a % p else None
+
+def sqrt_fp2(a0, a1, p):
+    """A square root of a0 + a1 i in F_p(i), or None."""
+    if a1 % p == 0:                       # a lies in F_p: its root is x or x i
+        x = sqrt_fp(a0, p)
+        return (x, 0) if x is not None else (0, sqrt_fp(-a0, p))
+    alpha = sqrt_fp(a0 * a0 + a1 * a1, p) # the norm must be a square in F_p
+    if alpha is None:
+        return None
+    half = pow(2, -1, p)
+    x0 = sqrt_fp((a0 + alpha) * half, p)
+    if x0 is None:                        # the other sign of alpha works instead
+        x0 = sqrt_fp((a0 - alpha) * half, p)
+    x1 = a1 * pow(2 * x0, -1, p) % p
+    return x0, x1
+
+def square(x0, x1, p):
+    return (x0 * x0 - x1 * x1) % p, 2 * x0 * x1 % p
+
+print(sqrt_fp2(3, 5, 11), square(1, 8, 11))
+
+p = 0x1a0111ea397fe69a4b1ba7b6434bacd764774b84f38512bf6730d2a0f6b0f6241eabfffeb153ffffb9feffffffffaaab
+rng = random.Random(381)
+ok = found = 0
+for _ in range(1000):
+    a = (rng.randrange(p), rng.randrange(p))
+    r = sqrt_fp2(*a, p)
+    if r is not None:
+        found += 1
+        ok += square(*r, p) == a
+print(p % 4, found, ok)
+```
+
+It prints:
+
+```text
+(1, 8) (3, 5)
+3 513 513
+```
+
+The second line runs on the 381-bit prime of BLS12-381: of 1,000 random elements of
+$\mathbb{F}_{p^2}$, 513 had a square root (about half, as in every finite field of odd
+size), and every root found squares back correctly. The whole computation is two
+exponentiations and one inversion in $\mathbb{F}_p$, instead of one exponentiation in
+$\mathbb{F}_{p^2}$, where $p^2 - 1$ is divisible by at least 8 and Tonelli-Shanks
+would have work to do. Production code also fixes which of the two roots it returns
+(RFC 9380 uses a "sign" bit, `sgn0`), because a compressed point names its root by
+that bit, and RFC 9380 writes every square root and square test in constant time,
+because in hashing to a curve they run on secret data.
 
 **Higher residues.** One can ask which numbers are cubes, or $k$-th powers,
 modulo $p$. When $k \mid p - 1$ exactly a $1/k$ fraction of the units are $k$-th
@@ -779,33 +1631,40 @@ group action in CSIDH (2018), grows directly from this theory.
     $1^2, \dots, 6^2$ give 1, 4, 9, 3, 12, 10. The residues are 1, 3, 4, 9, 10,
     12; the non-residues are 2, 5, 6, 7, 8, 11.
 
-??? question "2. Use Euler's criterion to decide whether 3 is a square mod 23."
+??? question "2. Use Gauss's lemma to decide whether 3 is a square modulo 13."
 
-    $3^{11} \bmod 23$: $3^2 = 9$, $3^4 = 81 \equiv 12$, $3^8 \equiv 144 \equiv 6$,
-    $3^{11} = 3^8 \cdot 3^2 \cdot 3 \equiv 6 \cdot 9 \cdot 3 = 162 \equiv 1$. So 3
-    is a square; indeed $7^2 = 49 \equiv 3$.
+    The multiples $3, 6, 9, 12, 15, 18$ reduce to $3, 6, 9, 12, 2, 5$, and into the
+    range $-6$ to $6$ as $3, 6, -4, -1, 2, 5$. Two are negative, so
+    $\left(\frac{3}{13}\right) = (-1)^2 = +1$: 3 is a square. Indeed $4^2 = 16
+    \equiv 3$.
 
-??? question "3. For which primes is $-1$ a square? Is $-1$ a square mod 29? Find a root."
-
-    For $p = 2$ and $p \equiv 1 \pmod 4$. $29 \equiv 1 \pmod 4$, so yes;
-    $12^2 = 144 = 4 \cdot 29 + 28 \equiv -1$.
-
-??? question "4. Compute $\left(\frac{3}{101}\right)$ with reciprocity."
+??? question "3. Compute $\left(\frac{3}{101}\right)$ with reciprocity."
 
     $101 \equiv 1 \pmod 4$, so $\left(\frac{3}{101}\right) =
     \left(\frac{101}{3}\right) = \left(\frac{2}{3}\right) = -1$.
 
-??? question "5. Find both square roots of 2 modulo 23, using $p \equiv 3 \pmod 4$."
+??? question "4. Find both square roots of 2 modulo 23, using $p \equiv 3 \pmod 4$."
 
     $23 \equiv 7 \pmod 8$, so 2 is a square. $2^{(23+1)/4} = 2^6 = 64 \equiv 18$.
     Check: $18^2 = 324 = 14 \cdot 23 + 2$. The roots are 18 and 5.
 
-??? question "6. Why can't you just compute $a^{(p+1)/4}$ when $p \equiv 1 \pmod 4$?"
+??? question "5. A P-256 decoder receives `02` followed by an $x$ for which $x^3 - 3x + b$ is not a square modulo $p$. What should it do, and what goes wrong if it just returns $(x, \text{rhs}^{(p+1)/4})$?"
 
-    Then $(p + 1)/4$ is not an integer. And the analogous trick fails: $x =
-    a^{(p+3)/8}$ (for $p \equiv 5 \pmod 8$) gives $x^2 = \pm a$, and fixing the
-    sign needs a square root of $-1$. The general case needs Tonelli-Shanks or
-    Cipolla.
+    Reject the input: no point on the curve has that $x$. The value $y =
+    \text{rhs}^{(p+1)/4}$ then satisfies $y^2 = \text{rhs} \cdot
+    \text{rhs}^{(p-1)/2} = -\text{rhs}$, so $(x, y)$ is not on P-256. Since the
+    addition formulas never use $b$, the device would compute in the group of another
+    curve $y^2 = x^3 - 3x + b'$, chosen by the attacker, which may have small subgroups
+    that leak the secret key piece by piece (the invalid-curve attack).
+
+??? question "6. Run Tonelli-Shanks for the square root of 5 modulo 41, with the non-residue $z = 3$."
+
+    $40 = 2^3 \cdot 5$, so $s = 3$, $q = 5$. Start: $c = 3^5 = 243 \equiv 38$, $t = 5^5
+    = 3125 \equiv 9$, $r = 5^3 = 125 \equiv 2$, $m = 3$. Pass 1: $9^2 = 81 \equiv -1$
+    and $(-1)^2 = 1$, so $i = 2$, $b = c = 38$; then $c = 38^2 \equiv 9$, $t = 9 \cdot 9
+    \equiv 40$, $r = 2 \cdot 38 = 76 \equiv 35$. Pass 2: $t = -1$, so $i = 1$, $b = c =
+    9$; then $c = 81 \equiv 40$, $t = 40 \cdot 40 \equiv 1$, $r = 35 \cdot 9 = 315
+    \equiv 28$. Answer 28 (and 13): $28^2 = 784 = 19 \cdot 41 + 5$.
 
 ??? question "7. Find the four square roots of 4 modulo 77, and factor 77 from two of them."
 
@@ -813,11 +1672,13 @@ group action in CSIDH (2018), grows directly from this theory.
     \equiv 2 \pmod 7$, $x \equiv -2 \pmod{11}$ gives 9; and its negative, 68.
     $\gcd(9 - 2, 77) = 7$.
 
-??? question "8. Compute $\left(\frac{5}{21}\right)$. Is 5 a square modulo 21?"
+??? question "8. Use Cipolla's method to find a square root of 2 modulo 17."
 
-    $\left(\frac{5}{3}\right)\left(\frac{5}{7}\right) = \left(\frac{2}{3}\right)
-    \left(\frac{5}{7}\right) = (-1)(-1) = 1$. But 5 is not a square modulo 3, so
-    it is not a square modulo 21: a pseudosquare.
+    $t = 0, 1, 2$ give $t^2 - 2 \equiv 15, 16, 2$, all squares mod 17; $t = 3$ gives 7,
+    a non-square. With $\omega^2 = 7$: $(3 + \omega)^2 = 16 + 6\omega$, $(3 +
+    \omega)^4 = 15 + 5\omega$, $(3 + \omega)^8 = 9 + 14\omega$, and $(3 + \omega)^9 =
+    (9 + 14\omega)(3 + \omega) = 125 + 51\omega \equiv 6$. Check: $36 = 2 \cdot 17 +
+    2$. The roots are 6 and 11.
 
 ??? question "9. In Goldwasser-Micali, why must $y$ have Jacobi symbol $+1$ rather than $-1$?"
 
@@ -838,16 +1699,25 @@ group action in CSIDH (2018), grows directly from this theory.
   they are the even powers of a primitive root.
 - Euler's criterion: $a^{(p-1)/2}$ is $+1$ for squares and $-1$ for non-squares.
   The Legendre symbol records the answer and is multiplicative.
-- Quadratic reciprocity links squareness mod $p$ and mod $q$; Eisenstein's
-  lattice-point count proves it.
+- Quadratic reciprocity links squareness mod $p$ and mod $q$. Gauss's lemma counts
+  negative multiples, and Eisenstein's lattice-point count, which has the same parity,
+  proves the law.
 - The Jacobi symbol extends the Legendre symbol to odd composites and is
   computed like a gcd, without factoring; but a Jacobi symbol of $+1$ does not
   mean "square".
-- Square roots mod $p$: $a^{(p+1)/4}$ when $p \equiv 3 \pmod 4$, Tonelli-Shanks
-  otherwise. They make point compression work.
+- Square roots mod $p$: $a^{(p+1)/4}$ when $p \equiv 3 \pmod 4$, a short formula
+  when $p \equiv 5 \pmod 8$, Tonelli-Shanks otherwise. Tonelli-Shanks keeps $r^2 =
+  at$ and halves the order of $t$ until it is 1; it needs up to $s - 1$ passes, where
+  $2^s$ is the power of 2 in $p - 1$, so NTT primes like 12289 are its hard cases.
+- Cipolla's method computes $(t + \omega)^{(p+1)/2}$ in $\mathbb{F}_{p^2}$; its cost
+  does not depend on $s$, and it beats Tonelli-Shanks when $s$ is large (P-224).
+- Point decompression is a square root plus a check that it squares back; skipping
+  the check opens the invalid-curve attack. In $\mathbb{F}_{p^2}$ (pairing curves)
+  the complex method reduces a root to two roots in $\mathbb{F}_p$.
 - Modulo $N = pq$ there are four roots, and finding square roots is equivalent
-  to factoring (Rabin). The same proof is a chosen-ciphertext attack on Rabin
-  encryption.
+  to factoring (Rabin). The proof runs as a program that factors $N$ in about two
+  calls to any square-root box, and the same proof is a chosen-ciphertext attack on
+  Rabin encryption.
 - Goldwasser-Micali encrypts bits as squares and pseudosquares: the first
   probabilistic, semantically secure, homomorphic encryption.
 - In the full group mod $p$, the Legendre symbol leaks one bit of every
@@ -863,10 +1733,27 @@ number is prime, and how keys are made.
 - Franz Lemmermeyer, *Reciprocity Laws: From Euler to Eisenstein* (Springer,
   2000), with its list of published proofs.
 - Carl Friedrich Gauss, *Disquisitiones Arithmeticae* (1801), section IV.
+- Alberto Tonelli, "Bemerkung über die Auflösung quadratischer Congruenzen",
+  *Nachrichten von der Königlichen Gesellschaft der Wissenschaften zu Göttingen*
+  (1891).
+- Michele Cipolla, "Un metodo per la risoluzione della congruenza di secondo grado",
+  *Rendiconto dell'Accademia delle Scienze Fisiche e Matematiche di Napoli* (1903).
 - Daniel Shanks, "Five Number-theoretic Algorithms", *Proceedings of the Second
   Manitoba Conference on Numerical Mathematics* (1973): Tonelli-Shanks.
 - Henri Cohen, *A Course in Computational Algebraic Number Theory* (Springer,
   1993), §1.5 on square roots and the Jacobi symbol.
+- Daniel J. Bernstein, "Faster Square Roots in Annoying Finite Fields" (draft, 2001):
+  table lookups for Tonelli-Shanks.
+- Siguna Müller, "On the Computation of Square Roots in Finite Fields", *Designs,
+  Codes and Cryptography* 31 (2004): Atkin's method and its extensions.
+- Palash Sarkar, "Computing Square Roots Faster than the Tonelli-Shanks/Bernstein
+  Algorithm", Cryptology ePrint Archive 2020/1407 (journal version 2024).
+- Augusto Jun Devegili, Michael Scott and Ricardo Dahab, "Implementing Cryptographic
+  Pairings over Barreto-Naehrig Curves", *Pairing 2007*: the complex method in
+  $\mathbb{F}_{p^2}$.
+- Gora Adj and Francisco Rodríguez-Henríquez, "Square Root Computation over Even
+  Extension Fields", *IEEE Transactions on Computers* 63 (2014).
+- Ivan Damgård, "On the Randomness of Legendre and Jacobi Sequences", *CRYPTO 1988*.
 - Michael Rabin, "Digitalized Signatures and Public-Key Functions as Intractable
   as Factorization" (MIT/LCS/TR-212, 1979).
 - Hugh Williams, "A Modification of the RSA Public-Key Encryption Procedure",
@@ -878,6 +1765,14 @@ number is prime, and how keys are made.
 - SEC 1: Elliptic Curve Cryptography, version 2.0 (Certicom Research, 2009),
   §2.3.3 and §2.3.4 on point compression.
 - RFC 8032, Edwards-Curve Digital Signature Algorithm (2017), §5.1.3 on decoding.
-- RFC 9380, Hashing to Elliptic Curves (2023).
+- RFC 9380, Hashing to Elliptic Curves (2023), Appendix I on square roots and
+  `is_square`.
+- SP 800-186, Recommendations for Discrete Logarithm-based Cryptography: Elliptic
+  Curve Domain Parameters (NIST, 2023): the P-256 base point.
 - In *The cryptography book*: [Chapter 15](../../book/15-Elliptic-Curves.md),
-  [Chapter 17](../../book/17-Defining-Security.md).
+  [Chapter 17](../../book/17-Defining-Security.md). In this book: [Chapter
+  12](12-Elliptic-Curve-Group.md) (compression), [Chapter
+  13](13-Counting-Points-and-Pairings.md) (pairing curves). Elsewhere on the shelf:
+  [*Cryptanalysis*, Chapter 11](../cryptanalysis/11-Factoring.md) (congruent squares
+  in factoring), [*Advanced*, Chapter 12](../advanced/12-Homomorphic-Encryption.md)
+  (Goldwasser-Micali and Paillier).
