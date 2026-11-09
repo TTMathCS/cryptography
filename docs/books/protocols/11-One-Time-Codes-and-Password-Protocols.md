@@ -19,10 +19,12 @@ modern successor, which keeps even the server from learning the password.*
     - how a server verifies codes, and how codes are stolen: SIM swaps,
       real-time phishing and push fatigue;
     - password-authenticated key exchange (PAKE): balanced and augmented;
-    - SRP, run against RFC 5054's test values, and what a stolen verifier gives
-      an attacker;
-    - OPAQUE and its oblivious PRF, and CPace;
-    - why a counter works between Earth and Mars and a clock does not.
+    - SRP, run against RFC 5054's test values, what a stolen verifier gives
+      an attacker, and how SRP-3's two-for-one guess was fixed in SRP-6a;
+    - OPAQUE and its oblivious PRF, worked by hand and then run byte for byte
+      against RFC 9497 and RFC 9807; and CPace;
+    - why a counter works between Earth and Mars and a clock does not, and how
+      the city keeps its clocks.
 
     **You need:** [Chapter 1](01-What-a-Protocol-Must-Do.md) (offline and
     online guessing); HMAC and password hashing from Chapters
@@ -30,8 +32,8 @@ modern successor, which keeps even the server from learning the password.*
     [11](../../book/11-Passwords-and-Key-Derivation.md) of book 1, and
     Diffie-Hellman from [Chapter 12](../../book/12-Diffie-Hellman.md).
 
-    **Levels:** §11.1 to §11.3 are for beginners, §11.4 to §11.10 are
-    intermediate, §11.11 is expert.
+    **Levels:** §11.1 to §11.3 are for beginners, §11.4 to §11.9 and §11.11
+    to §11.12 are intermediate, §11.10 and §11.13 are expert.
 
 ## 11.1 The problem
 
@@ -302,7 +304,7 @@ point: a six-digit guess wins one time in a million whatever the hash.
 
 *Level: intermediate.*
 
-Enrolment is a QR code. The server draws a random secret of 160 bits, stores it
+Enrollment is a QR code. The server draws a random secret of 160 bits, stores it
 with the account, and shows it once as a URI in the `otpauth://` format that
 Google Authenticator introduced in 2010 and every app adopted. Verification
 must deal with clock drift, with replay, and with guessing.
@@ -365,17 +367,100 @@ Three rules are visible:
   sessions, not per session; NIST's guidelines (SP 800-63B-4, 2025) allow at
   most 100 consecutive failures before the account must be locked or slowed.
 
+### The window, drawn
+
+The window is easier to reason about with real numbers, and RFC 6238's own
+test times are well chosen for it. Take the server's clock at
+$t = 1{,}111{,}111{,}111$ seconds (18 March 2005, 01:58:31 UTC).
+
+1. The current slot is $\lfloor 1{,}111{,}111{,}111 / 30 \rfloor$. Since
+   $30 \times 37{,}037{,}037 = 1{,}111{,}111{,}110$, the slot is
+   **37,037,037**, and it began one second ago.
+2. With a window of one slot either side, the server computes codes for
+   slots 37,037,036, 37,037,037 and 37,037,038: three HMACs, three six-digit
+   values.
+3. A phone whose clock is 25 seconds slow reads $1{,}111{,}111{,}086$. Its slot
+   is $\lfloor 1{,}111{,}111{,}086 / 30 \rfloor = 37{,}037{,}036$, because
+   $30 \times 37{,}037{,}036 = 1{,}111{,}111{,}080$. That is the previous slot,
+   so the code is accepted as "slot $-1$", exactly what the program above
+   printed for its own phone.
+4. RFC 6238 lists $1{,}111{,}111{,}109$ and $1{,}111{,}111{,}111$ as separate
+   test times for this reason: two seconds apart, they straddle the boundary at
+   $1{,}111{,}111{,}110$ and give different codes (07081804 and 14050471 in
+   the program's output).
+
+So a code is accepted during three slots, 90 seconds of server time, and a
+phone up to about 30 seconds off in either direction still works. RFC 6238
+(section 6) suggests that the server record the drift it sees for each token
+at each successful login and shift that token's window to match, which is how
+hardware tokens with cheap crystals stay usable for years.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 250" width="640" role="img" aria-label="Five 30-second TOTP slots; the server accepts the current slot and one either side; a phone 25 seconds slow lands in the previous slot and is accepted" fill="currentColor" font-size="13">
+<text x="20" y="22" font-weight="bold">TOTP slots: C = floor(t / 30)</text>
+<path d="M152 44v12M152 50H488M488 44v12" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<g stroke="currentColor">
+<rect x="40" y="60" width="112" height="50" fill="none"/>
+<rect x="152" y="60" width="112" height="50" fill-opacity=".12"/>
+<rect x="264" y="60" width="112" height="50" fill-opacity=".28"/>
+<rect x="376" y="60" width="112" height="50" fill-opacity=".12"/>
+<rect x="488" y="60" width="112" height="50" fill="none"/>
+</g>
+<g text-anchor="middle">
+<text x="320" y="42">accepted: the current slot and one either side</text>
+<text x="96" y="90">…035</text><text x="208" y="90">…036</text>
+<text x="320" y="90" font-weight="bold">…037 now</text>
+<text x="432" y="90">…038</text><text x="544" y="90">…039</text>
+<g font-size="11.5"><text x="152" y="128">…080</text><text x="264" y="128">…110</text>
+<text x="376" y="128">…140</text><text x="488" y="128">…170</text></g>
+<text x="268" y="168">server clock 1111111111</text>
+<text x="175" y="204">phone, 25 s slow: 1111111086</text>
+<text x="175" y="220" font-size="12" fill-opacity=".7">slot −1, accepted</text>
+<text x="320" y="244" font-size="12.5">a code sent one way from Mars arrives 6 to 44 slots late</text>
+</g>
+<text x="40" y="128" font-size="11.5" fill-opacity=".7">t = 1111111…</text>
+<path d="M268 140l-5 12h10zM175 176l-5 12h10z"/>
+</svg>
+<figcaption>Figure 11.3. The TOTP window around RFC 6238's test time 1111111111. Slot numbers are shortened to their last three digits (37037035 to 37037039) and times to theirs.</figcaption>
+</figure>
+
 **The secret is the weak point.** The server cannot hash the shared key the way
 it hashes passwords, because it needs the key itself to compute codes. A
-leaked table of secrets gives an attacker every user's codes forever. The most
-famous case was the 2011 breach of RSA Security, whose SecurID tokens use a
-proprietary time-based algorithm with a factory-installed seed: attackers stole
-information about the seeds, the company replaced some 40 million tokens, and
-the defense contractor Lockheed Martin reported an attempted intrusion that
-used the stolen data. A smaller version happened in 2023: Google Authenticator
-had begun syncing secrets to users' Google accounts that April, and in August
-an attacker who took over an employee's Google account at the software company
-Retool obtained that employee's codes along with it.
+leaked table of secrets gives an attacker every user's codes forever. The
+standard advice is to encrypt the table under a key kept in a hardware module
+or a separate key service, and to decrypt one secret at a time when a code is
+checked; how to keep such keys apart from the data they protect is the subject
+of the Engineering book's chapter on
+[hardware for keys](../engineering/11-Hardware-for-Keys.md).
+
+The most famous leak was at a token vendor. RSA Security's SecurID tokens,
+sold since 1986, compute their codes from the time and a secret **seed**
+installed at the factory, and RSA kept a copy of every customer's seeds. In
+early March 2011 a few RSA employees received an email titled "2011
+Recruitment Plan" whose spreadsheet carried an unknown Adobe Flash exploit
+(CVE-2011-0609). One employee opened it, and the attackers installed a variant
+of the Poison Ivy remote-access tool and worked through the network. On 17
+March RSA announced that information about SecurID had been taken; in late May
+the defense contractor Lockheed Martin stopped an intrusion that used it; in
+June RSA offered replacement tokens, and its parent EMC took a charge of
+\$66.3 million in the second quarter of 2011. Some 40 million SecurID tokens
+were in use. In 2021, when ten-year confidentiality agreements expired, former
+staff told Wired that the intruders had reached the server RSA called the
+"seed warehouse" and copied data from it, though some former executives say it
+was never proven that a complete, usable list of seeds got out.
+
+!!! note "Life story: the SecurID seed theft"
+    **Born:** March 2011, from one phishing email and a Flash zero-day.
+    **Purpose:** to steal token seeds as a step toward RSA's customers.
+    **Helped:** an intrusion attempt at Lockheed Martin in May 2011; Wired later
+    reported that the contractors Northrop Grumman and L-3 were targeted too.
+    **Status:** closed by replacing tokens. Its lesson stands: a vendor that
+    keeps its customers' secrets is one place to steal them all.
+
+A smaller version happened in 2023: Google Authenticator had begun syncing
+secrets to users' Google accounts that April, and in August an attacker who
+took over an employee's Google account at the software company Retool obtained
+that employee's codes along with it.
 
 ## 11.5 How codes are stolen
 
@@ -389,7 +474,9 @@ in an app. A text message is not cryptographically bound to the phone; it is
 delivered to whatever SIM card the mobile operator says holds the number. In a
 **SIM swap**, the attacker persuades or bribes an operator's employee to move
 the victim's number to a new SIM, then receives every code. In August 2019 the
-Twitter account of Twitter's own chief executive was taken over this way.
+phone number of Twitter's own chief executive, Jack Dorsey, was moved this way,
+and the attackers posted to his account through Twitter's tweet-by-text
+service.
 Messages can also be redirected inside the operators' signaling network, SS7,
 which trusts any operator connected to it; in 2017 criminals used SS7 access to
 intercept banking codes and empty accounts in Germany. NIST's guidelines have
@@ -431,18 +518,89 @@ and NIST no longer counts one as such.
 <text x="40" y="240">the user cannot reliably tell arcadia-city.co from arcadia.mars</text>
 <text x="40" y="262" class="acc-fill">a key that signs only for the real origin (Chapter 13) cannot be relayed</text>
 </svg>
-<figcaption>Figure 11.3. Real-time phishing. The code does its job, proving the user has the phone; it just proves it to the attacker.</figcaption>
+<figcaption>Figure 11.4. Real-time phishing. The code does its job, proving the user has the phone; it just proves it to the attacker.</figcaption>
 </figure>
 
 **Push fatigue.** Some services skip the code and send a push notification:
 "Is this you signing in? Approve / Deny". An attacker with the password can
 trigger dozens of these, at night, until the user taps Approve to make them
-stop. In September 2022 an attacker got into Uber's internal systems this way,
-after messaging the employee while posing as company IT. The fix is **number
-matching**: the login page shows a two-digit number and the user must type it
-into the app, which proves the user is looking at the login they are
-approving. Microsoft made number matching mandatory in its Authenticator app in
-May 2023.
+stop. In September 2022 an attacker got into Uber's internal systems this way:
+with a contractor's password, probably bought from a criminal market, the
+attacker sent approval request after approval request and then messaged the
+contractor on WhatsApp, posing as Uber's IT staff, to say the prompts would stop
+once one was accepted. The fix is **number matching**: the login page shows a
+two-digit number and the user must type it into the app, which proves the user
+is looking at the login they are approving. Microsoft made number matching
+mandatory in its Authenticator app in May 2023.
+
+### SIM swaps and push fatigue, case by case
+
+The record shows why the defenses moved from "add a code" to "bind the login
+to something that cannot be talked out of a person".
+
+- **January 2018.** The investor Michael Terpin lost cryptocurrency then worth
+  about \$24 million after his number was moved to an attacker's SIM; he sued
+  his carrier, AT&T. Cryptocurrency thefts became the typical SIM-swap crime,
+  because the transfers cannot be reversed.
+- **2021.** The FBI's Internet Crime Complaint Center received 1,611
+  complaints about SIM swapping, with reported losses of more than \$68
+  million, against about \$12 million in 2018 to 2020 together.
+- **November 2023.** The US Federal Communications Commission adopted rules
+  requiring mobile carriers to authenticate customers securely before moving a
+  number to a new SIM or a new carrier, and to notify them when it happens.
+- **9 January 2024.** The US Securities and Exchange Commission's X account
+  falsely announced approval of bitcoin exchange-traded funds. The SEC said that the phone
+  number linked to the account had been moved to another SIM, and that
+  multi-factor login had been off since July 2023. One attacker had walked
+  into a phone shop in Alabama with a fake identity card; he was sentenced to
+  14 months in prison in 2025.
+
+Push fatigue has a shorter record. In 2022 the group known as Lapsus\$ used it,
+with bought passwords and calls to help desks, against several large
+technology companies. At Cisco, an attacker who had found an employee's
+password synced into a personal Google account called the employee for days,
+posing as support staff, and sent push requests until one was approved (Cisco
+detected it on 24 May 2022). Uber followed in September. Each case is the same
+protocol failure: the approval message says
+"someone is logging in" but not *which* login, so the user cannot tell the
+attacker's attempt from their own. Number matching repairs exactly that
+missing binding, and nothing else; it does not help against a phishing proxy,
+where the user really is looking at the login, only on the wrong site.
+
+### Why every typed code can be phished
+
+Why can no code that a person reads and types resist phishing? A code proves
+one thing: that whoever typed it had access to the secret $K$
+(or the phone number) within the last minute or so. It says nothing about
+*where* it is being typed. The value $\mathrm{HOTP}(K, C)$ contains no name
+of the site, no hash of the TLS connection, nothing that the real server can
+compare with what it sees. A proxy that receives the code can therefore
+present it, unchanged, on its own connection to the real site, and the real
+site has no way to tell. Like the bearer tokens of
+[Chapter 14](14-OAuth-OpenID-Connect-and-JWT.md), the code is a **bearer**
+credential: it authenticates whoever holds it, for as long as it is
+valid. A shorter window does not help, because the proxy relays in
+milliseconds, and a longer code does not either.
+
+The fix is to bind the proof to the **origin**, the site's name as the browser
+sees it, so that a proof made for `arcadia-city.co` is useless at
+`arcadia.mars`. A person cannot be trusted to do that, so the computation moves
+into the browser and an authenticator, and it becomes a signature. That is the
+design of passkeys, and
+[§13.5](13-Passkeys-FIDO2-and-WebAuthn.md#135-why-a-passkey-cannot-be-phished)
+shows the check that a proxy cannot pass.
+
+The scale is large. In July 2022 Microsoft described a campaign built on the
+Evilginx2 toolkit that had attempted to target more than 10,000 organizations
+since September 2021, proxying the real Office 365 login and using the stolen
+session cookies for payment fraud, sometimes within minutes. A campaign
+that Group-IB named **0ktapus**, reported in August 2022 and running since at
+least that March, sent text messages to
+employees of more than 130 organizations, linking to fake single sign-on pages
+that asked for the password and then the code; Group-IB counted 9,931 stolen
+credentials. Twilio was breached. Cloudflare's employees got the same messages
+and some typed their passwords, but Cloudflare used hardware security keys, so
+the passwords alone were useless.
 
 ## 11.6 Challenge-response and why the password should stay home
 
@@ -508,6 +666,33 @@ ever sending a password.
 5. **Confirmation.** Each sends a hash proving it has $S$.
 
 </div>
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 380" width="640" role="img" aria-label="SRP-6a message flow: registration sends salt and verifier; login sends A, receives salt and B equal to k v plus g to the b, both compute u and S by different formulas, then exchange proofs" fill="currentColor" font-size="13">
+<path d="M110 30V370M530 30V370" stroke="currentColor" stroke-opacity=".4"/>
+<rect x="10" y="38" width="620" height="76" rx="6" fill-opacity=".07"/>
+<g fill-opacity=".14" stroke="currentColor"><rect x="10" y="244" width="250" height="44" rx="6"/><rect x="380" y="244" width="250" height="44" rx="6"/></g>
+<path d="M230 96H520M120 160H520M520 200H120M120 316H520M520 350H120" stroke="currentColor" stroke-width="1.5"/>
+<path d="M520 96l-12-5v10zM520 160l-12-5v10zM120 200l12-5v10zM520 316l-12-5v10zM120 350l12-5v10z"/>
+<g font-size="12" fill-opacity=".7"><text x="20" y="56">registration, once, over a protected channel</text><text x="20" y="140">login</text></g>
+<text x="20" y="78">x = H(s ‖ H(I ‖ ":" ‖ P)),  v = gˣ</text>
+<g text-anchor="middle">
+<text x="110" y="22" font-weight="bold">client: knows P</text>
+<text x="530" y="22" font-weight="bold">server: knows s, v</text>
+<text x="375" y="90">I, s, v</text>
+<text x="320" y="153">I, A = gᵃ</text>
+<text x="320" y="193">s, B = k·v + gᵇ   (SRP-3: k = 1; SRP-6: k = 3; SRP-6a: k = H(N, g))</text>
+<text x="320" y="230">both: u = H(A ‖ B)   (SRP-3: u from B alone)</text>
+<text x="135" y="271">S = (B − k·gˣ)^(a + u·x)</text>
+<text x="505" y="271">S = (A·vᵘ)^b</text>
+<text x="320" y="271" font-size="12">= g^(b(a+ux))</text>
+<text x="320" y="309">M1 = H(A, B, K): "I have S"</text>
+<text x="320" y="343">M2 = H(A, M1, K): "so do I"</text>
+<text x="320" y="374" font-size="12" fill-opacity=".7">K = H(S); the server must refuse A ≡ 0 (mod N), the client B ≡ 0</text>
+</g>
+</svg>
+<figcaption>Figure 11.5. SRP, with the places where its versions differ. The client needs the password to remove the k·v term from B; the server needs only the verifier to compute the same S.</figcaption>
+</figure>
 
 ### Code it: SRP-6a against RFC 5054
 
@@ -579,7 +764,11 @@ premaster secret all match the RFC, and the two sides agree. The last lines
 show SRP's limit. A thief who steals the server's database gets $s$ and $v$,
 and can test password guesses offline by computing $g^x$ for each, exactly as
 with a stolen password hash, and with no slow hashing unless the
-implementation adds it. Worse, the salt $s$ is sent to anyone who starts a
+implementation adds it. (RFC 5054's $x$ is a single SHA-1 of the salted
+password; what a slow password hash costs an attacker, and how to choose its
+parameters, is the subject of the Engineering book's
+[chapter 13](../engineering/13-Passwords-on-the-Server.md#132-choosing-parameters-today),
+which this chapter does not repeat.) Worse, the salt $s$ is sent to anyone who starts a
 login for user $I$, before any authentication. An attacker can collect the salt
 in advance and precompute guesses for that user, so that the moment the
 database is stolen the password falls. SRP also has a long history of
@@ -587,6 +776,120 @@ implementation mistakes, such as servers that accept $A = 0$ or $A = N$, which
 makes the shared secret zero and lets anyone log in. The protocol was designed
 in 1998 around integer groups, and its proof came much later and only for
 variants.
+
+### SRP's versions, and what broke each
+
+"SRP" names a family whose members differ by small formulas with large
+consequences. Wu's first designs, SRP-1 and SRP-2, were worked out at
+Stanford in 1997 and discussed on the Usenet group sci.crypt; the SRP home
+page lists them only as earlier versions whose weaknesses the published
+protocol addressed, and they were never standardized.
+
+**SRP-3 (1998, RFC 2945 in 2000).** The version in Wu's NDSS paper, and the
+one RFC 2945 specifies on the standards track. The server sends
+$B = v + g^b$, with no multiplier, and the scrambler is the first 32 bits of
+$\mathrm{SHA\text{-}1}(B)$, computed from $B$ alone. Two problems were found
+in it, and Wu's 2002 revision fixed both.
+
+The first is about **message order**. Because $u$ depends only on $B$, a
+client that saw $B$ (and so $u$) before choosing $A$ could choose $A$ to cancel
+the verifier. Someone who has stolen $v$ but not the password picks a random
+$a$ and sends $A = g^a \cdot v^{-u}$. The server computes
+$S = (A v^u)^b = g^{ab}$, and the thief computes the same value as
+$(B - v)^a$, since $B - v = g^b$. The thief logs in with the verifier alone,
+which an augmented PAKE promises cannot happen. SRP-3 avoids this only by
+requiring that the client send $A$ first, a rule that is awkward for TLS,
+where the server's key exchange message comes first.
+
+The second is the **two-for-one guess**. A fake server, which wants to test
+passwords against a real client, chooses two candidate passwords with
+verifiers $v_1 = g^{x_1}$ and $v_2 = g^{x_2}$ and sends
+
+$$B = v_1 + v_2 \bmod N.$$
+
+If the client's password is the first candidate, the client computes
+$B - v_1 = v_2 = g^{x_2}$, a value whose discrete logarithm the fake server
+knows; so the fake server can compute the client's $S$ as
+$A^{x_2} g^{u x_1 x_2}$ and compare it with the client's proof. If the
+password is the second candidate, then $B - v_2 = g^{x_1}$ and the same trick
+works the other way round. One run tests two passwords, breaking the promise
+of one guess per online attempt.
+
+**SRP-6 (2002).** Wu's submission to the IEEE P1363.2 working group fixed
+both. The scrambler became $u = H(A \,\|\, B)$, so the messages can come in
+either order, and the server's value became $B = 3v + g^b$: the fake server's
+trick now gives $B - 3v_1 = 3 g^{x_2}$, and computing $S$ needs the discrete
+logarithm of 3.
+
+**SRP-6a (a revision of SRP-6; RFC 5054 in 2007).** An attacker who can pick
+the group, for example with $g = 3$, knows the logarithm of 3 trivially.
+SRP-6a made the multiplier a hash of the group,
+$k = H(N \,\|\, \mathrm{PAD}(g))$. RFC 5054, which put SRP into TLS in November 2007, uses it,
+and says what each value is for: $u$ stops a verifier thief from logging in,
+$k$ stops the two-for-one guess by someone who can select the group. An
+erratum later pointed out that the 2002 paper's SRP-6 uses $k = 3$ while the
+RFC's "SRP-6" is really SRP-6a, a confusion that can break interoperability.
+
+The program plays the fake server against an honest client, with SRP-3's
+$B = v_1 + v_2$ and then SRP-6a's $B = k(v_1 + v_2)$, using $u = H(A \,\|\, B)$
+in both cases because the attack does not depend on $u$.
+
+```python
+# Uses N, g, k, H, pad, b2i, s and I from the SRP listing above.
+# SRP-3's two-for-one guess: a fake server sends B = v1 + v2 and tests two
+# passwords against one client's proof. SRP-6a's multiplier k stops it.
+import secrets
+def x_of(pw): return b2i(H(s, H(I + b":" + pw)))
+def client(pw, B, mult):                  # an honest client; returns A and its proof
+    a = secrets.randbelow(N - 2) + 1
+    A, x = pow(g, a, N), x_of(pw)
+    u = b2i(H(pad(A), pad(B)))
+    S = pow((B - mult * pow(g, x, N)) % N, a + u * x, N)
+    return A, H(pad(S))
+x1, x2 = x_of(b"letmein"), x_of(b"password123")         # the fake server's two guesses
+for mult, name in ((1, "SRP-3, k = 1"), (k, "SRP-6a, k = H(N, g)")):
+    B = mult * (pow(g, x1, N) + pow(g, x2, N)) % N
+    for real in (b"letmein", b"password123", b"red-dust-2026"):
+        A, proof = client(real, B, mult)
+        u = b2i(H(pad(A), pad(B)))
+        # If the password is guess 1, B - v1 = v2 = g^x2, so S = A^x2 * g^(u x1 x2); and vice versa.
+        hits = [guess for guess, (xa, xb) in (("letmein", (x1, x2)), ("password123", (x2, x1)))
+                if H(pad(pow(A, xb, N) * pow(g, u * xa * xb, N) % N)) == proof]
+        print(f"{name:<20} client uses {real.decode():<14} fake server learns: {hits or 'nothing'}")
+```
+
+It prints:
+
+```text
+SRP-3, k = 1         client uses letmein        fake server learns: ['letmein']
+SRP-3, k = 1         client uses password123    fake server learns: ['password123']
+SRP-3, k = 1         client uses red-dust-2026  fake server learns: nothing
+SRP-6a, k = H(N, g)  client uses letmein        fake server learns: nothing
+SRP-6a, k = H(N, g)  client uses password123    fake server learns: nothing
+SRP-6a, k = H(N, g)  client uses red-dust-2026  fake server learns: nothing
+```
+
+With $k = 1$ the fake server finds either candidate from a single run; with
+SRP-6a's $k$ the trick fails for both.
+
+!!! note "Life story: SRP-3's two-for-one guess"
+    **Born:** 1998, with the published protocol's $B = v + g^b$; described by
+    Wu in his 2002 SRP-6 paper.
+    **Purpose:** to let an attacker who impersonates the server test two
+    passwords per login instead of one.
+    **Helped:** no recorded attack in the wild; it broke the property the
+    protocol was designed to have.
+    **Status:** fixed by SRP-6 and SRP-6a. RFC 2945 still describes SRP-3, so
+    "SRP" without a version number is not a specification.
+
+**What remains after 6a.** The versions fixed the algebra, not the structure:
+the salt is still public, so precomputation is possible; $x$ is still one SHA-1;
+SRP mixes addition and multiplication modulo $N$, so it has no direct elliptic
+curve version; and implementations keep accepting $A \equiv 0$. In 2018
+Matthew Green, reviewing the protocol for a general audience, argued that SRP
+was a dated 1990s design and that newer protocols, OPAQUE among them, did
+better. It remains in wide use: Apple's keychain escrow, 1Password, Proton's
+login and the `USER_SRP_AUTH` flow of Amazon Cognito all run SRP.
 
 ## 11.8 OPAQUE and CPace
 
@@ -607,99 +910,22 @@ At registration, the client uses the randomized password to encrypt an
 **envelope** holding its own long-term key pair, and the server stores $k$,
 the envelope and the client's public key. At login, the client runs the OPRF,
 opens the envelope, and then the two sides run an ordinary authenticated key
-exchange with their key pairs (in RFC 9807, a 3-message protocol in the style
-of SIGMA from Chapter 1).
+exchange with their key pairs. That is the design of the 2018 paper, and the
+program below follows it. RFC 9807 keeps the idea but derives the key pair
+instead of encrypting it, and authenticates the key exchange with three
+Diffie-Hellman values (3DH) rather than signatures; §11.10 runs the standard
+version.
 
-### Code it: the oblivious PRF
+### What each party has
 
-The program implements the OPRF on P-256 with a simplified hash-to-curve, and a
-minimal envelope. It is the part of OPAQUE that does what SRP cannot.
-
-```python
-# The idea inside OPAQUE (RFC 9807): an oblivious PRF on P-256. The server holds
-# a per-user key k and computes H(password)^k for the client without seeing the
-# password. Simplified hash-to-curve and envelope; the structure is OPAQUE's.
-import hashlib, hmac
-p = 2**256 - 2**224 + 2**192 + 2**96 - 1
-n = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
-b = 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
-def add(P, Q):
-    if P is None: return Q
-    if Q is None: return P
-    if P[0] == Q[0] and (P[1] + Q[1]) % p == 0: return None
-    if P == Q: l = (3 * P[0] * P[0] - 3) * pow(2 * P[1], -1, p) % p
-    else:      l = (Q[1] - P[1]) * pow(Q[0] - P[0], -1, p) % p
-    x = (l * l - P[0] - Q[0]) % p
-    return (x, (l * (P[0] - x) - P[1]) % p)
-def mul(k, P):
-    R = None
-    for bit in bin(k)[2:]:
-        R = add(R, R)
-        if bit == "1": R = add(R, P)
-    return R
-def hash_to_curve(data):                         # try-and-increment (RFC 9380 does better)
-    for ctr in range(256):
-        x = int.from_bytes(hashlib.sha256(data + bytes([ctr])).digest(), "big") % p
-        rhs = (x ** 3 - 3 * x + b) % p
-        if pow(rhs, (p - 1) // 2, p) == 1:
-            return (x, pow(rhs, (p + 1) // 4, p))
-def enc(P): return P[0].to_bytes(32, "big") + P[1].to_bytes(32, "big")
-rand = lambda label: int.from_bytes(hashlib.sha256(label).digest(), "big") % n
-
-def oprf_client_blind(password, r):
-    return mul(r, hash_to_curve(password))                    # sent: looks random
-def oprf_server(k, blinded):
-    return mul(k, blinded)
-def oprf_client_finish(password, r, evaluated):
-    unblinded = mul(pow(r, -1, n), evaluated)                 # = H(password)^k
-    return hashlib.sha256(password + enc(unblinded)).digest() # randomized password
-
-def seal(rwd, secret):                                        # the "envelope"
-    stream = hashlib.sha256(rwd + b"enc").digest()
-    ct = bytes(x ^ y for x, y in zip(secret, stream))
-    return ct, hmac.new(rwd, ct, hashlib.sha256).digest()
-def open_env(rwd, ct, tag):
-    if not hmac.compare_digest(tag, hmac.new(rwd, ct, hashlib.sha256).digest()): return None
-    return bytes(x ^ y for x, y in zip(ct, hashlib.sha256(rwd + b"enc").digest()))
-
-# Registration: the server picks k for jim; the client makes a key pair and seals
-# its private key under the OPRF output. The server stores k and the envelope.
-k_jim = rand(b"server's OPRF key for jim")
-client_private = hashlib.sha256(b"jim's login private key").digest()
-r1 = rand(b"blind 1")
-rwd = oprf_client_finish(b"red-dust-2026", r1, oprf_server(k_jim, oprf_client_blind(b"red-dust-2026", r1)))
-record = (k_jim, seal(rwd, client_private))
-
-# Login: blind with a fresh r, get the evaluation, open the envelope.
-r2 = rand(b"blind 2")
-m1, m2 = oprf_client_blind(b"red-dust-2026", r1), oprf_client_blind(b"red-dust-2026", r2)
-print("two logins send unrelated values:", m1 != m2, "  server sees", enc(m2).hex()[:24] + "...")
-rwd2 = oprf_client_finish(b"red-dust-2026", r2, oprf_server(record[0], m2))
-print("right password opens the envelope:", open_env(rwd2, *record[1]) == client_private)
-rwd3 = oprf_client_finish(b"red-dust-2025", r2, oprf_server(record[0], oprf_client_blind(b"red-dust-2025", r2)))
-print("wrong password opens it:", open_env(rwd3, *record[1]) is not None)
-
-# A thief with the whole record can still guess offline, but each user's k is
-# different, so nothing can be computed before the theft.
-for guess in [b"123456", b"password", b"red-dust-2026"]:
-    trial = hashlib.sha256(guess + enc(mul(record[0], hash_to_curve(guess)))).digest()
-    if open_env(trial, *record[1]) is not None:
-        print("thief with the record found it offline:", guess.decode())
-```
-
-```text
-two logins send unrelated values: True   server sees b3039f6afb8289c70bec833e...
-right password opens the envelope: True
-wrong password opens it: False
-thief with the record found it offline: red-dust-2026
-```
-
-Look at what each party has. The server sees a different random-looking point
-at every login and never sees the password or anything computed from it alone.
-A wrong password gives a different randomized password, and the envelope
-refuses to open. A thief who steals the whole record can still guess offline,
-by evaluating the OPRF for each guess with the stolen $k$; no protocol can
-prevent that, since the thief has everything the server had. But two things
+Sections 11.9 and 11.10 open the OPRF and run OPAQUE in full against the RFCs'
+test vectors; here is what those runs show. The server sees a different
+random-looking point at every login and never sees the password or anything
+computed from it alone. A wrong password gives a different randomized
+password, and the envelope refuses to open. A thief who steals the whole
+record can still guess offline, by evaluating the OPRF for each guess with the
+stolen $k$, as the last lines of §11.10's program do; no protocol can prevent
+that, since the thief has everything the server had. But two things
 are now impossible that SRP allowed. Nothing can be **precomputed** before the
 theft, because $k$ is secret until then and different for every user. And the
 server's stored record is useless without the OPRF key, so the key can be kept
@@ -756,7 +982,7 @@ side channel by design.
 <text x="445" y="234">phishing page: gets</text>
 <text x="445" y="252">one online guess</text>
 </svg>
-<figcaption>Figure 11.4. Three ways to log in with a password. The PAKEs change what a phishing page or a server thief can do; none can stop guesses with a stolen record.</figcaption>
+<figcaption>Figure 11.6. Three ways to log in with a password. The PAKEs change what a phishing page or a server thief can do; none can stop guesses with a stolen record.</figcaption>
 </figure>
 
 Note one thing the figure shows that is easy to miss: a phishing page that
@@ -767,7 +993,500 @@ it, and the PAKE never runs. PAKEs protect passwords from servers and
 networks, not from people who type them into the wrong place. That is why the
 web never adopted them for logins in browsers, and why it moved to passkeys.
 
-## 11.9 Mars: a counter, not a clock
+## 11.9 The oblivious PRF, by hand and by the RFC
+
+*Level: intermediate.*
+
+This section opens the oblivious PRF twice: first in a group small enough to
+compute by hand, then exactly as RFC 9497 specifies it on P-256, reproducing
+the RFC's test vectors byte for byte.
+
+### A worked example by hand
+
+Take the numbers $1, 2, \dots, 22$ modulo the prime 23, and keep only the
+squares: $\{1, 2, 3, 4, 6, 8, 9, 12, 13, 16, 18\}$. They form a group of 11
+elements under multiplication modulo 23, and 11 is prime, so every element
+except 1 generates the whole group and exponents can be reduced modulo 11.
+(This is the same structure as the prime-order groups of book 1's
+[Chapter 12](../../book/12-Diffie-Hellman.md), shrunk until the arithmetic
+fits in a margin.) The steps are written multiplicatively, $P^r$, as in
+§11.8; on an elliptic curve the same steps are written $r \cdot P$.
+
+1. **Hash the password into the group.** Suppose the password hashes to the
+   element $P = 9$. (Doing this safely is the hard part; it comes next.)
+2. **Blind.** The client picks $r = 3$ and computes $M = 9^3 \bmod 23$:
+   $9^2 = 81 = 3 \cdot 23 + 12$, so $9^2 \equiv 12$; then
+   $9^3 \equiv 12 \cdot 9 = 108 = 4 \cdot 23 + 16$, so $M = 16$. The client
+   sends 16.
+3. **Evaluate.** The server's key is $k = 7$. It computes $Z = 16^7$:
+   $16^2 = 256 \equiv 3$, $16^4 \equiv 9$, and
+   $16^7 = 16^4 \cdot 16^2 \cdot 16 \equiv 9 \cdot 3 \cdot 16 = 432 \equiv 18$.
+   It sends 18.
+4. **Unblind.** The client needs $1/r$ modulo the group order 11, not
+   modulo 23: $3 \cdot 4 = 12 \equiv 1 \pmod{11}$, so $1/r = 4$. Then
+   $18^2 = 324 \equiv 2$ and $18^4 \equiv 4$. The result is **4**.
+5. **Check.** Directly,
+   $P^k = 9^7 = 9^4 \cdot 9^2 \cdot 9 \equiv 6 \cdot 12 \cdot 9 = 648 \equiv 4$.
+   The blinding cancelled:
+   $(9^{3 \cdot 7})^4 = 9^{7 \cdot 12} = 9^7 \cdot (9^{11})^{7} = 9^7$,
+   because $9^{11} \equiv 1$.
+6. **Log in again** with a fresh $r = 5$: $M = 9^5 \equiv 8$, the server
+   returns $8^7 \equiv 12$, and $1/5 \equiv 9 \pmod{11}$ gives
+   $12^9 \equiv 4$. The same result, from messages (8 and 12) that have
+   nothing visible in common with the first login's (16 and 18).
+
+Why does the server learn nothing? Because $r$ is uniform among
+$1, \dots, 10$ and the group has prime order, $M = P^r$ is uniform among the
+ten elements other than 1, *whatever $P$ is*. The hiding is perfect: even
+unlimited computing power learns nothing about the password from $M$. The
+client learns $P^k$ for its own $P$; recovering $k$ from it is a discrete
+logarithm, eleven tries here and about $2^{128}$ operations on P-256.
+
+The output is not $P^k$ itself but
+$\mathrm{SHA\text{-}256}(\text{pw} \,\|\, P^k \,\|\, \texttt{"Finalize"})$
+with length prefixes, which ties it to the password and turns it into uniform
+bytes.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="OPRF blinding: the client hashes the password to P, sends r times P, the server multiplies by k, the client multiplies by one over r and hashes; toy numbers 9, 16, 18, 4 modulo 23" fill="currentColor" font-size="13">
+<g stroke="currentColor" fill="none">
+<rect x="10" y="34" width="110" height="46" rx="6"/><rect x="140" y="34" width="110" height="46" rx="6"/>
+<rect x="400" y="34" width="110" height="46" rx="6"/><rect x="530" y="34" width="100" height="46" rx="6"/>
+<path d="M120 57h20M250 57h20M510 57h20"/>
+<path d="M300 108L360 186M430 186L470 108" stroke-width="1.5"/>
+</g>
+<g fill-opacity=".22" stroke="currentColor"><rect x="270" y="34" width="110" height="46" rx="6"/><rect x="335" y="188" width="120" height="46" rx="6"/></g>
+<path d="M140 57l-8-4v8zM270 57l-8-4v8zM530 57l-8-4v8zM360 186l-9.7-5.2 7.2-5.4zM470 108l-.6 11-8-4.1z"/>
+<text x="20" y="22" font-weight="bold">client</text>
+<text x="20" y="214" font-weight="bold">server</text>
+<g text-anchor="middle">
+<text x="65" y="62">password</text><text x="195" y="62">P = H(pw)</text>
+<text x="325" y="62">M = r·P</text><text x="455" y="62">(1/r)·Z = k·P</text>
+<text x="580" y="56">output =</text><text x="580" y="72" font-size="12">H(pw, k·P)</text>
+<text x="395" y="216">Z = k·M</text>
+<g font-size="12" fill-opacity=".7">
+<text x="65" y="100">red-dust-2026</text><text x="195" y="100">9</text>
+<text x="325" y="100">9³ = 16   (r = 3)</text><text x="455" y="100">18⁴ = 4   (1/r = 4)</text>
+<text x="580" y="100">H(pw, 4)</text><text x="395" y="254">16⁷ = 18   (k = 7)</text>
+</g></g>
+<g font-size="12"><text x="20" y="250">sees only M and Z:</text><text x="20" y="266">16 and 18 at one login,</text><text x="20" y="282">8 and 12 at the next</text></g>
+<text x="630" y="290" text-anchor="end" font-size="12" fill-opacity=".7">toy group: the 11 squares modulo 23; exponents modulo 11</text>
+</svg>
+<figcaption>Figure 11.7. Blinding in the oblivious PRF, with the hand-worked numbers under each step. The shaded values are the only ones that cross the network.</figcaption>
+</figure>
+
+### Hashing a password onto a curve
+
+Step 1 hid a problem. The password has to become a point $P$ on the curve
+whose discrete logarithm nobody knows. The obvious method, "hash to a number
+$x$ and try $x$, $x+1$, … until $x^3 - 3x + b$ is a square", takes a number
+of tries that depends on the password, so its timing leaks the password: the
+Dragonblood attacks on WPA3's hunting and pecking
+([Chapter 9](09-Wi-Fi-Security.md)) measured exactly that.
+
+RFC 9380 (2023) fixed the method. For the suite `P256_XMD:SHA-256_SSWU_RO_`
+that RFC 9497 uses:
+
+1. **Expand.** `expand_message_xmd` turns the input and a tag into 96 bytes
+   with a few SHA-256 calls.
+2. **Make field elements.** Two 48-byte numbers, each reduced modulo $p$; the
+   128 extra bits make the bias of the reduction negligible.
+3. **Map.** Each number $u$ goes through the **simplified SWU** map: one
+   candidate $x_1$, a second $x_2 = Z u^2 x_1$ with $Z = -10$, and one of the
+   two always gives a square. No loop, nothing for a timer to measure.
+4. **Add.** The two points are added. One map alone gives points whose
+   distribution is detectably uneven; the sum of two independent ones is
+   indistinguishable from a random point, which is what the proofs need.
+
+The domain separation tag, `HashToGroup-OPRFV1-`, a mode byte (0 for the
+plain OPRF) and `P256-SHA256`, gives each protocol and mode unrelated points.
+
+### Code it: RFC 9497 on P-256, byte for byte
+
+The program implements the curve, the hash to the curve, the RFC's key
+derivation and its three OPRF functions, and checks them against test vectors
+1 and 2 of RFC 9497 Appendix A.3.1, which fix the "random" blind.
+
+```python
+# The OPRF of RFC 9497 on P-256 (suite P256-SHA256, OPRF mode), with hash_to_curve
+# from RFC 9380, checked byte for byte against RFC 9497 Appendix A.3.1.
+import hashlib
+p = 2**256 - 2**224 + 2**192 + 2**96 - 1
+n = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
+A, B = p - 3, 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
+G = (0x6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296,
+     0x4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5)
+
+def add(P, Q):
+    if P is None: return Q
+    if Q is None: return P
+    if P[0] == Q[0] and (P[1] + Q[1]) % p == 0: return None
+    if P == Q: l = (3 * P[0] * P[0] + A) * pow(2 * P[1], -1, p) % p
+    else:      l = (Q[1] - P[1]) * pow(Q[0] - P[0], -1, p) % p
+    x = (l * l - P[0] - Q[0]) % p
+    return (x, (l * (P[0] - x) - P[1]) % p)
+
+def mul(k, P):
+    R = None
+    for bit in bin(k)[2:]:
+        R = add(R, R)
+        if bit == "1": R = add(R, P)
+    return R
+
+def compress(P):                                   # SEC1 compressed, 33 bytes
+    return bytes([2 + (P[1] & 1)]) + P[0].to_bytes(32, "big")
+
+def expand_xmd(msg, dst, length):                  # RFC 9380 section 5.3.1
+    dst_prime = dst + bytes([len(dst)])
+    b0 = hashlib.sha256(bytes(64) + msg + length.to_bytes(2, "big") + b"\0" + dst_prime).digest()
+    bs = [hashlib.sha256(b0 + b"\1" + dst_prime).digest()]
+    while len(bs) * 32 < length:
+        prev = bytes(x ^ y for x, y in zip(b0, bs[-1]))
+        bs.append(hashlib.sha256(prev + bytes([len(bs) + 1]) + dst_prime).digest())
+    return b"".join(bs)[:length]
+
+def hash_to_field(msg, dst, count, modulus):       # 48 bytes per element
+    data = expand_xmd(msg, dst, 48 * count)
+    return [int.from_bytes(data[48 * i:48 * i + 48], "big") % modulus for i in range(count)]
+
+def sswu(u):                                       # simplified SWU, Z = -10
+    Z = p - 10
+    tv = (Z * Z * pow(u, 4, p) + Z * u * u) % p
+    x1 = (-B * pow(A, -1, p) * (1 + pow(tv, -1, p))) % p if tv else B * pow(Z * A, -1, p) % p
+    gx1 = (x1 ** 3 + A * x1 + B) % p
+    if pow(gx1, (p - 1) // 2, p) == 1:
+        x, y = x1, pow(gx1, (p + 1) // 4, p)
+    else:
+        x = Z * u * u * x1 % p
+        y = pow((x ** 3 + A * x + B) % p, (p + 1) // 4, p)
+    if u % 2 != y % 2: y = p - y                   # sign of y follows u
+    return (x, y)
+
+def hash_to_group(msg, dst):
+    u0, u1 = hash_to_field(msg, dst, 2, p)
+    return add(sswu(u0), sswu(u1))
+
+ctx = b"OPRFV1-\x00-P256-SHA256"                   # mode 0 = OPRF
+def derive_key(seed, info):
+    data = seed + len(info).to_bytes(2, "big") + info + b"\0"
+    return hash_to_field(data, b"DeriveKeyPair" + ctx, 1, n)[0]
+
+def blind(inp, r):          return mul(r, hash_to_group(inp, b"HashToGroup-" + ctx))
+def blind_evaluate(sk, M):  return mul(sk, M)
+def finalize(inp, r, Z):
+    N = compress(mul(pow(r, -1, n), Z))
+    return hashlib.sha256(len(inp).to_bytes(2, "big") + inp + len(N).to_bytes(2, "big") + N + b"Finalize").digest()
+
+sk = derive_key(bytes([0xa3]) * 32, b"test key")      # the RFC's server key
+print("server key matches A.3.1:", hex(sk)[2:] == "159749d750713afe245d2d39ccfaae8381c53ce92d098a9375ee70739c7ac0bf")
+r = 0x3338fa65ec36e0290022b48eb562889d89dbfa691d1cde91517fa222ed7ad364   # the RFC's blind
+want = {b"\x00": ("03723a1e5c09b8b9c18d1dcbca29e8007e95f14f4732d9346d490ffc195110368d",
+                  "030de02ffec47a1fd53efcdd1c6faf5bdc270912b8749e783c7ca75bb412958832",
+                  "a0b34de5fa4c5b6da07e72af73cc507cceeb48981b97b7285fc375345fe495dd"),
+        b"\x5a" * 17: ("03cc1df781f1c2240a64d1c297b3f3d16262ef5d4cf102734882675c26231b0838",
+                        "03a0395fe3828f2476ffcd1f4fe540e5a8489322d398be3c4e5a869db7fcb7c52c",
+                        "c748ca6dd327f0ce85f4ae3a8cd6d4d5390bbb804c9e12dcf94f853fece3dcce")}
+for inp, (w_blinded, w_eval, w_out) in want.items():
+    M = blind(inp, r)                              # client -> server: all the server sees
+    Z = blind_evaluate(sk, M)                      # server -> client
+    out = finalize(inp, r, Z)
+    print(f"input {inp.hex()[:8]:<8} blinded {compress(M).hex()[:16]} evaluated {compress(Z).hex()[:16]}",
+          "| all match:", (compress(M).hex(), compress(Z).hex(), out.hex()) == (w_blinded, w_eval, w_out))
+print("output for input 00:", finalize(b"\x00", r, blind_evaluate(sk, blind(b"\x00", r))).hex())
+```
+
+It prints:
+
+```text
+server key matches A.3.1: True
+input 00       blinded 03723a1e5c09b8b9 evaluated 030de02ffec47a1f | all match: True
+input 5a5a5a5a blinded 03cc1df781f1c224 evaluated 03a0395fe3828f24 | all match: True
+output for input 00: a0b34de5fa4c5b6da07e72af73cc507cceeb48981b97b7285fc375345fe495dd
+```
+
+Every value matches: the server key, the blinded and evaluated elements and
+the 32-byte output. The server's whole job is one scalar multiplication; most
+of the program is the careful conversion of bytes into a point.
+
+Messages are 33-byte compressed points. A real server must check that each
+point it receives is on the curve and is not the identity, as RFC 9497
+requires; a point off the curve can leak bits of $k$ (book 1's
+[Chapter 15](../../book/15-Elliptic-Curves.md) covers such invalid-curve
+attacks).
+
+### Verifiable and partially oblivious modes
+
+In the plain OPRF the client cannot tell which key the server used, so a
+server could tag users with different keys. RFC 9497's **verifiable** mode
+(VOPRF) closes that gap: the server publishes $\mathit{pk} = k \cdot G$ and
+attaches to each evaluation a short proof, of the Chaum-Pedersen kind, that the same $k$
+connects $G$ to $\mathit{pk}$ and $M$ to $Z$, without revealing $k$. Privacy
+Pass tokens (§11.13) use it. The **partially oblivious** mode (POPRF) adds a
+public input that both sides see, such as a date or a purpose, so that one key
+can serve many contexts whose outputs are unrelated.
+
+OPAQUE uses the plain mode. Its per-user OPRF key is secret and different for
+every user, so there is no public key to check against, and it does not need
+one: if the server evaluates with the wrong key, the client's envelope check
+fails and the login stops.
+
+## 11.10 OPAQUE, message by message
+
+*Level: expert.*
+
+RFC 9807, *The OPAQUE Augmented Password-Authenticated Key Exchange (aPAKE)
+Protocol*, by Daniel Bourdrez, Hugo Krawczyk, Kevin Lewi and Christopher Wood,
+was published in July 2025 as an Informational RFC of the IRTF's Crypto Forum
+Research Group. It keeps the idea of §11.8 with five changes: per-user OPRF
+keys derived from one server seed; an "envelope" that encrypts nothing,
+because the client's key pair is *derived* from the randomized password; a
+slow key stretching function (KSF) such as Argon2id run on the client; a
+key exchange authenticated by Diffie-Hellman (3DH) instead of signatures; and
+masking, so that an attacker cannot tell a real user from a made-up name.
+
+### Registration, traced
+
+The server has a long-term key pair for the key exchange and its `oprf_seed`.
+For the user with credential identifier `cid`, the OPRF key $k_u$ comes from
+`DeriveKeyPair` applied to `Expand(oprf_seed, cid ‖ "OprfKey")`. On P-256,
+registration is three messages:
+
+<div class="mars-steps" markdown>
+
+1. **RegistrationRequest (33 bytes).** $M = r \cdot H(\text{pw})$, as in §11.9.
+2. **RegistrationResponse (66 bytes).** $Z = k_u \cdot M$ and the server's
+   long-term public key. This step needs a channel the client already trusts,
+   such as TLS: whoever substitutes the public key here is the "server" for
+   good.
+3. **The client's work.** It unblinds and finalizes to get the OPRF output $y$,
+   stretches it, and extracts the **randomized password**
+   $\mathit{rwd} = \mathrm{Extract}(\varnothing,\; y \,\|\, \mathrm{KSF}(y))$.
+   With a random 32-byte nonce $n_e$ it expands $\mathit{rwd}$ into a masking
+   key, an authentication key, an export key and a seed for its own key pair,
+   and MACs $n_e$, the server's public key and the identities.
+4. **RegistrationRecord (129 bytes).** Its public key (33), the masking key
+   (32) and the envelope, $n_e$ and tag (64). The client keeps nothing but the
+   password.
+
+</div>
+
+### Login, traced
+
+<div class="mars-steps" markdown>
+
+1. **KE1 (98 bytes).** A fresh blinded password $M' = r' \cdot H(\text{pw})$
+   (33), a client nonce (32) and an ephemeral Diffie-Hellman public key (33).
+2. **KE2 (259 bytes).** $Z' = k_u \cdot M'$ (33), a masking nonce (32), the
+   server's public key and envelope (97) XORed with a pad from the masking key,
+   a server nonce (32), an ephemeral public key (33) and a MAC (32) over the
+   transcript.
+3. **The client's work.** Unblind, recompute $\mathit{rwd}$, unmask, re-derive
+   the key pair, check the tag (a wrong password fails here), run 3DH, check
+   the server's MAC.
+4. **KE3 (32 bytes).** The client's MAC, which the server checks before using
+   the session key.
+
+</div>
+
+The **3DH** secret concatenates three Diffie-Hellman values: ephemeral with
+ephemeral (forward secrecy), client ephemeral with server long-term (only the
+real server can compute it), and client long-term with server ephemeral (only
+someone who knew the password can). HKDF over these and a transcript, with
+labels in the style of TLS 1.3 ([Chapter 3](03-TLS-1.3-Message-by-Message.md)),
+gives the MAC keys and the session key.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 430" width="640" role="img" aria-label="OPAQUE on P-256: registration in three messages of 33, 66 and 129 bytes; login in three messages KE1 of 98 bytes, KE2 of 259 bytes and KE3 of 32 bytes, with the client's work between them" fill="currentColor" font-size="13">
+<path d="M80 30V420M560 30V420" stroke="currentColor" stroke-opacity=".4"/>
+<rect x="6" y="36" width="628" height="160" rx="6" fill-opacity=".06"/>
+<g fill-opacity=".16" stroke="currentColor"><rect x="90" y="112" width="460" height="42" rx="5"/><rect x="90" y="296" width="460" height="58" rx="5"/></g>
+<path d="M90 72H550M550 102H90M90 178H550M90 244H550M550 284H90M90 380H550" stroke="currentColor" stroke-width="1.5"/>
+<path d="M550 72l-12-5v10zM90 102l12-5v10zM550 178l-12-5v10zM550 244l-12-5v10zM90 284l12-5v10zM550 380l-12-5v10z"/>
+<g font-size="12" fill-opacity=".7"><text x="14" y="52">registration (over a channel the client trusts)</text><text x="14" y="222">login</text></g>
+<g text-anchor="middle">
+<text x="80" y="22" font-weight="bold">client: pw</text>
+<text x="560" y="22" font-weight="bold">server: oprf_seed, keys</text>
+<text x="320" y="66">M = r·H(pw)   [33]</text>
+<text x="320" y="96">Z = kᵤ·M, server public key   [66]</text>
+<text x="320" y="172">client public key, masking key, nonce ‖ tag   [129]</text>
+<text x="320" y="238">KE1: M′ = r′·H(pw), nonce, ephemeral key   [98]</text>
+<text x="320" y="264">KE2: Z′ = kᵤ·M′, masked (server key ‖ envelope),</text>
+<text x="320" y="278">nonce, ephemeral key, server MAC   [259]</text>
+<text x="320" y="374">KE3: client MAC   [32]</text>
+<g font-size="12">
+<text x="320" y="130">rwd = Extract(y ‖ KSF(y)); from rwd and nonce: masking,</text>
+<text x="320" y="146">auth and export keys, the client's key pair; tag = MAC(auth key, …)</text>
+<text x="320" y="314">unblind → rwd → unmask → rebuild key pair → check tag</text>
+<text x="320" y="330">3DH: eph·eph ‖ eph·server ‖ client·eph → HKDF over the transcript</text>
+<text x="320" y="346">check the server's MAC</text>
+<text x="80" y="410">session key, export key</text>
+<text x="560" y="410">session key</text>
+</g></g>
+</svg>
+<figcaption>Figure 11.8. OPAQUE-3DH on P-256 (RFC 9807), with message sizes in bytes. The server sees two blinded points and two MACs, never the password, the randomized password or the export key.</figcaption>
+</figure>
+
+### Code it: a whole OPAQUE run
+
+RFC 9807's test vector C.1.5 fixes every input of a P-256 run, with the
+password `CorrectHorseBatteryStaple`. Its KSF is the identity function, so it
+can be checked without Argon2; a deployment would use Argon2id or scrypt. The
+program builds on the OPRF listing and plays both sides.
+
+```python
+# Uses mul(), compress(), derive_key(), blind() and finalize() from the listing above.
+# A whole OPAQUE-3DH run (RFC 9807) with the inputs of its test vector C.1.5.
+import hmac
+def decompress(b):
+    x = int.from_bytes(b[1:], "big")
+    y = pow((x ** 3 + A * x + B) % p, (p + 1) // 4, p)
+    return (x, y if y % 2 == b[0] - 2 else p - y)
+def hkdf_extract(salt, ikm): return hmac.new(salt, ikm, hashlib.sha256).digest()
+def hkdf_expand(prk, info, length):
+    out, t, i = b"", b"", 1
+    while len(out) < length:
+        t = hmac.new(prk, t + info + bytes([i]), hashlib.sha256).digest(); out += t; i += 1
+    return out[:length]
+def label(secret, name, context, length=32):
+    name = b"OPAQUE-" + name
+    info = length.to_bytes(2, "big") + bytes([len(name)]) + name + bytes([len(context)]) + context
+    return hkdf_expand(secret, info, length)
+def dh_keypair(seed):
+    sk = derive_key(seed, b"OPAQUE-DeriveDiffieHellmanKeyPair")
+    return sk, compress(mul(sk, G))
+dh = lambda sk, pk: compress(mul(sk, decompress(pk)))
+mac = lambda key, msg: hmac.new(key, msg, hashlib.sha256).digest()
+xor = lambda a, b: bytes(x ^ y for x, y in zip(a, b))
+h = bytes.fromhex
+L2 = lambda b: len(b).to_bytes(2, "big") + b
+
+# The test vector's inputs (its "random" values are fixed so runs can be compared).
+oprf_seed = h("62f60b286d20ce4fd1d64809b0021dad6ed5d52a2c8cf27ae6582543a0a8dce2")
+cred_id, password, context = b"1234", b"CorrectHorseBatteryStaple", b"OPAQUE-POC"
+env_nonce = h("a921f2a014513bd8a90e477a629794e89fec12d12206dde662ebdcf65670e51f")
+mask_nonce = h("38fe59af0df2c79f57b8780278f5ae47355fe1f817119041951c80f612fdfc6d")
+server_sk = int("c36139381df63bfc91c850db0b9cfbec7a62e86d80040a41aa7725bf0e79d5e5", 16)
+server_pk = compress(mul(server_sk, G))
+server_nonce = h("71cd9960ecef2fe0d0f7494986fa3d8b2bb01963537e60efb13981e138e3d4a1")
+client_nonce = h("ab3d33bde0e93eda72392346a7a73051110674bbf6b1b7ffab8be4f91fdaeeb1")
+c_eph_seed = h("633b875d74d1556d2a2789309972b06db21dfcc4f5ad51d7e74d783b7cfab8dc")
+s_eph_seed = h("05a4f54206eef1ba2f615bc0aa285cb22f26d1153b5b40a1e85ff80da12f982f")
+blind_reg = int("411bf1a62d119afe30df682b91a0a33d777972d4f2daa4b34ca527d597078153", 16)
+blind_log = int("c497fddf6056d241e6cf9fb7ac37c384f49b357a221eb0a802c989b9942256c1", 16)
+
+def server_oprf_key():                     # one per user, from a single server seed
+    return derive_key(hkdf_expand(oprf_seed, cred_id + b"OprfKey", 32), b"OPAQUE-DeriveKeyPair")
+def client_keys(rwd, nonce):               # what the envelope "holds": nothing secret
+    auth_key = hkdf_expand(rwd, nonce + b"AuthKey", 32)
+    export_key = hkdf_expand(rwd, nonce + b"ExportKey", 32)
+    sk, pk = dh_keypair(hkdf_expand(rwd, nonce + b"PrivateKey", 32))
+    return auth_key, export_key, sk, pk
+def randomized_password(pw, blind_r, evaluated):
+    y = finalize(pw, blind_r, evaluated)
+    return hkdf_extract(b"", y + y)        # the KSF is the identity in the test vectors
+
+# Registration: the server sees one blinded point and returns one evaluated point.
+req = blind(password, blind_reg)
+evaluated = mul(server_oprf_key(), req)
+rwd = randomized_password(password, blind_reg, evaluated)
+auth_key, export_key, client_sk, client_pk = client_keys(rwd, env_nonce)
+envelope = env_nonce + mac(auth_key, env_nonce + server_pk + L2(server_pk) + L2(client_pk))
+record = (client_pk, hkdf_expand(rwd, b"MaskingKey", 32), envelope)  # all the server keeps
+
+# Login, KE1: a fresh blind, a nonce and an ephemeral key share.
+c_eph_sk, c_eph_pk = dh_keypair(c_eph_seed)
+ke1 = compress(blind(password, blind_log)) + client_nonce + c_eph_pk
+# KE2: evaluate, mask (server key, envelope), ephemeral key share, MAC over the transcript.
+cred_resp = compress(mul(server_oprf_key(), decompress(ke1[:33]))) + mask_nonce + xor(
+    hkdf_expand(record[1], mask_nonce + b"CredentialResponsePad", 33 + 64), server_pk + record[2])
+s_eph_sk, s_eph_pk = dh_keypair(s_eph_seed)
+preamble = (b"OPAQUEv1-" + L2(context) + L2(record[0]) + ke1 + L2(server_pk) + cred_resp
+            + server_nonce + s_eph_pk)
+def keys(ikm):
+    prk = hkdf_extract(b"", ikm)
+    th = hashlib.sha256(preamble).digest()
+    hs = label(prk, b"HandshakeSecret", th)
+    return label(hs, b"ServerMAC", b""), label(hs, b"ClientMAC", b""), label(prk, b"SessionKey", th)
+km2, km3, server_session = keys(dh(s_eph_sk, c_eph_pk) + dh(server_sk, c_eph_pk) + dh(s_eph_sk, record[0]))
+server_mac = mac(km2, hashlib.sha256(preamble).digest())
+ke2 = cred_resp + server_nonce + s_eph_pk + server_mac
+
+# The client: unblind, unmask (server key, envelope), rebuild its key pair, check the tag.
+def client_open(pw, ke2):
+    rwd = randomized_password(pw, blind_log, decompress(ke2[:33]))
+    pad = hkdf_expand(hkdf_expand(rwd, b"MaskingKey", 32), ke2[33:65] + b"CredentialResponsePad", 97)
+    plain = xor(pad, ke2[65:162])
+    spk, env = plain[:33], plain[33:]
+    a_key, exp, sk, pk = client_keys(rwd, env[:32])
+    ok = hmac.compare_digest(env[32:], mac(a_key, env[:32] + spk + L2(spk) + L2(pk)))
+    return ok, spk, sk, exp
+print("wrong password opens the envelope:", client_open(b"CorrectHorseBatteryStapler", ke2)[0])
+ok, spk, my_sk, exp2 = client_open(password, ke2)
+print("right password opens the envelope:", ok)
+k2, k3, client_session = keys(dh(c_eph_sk, ke2[194:227]) + dh(c_eph_sk, spk) + dh(my_sk, ke2[194:227]))
+print("server's MAC checks out:", hmac.compare_digest(ke2[227:], mac(k2, hashlib.sha256(preamble).digest())))
+ke3 = mac(k3, hashlib.sha256(preamble + server_mac).digest())
+print("server accepts KE3:", ke3 == mac(km3, hashlib.sha256(preamble + server_mac).digest()))
+want = {"KE3": "e97cab4433aa39d598e76f13e768bba61c682947bdcf9936035e8a3a3ebfb66e",
+        "session_key": "484ad345715ccce138ca49e4ea362c6183f0949aaaa1125dc3bc3f80876e7cd1",
+        "export_key": "c3c9a1b0e33ac84dd83d0b7e8af6794e17e7a3caadff289fbd9dc769a853c64b"}
+for name, got in (("KE3", ke3), ("session_key", client_session), ("export_key", exp2)):
+    print(f"{name:<12}{got.hex()[:32]}...  RFC 9807 C.1.5: {got.hex() == want[name]}")
+print("message sizes: KE1", len(ke1), " KE2", len(ke2), " KE3", len(ke3), "bytes")
+
+# A thief with the record and the OPRF seed can still guess offline, one KSF per guess:
+for guess in (b"123456", b"password", b"CorrectHorseBatteryStaple"):
+    rwd_g = randomized_password(guess, 1, mul(server_oprf_key(), blind(guess, 1)))
+    a_g, _, _, pk_g = client_keys(rwd_g, record[2][:32])
+    if hmac.compare_digest(record[2][32:], mac(a_g, record[2][:32] + server_pk + L2(server_pk) + L2(pk_g))):
+        print("thief with the record and the seed finds:", guess.decode())
+```
+
+It prints:
+
+```text
+wrong password opens the envelope: False
+right password opens the envelope: True
+server's MAC checks out: True
+server accepts KE3: True
+KE3         e97cab4433aa39d598e76f13e768bba6...  RFC 9807 C.1.5: True
+session_key 484ad345715ccce138ca49e4ea362c61...  RFC 9807 C.1.5: True
+export_key  c3c9a1b0e33ac84dd83d0b7e8af6794e...  RFC 9807 C.1.5: True
+message sizes: KE1 98  KE2 259  KE3 32 bytes
+thief with the record and the seed finds: CorrectHorseBatteryStaple
+```
+
+KE3, the session key and the export key match the RFC, and with a few more
+comparisons the program also reproduces the registration record, KE1 and KE2
+byte for byte. A real implementation adds point validation, constant-time
+arithmetic and a real KSF.
+
+### Why the server never sees the password
+
+- **From registration:** one blinded point, uniform whatever the password, and
+  a record that is random without the password *and* the OPRF key.
+- **From each login:** another blinded point and a MAC. Each attempt tests one
+  password, and rate limiting works as for ordinary logins (the Engineering
+  book's
+  [§13.9](../engineering/13-Passwords-on-the-Server.md#139-online-guessing-rate-limits-lockouts-and-credential-stuffing)
+  covers limits and lockouts).
+- **From its stolen database:** an offline attack that needs the OPRF seed,
+  which can live in a hardware module, and runs the KSF for every guess. The
+  KSF runs on the client, so the service can choose RFC 9807's recommended
+  Argon2id with 2 GiB of memory without paying for it on its servers, the
+  reverse of ordinary password hashing.
+- **The export key:** never sent; the client can use it to encrypt data the
+  server stores but cannot read.
+- **Who has an account:** nothing. For an unknown name the server answers from
+  a fake record, and masking makes the two answers look alike.
+
+One thing OPAQUE cannot fix in a browser: the page that runs it comes from the
+server, and a dishonest server can ship a page that posts the password. In a
+browser OPAQUE protects against database thieves, logs and TLS-terminating
+proxies, not against the service itself; signed native apps do better, and
+the first large deployment, WhatsApp's backups (2021), was in an app.
+
+## 11.11 Mars: a counter, not a clock
 
 *Level: intermediate.*
 
@@ -798,7 +1517,60 @@ the Martian day, precisely so that protocols like this, and the certificate and
 DNSSEC validity periods of earlier chapters, keep working; the city's daily
 schedule uses Mars time separately.
 
-## 11.10 In the real world
+### Clocks in Arcadia
+
+Inside the city, TOTP is only as good as the phones' clocks. Mars has no
+satellite navigation system to hand out time, and a clock check with Earth
+takes 6 to 44 minutes, but neither matters much. The city needs no round
+trip: Earth broadcasts time one way, the one-way light time is known from the
+planets' orbits to far better than a millisecond, and the city's own atomic
+clocks hold the time between signals. (Even a naive NTP-style exchange, which
+assumes equal delays both ways, would be off by only a fraction of a second.)
+
+The clocks that matter are the cheap ones. A worked example: a phone
+whose quartz crystal runs 20 parts per million fast gains
+$20 \times 10^{-6} \times 86{,}400 = 1.73$ seconds a day. With a window of one
+slot either side, codes keep working until the clock is about 30 seconds off,
+which takes $30 / 1.73 \approx 17$ days. On the city's network the phone
+corrects itself every few minutes and never gets near that. A rover crew out of
+range for three weeks does get there, and their codes start failing on the way
+home. The same arithmetic for better clocks, and for a drift only Mars has:
+
+| Clock | Rate error | Time to drift 30 seconds |
+| --- | --- | --- |
+| uncorrected phone crystal | $2 \times 10^{-5}$, 1.73 s a day | about 17 days |
+| temperature-compensated crystal | $10^{-6}$, 0.086 s a day | about 350 days |
+| rubidium frequency standard | $10^{-11}$ | about 95,000 years |
+| a Mars clock left unsteered against Earth's | 477 µs a day, on average | about 172 years |
+
+The last line is relativity. Clocks on Mars run faster than clocks on Earth's
+surface by 477 microseconds a day on average, varying by about 226
+microseconds a day over the Martian year as Mars's distance from the Sun
+changes, according to a 2025 calculation by Neil Ashby and Bijunath Patla of
+NIST. For a 30-second window that is irrelevant, and the city steers its
+clocks to Earth's time anyway. And a server that tracks each token's drift, as
+RFC 6238 suggests, can follow a drifting rover phone as long as its crew logs
+in more often than the drift takes to cross a slot.
+
+### A window shifted by the light time
+
+Could TOTP cross the gap if the server on Earth knew the delay? Suppose today's
+one-way light time is $L = 751$ seconds (12 minutes 31 seconds). A server that
+receives a code at time $t$ could check the slots around
+$\lfloor (t - 751)/30 \rfloor$ instead of around $\lfloor t/30 \rfloor$. It
+would still accept only three codes in a million, so guessing would be no
+easier, and replay protection would work as before.
+
+It fails for reasons outside cryptography. Traffic between the planets
+travels as bundles in a delay-tolerant network (the Bundle Protocol,
+RFC 9171), stored at relays until the next contact, an orbiter pass or a slot on a
+large antenna, so a bundle can wait minutes or hours beyond the light time
+and the shifted window misses. A typo costs a full round trip. And for about
+two weeks every 26 months, when the Sun lies between the planets, there is no
+link at all. The counter-based HOTP code, or better a signature that names
+what it approves, survives all three.
+
+## 11.12 In the real world
 
 *Level: intermediate.*
 
@@ -815,12 +1587,19 @@ schedule uses Mars time separately.
   above by calling support and asking for the second factor to be removed. The
   2023 attacks on casino operators in Las Vegas began with calls to IT help
   desks.
-- **PAKEs in products.** SRP in Apple's keychain escrow and 1Password; OPAQUE in
-  WhatsApp's backup encryption; Dragonfly in WPA3 and in some VPNs;
-  password-based Wi-Fi and Bluetooth pairing use related ideas. In web login,
-  PAKEs never took hold, for the reason in §11.8.
+- **Lock the phone number.** Where SMS codes cannot be avoided, a carrier
+  account PIN or port-out lock makes a SIM swap harder.
+- **PAKEs in products.** SRP in Apple's keychain escrow, 1Password, Proton and
+  Amazon Cognito; OPAQUE in WhatsApp's backup encryption, with open-source
+  implementations such as Meta's `opaque-ke` in Rust and Cloudflare's in
+  TypeScript; Dragonfly in WPA3 and in some VPNs; password-based Wi-Fi and
+  Bluetooth pairing use related ideas. In web login, PAKEs never took hold, for
+  the reason in §11.8 and the one at the end of §11.10.
+- **New designs.** A system that must use passwords and controls its own
+  client should use OPAQUE (RFC 9807) with Argon2id as its KSF, rather than
+  SRP; a system that can avoid passwords should use passkeys.
 
-## 11.11 Going deeper
+## 11.13 Going deeper
 
 *Level: expert.*
 
@@ -834,13 +1613,22 @@ server record requires an offline dictionary search, and OPAQUE's definition
 are in the universal composability framework, which also covers users who
 mistype a password into a different session.
 
-**Why SRP's $k$ and $u$.** The original SRP-3 set $B = v + g^b$, which allowed
-a two-for-one guessing attack: an attacker posing as the server could test two
-passwords per run. SRP-6 (2002) added the multiplier $k$ to remove it, and
-SRP-6a made $k$ a hash of the group parameters. The scrambler $u$ must not be
-known before $A$ is sent, or a client who knows only $v$ (a server thief) could
-impersonate the user. These fixes are why "SRP" without a version number is
-ambiguous.
+**SRP's proofs, 25 years late.** SRP ran for two decades with no proof. In
+2024 Dennis Dayanikli and Anja Lehmann (IEEE CSF 2024) gave the first, in the
+universal composability framework, under a new assumption (additive
+simultaneous Diffie-Hellman) and with a simulator given unusual extra power. A
+2025 follow-up (IACR ePrint 2025/1869) argued that SRP is probably not
+UC-secure in the usual sense and proved a game-based result instead. SRP-6a
+has resisted attack, but it was never designed around a proof; OPAQUE was.
+
+**Why 3DH and not signatures.** OPAQUE's key exchange authenticates both sides
+by mixing their long-term keys into Diffie-Hellman values, which keeps the
+client's key pair a plain one re-derived from the password and gives
+**key-compromise impersonation** resistance: someone who steals the client's
+private key can impersonate the client but still cannot impersonate the server
+to the client, because the server's part of the secret needs the server's
+private key. RFC 9807 allows other three-message key exchanges, such as SIGMA
+with signatures (Chapter 1), in place of 3DH.
 
 **OPRFs elsewhere.** The same blinded evaluation powers Privacy Pass (RFC 9576
 and following, 2024), which issues anonymous tokens proving that a user passed a
@@ -862,48 +1650,64 @@ Book 5, *Post-quantum cryptography*, covers the building blocks.
     once and compares, then stores the new value. Computing the next password
     would require inverting the hash.
 
-??? question "2. What is dynamic truncation in HOTP?"
-    The low four bits of the HMAC's last byte choose an offset; the four bytes
-    there, with the top bit cleared, form a 31-bit number whose last six (or
-    eight) decimal digits are the code.
+??? question "2. A TOTP server's clock reads 1,111,111,111 and it accepts one slot either side. A phone 40 seconds slow shows its code. Is it accepted?"
+    No. The server's slot is $\lfloor 1{,}111{,}111{,}111/30 \rfloor = 37{,}037{,}037$,
+    so it accepts slots 37,037,036 to 37,037,038. The phone reads
+    1,111,111,071, and $\lfloor 1{,}111{,}111{,}071/30 \rfloor = 37{,}037{,}035$
+    (since $30 \times 37{,}037{,}035 = 1{,}111{,}111{,}050$), two slots back. A
+    server that tracks each token's drift, as RFC 6238 suggests, would have
+    moved this phone's window and accepted it.
 
-??? question "3. Why must a TOTP server remember the last step it accepted?"
-    Otherwise the same code could be used again within its window, by someone
-    who saw it on a screen or intercepted it.
-
-??? question "4. Why can't the server store TOTP secrets as hashes, the way it stores passwords?"
+??? question "3. Why can't the server store TOTP secrets as hashes, the way it stores passwords?"
     It needs the secret itself to compute the expected code. A hash would not
-    let it compute HMACs.
+    let it compute HMACs. The secrets must be encrypted under a key kept
+    elsewhere, and the 2011 SecurID theft shows what happens when one place
+    holds many customers' secrets.
 
-??? question "5. Name three ways one-time codes are stolen, and the defense against each."
+??? question "4. Name three ways one-time codes are stolen, and the defense against each."
     SIM swaps and SS7 interception (use an app or hardware token, not SMS);
     real-time phishing proxies (use origin-bound keys, Chapter 13); push
     fatigue (number matching).
 
-??? question "6. Why does HMAC challenge-response with a password allow offline guessing?"
+??? question "5. Why does HMAC challenge-response with a password allow offline guessing?"
     The transcript contains a challenge and a value computed from the password
     and that challenge alone; an eavesdropper computes the same for each guess
     and compares.
 
-??? question "7. What does an SRP server store, and what can a thief do with it?"
+??? question "6. What does an SRP server store, and what can a thief do with it?"
     The salt $s$ and verifier $v = g^x$. The thief can test guesses offline by
     computing $g^x$ for each; since $s$ is given to anyone who starts a login,
     the guesses can even be precomputed before the theft.
 
-??? question "8. What does the OPRF in OPAQUE achieve that SRP's verifier does not?"
-    The password-derived key depends on a per-user server secret $k$, so
-    nothing can be precomputed before a theft, and $k$ can be kept in separate
-    hardware. The server never sees the password or a value computed from it
-    alone.
+??? question "7. In SRP-3 a fake server sends $B = v_1 + v_2$ for two candidate passwords. Why can it test both in one run, and why does SRP-6a's $k$ stop it?"
+    The client computes $(B - v)^{a+ux}$. If its password is the first
+    candidate, $B - v_1 = v_2 = g^{x_2}$, whose logarithm the fake server
+    knows, so it can compute $S = A^{x_2} g^{u x_1 x_2}$ and compare with the
+    client's proof; symmetrically for the second. With
+    $B = k(v_1 + v_2)$ the client's base becomes $k g^{x_2}$, and computing $S$
+    needs the logarithm of $k$. SRP-6's $k = 3$ fails if the attacker chooses
+    the group (say $g = 3$); SRP-6a's $k = H(N \,\|\, g)$ cannot be arranged.
+
+??? question "8. In the toy OPRF modulo 23 (group order 11), the password hashes to 9, the server's key is 7 and the client blinds with $r = 5$. What crosses the network, and what does the client end up with?"
+    The client sends $9^5 \equiv 8$; the server returns $8^7 \equiv 12$; the
+    client raises 12 to $1/5 \equiv 9 \pmod{11}$ and gets $12^9 \equiv 4 = 9^7$.
+    The server saw 8, which is uniformly distributed over the group whatever the
+    password, so it learned nothing. Unlike an SRP verifier, the result depends
+    on the server's secret key, so nothing can be precomputed before a theft.
 
 ??? question "9. Why did PAKEs never replace passwords in web logins?"
     The browser shows a password box that any page can imitate; a user who
     types the password into a phishing page hands it over before any protocol
-    runs. PAKEs protect against networks and servers, not misdirected typing.
+    runs. And the page that would run the PAKE is itself served by the server,
+    which could ship code that sends the password. PAKEs protect against
+    networks and database thieves, not misdirected typing.
 
-??? question "10. Why does HOTP work between Earth and Mars when TOTP does not?"
-    An HOTP code depends only on a counter and stays valid until used; a TOTP
-    code expires after 30 seconds, much less than the light delay.
+??? question "10. Why does HOTP work between Earth and Mars when TOTP does not, even with a window shifted by the known light time?"
+    An HOTP code depends only on a counter and stays valid until used. A TOTP
+    code is valid for about a minute; shifting the window by the day's light
+    time would work only if delivery took exactly the light time, but traffic
+    between the planets is stored and forwarded at relays for unpredictable
+    minutes or hours, and stops entirely near solar conjunction.
 
 ## What you learned
 
@@ -919,6 +1723,12 @@ Book 5, *Post-quantum cryptography*, covers the building blocks.
   verifier.
 - SRP's verifier allows precomputation because the salt is public; OPAQUE's
   oblivious PRF prevents it and keeps the password from the server entirely.
+- SRP-3's $B = v + g^b$ let a fake server test two passwords per run; SRP-6a's
+  $k = H(N, g)$ and $u = H(A, B)$ fixed that and the verifier-thief attack.
+- A blinded OPRF input is uniform whatever the password; RFC 9497's vectors
+  and a full RFC 9807 OPAQUE run fit in two short programs.
+- On Mars, codes work inside the city on local clocks; across the gap,
+  store-and-forward delays defeat any clock window.
 - None of this stops a person typing a secret into the wrong page; that needs
   keys bound to the site's origin.
 
@@ -941,7 +1751,23 @@ organization at once.
   exchange secure against dictionary attacks" (EUROCRYPT 2000).
 - Stanisław Jarecki, Hugo Krawczyk and Jiayu Xu, "OPAQUE: an asymmetric PAKE
   protocol secure against pre-computation attacks" (EUROCRYPT 2018).
-- RFC 9497 (OPRFs, 2023) and RFC 9807 (OPAQUE, 2025).
+- Thomas Wu, "SRP-6: improvements and refinements to the Secure Remote
+  Password protocol", submission to IEEE P1363.2 (2002).
+- Matthew Green, "Should you use SRP?", *A Few Thoughts on Cryptographic
+  Engineering* (2018).
+- Dennis Dayanikli and Anja Lehmann, "Provable security analysis of the Secure
+  Remote Password protocol" (IEEE CSF 2024; IACR ePrint 2023/1457), and the
+  follow-up IACR ePrint 2025/1869 (2025).
+- RFC 9497 (OPRFs, 2023), RFC 9380 (hashing to elliptic curves, 2023) and
+  RFC 9807 (OPAQUE, 2025).
+- Andy Greenberg, "The full story of the stunning RSA hack can finally be
+  told", *Wired* (May 2021).
+- FBI IC3, public service announcement on SIM swapping (February 2022);
+  Group-IB on 0ktapus (August 2022); Microsoft Security on AiTM phishing (July
+  2022); Cisco Talos on the Cisco intrusion (August 2022).
+- Neil Ashby and Bijunath Patla, "A comparative study of time on Mars with
+  lunar and terrestrial clocks", *The Astronomical Journal* (2025).
+- RFC 9171 (Bundle Protocol version 7, 2022).
 - Björn Haase and Benoît Labrique, "AuCPace: efficient verifier-based PAKE
   protocol tailored for the IIoT" (TCHES 2019), and the CPace Internet-Draft.
 - WhatsApp, "Security of end-to-end encrypted backups" (2021).
