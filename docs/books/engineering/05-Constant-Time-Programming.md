@@ -1024,7 +1024,8 @@ same idea for big numbers and a divisor that is a modulus.
 **Multiplication.** On modern 64-bit desktop and server processors, integer
 multiplication takes a fixed number of cycles. On smaller cores it does not always.
 The Arm Cortex-M3 finishes its 32 × 32 → 64-bit multiplies (`UMULL`, `SMULL`,
-`UMLAL`, `SMLAL`) early when the operands are small: Arm documents 3 to 5 cycles, and
+`UMLAL`, `SMLAL`) early when the operands are small: Arm documents 3 to 5 cycles for
+`UMULL` and `SMULL` and 4 to 7 for the accumulating forms, and
 Pornin's measurements for BearSSL found the behavior did not even match the
 documentation, so no simple operand trick makes them safe. Older Arm cores such as
 the ARM7TDMI and ARM9 terminate multiplies early too, and so did some PowerPC
@@ -1177,7 +1178,7 @@ platform); the Jasmin language (2017), whose compiler is designed to preserve
 constant time and comes with a checker for it, used for the libjade library; and code generated from verified sources,
 such as Fiat-Crypto's field arithmetic in BoringSSL and HACL\* in Firefox and the Linux
 kernel, whose generated C is restricted to operations that are constant time on the
-platforms they target (Chapter 17). For
+platforms they target ([Chapter 17](17-Choosing-Testing-and-Verifying.md)). For
 everything else there is one rule: check the binary you ship, built with the compiler
 and flags you ship it with, on every change. §5.11 and §5.12 show how.
 

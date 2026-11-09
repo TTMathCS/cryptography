@@ -101,7 +101,7 @@ Two forward pointers. Hardware that holds keys so that software never sees
 them, HSMs, TPMs, secure enclaves and cloud key management services, is
 [Chapter 11](11-Hardware-for-Keys.md). Encrypting application data with
 per-record keys, envelope encryption and crypto-shredding in depth is
-Chapter 14. This chapter introduces the
+[Chapter 14](14-Encrypting-Application-Data.md). This chapter introduces the
 concepts both of those build on.
 
 ## 10.2 The life cycle and the cryptoperiod
@@ -221,9 +221,9 @@ be decades. A Rev. 6 of Part 1 was out as an initial public draft in late 2025;
 check whether it has replaced Rev. 5 before you cite numbers in a policy.
 
 !!! note "Life story: SP 800-57"
-    **Born:** August 2005, NIST's *Recommendation for Key Management*, in
-    three parts (general guidance; organizations; application-specific
-    guidance), led by Elaine Barker · **Purpose:** one vocabulary for the life
+    **Born:** August 2005, NIST's *Recommendation for Key Management*, Part 1
+    (general guidance), with Part 2 (organizations) the same year and Part 3
+    (application-specific guidance) in 2009, led by Elaine Barker · **Purpose:** one vocabulary for the life
     of a key (states, phases, cryptoperiods, security strengths) and a
     baseline for US federal systems · **Helped:** the key-management sections
     of FIPS 140 module documentation, PCI rules, cloud KMS designs and most
@@ -303,7 +303,7 @@ If the answer starts with "first we would have to find them", the inventory is
 the place to start, before any cryptography. The same inventory is the base of
 crypto agility: when an algorithm has to go, as SHA-1 did and RSA and
 elliptic curves will, the inventory says where it is
-(Chapter 17 treats inventories for
+([Chapter 17](17-Choosing-Testing-and-Verifying.md) treats inventories for
 agility).
 
 **What to do.**
@@ -398,7 +398,7 @@ The hierarchy buys five things at once.
 5. **Destruction is possible.** Destroying one small KEK makes everything
    under it unreadable, even copies on backup tapes nobody can find. This is
    **crypto-shredding**, done properly in
-   Chapter 14.
+   [Chapter 14](14-Encrypting-Application-Data.md).
 
 The costs are real too. The key service is now on the read path of every
 record, so its availability is your availability, and its latency is paid on
@@ -430,7 +430,7 @@ when the customer leaves.
     every major cloud (AWS, Google Cloud KMS, Azure Key Vault), and libraries
     such as Google Tink's envelope AEAD · **Status:** the standard design;
     [Chapter 11](11-Hardware-for-Keys.md) covers the services and
-    Chapter 14 builds it
+    [Chapter 14](14-Encrypting-Application-Data.md) builds it
 
 **What to do.**
 
@@ -1387,7 +1387,8 @@ well, as the DNS root showed.
     worrying share of resolvers still trusted only the old key; after a year
     of outreach the roll went ahead on 11 October 2018 with little
     disruption, and KSK-2010 was revoked in January 2019 · **Status:**
-    the second rollover, to KSK-2024, completed in 2026; see Protocols
+    in the second rollover, KSK-2024 took over signing on 11 October 2026,
+    with KSK-2017's revocation planned for January 2027; see Protocols
     [§10.7](../protocols/10-DNSSEC-and-Private-DNS.md#107-the-root-key) for the
     key and Advanced [§2.9](../advanced/02-Secret-Sharing.md#29-the-dns-root-keys-recovery-shares)
     for its recovery shares
@@ -1458,7 +1459,7 @@ needed. A useful one answers, for each key in the inventory: who decides that
 it is compromised; who must be told, and how; what replaces it, and where the
 replacement comes from (pre-activated next versions help); what data or
 signatures it protected and how they will be re-protected; and how the old key
-will be destroyed, everywhere. Chapter 18
+will be destroyed, everywhere. [Chapter 18](18-Running-Cryptography-for-Years.md)
 turns this into an incident playbook.
 
 **What to do.**
@@ -1483,7 +1484,7 @@ describes **cryptographic erase**: if everything on a drive was encrypted under 
 key sanitizes the drive in a second. The same idea applied to records,
 destroying one customer's DEK or KEK to make their data unreadable everywhere
 at once, is **crypto-shredding**, and
-Chapter 14 builds it with its limits.
+[Chapter 14](14-Encrypting-Application-Data.md) builds it with its limits.
 
 **Backups** pull the other way. A key that encrypts data with no other copy
 must itself be backed up, or a failed HSM destroys the data along with the
@@ -1982,8 +1983,8 @@ chapter go into hardware that will use them but never give them up.
   key schedule labels, 2018).
 - ANSI X9.143-2022, *Retail Financial Services: Interoperable Secure Key Block
   Specification* (formerly ASC X9 TR-31).
-- NIST SP 800-88 Rev. 1, *Guidelines for Media Sanitization* (2014),
-  cryptographic erase.
+- NIST SP 800-88 Rev. 2, *Guidelines for Media Sanitization* (September
+  2025, replacing Rev. 1 of 2014), cryptographic erase.
 - RSA Security, "Open Letter to RSA Customers" (17 March 2011) and the June
   2011 token replacement offer; Andy Greenberg, "The Full Story of the Stunning
   RSA Hack Can Finally Be Told" (*Wired*, 2021).

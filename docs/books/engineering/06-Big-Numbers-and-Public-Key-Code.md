@@ -126,7 +126,7 @@ that you can see what the C or assembly of a real library does, and so that the 
 counts, which is what a timing attacker measures, come out right. Where the code uses a
 Python feature that a real library would not, such as `pow` for an inverse, a comment
 says so. For production, use a library whose arithmetic was written for this
-(Chapter 17 says how to choose one).
+([Chapter 17](17-Choosing-Testing-and-Verifying.md) says how to choose one).
 
 !!! note "Life story: the remote timing attack on OpenSSL"
     **Born:** 2003, David Brumley and Dan Boneh, "Remote Timing Attacks are Practical"
@@ -401,7 +401,7 @@ A thousand random tests pass. The first three hand-picked edge cases fail at onc
 is the whole lesson of testing arithmetic: random inputs test the common path, and the
 bugs live on the paths that need runs of all-ones limbs, values just below the modulus,
 and the largest possible carries. Good test suites (Wycheproof, Cryptofuzz,
-Chapter 17) build such inputs on purpose.
+[Chapter 17](17-Choosing-Testing-and-Verifying.md)) build such inputs on purpose.
 
 **In the real world.** This is not a toy failure. OpenSSL 0.9.8g had a fast reduction
 routine for the NIST P-256 prime that, on 32-bit builds, mishandled a carry in extremely
@@ -2167,7 +2167,7 @@ of formal verification in cryptography. Fiat-Crypto (Andres Erbsen, Jade Philipo
 Gross, Robert Sloan and Adam Chlipala, 2019) generates C and assembly for any prime from a
 proof in Coq, and its code runs in BoringSSL for Curve25519 and P-256; HACL* generates
 verified C, in Firefox and the Linux kernel; AWS's s2n-bignum proves its assembly
-correct in HOL Light. Chapter 17 covers them.
+correct in HOL Light. [Chapter 17](17-Choosing-Testing-and-Verifying.md) covers them.
 
 **Hashing to curves.** The try-and-increment `hash_to_point` of §6.9 runs a number of
 loops that depends on its input. For a public input that is harmless; for a secret, it is

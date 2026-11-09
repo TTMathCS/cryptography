@@ -1254,7 +1254,7 @@ $ openssl asn1parse -in leaf.enc.key | grep -E 'OBJECT|INTEGER'
   with OpenSSL's `EVP_BytesToKey`: one pass of [MD5](../../07-hash/Retired.md)
   over the passphrase and the first 8 bytes of the IV as salt. One MD5 per
   guess is nothing; a single graphics card tries billions a second.
-  Chapter 15 re-implements `EVP_BytesToKey` and
+  [Chapter 15](15-The-Command-Line-Tools.md) re-implements `EVP_BytesToKey` and
   shows why.
 - **PKCS#8 with PBES2** names its key derivation in the file:
   [PBKDF2](../../08-kdf-password-hashing/PBKDF2.md) with HMAC-SHA-256, an
@@ -1270,7 +1270,8 @@ $ openssl asn1parse -in leaf.enc.key | grep -E 'OBJECT|INTEGER'
 `ssh-keygen` writes `OPENSSH PRIVATE KEY` by default: PEM armor around a
 binary format that is not DER (it starts with the bytes `openssh-key-v1` and a
 zero), with the key encrypted by AES-256-CTR under a key from
-[bcrypt_pbkdf](../../08-kdf-password-hashing/bcrypt.md), 16 rounds by default.
+[bcrypt_pbkdf](../../08-kdf-password-hashing/bcrypt.md): 16 rounds by default
+before OpenSSH 9.4, 24 from 9.4 (the manual page still says 16) and 32 in 10.6.
 See Protocols [Chapter 6](../protocols/06-SSH.md) and the
 [ssh-keygen card](../../tools/ssh-keygen.md).
 
@@ -2276,7 +2277,7 @@ place.
 6. **Bound all work** done on attacker-chosen numbers and structures: loop
    counts, nesting depth, sizes.
 7. **Fuzz and differentially test** the parser against others
-   ([Chapter 8](08-Hostile-Input.md), Chapter 17),
+   ([Chapter 8](08-Hostile-Input.md), [Chapter 17](17-Choosing-Testing-and-Verifying.md)),
    or better, use one that is already fuzzed and verified.
 </div>
 

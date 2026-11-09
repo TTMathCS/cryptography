@@ -217,12 +217,15 @@ separately, whether it was secure.
 Three findings matter for designers:
 
 1. **Simpler interfaces gave more secure code, with caveats.** PyNaCl and
-   cryptography.io, which hide the mode, the nonce handling and the MAC, did
-   best overall; M2Crypto and Keyczar did worst. Taking away a parameter took
-   away the chance to choose it badly.
+   cryptography.io, which hide the mode, the nonce handling and the MAC, gave
+   the most working solutions, and M2Crypto and Keyczar the fewest; on
+   security, the simplified libraries beat the low-level ones, with Keyczar's
+   few working solutions the most often secure (a small sample) and PyCrypto
+   and M2Crypto the least. Taking away a parameter took away the chance to
+   choose it badly.
 2. **Simple is not enough if the library cannot do the task.** Keyczar was
    built by Google in 2008 precisely to be easy and safe, yet participants
-   found it the hardest to use. It, and PyNaCl, had no direct support for some
+   rated it, with M2Crypto, the least usable of the five. It, and PyNaCl, had no direct support for some
    of the tasks, such as storing a key securely, so participants went
    elsewhere, wrote their own, or gave up. A safe library that does not cover
    the job pushes its users back to an unsafe one.
@@ -1454,9 +1457,10 @@ Protection Commission fined Meta €91 million over it. In October 2023 an
 attacker inside Okta's support system took HAR files, browser recordings that
 customers had uploaded to help debug problems, and used the session tokens in
 them to reach the Okta accounts of customers including Cloudflare,
-1Password and BeyondTrust. And in 2021 a Microsoft signing key ended up in a
-crash dump that was later stolen, the start of the Storm-0558 intrusion that
-[chapter 12](12-Secrets-in-Operations.md) tells in full.
+1Password and BeyondTrust. And a Microsoft signing key that, by Microsoft's
+2023 account, ended up in a crash dump in 2021 (an account it withdrew in
+March 2024, having found no such dump) was the start of the Storm-0558
+intrusion that [chapter 12](12-Secrets-in-Operations.md) tells in full.
 
 !!! note "Life story: passwords in logs"
     **Born:** wherever a request is logged before its secrets are removed;
@@ -1747,10 +1751,11 @@ interface with no wrong answers is the easiest kind to specify.
     until someone attacks.
 
 ??? question "2. What did Acar and colleagues find about Keyczar, a library designed to be easy to use?"
-    Participants found it the hardest of the five libraries to use. Its
-    simplicity did not help when it lacked support for a task, such as
-    storing keys, or had weak documentation; participants then wrote their
-    own code or failed. A safe library must cover the whole task and come with
+    Participants rated it, with M2Crypto, the least usable of the five
+    libraries, and few of them got it to work; the few working solutions were
+    usually secure. Its simplicity did not help when it lacked support for a
+    task, such as storing keys, or had weak documentation; participants then
+    wrote their own code or failed. A safe library must cover the whole task and come with
     complete, safe examples.
 
 ??? question "3. Why does the SecretBox of §9.3 have no nonce parameter, and how can it choose nonces at random safely?"

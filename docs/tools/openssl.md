@@ -10,6 +10,8 @@ Oct 2026; 3.5, 3.6 and 4.0 are newer. **Docs:** `man openssl-x509` and so on,
 one page per command ([3.0 sources](https://github.com/openssl/openssl/tree/openssl-3.0/doc/man1));
 [CHANGES.md](https://github.com/openssl/openssl/blob/master/CHANGES.md).
 
+**Taught in:** [Cryptographic engineering, Chapter 15](../books/engineering/15-The-Command-Line-Tools.md#153-reading-openssl-a-certificate-dump-against-its-bytes) explains how to read its output and what `openssl enc` does and does not protect.
+
 ## Keys and signatures
 
 ```

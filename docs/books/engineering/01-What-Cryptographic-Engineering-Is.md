@@ -68,8 +68,9 @@ fail:
 
 The second `goto fail;` is not inside the `if`. It always runs. It jumps past
 the signature check to the cleanup code, and at that moment `err` is still 0,
-which means "success". For about eighteen months every iPhone, iPad and Mac
-that used ephemeral key exchange accepted a server's key without checking its
+which means "success". For about eighteen months every iPhone and iPad (and,
+from October 2013, every Mac running OS X 10.9) that used ephemeral key exchange
+accepted a server's key without checking its
 signature, so anyone on the same café network could pretend to be any
 website. The ciphers were AES and the hash was SHA-1 or SHA-256, all fine. The
 certificates were checked properly. One line of control flow, which a compiler

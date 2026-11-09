@@ -64,7 +64,7 @@ DigiNotar's roots, and the company was bankrupt within weeks.
 
 Compare those with the cases where the key was only a file. In 2010 the Stuxnet worm
 carried drivers signed with private keys stolen from two Taiwanese hardware makers,
-Realtek and JMicron (Chapter 16 tells the
+Realtek and JMicron ([Chapter 16](16-Signing-Software-and-the-Supply-Chain.md) tells the
 story). Whoever held those files could sign anything, on any machine, for as long as the
 certificates were trusted, and nobody at Realtek would see a single request. Once a key
 file is copied there is no way to know how many copies exist, and the only remedy is to
@@ -267,7 +267,7 @@ devices.
   device holds a few **key-encryption keys** at the top of a hierarchy, and bulk data is
   encrypted in software with data keys that the device wraps and unwraps
   ([Chapter 10](10-The-Life-of-a-Key.md) for hierarchies,
-  Chapter 14 for envelope encryption).
+  [Chapter 14](14-Encrypting-Application-Data.md) for envelope encryption).
 - **Whoever can call the device can use the key.** The hardware turns "protect the key"
   into "protect the right to call". The login, the network path, the cloud IAM policy
   and the host that holds the session become the real perimeter, as Adobe and DigiNotar
@@ -432,7 +432,7 @@ that touches a key is part of it.
     transaction set, which became the payment HSM; Atalla's PIN block format and
     key-management ideas fed the banking standards of the 1980s · **Status:** the
     product line survives in payment HSMs (Atalla passed through Tandem, Compaq, HP
-    and Micro Focus to Utimaco, around 2020); the idea is in every HSM
+    and Micro Focus to Utimaco, in 2018); the idea is in every HSM
 
 **What to do.**
 
@@ -457,10 +457,11 @@ files, all met in [Chapter 3](03-ASN1-DER-and-Key-Files.md)), released PKCS#11, 
 interface it named **Cryptoki**, "cryptographic token interface". It was written for
 smart cards and grew to cover HSMs. RSA Labs published versions up to 2.20 (2004) and a
 2.30 draft (2009); the work then moved to OASIS, where a PKCS 11 technical committee
-took over in 2013. OASIS approved version 2.40 in April 2015, version 3.0 in July 2020
+took over in 2013. OASIS approved version 2.40 in April 2015, version 3.0 in June 2020
 (adding EdDSA, X25519, ChaCha20-Poly1305, SHA-3 and message-based encryption calls),
-and version 3.1 on 23 July 2023; a 3.2 draft circulated in 2025 with post-quantum
-mechanisms. Thirty years on, PKCS#11 is the one interface nearly every HSM, smart card,
+and version 3.1 on 23 July 2023; version 3.2, with post-quantum mechanisms, went out
+as a committee draft in April 2025 and became a committee specification late that
+year. Thirty years on, PKCS#11 is the one interface nearly every HSM, smart card,
 cloud HSM and software token speaks, from Firefox's certificate store (NSS) to
 OpenSSL's providers, Java's SunPKCS11 and DNSSEC signers.
 
@@ -583,8 +584,8 @@ Three traps catch PKCS#11 programmers often enough to name:
     attribute model made "sensitive" and "non-extractable" standard ideas; its API
     attacks (2003, 2010) created the field of formally analyzed security APIs ·
     **Status:** maintained by the OASIS PKCS 11 technical committee since 2013;
-    version 2.40 (2015), 3.0 (2020) and 3.1 (2023) are OASIS standards, 3.2 in draft
-    with post-quantum mechanisms
+    version 2.40 (2015), 3.0 (2020) and 3.1 (2023) are OASIS standards; 3.2, with
+    post-quantum mechanisms, a committee specification since late 2025
 
 ## 11.5 Break it, fix it: the PKCS#11 API attacks
 
@@ -961,7 +962,7 @@ Levels 3 and 4 also bring in the non-invasive (side-channel) requirements that
 [Chapter 7](07-Masking-and-Fault-Resistance.md) §7.10 describes, together with what
 they do and do not test. Every level requires approved algorithms (validated
 separately, by the Cryptographic Algorithm Validation Program, with test vectors;
-Chapter 17 shows how such tests work), power-on
+[Chapter 17](17-Choosing-Testing-and-Verifying.md) shows how such tests work), power-on
 and conditional self-tests, and a public **security policy**: a document that lists the
 approved and non-approved services, the roles, the keys and how each is zeroized, and
 the rules an operator must follow to use the module in its validated configuration.
@@ -1070,7 +1071,7 @@ available in June 2021. The offers fall into two kinds.
   PKCS#11, JCE or CNG interfaces. You get the control of §11.3 and its duties too:
   clustering, backups, users and quorum.
 
-A KMS is built for envelope encryption (Chapter 14):
+A KMS is built for envelope encryption ([Chapter 14](14-Encrypting-Application-Data.md)):
 `Encrypt` takes at most 4 KB, so bulk data is encrypted locally with a data key, and
 only the data key goes to the service. `GenerateDataKey` returns the data key twice,
 once in the clear for immediate use and once wrapped under the KMS key for storage

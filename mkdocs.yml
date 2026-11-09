@@ -411,6 +411,13 @@ nav:
               - books/engineering/11-Hardware-for-Keys.md
               - books/engineering/12-Secrets-in-Operations.md
               - books/engineering/13-Passwords-on-the-Server.md
+          - IV. Building and running systems:
+              - books/engineering/14-Encrypting-Application-Data.md
+              - books/engineering/15-The-Command-Line-Tools.md
+              - books/engineering/16-Signing-Software-and-the-Supply-Chain.md
+              - books/engineering/17-Choosing-Testing-and-Verifying.md
+              - books/engineering/18-Running-Cryptography-for-Years.md
+          - Glossary: books/engineering/Glossary.md
       - History of secret writing:
           - Start here: books/history/index.md
           - I. Beginnings:

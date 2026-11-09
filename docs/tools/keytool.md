@@ -7,6 +7,8 @@ replies and trusted certificates, all kept in Java key stores. Every JDK ships i
 differs, Ubuntu 24.04 in a container, Oct 2026. **Docs:** `keytool -help`,
 `keytool -importcert -help`, keytool(1) ([JDK 21](https://github.com/openjdk/jdk/blob/jdk-21-ga/src/java.base/share/man/keytool.1), [current](https://github.com/openjdk/jdk/blob/master/src/java.base/share/man/keytool.md)).
 
+**Taught in:** [Cryptographic engineering, Chapter 15](../books/engineering/15-The-Command-Line-Tools.md#158-age-and-keytool) explains where it fits beside the other tools.
+
 ## Trust stores
 
 ```

@@ -48,7 +48,7 @@ headers that ride on top of it.*
 
 *Level: beginner.*
 
-In October 2016 two men sent Uber an email. They had found a way into Uber's
+In November 2016 two men sent Uber an email. They had found a way into Uber's
 private code repositories on GitHub, and in the code they had found an Amazon
 Web Services access key, written into the source in plain text. The key opened
 an Amazon storage bucket holding backups of Uber's databases, and they had
@@ -1605,7 +1605,7 @@ it shows up only in apps, scripts and other servers.
     server allow?", in three profiles for different client populations ·
     **Helped:** most of the web's TLS configurations, copied from the generator
     into nginx, Apache and HAProxy files; versioned, so a configuration can say
-    which edition it follows · **Status:** maintained (edition 5.7 in 2025)
+    which edition it follows · **Status:** maintained, in numbered 5.x editions
 
 **OCSP stapling, and the end of OCSP.** Stapling (Protocols §2.7) has the
 server fetch a signed "still good" answer from its CA and send it in the

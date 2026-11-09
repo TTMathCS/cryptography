@@ -6,6 +6,8 @@ It comes with OpenSSH on Linux, the BSDs and macOS.*
 **Version shown:** OpenSSH 9.6p1 (Ubuntu's `openssh-client`), Ubuntu 24.04 in a container, Oct 2026;
 10.6 (6 October 2026) is current. **Docs:** `man ssh-keygen` ([9.6](https://github.com/openssh/openssh-portable/blob/V_9_6_P1/ssh-keygen.1), [10.6](https://github.com/openssh/openssh-portable/blob/V_10_6_P1/ssh-keygen.1)), [release notes](https://www.openssh.com/releasenotes.html).
 
+**Taught in:** [Cryptographic engineering, Chapter 15](../books/engineering/15-The-Command-Line-Tools.md#156-ssh-keygen-fingerprints-by-hand) explains how its fingerprints are made, worked by hand.
+
 ## Keys
 
 ```

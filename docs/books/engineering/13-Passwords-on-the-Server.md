@@ -1962,7 +1962,7 @@ When it happens:
 - Plan for the leak: the password in a log needs no cracking, and a
   migration is not done until the old hashes are gone.
 
-**Next:** Chapter 14 moves from secrets
+**Next:** [Chapter 14](14-Encrypting-Application-Data.md) moves from secrets
 the server checks to data it must be able to read back: field and record
 encryption, envelope keys, and what searchable encryption leaks.
 

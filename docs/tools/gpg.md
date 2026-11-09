@@ -9,6 +9,8 @@ ship it; Homebrew's `gnupg` and Gpg4win bring it to macOS and Windows.*
 **Docs:** `man gpg`, [`doc/gpg.texi`](https://github.com/gpg/gnupg/blob/master/doc/gpg.texi),
 [NEWS](https://github.com/gpg/gnupg/blob/master/NEWS); packets and algorithm numbers: [OpenPGP](../protocols/OpenPGP.md).
 
+**Taught in:** [Cryptographic engineering, Chapter 15](../books/engineering/15-The-Command-Line-Tools.md#157-gpg-packets-defaults-and-trust) explains its packets, defaults and trust model.
+
 ## Keys and smart cards
 
 ```

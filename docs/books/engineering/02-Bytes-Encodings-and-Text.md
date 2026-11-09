@@ -1589,9 +1589,10 @@ False
 
 The first two names look the same and are different byte strings, different
 domains and could have different certificates; the encoding is doing its job
-perfectly. Browsers now show the punycode form when a label mixes scripts, or
-is written entirely in a script that only imitates Latin letters (Chrome 58,
-April 2017, and Firefox changed after Zheng's report). The general tools are
+perfectly. Browsers now show the punycode form when a label mixes scripts,
+and Chrome also when it is written entirely in a script that only imitates
+Latin letters (Chrome 58, April 2017); Firefox at first left such whole-script
+lookalikes to a user setting, `network.IDN_show_punycode`. The general tools are
 in Unicode Technical Standard #39: a "skeleton" that maps confusable
 characters to a common form, and mixed-script detection like the one above.
 Use them to warn or reject at registration.

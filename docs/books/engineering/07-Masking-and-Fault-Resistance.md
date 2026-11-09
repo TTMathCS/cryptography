@@ -1902,7 +1902,7 @@ operation rather than a missing defense.
    check that the library version you ship is the certified one.
 3. Decide in advance how a flaw would be fixed. EUCLEAK's keys could not be updated;
    an updatable part needs a signed, authenticated update path, which is itself an
-   attack surface (Chapter 16).
+   attack surface ([Chapter 16](16-Signing-Software-and-the-Supply-Chain.md)).
 4. Keep secrets that the device does not need off it (a passphrase, a server-side
    factor), so that a physical break yields less.
 
@@ -2065,10 +2065,10 @@ tested by attacking it.
 | 2005 | Masked AES hardware broken | glitches combined shares | threshold implementations (2006) |
 | 2013 | Curiosity A-side flash fault | memory corruption on Mars | a redundant computer |
 | 2015 | TLS servers leak RSA keys | faulty CRT signatures from bad hardware | verify before release |
-| 2017 | Philips Hue firmware key | CPA on an unprotected AES-CCM key | key diversification, protected parts |
+| 2017 | Philips Hue firmware key | CPA on an unprotected AES-CCM key | a firmware patch for the worm's entry bug; the shared key was the lesson |
 | 2019 | Plundervolt | software undervolting of SGX | microcode locking the voltage interface |
 | 2020 | Trezor seed extraction | glitch on a general-purpose microcontroller | passphrases; secure elements |
-| 2021 | Google Titan key cloned | EM leak in a certified secure element | new chip generation |
+| 2021 | Google Titan key cloned | EM leak in a certified secure element | nothing for keys in the field; physical access needed |
 | 2023 | 189 SSH host keys recovered | faulty RSA signatures in scan data | verify before release |
 | 2024 | EUCLEAK | one non-constant-time inversion | Yubico firmware 5.7, own library |
 

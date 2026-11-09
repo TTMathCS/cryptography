@@ -10,6 +10,8 @@ differs, 1.3.2 (Aug 2026, `go install filippo.io/age/cmd/...@latest`), Ubuntu
 24.04 in a container, Oct 2026. **Docs:** `age --help`, age(1), age-keygen(1), age-inspect(1)
 ([sources](https://github.com/FiloSottile/age/tree/v1.3.2/doc), [online](https://filippo.io/age/age.1)), [README](https://github.com/FiloSottile/age/blob/v1.3.2/README.md).
 
+**Taught in:** [Cryptographic engineering, Chapter 15](../books/engineering/15-The-Command-Line-Tools.md#158-age-and-keytool) explains where it fits beside the other tools.
+
 ## Keys
 
 ```

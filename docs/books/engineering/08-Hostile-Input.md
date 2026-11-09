@@ -468,8 +468,8 @@ something strange in data his fuzzing work had collected: fragments of
 HTTPS requests, cookies, and private messages from web sites he had never
 visited, mixed into pages served through Cloudflare. He contacted
 Cloudflare that evening (by a message on Twitter, asking for someone in
-their security team, which by some accounts was early on 18 February in
-his time zone). Cloudflare turned off Email Obfuscation within about an hour
+their security team; Cloudflare's timeline logs it at 00:11 UTC on
+18 February). Cloudflare turned off Email Obfuscation within about an hour
 of getting the details, and disabled the other two features and fixed the
 code worldwide over the following hours. They published an incident report
 by John Graham-Cumming, their chief technology officer, on 23 February 2017.
@@ -909,10 +909,11 @@ services store them centrally.
 and upload it to the vendor for analysis. A crash report may contain a
 partial or full memory dump, which then travels to a different company's
 systems and is looked at by people who are not thinking about keys. The
-most expensive example on record is Microsoft's: a consumer signing key that
-ended up in a crash dump in 2021, moved to a less protected debugging
-environment, and was used by the group Microsoft calls Storm-0558 to forge
-access tokens in 2023. [Chapter 12](12-Secrets-in-Operations.md) tells that
+most expensive example on record is Microsoft's: a consumer signing key that,
+by Microsoft's September 2023 account, ended up in a crash dump in 2021 and
+moved to a less protected debugging environment (in March 2024 Microsoft said
+it had found no such crash dump), and was used by the group Microsoft calls
+Storm-0558 to forge access tokens in 2023. [Chapter 12](12-Secrets-in-Operations.md) tells that
 story in full.
 
 <figure class="mars-fig">
@@ -1178,7 +1179,7 @@ shrugged them off crashed instead. He turned the accident into a class
 project at the University of Wisconsin and then a study. The 1990 paper by
 Miller, Lars Fredriksen and Bryan So, "An Empirical Study of the Reliability
 of UNIX Utilities", fed streams of random bytes to about 90 standard Unix
-programs across seven versions and crashed or hung more than a quarter of
+programs across seven versions and crashed or hung a quarter to a third of
 them, 25% to 33% depending on the system. They named the random generator
 `fuzz`, and the name stuck. Their point was not that random input is a
 clever attack; it was that mature, trusted programs fell over on input
@@ -1345,7 +1346,7 @@ finds nothing, because the strict version checks the claim before the read.
 **A fuzzer is not proof.** It explores; it does not cover everything. A
 fuzzer that has run for a week with no new crash tells you the easy bugs are
 gone, not that none remain. It pairs with the differential and
-known-answer testing of Chapter 17,
+known-answer testing of [Chapter 17](17-Choosing-Testing-and-Verifying.md),
 which checks that the parser agrees with a reference, and with the strict
 validation of [Chapter 3](03-ASN1-DER-and-Key-Files.md), which narrows what
 the parser is allowed to accept in the first place.

@@ -68,13 +68,13 @@ signature are; [the cryptography book](../../book/index.md) teaches that.
 | | [11. Hardware for keys: HSMs, TPMs, enclaves and tokens](11-Hardware-for-Keys.md) | intermediate |
 | | [12. Secrets in operations](12-Secrets-in-Operations.md) | beginner to intermediate |
 | | [13. Passwords on the server](13-Passwords-on-the-Server.md) | beginner to intermediate |
-| **IV. Building and running systems** | 14. Encrypting application data | intermediate |
-| | 15. The command-line tools | beginner to intermediate |
-| | 16. Signing software and the supply chain | intermediate |
-| | 17. Choosing, testing and verifying | intermediate to expert |
-| | 18. Running cryptography for years | intermediate |
+| **IV. Building and running systems** | [14. Encrypting application data](14-Encrypting-Application-Data.md) | intermediate |
+| | [15. The command-line tools](15-The-Command-Line-Tools.md) | beginner to intermediate |
+| | [16. Signing software and the supply chain](16-Signing-Software-and-the-Supply-Chain.md) | intermediate |
+| | [17. Choosing, testing and verifying](17-Choosing-Testing-and-Verifying.md) | intermediate to expert |
+| | [18. Running cryptography for years](18-Running-Cryptography-for-Years.md) | intermediate |
 
-The glossary collects the terms of the whole book.
+The [glossary](Glossary.md) collects the terms of the whole book.
 
 ## Where else to look
 
