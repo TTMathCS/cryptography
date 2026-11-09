@@ -25,8 +25,8 @@ See [Chapter 6, §6.5](06-Lattice-Reduction-and-the-Estimator.md#65-bkz-reductio
 ## C
 
 **Classic McEliece**
-A KEM based on Niederreiter encryption with binary Goppa codes: unbroken since 1978 in its original form, with tiny ciphertexts and public keys of hundreds of kilobytes to over a megabyte. Not selected by NIST; on its way through ISO.
-See [Chapter 13, §13.9](13-Code-Based-Encryption-McEliece.md#139-classic-mceliece-in-the-world).
+A KEM based on Niederreiter encryption with binary Goppa codes: no practical break since 1978 in its original form, with tiny ciphertexts and public keys of hundreds of kilobytes to over a megabyte. Not selected by NIST; standardized by ISO in 2026 (ISO/IEC 18033-2 Amd 2). After new structural attacks on Goppa codes in 2026, Germany's BSI advised in early October 2026 against using it in new systems (as of November 2026).
+See [Chapter 13, §13.9](13-Code-Based-Encryption-McEliece.md#139-classic-mceliece-in-the-world) and [§13.10](13-Code-Based-Encryption-McEliece.md#1310-standards-and-the-attacks-of-2026).
 
 **CNSA 2.0**
 The NSA's Commercial National Security Algorithm Suite 2.0 (2022): ML-KEM-1024, ML-DSA-87, and LMS or XMSS for firmware, with exclusive use required between 2030 and 2033 depending on the system, and all systems by 2035.

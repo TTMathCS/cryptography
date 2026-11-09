@@ -242,9 +242,11 @@ unique and the search vast: Classic McEliece's smallest set has $n = 3{,}488$ an
 so there are about $2^{456}$ candidate error patterns, and the cleverest algorithms
 (information set decoding, Chapter 13) need about $2^{143}$ operations.
 
-**History and record.** McEliece's scheme has never been broken in nearly fifty years with
-its original Goppa codes, although many attempts to shrink its keys with more structured
-codes have been. Its weakness is size: a public key is a large matrix. Classic McEliece's
+**History and record.** McEliece's scheme has not been broken in practice in nearly fifty years
+with its original Goppa codes, although many attempts to shrink its keys with more structured
+codes have been. In 2026 a run of new structural attacks on binary Goppa codes appeared; none
+has recovered a full-size key, but they led Germany's BSI to advise against Classic McEliece
+for new systems (Chapter 13, §13.10). Its weakness is size: a public key is a large matrix. Classic McEliece's
 keys range from about 261 kilobytes to over a megabyte. Newer schemes, BIKE and HQC, use
 **quasi-cyclic** codes, whose matrices are made of rotated copies of a few rows, and get keys
 of a few kilobytes at the price of more structure (Chapter 14). NIST selected HQC as a second
@@ -258,10 +260,11 @@ bytes. HQC: public keys of about 2 to 7 kB, ciphertexts of about 4 to 14 kB.
     Cryptosystem Based on Algebraic Coding Theory" (JPL Deep Space Network Progress Report)
     · **Purpose:** public-key encryption from the hardness of decoding a random-looking
     linear code · **Helped:** the oldest unbroken public-key scheme besides RSA and
-    Diffie-Hellman; its descendant Classic McEliece is recommended by Germany's BSI for
-    high-assurance uses · **Status:** unbroken with Goppa codes;
-    Classic McEliece reached NIST's fourth round, where NIST deferred a decision while ISO
-    standardizes it
+    Diffie-Hellman; its descendant Classic McEliece was recommended by Germany's BSI for
+    high-assurance uses from 2020 · **Status:** no practical break with Goppa codes;
+    Classic McEliece reached NIST's fourth round and was not selected; ISO standardized it
+    in 2026; after the 2026 structural attacks BSI advised against it for new systems
+    (October 2026)
 
 ## 4.4 Hash functions: signatures from nothing else
 
@@ -541,8 +544,8 @@ image header and a smart card all have budgets measured in bytes.
 | Lattice | ML-KEM-768 (3) | 1,184 | 1,088 | FIPS 203 |
 | Lattice | ML-DSA-65 (3) | 1,952 | 3,309 | FIPS 204 |
 | Lattice | Falcon-512 (1) | 897 | about 666 | FN-DSA in preparation |
-| Lattice, unstructured | FrodoKEM-976 (3) | 15,632 | 15,744 | ISO process; BSI recommends |
-| Code | Classic McEliece 348864 (1) | 261,120 | 96 | ISO process; BSI recommends |
+| Lattice, unstructured | FrodoKEM-976 (3) | 15,632 | 15,744 | ISO standard (2026); BSI recommends |
+| Code | Classic McEliece 348864 (1) | 261,120 | 96 | ISO standard (2026); BSI advises against for new systems (Oct 2026) |
 | Code | HQC-128 (1) | about 2,250 | about 4,400 | selected by NIST, draft to come |
 | Hash | SLH-DSA-128s (1) | 32 | 7,856 | FIPS 205 |
 | Hash | LMS, one level, $2^{20}$ signatures (1 to 5) | 56 | about 2,500 | SP 800-208, RFC 8554 |
@@ -720,8 +723,8 @@ NIST's process was international in its participants, and many governments follo
 choices, but not all choose the same set.
 
 - **Germany's BSI** recommends ML-KEM alongside the more conservative FrodoKEM (an
-  unstructured LWE scheme with no ring or module structure) and Classic McEliece, and
-  recommends hybrid key exchange during the transition.
+  unstructured LWE scheme with no ring or module structure) and, until October 2026, Classic McEliece (now advised against for new systems after
+  that year's structural attacks), and recommends hybrid key exchange during the transition.
 - **France's ANSSI** and several other European agencies require or recommend hybrids with
   classical algorithms for now, and accept ML-KEM, ML-DSA and SLH-DSA in them.
 - **ISO/IEC** has been standardizing FrodoKEM, Classic McEliece and ML-KEM as additions to
