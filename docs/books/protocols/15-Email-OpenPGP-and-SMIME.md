@@ -393,11 +393,20 @@ Before decrypting, we need AES, AES key wrap and OCB. The AES here is the
 textbook one from book 1 Chapter 7, compressed; key unwrap follows RFC 3394
 §2.2.2; OCB (Rogaway, RFC 7253) is the mode RFC 9580 requires every
 implementation to support. Each is checked against its standard's own
-example.
+example. First the program reads which ciphers and modes the sample key's
+self-signature asks for.
 
 ```python
 # The symmetric half of OpenPGP v6: AES-128, AES key wrap (RFC 3394) and
-# OCB mode (RFC 7253), each checked against its RFC's test vector.
+# OCB mode (RFC 7253), each checked against its RFC's test vector. Continue from
+# above: first, hashed subpackets 11 and 39 of the sample key's self-signature.
+sub, i = sig[8:8 + hlen], 0
+while i < len(sub):
+    n, t = sub[i], sub[i + 1] & 127                   # length, type
+    if t == 11: print("preferred ciphers:", list(sub[i + 2:i + 1 + n]), "(9 = AES-256, 7 = AES-128)")
+    if t == 39: print("preferred AEAD pairs:", [tuple(sub[j:j + 2]) for j in range(i + 2, i + 1 + n, 2)], "(mode 2 = OCB)")
+    i += 1 + n
+
 def xtime(a): return ((a << 1) ^ 0x1B) & 0xFF if a & 0x80 else a << 1
 SBOX, INV = [0] * 256, [0] * 256
 p = q = 1
@@ -501,6 +510,8 @@ print("OCB, RFC 7253 8 bytes:", v.hex() == "6820b3657b6f615a5725bda0d3b4eb3a257c
 ```
 
 ```text
+preferred ciphers: [9, 7] (9 = AES-256, 7 = AES-128)
+preferred AEAD pairs: [(9, 2), (7, 2)] (mode 2 = OCB)
 AES-128, FIPS 197: True
 key unwrap, RFC 3394 4.1: 00112233445566778899aabbccddeeff
 OCB, RFC 7253 empty: True
@@ -680,6 +691,79 @@ September 2023 public CAs follow the CA/Browser Forum's S/MIME Baseline
 Requirements, which set validation methods and key sizes. Inside companies,
 the company runs the CA and publishes certificates in its directory, and this
 is where S/MIME is most used.
+
+### Finding a key by address: WKD by hand
+
+A Web Key Directory lookup needs only HTTPS. The client lower-cases the
+part of the address before the @, hashes it with SHA-1, writes the 160-bit
+digest in **z-base-32** (an alphabet made to be read aloud, from
+Zimmermann's ZRTP, RFC 6189), and asks the domain's own web server for the
+file of that name. The draft's example is `Joe.Doe@Example.ORG`:
+
+<div class="mars-steps" markdown>
+
+1. Lower-case: `joe.doe` and `example.org`.
+2. SHA-1 of `joe.doe` begins a8 3e e9, in bits 10101000 00111110 11101001.
+3. In groups of 5 bits: 10101, 00000, 11111, 01110, …, that is 21, 0, 31
+   and 14. In the alphabet `ybndrfg8ejkmcpqxot1uwisza345h769` (position 0
+   is `y`) these are `i`, `y`, `9` and `q`. The 160 bits make exactly 32
+   characters: `iy9q119eutrkn8s1mk4r39qejnbu3n5q`.
+4. The **advanced** URL is
+   `https://openpgpkey.example.org/.well-known/openpgpkey/example.org/hu/iy9q…?l=Joe.Doe`;
+   only if the host `openpgpkey.example.org` does not exist does the client
+   fall back to the **direct** URL,
+   `https://example.org/.well-known/openpgpkey/hu/iy9q…?l=Joe.Doe`.
+
+</div>
+
+The hash is not for secrecy, since anyone can hash a guessed address; it
+only turns a local part into a safe, fixed-length file name. What makes the
+answer trustworthy is TLS (Chapter 3) to a server the domain
+controls, plus one check by the client: the certificate must carry a user ID
+with exactly the address asked about. The trust model is the domain's, as
+with DKIM in §15.8: whoever runs `example.org` can publish any key for its
+users. As of November 2026 WKD is still an individual Internet-Draft
+(revision 22, July 2026), yet GnuPG, Thunderbird and Proton Mail use it.
+Because the path depends only on the address, a mirror can serve a whole
+domain's WKD files offline, as Arcadia City does in §15.9.
+
+### Autocrypt: the key rides along
+
+Autocrypt (Level 1, December 2017) skips the lookup: every message carries
+one more header:
+
+```text
+Autocrypt: addr=alice@arcadia.mars; prefer-encrypt=mutual; keydata=xjMEZ...
+```
+
+The receiver keeps the newest key seen for each address; once both sides
+have said `prefer-encrypt=mutual`, replies are encrypted. A second device gets the secret key in an **Autocrypt
+Setup Message** to oneself, encrypted under a 36-digit setup code. There is
+no verification: any server on the path can swap the header. Autocrypt aims
+at passive mass collection, not at an attacker on the path.
+
+### When a certification can be copied: SHA-1 is a Shambles
+
+A certification signs a hash of the key packet and user ID, for v4 keys
+often SHA-1. Unlike the 2017 SHAttered collision, which needed a shared
+prefix, a **chosen-prefix collision** joins two different prefixes of the
+attacker's choice: key A with the attacker's name, key B with the victim's
+name and the attacker's key material, with equal SHA-1 values for what a
+certifier hashes. A trusted introducer honestly certifies A after checking the
+attacker's passport; the attacker copies the signature onto B, and everyone
+who trusts the introducer accepts B as the victim's key.
+
+!!! note "Life story: SHA-1 is a Shambles"
+    **Born:** January 2020, Gaëtan Leurent and Thomas Peyrin, presented at
+    USENIX Security 2020 · **Purpose:** an attack: the first practical
+    chosen-prefix collision on SHA-1, shown on a pair of PGP keys ·
+    **Cost:** a cluster of 900 GPUs; about US$45,000 to repeat in rented GPU
+    time, by the authors' estimate · **Response:** disclosed to GnuPG first;
+    GnuPG 2.2.18 (November 2019) rejects SHA-1 identity signatures made after
+    19 January 2019 (CVE-2019-14855); v6 signatures put a signer-chosen salt
+    first (§15.2), and RFC 9580 forbids SHA-1 in new signatures ·
+    **Status:** v4 fingerprints still use SHA-1, safe while second preimages
+    stay out of reach
 
 ## 15.5 S/MIME and CMS
 
@@ -958,6 +1042,86 @@ The same lesson appears in every chapter of this book's Part I: in TLS,
 the Lucky Thirteen and padding-oracle attacks (Chapter 4) came from
 decrypting before authenticating; the cure was the same AEAD.
 
+### Fix it, by hand: three chunks of SEIPD v2
+
+Take a 10,000-byte literal data packet, AES-128, OCB and chunk-size byte
+$c = 6$.
+
+<div class="mars-steps" markdown>
+
+1. **Chunk size.** $2^{c+6} = 2^{12} = 4{,}096$ bytes, and
+   $10{,}000 = 4{,}096 + 4{,}096 + 1{,}808$: three chunks.
+2. **Keys.** HKDF-SHA256 of the session key, with the packet's 32-byte salt
+   and the header bytes `d2 02 07 02 06` as info, gives a 16-byte message
+   key and a 7-byte IV.
+3. **Nonces.** OCB takes a 15-byte nonce: the IV followed by the chunk
+   index as 8 big-endian bytes: `IV ‖ 00…00`, `IV ‖ 00…01`, `IV ‖ 00…02`,
+   each with the five header bytes as associated data.
+4. **Final tag.** Nonce `IV ‖ 00…03`, an empty plaintext, and as associated
+   data the header bytes followed by the total length,
+   10,000 = `00 00 00 00 00 00 27 10`.
+5. **Size.** 4 header bytes + 32 salt + 10,000 + 3 × 16 + 16 = 10,100 bytes,
+   1% overhead; with 4 MiB chunks ($c = 16$, the largest allowed) it is 16
+   bytes per chunk.
+
+</div>
+
+Swapped chunks meet the wrong nonce. A chunk copied from another message
+under the same session key (a reply may reuse the key packets with a fresh
+salt) meets another message key. A changed $c$ changes the HKDF info and so
+the key. A dropped last chunk leaves the final tag checked at index 2 for
+8,192 bytes, though it was made at index 3 for 10,000. In that last case a
+streaming reader has already written out 8,192 genuine bytes; RFC 9580
+§13.7 allows this but requires a clear error at once, so a program that
+pipes `gpg` into another must check its exit status.
+
+### Code it: seal three chunks, then attack them
+
+```python
+# SEIPD v2 with three chunks, sealed and then attacked: reordered, cut short,
+# spliced from another message. Uses ocb() and hkdf() from the listings above.
+def seal(session_key, salt, plain, c=6):
+    info = bytes([0xD2, 2, 7, 2, c])                  # tag, v2, AES-128, OCB, chunk size
+    okm = hkdf(session_key, salt, info, 16 + 7)
+    k, iv, size = okm[:16], okm[16:], 1 << (c + 6)
+    parts = [plain[i:i + size] for i in range(0, len(plain), size)]
+    chunks = [ocb(k, iv + i.to_bytes(8, "big"), p, info) for i, p in enumerate(parts)]
+    final = ocb(k, iv + len(chunks).to_bytes(8, "big"), b"", info + len(plain).to_bytes(8, "big"))
+    return [info, salt, chunks, final]
+
+def unseal(session_key, msg):                         # release chunk by chunk, stop at a bad tag
+    info, salt, chunks, final = msg
+    okm = hkdf(session_key, salt, info, 16 + 7)
+    k, iv, out = okm[:16], okm[16:], b""
+    for i, ch in enumerate(chunks):
+        p = ocb(k, iv + i.to_bytes(8, "big"), ch, info, decrypt=True)
+        if p is None:
+            return f"chunk {i} refused, {len(out)} bytes released"
+        out += p
+    ok = ocb(k, iv + len(chunks).to_bytes(8, "big"), final, info + len(out).to_bytes(8, "big"), decrypt=True) == b""
+    return f"{len(out)} bytes released, final tag {'checks' if ok else 'FAILS: message incomplete'}"
+
+sk = bytes(range(16))
+plain = (b"Arcadia City water report, sol 412: all tanks nominal. " * 200)[:10000]
+m = seal(sk, hashlib.sha256(b"salt one").digest(), plain)
+print("chunk sizes:", [len(ch) - 16 for ch in m[2]], " packet body:", 4 + 32 + sum(map(len, m[2])) + 16, "bytes")
+print("untouched:      ", unseal(sk, m))
+print("chunks swapped: ", unseal(sk, [m[0], m[1], [m[2][1], m[2][0], m[2][2]], m[3]]))
+print("last chunk cut: ", unseal(sk, [m[0], m[1], m[2][:2], m[3]]))
+other = seal(sk, hashlib.sha256(b"salt two").digest(), plain)
+print("chunk 1 spliced:", unseal(sk, [m[0], m[1], [m[2][0], other[2][1], m[2][2]], m[3]]))
+```
+
+```text
+chunk sizes: [4096, 4096, 1808]  packet body: 10100 bytes
+untouched:       10000 bytes released, final tag checks
+chunks swapped:  chunk 0 refused, 0 bytes released
+last chunk cut:  8192 bytes released, final tag FAILS: message incomplete
+chunk 1 spliced: chunk 1 refused, 4096 bytes released
+```
+
+Every tampered version is caught and nothing false is released.
+
 ## 15.7 Why email resists end-to-end encryption
 
 *Level: intermediate.*
@@ -1186,6 +1350,29 @@ body changed to 'angry': body hash matches: False
 Both verify. Changing one word in the body changes the body hash, so the
 signature check fails without even reaching the public-key operation.
 
+RFC 6376 §3.4.6 gives a deliberately untidy example for checking
+canonicalization by hand. With spaces, tabs and line ends written out:
+
+```text
+as received                          relaxed form
+A: <SP> X <CRLF>                     a:X<CRLF>
+B <SP> : <SP> Y <HTAB><CRLF>         b:Y<SP>Z<CRLF>
+<HTAB> Z <SP><SP><CRLF>
+<CRLF>                               (end of the headers)
+<SP> C <SP><CRLF>                    <SP>C<CRLF>
+D <SP><HTAB><SP> E <CRLF>            D<SP>E<CRLF>
+<CRLF>
+<CRLF>                               (both empty lines dropped)
+```
+
+Header B's name loses its trailing space; its value is unfolded by deleting
+the CRLF, the two tabs that meet become one space, and the ends are
+stripped: `Y Z`. In the body, ` C ` keeps its leading space (relaxed
+squeezes runs; it does not delete a lone space) but loses the trailing one.
+The functions above give the same bytes. The `simple` method would only
+drop the empty lines, so the two methods hash differently; that is why `c=`
+sits inside the signed header.
+
 !!! note "Life story: the 512-bit DKIM keys of 2012"
     **Born:** DKIM, RFC 4871 (2007) and RFC 6376 (2011), merging Yahoo's
     DomainKeys and Cisco's Identified Internet Mail · **Event:** in 2012 the
@@ -1207,12 +1394,90 @@ rotate their DKIM keys regularly and **publish the old private keys**, so that
 signatures stay useful for delivery but stop proving anything afterwards: the
 same deniability argument as in Signal. Few providers have done so.
 
-**Mail in transit.** Separately from all of this, mail servers encrypt the
+### DMARC alignment, worked through
+
+DMARC passes when SPF or DKIM passes **and** the domain that passed is
+**aligned** with the visible From domain. The SPF domain comes from the
+envelope sender (`MAIL FROM`), the DKIM domain from each valid signature's
+`d=`, and in mail sent through a newsletter service all three often differ.
+**Relaxed** alignment, the default, needs the same **Organizational
+Domain**; **strict** (`adkim=s`, `aspf=s`) needs equal names. RFC 7489 found
+the Organizational Domain with the Public Suffix List; RFC 9989 (May 2026),
+which replaces it, uses a **DNS tree walk**, querying `_dmarc` at the name
+and each parent, at most eight queries. Here a shop sends its newsletter
+through a mailing service:
+
+```text
+MAIL FROM:<b-7781@bounces.mailer.example>              (SPF domain)
+DKIM-Signature: d=mailer.example; s=s1; ...             (valid)
+DKIM-Signature: d=shop.example; s=news; ...             (valid)
+From: Shop News <news@news.shop.example>
+_dmarc.shop.example  TXT "v=DMARC1; p=reject; sp=quarantine"
+```
+
+<div class="mars-steps" markdown>
+
+1. **SPF** passes for `bounces.mailer.example`, whose Organizational Domain
+   `mailer.example` is not the From's `shop.example`: not aligned.
+2. **DKIM, d=mailer.example**: valid, not aligned, for the same reason.
+3. **DKIM, d=shop.example**: valid. The tree walk asks
+   `_dmarc.news.shop.example` (nothing), then `_dmarc.shop.example` (a
+   record): the Organizational Domain is `shop.example`, relaxed alignment
+   holds, and **DMARC passes**. Under `adkim=s` it would fail.
+4. **Policy.** Had nothing aligned, `sp=quarantine` from the parent's record
+   would send the message to spam, not refuse it.
+
+</div>
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 290" width="640" role="img" aria-label="DMARC alignment: SPF and DKIM pass for mailer.example domains, not aligned with the From domain news.shop.example; a DKIM signature for shop.example is aligned, so DMARC passes" fill="currentColor" font-size="13">
+<rect x="200" y="16" width="240" height="52" rx="6" class="soft-acc" stroke="currentColor"/>
+<text x="320" y="38" text-anchor="middle" font-weight="bold">From: news.shop.example</text>
+<text x="320" y="56" text-anchor="middle" font-size="12">organizational domain: shop.example</text>
+<rect x="20" y="120" width="180" height="70" rx="6" class="soft" stroke="currentColor"/>
+<text x="110" y="140" text-anchor="middle" font-size="12" font-weight="bold">SPF: pass</text>
+<text x="110" y="158" text-anchor="middle" font-size="11.5">bounces.mailer.example</text>
+<text x="110" y="176" text-anchor="middle" font-size="11.5">org: mailer.example</text>
+<rect x="230" y="120" width="180" height="70" rx="6" class="soft" stroke="currentColor"/>
+<text x="320" y="140" text-anchor="middle" font-size="12" font-weight="bold">DKIM: pass</text>
+<text x="320" y="158" text-anchor="middle" font-size="11.5">d=mailer.example</text>
+<text x="320" y="176" text-anchor="middle" font-size="11.5">org: mailer.example</text>
+<rect x="440" y="120" width="180" height="70" rx="6" class="soft-acc" stroke="currentColor"/>
+<text x="530" y="140" text-anchor="middle" font-size="12" font-weight="bold">DKIM: pass</text>
+<text x="530" y="158" text-anchor="middle" font-size="11.5">d=shop.example</text>
+<text x="530" y="176" text-anchor="middle" font-size="11.5">org: shop.example</text>
+<line x1="110" y1="118" x2="250" y2="70" stroke="currentColor" stroke-dasharray="4 4"/>
+<line x1="320" y1="118" x2="320" y2="70" stroke="currentColor" stroke-dasharray="4 4"/>
+<line x1="530" y1="118" x2="390" y2="70" stroke="currentColor" stroke-width="2"/>
+<text x="150" y="100" text-anchor="middle" font-size="11.5" fill-opacity=".7">not aligned</text>
+<text x="360" y="100" text-anchor="middle" font-size="11.5" fill-opacity=".7">not aligned</text>
+<text x="500" y="100" text-anchor="middle" font-size="11.5" font-weight="bold">aligned</text>
+<line x1="530" y1="192" x2="530" y2="218" stroke="currentColor" stroke-width="1.5"/><polygon points="530,222 525,210 535,210"/>
+<rect x="400" y="224" width="220" height="50" rx="6" stroke="currentColor" fill="none"/>
+<text x="510" y="245" text-anchor="middle" font-weight="bold">DMARC: pass</text>
+<text x="510" y="263" text-anchor="middle" font-size="11.5">one aligned pass is enough</text>
+<text x="200" y="254" text-anchor="middle" font-size="12">without d=shop.example: DMARC fails</text>
+</svg>
+<figcaption>Figure 15.5. DMARC alignment. Passing SPF or DKIM is not enough; the domain that passed must belong to the same organization as the visible From.</figcaption>
+</figure>
+
+Without the shop's own signature DMARC fails, the normal state of bulk mail
+for years and what the 2024 rules (§15.10) made senders fix. Forwarding is
+the opposite trap: a mailing list that tags the subject and adds a footer
+breaks DKIM, and its server is not in the author's SPF record. When Yahoo
+published `p=reject` in April 2014, Yahoo users' posts bounced off mailing
+lists everywhere, and lists began rewriting the From line. §15.11 shows the
+protocol built for this.
+
+### Mail in transit
+
+Separately from all of this, mail servers encrypt the
 hops between them with TLS, using STARTTLS: an upgrade from plain SMTP that
 an attacker in the middle can strip. MTA-STS (RFC 8461, 2018) and DANE for
-SMTP (RFC 7672, 2015, with DNSSEC; Chapter 10) let a domain say "always use
-TLS to reach me, with this certificate". This protects mail on the wire, not
-on the servers.
+SMTP (RFC 7672, 2015, with DNSSEC) let a domain say "always use TLS to reach
+me, with this certificate"; both are worked through in
+[Chapter 10](10-DNSSEC-and-Private-DNS.md#1010-dane-for-mail-worked-through).
+This protects mail on the wire, not on the servers.
 
 ## 15.9 Mars: mail across the gap
 
@@ -1250,7 +1515,7 @@ the right shape. The difficulties are the ones around the encryption.
 <text x="346" y="240" font-size="12">and DNSSEC-signed DKIM records;</text>
 <text x="346" y="260" font-size="12">monthly subkeys, old ones deleted</text>
 </svg>
-<figcaption>Figure 15.5. Mail between planets. Encryption needs no round trip; key discovery and revocation do, so they are moved ahead in time.</figcaption>
+<figcaption>Figure 15.6. Mail between planets. Encryption needs no round trip; key discovery and revocation do, so they are moved ahead in time.</figcaption>
 </figure>
 
 **Key discovery in advance.** Looking up a key on Earth takes a light round
@@ -1335,6 +1600,38 @@ the signed message to someone else (§15.11); replying in plain text with the
 encrypted message quoted below; keeping the subject line secret in the body
 but not in the header.
 
+### The split, as of November 2026
+
+GnuPG's 2.4 series reached the end of its support in mid-2026, leaving 2.5,
+which implements LibrePGP's v5 keys and Kyber (ML-KEM), as the maintained
+GnuPG; its default key is still v4. Fedora's RPM has checked signatures with Sequoia, an RFC 9580
+implementation, since 2023, and in January 2026 Fedora developers argued
+over whether to ship GnuPG 2.5 at all.
+
+RFC 9980 builds one bridge: its ML-KEM-768+X25519 algorithm (ID 35) is
+allowed on v4 encryption subkeys too, so a v4 user can add a post-quantum
+subkey without a new fingerprint. LibrePGP's Kyber keys use their own
+encoding and combiner, so the camps' post-quantum messages do not
+interoperate; the common ground is still v4 Ed25519 keys and v1 SEIPD.
+
+### The bulk-sender rules of 2024
+
+Google and Yahoo forced the issue with rules announced in October 2023 for February 2024: a **bulk
+sender** (for Google, over 5,000 messages a day to Gmail) needs SPF, DKIM, a
+DMARC record (`p=none` will do), a From domain aligned with one of them,
+one-click unsubscribe (RFC 8058, from June 2024) and a spam rate below
+0.3%. Microsoft followed for Outlook.com in May 2025, and Gmail began
+rejecting non-compliant mail in November 2025. DMARC was republished in May
+2026 as RFC 9989 (reports in RFC 9990 and RFC 9991), on the standards track
+where RFC 7489 had been Informational, with the tree walk of §15.8.
+
+**BIMI** (Brand Indicators for Message Identification, an industry
+specification, not an RFC) rewards going further: a domain at
+`p=quarantine` or `p=reject` publishes, at `default._bimi.<domain>`, its
+logo and usually a CA's certificate that the logo is its trademark. Gmail has shown such logos since July 2021, Apple
+Mail since iOS 16 (2022). BIMI adds nothing cryptographic to DMARC; it
+teaches people to trust a picture.
+
 ## 15.11 Going deeper
 
 *Level: expert.*
@@ -1376,6 +1673,69 @@ reported which key had signed. The cryptography was sound; the display
 was not. A formal model of a mail format must include what the reader is
 shown, which is part of what Chapter 20 means by modelling a protocol.
 
+### Forwarding and ARC
+
+For the mailing-list problem of §15.8 there is the **Authenticated Received
+Chain** (ARC, RFC 8617, July 2019, Experimental). Each intermediary that may
+change a message adds a numbered set (`i=1`, `2`, …, up to 50) of three
+headers: `ARC-Authentication-Results`, what it saw on arrival (say
+`dkim=pass dmarc=pass`); `ARC-Message-Signature`, a DKIM-style signature
+over the message as it leaves; and `ARC-Seal`, a signature over all ARC
+headers so far, with `cv=none`, `pass` or `fail` for the earlier chain. A
+receiver that sees DMARC fail but an intact chain can trust what the list
+saw, if it trusts the list: ARC proves who made each claim, not that it is
+true. ARC does nothing against **DKIM replay**, where a
+spammer resends one validly signed message to millions. **DKIM2**, in which
+every hop signs and covers the envelope recipients, targets both; as of
+November 2026 it is still IETF working-group drafts.
+
+### Code it: RFC 9980's key combiner
+
+A post-quantum subkey of type 35 holds an X25519 key and an ML-KEM-768 key
+side by side (1,226 bytes in RFC 9980's sample, against 42 in §15.2; each
+PKESK grows from 93 bytes to 1,197). The sender runs both KEMs and hashes both key shares, the
+X25519 ciphertext and public key, the algorithm ID and a label with
+SHA3-256 into the key that wraps the session key. This is the X-Wing
+combiner of the
+[Post-quantum book](../post-quantum/18-Hybrids-and-the-Migration.md#183-combiners-and-x-wing):
+X25519's ciphertext and public key go in because X25519 alone does not bind
+its secret to them, while ML-KEM's own construction already binds its
+1,088-byte ciphertext. The program decapsulates the X25519 half of the
+RFC's sample message and combines it with the ML-KEM share the RFC lists
+(ML-KEM is coded in the [ML-KEM chapter](../post-quantum/08-ML-KEM.md)).
+
+```python
+# RFC 9980's key combiner for an ML-KEM-768+X25519 subkey, checked against the
+# RFC's Appendix A.1. Uses x25519() from above; SHA3-256 is in hashlib.
+x_secret = bytes.fromhex("c04dbeb8360fc5ba3ce71959dbfc869de7225d2f0cbdfa81cfc64e23fcb40b7c")  # A.1.1
+x_public = bytes.fromhex("22150b430cf724ec19b8be55df9bcaade327085711369404a575c8023443b05f")  # A.1.2
+x_ct = bytes.fromhex("85e2fe4ce047b23147c1583272389a01b4bc2b99607d0c38ac18d2ab1d7a4a6b")      # A.1.3 PKESK
+mlkem_share = bytes.fromhex("b0e45408d8c713f3941cd27276f879e557df013e05bcf43e37d4c60266a4b797")  # as listed
+
+print("secret matches public key:", x25519(x_secret, (9).to_bytes(32, "little")) == x_public)
+x_share = x25519(x_secret, x_ct)                      # X25519-KEM decapsulation
+print("X25519 share", x_share.hex()[:16] + "...", x_share.hex().startswith("9d994741e0db5eac"))
+
+def combine(mlkem, ecdh, ct, pub, alg):
+    dom = b"OpenPGPCompositeKDFv1"
+    return hashlib.sha3_256(mlkem + ecdh + ct + pub + bytes([alg]) + dom + bytes([len(dom)])).digest()
+
+kek = combine(mlkem_share, x_share, x_ct, x_public, 35)
+print("KEK", kek.hex()[:16] + "...", kek.hex() == "5bf078bf7977109db6dead92d3578b62d0ab0487ef84e8e0af08f4b4b229e590")
+print("X25519 share known, ML-KEM share guessed:", combine(bytes(32), x_share, x_ct, x_public, 35) == kek)
+```
+
+```text
+secret matches public key: True
+X25519 share 9d994741e0db5eac... True
+KEK 5bf078bf7977109d... True
+X25519 share known, ML-KEM share guessed: False
+```
+
+Both values match the RFC. The last line is the point of a hybrid: a
+quantum attacker who recovers the X25519 share still lacks ML-KEM's, and the
+reverse holds if ML-KEM falls.
+
 ## Check yourself
 
 ??? question "1. Why can't OpenPGP or S/MIME give forward secrecy the way TLS does?"
@@ -1383,45 +1743,45 @@ shown, which is part of what Chapter 20 means by modelling a protocol.
     recipient published in advance and kept, so that key opens every message
     sent to it. Rotating and deleting subkeys gives only a coarse version.
 
-??? question "2. What is hashed to make a v6 fingerprint, and what for a v4 one?"
-    v6: SHA-256 of 0x9b, a 4-byte length and the key packet body. v4: SHA-1
-    of 0x99, a 2-byte length and the body.
+??? question "2. In a WKD lookup, what actually makes the returned key trustworthy, and what is the SHA-1 hash for?"
+    HTTPS to a server the domain controls, plus the client's check that the
+    certificate has a user ID with exactly that address. The SHA-1 hash only
+    makes a fixed-length file name; it hides nothing.
 
 ??? question "3. What does the 32-byte salt in a v6 signature protect against?"
     Chosen-prefix collision attacks: the attacker cannot predict the start of
     the hashed data, so they cannot prepare two documents with the same hash
     for the signer to sign one of them.
 
-??? question "4. Why is the session key encrypted separately to every recipient instead of encrypting the message several times?"
-    The message is encrypted once with a random session key; each recipient
-    gets a small packet with that key encrypted to their own public key. This
-    keeps the size proportional to the message plus a small cost per reader.
+??? question "4. Why did the 2020 SHA-1 chosen-prefix collision threaten v4 certifications but not v4 fingerprints?"
+    A certification signs data the attacker helps choose, so a collision
+    between two keys lets it be copied from one to the other. Matching an
+    existing fingerprint needs a second preimage, still far out of reach.
 
 ??? question "5. Why does SEIPD v2 split data into chunks, and what does the final tag add?"
     So that a streaming reader can release each chunk only after its own tag
     checks, never unauthenticated plaintext. The final tag, over the total
     length, detects chunks removed from the end.
 
-??? question "6. What made the SKS keyserver network vulnerable to certificate flooding?"
-    Anyone could attach certifications to any key, and the network never
-    deleted anything, so junk certifications spread to every server and to
-    every client that fetched the key.
-
-??? question "7. Explain the CBC gadget used by EFAIL."
+??? question "6. Explain the CBC gadget used by EFAIL."
     Since $P_0 = D_K(C_0) \oplus IV$, knowing $P_0$ gives $D_K(C_0)$. Putting
     $IV \oplus P_0 \oplus X$ in front of $C_0$ makes that block decrypt to
     any chosen $X$. Repeating it writes HTML that sends the rest of the
     decrypted message to the attacker.
 
-??? question "8. What does DKIM prove, and what doesn't it?"
+??? question "7. What does DKIM prove, and what doesn't it?"
     That a server holding the domain's private key sent the message with
     these headers and body (in canonical form). It says nothing about which
     person wrote it, and does not encrypt anything.
 
-??? question "9. Why does listing `from` twice in `h=` help when only one From header is present?"
+??? question "8. Why does listing `from` twice in `h=` help when only one From header is present?"
     The second, absent instance is signed as empty. An attacker who adds a
     second From header fills it, which changes the signed data and breaks the
     signature.
+
+??? question "9. From: news.shop.example passes SPF for bounces.mailer.example and DKIM with d=mailer.example. Does DMARC pass? What would fix it?"
+    No: both pass, but neither domain is under shop.example, so neither is
+    aligned. A valid DKIM signature with d=shop.example would fix it.
 
 ??? question "10. What changes about key discovery for mail between Earth and Mars?"
     A live lookup costs a light round trip and fails during conjunction, so
@@ -1443,15 +1803,21 @@ shown, which is part of what Chapter 20 means by modelling a protocol.
 - The web of trust never reached ordinary users, and append-only keyservers
   were poisoned in 2019; email-verified directories, WKD and Autocrypt
   replaced them. S/MIME uses CA-issued X.509 certificates and CMS.
+- You worked a WKD URL by hand. Autocrypt trusts the first key it sees, and
+  the 2020 SHA-1 collision let a certification move to another identity.
 - EFAIL turned CBC and CFB malleability and HTML rendering into plaintext
   theft; the fixes are AEAD, never releasing unauthenticated plaintext, and
-  isolating decrypted parts.
+  isolating decrypted parts. You sealed three SEIPD v2 chunks and watched
+  reordering, truncation, splicing and a changed header all fail.
 - End-to-end encrypted mail stays rare for structural reasons; OpenPGP's
   lasting role is software signing.
 - SPF, DKIM and DMARC let a domain sign and authorize its mail. You verified
-  RFC 8463's Ed25519 and RSA DKIM signatures.
+  RFC 8463's Ed25519 and RSA DKIM signatures and worked canonicalization
+  and DMARC alignment by hand; the 2024 bulk-sender rules made alignment
+  normal, and ARC carries results across forwarders.
+- You reproduced RFC 9980's hybrid key combiner from its sample.
 - Between planets, mail is the right shape; key discovery, revocation and
-  post-quantum protection must be planned ahead.
+  post-quantum protection are planned ahead.
 
 ## Further reading
 
@@ -1470,4 +1836,13 @@ shown, which is part of what Chapter 20 means by modelling a protocol.
 - Latacora, "The PGP Problem", 2019.
 - RFC 6376 (DKIM), RFC 8463 (Ed25519 for DKIM), RFC 8301 (key sizes), RFC 7208
   (SPF), RFC 7489 (DMARC), RFC 8461 (MTA-STS).
+- RFC 9989 (DMARC), 2026, with RFC 9990 and RFC 9991; RFC 8617 (ARC), 2019;
+  RFC 8058 (one-click unsubscribe), 2017; RFC 9788 (header protection), 2025;
+  RFC 9936 (ML-KEM in CMS), 2026.
+- Werner Koch, *OpenPGP Web Key Directory*, Internet-Draft, revision 22,
+  2026; *Autocrypt Level 1 Specification*, 2017.
+- Gaëtan Leurent and Thomas Peyrin, "SHA-1 is a Shambles", USENIX Security
+  2020.
+- Manuel Barbosa et al., "X-Wing: The Hybrid KEM You've Been Looking For",
+  2024.
 - Philip Zimmermann, *The Official PGP User's Guide*, MIT Press, 1995.
