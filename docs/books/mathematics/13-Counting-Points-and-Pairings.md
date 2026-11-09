@@ -18,11 +18,15 @@ Curve25519 and BLS12-381 were chosen.*
     - Hasse's theorem, the trace of Frobenius, and a short proof of the bound;
     - quadratic twists and why $N + N' = 2p + 2$;
     - how points are counted: by brute force, by baby-step giant-step inside the
-      Hasse interval, and by Schoof's algorithm;
+      Hasse interval, and by Schoof's algorithm, worked by hand modulo 2 and 3 and
+      then coded in full for a toy curve;
     - the structure of the group, cofactors and the embedding degree;
-    - pairings, Miller's algorithm, and the MOV attack, with a working Tate pairing;
+    - pairings, Miller's algorithm, and the MOV attack step by step, with a working
+      Tate pairing;
+    - one pairing computed entirely by hand on a curve with 20 points, with the MOV
+      attack and a BLS verification done on the same numbers;
     - BLS signatures and aggregation, BN and BLS12 curves, and why BN254 lost bits
-      in 2016;
+      in 2016, with the estimates before and after;
     - anomalous curves and Smart's attack, with working code;
     - the rules for choosing a curve, and where the constants of P-256 and
       Curve25519 came from.
@@ -33,7 +37,8 @@ Curve25519 and BLS12-381 were chosen.*
     $\mathbb{F}_{p^k}$).
 
     **Levels:** §13.1 to §13.3 are for beginners, §13.4 to §13.7 are intermediate,
-    §13.8 to §13.11 are expert.
+    §13.8 to §13.12 are expert. §13.13, the pairing by hand, is intermediate and can
+    be read straight after §13.7.
 
 ## 13.1 The problem
 
@@ -302,7 +307,8 @@ residue. Noam Elkies and A. O. L. Atkin improved the method in the early 1990s (
 SEA algorithm) by working with factors of degree $(\ell - 1)/2$ of $\psi_\ell$ when
 they exist. With SEA, counting the points of a random 256-bit curve takes seconds in
 PARI/GP or SageMath, which is what makes "pick random curves until one has prime
-order" practical.
+order" practical. §13.12 works Schoof's method by hand for $\ell = 2$ and $\ell = 3$
+and then codes the whole algorithm.
 
 A fourth method skips counting altogether: the **complex multiplication (CM) method**
 of Atkin and François Morain builds a curve with a chosen number of points from a
@@ -572,6 +578,72 @@ astronomically large).
 <figcaption>Figure 13.3. Three regimes of the embedding degree. A pairing moves the discrete logarithm from the curve to the field 𝔽ₚᵏ. Small k makes that a weakness; moderate k makes pairings a tool; for ordinary curves the target field is far too big to use.</figcaption>
 </figure>
 
+### The MOV attack, step by step
+
+Write the secret as $m$, so the attacker holds $P$ and $Q = mP$ in the subgroup of
+order $r$. The reduction has four steps.
+
+<div class="mars-steps" markdown>
+1. **Embedding degree.** Find the smallest $k$ with $r \mid p^k - 1$; if it is
+   large, stop.
+2. **Partner point.** Choose $S$ of order $r$ with $e(P, S) \ne 1$: on a
+   supersingular curve $S = \phi(P)$ (§13.7), elsewhere almost any point of order
+   $r$ in $E(\mathbb{F}_{p^k})$.
+3. **Pair.** Compute $g = e(P, S)$ and $h = e(Q, S)$ with Miller's algorithm.
+   Bilinearity gives $h = e(mP, S) = g^m$ in $\mathbb{F}_{p^k}^*$.
+4. **Solve in the field.** Find $m$ from $h = g^m$ by index calculus or the number
+   field sieve, and check $mP = Q$.
+</div>
+
+Steps 1 to 3 take polynomial time. Step 4 is where the two worlds differ. On the
+curve the best attack is Pollard's rho, about $\sqrt{\pi r/4}$ operations, exponential
+in the bit length of $r$. In the field the number field sieve runs in time
+$L_{p^k}[1/3, c] = \exp\big((c + o(1))(\ln p^k)^{1/3}(\ln \ln p^k)^{2/3}\big)$ with
+$c < 2$: subexponential. A curve of 160-bit order with $k = 2$ looks like 80-bit
+security, but its target is a 320-bit field, far below the 795-bit prime field whose
+discrete logarithm Fabrice Boudot and five colleagues computed in 2019. Figure 13.4
+draws the reduction, and §13.13 runs it by hand.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 240" width="640" role="img" aria-label="The MOV reduction: Q = mP on the curve is paired with S into the finite field, where h = g to the m falls to the number field sieve" fill="currentColor" font-size="13">
+<g stroke="currentColor" stroke-width="1.4" fill="none">
+<rect x="14" y="50" width="190" height="96" rx="8"/>
+<rect x="250" y="50" width="200" height="96" rx="8" class="acc"/>
+<rect x="496" y="50" width="130" height="96" rx="8"/>
+<path d="M204 98 L 244 98 M450 98 L 490 98"/>
+</g>
+<path d="M248 98 l -9 -5 v 10 z"/><path d="M494 98 l -9 -5 v 10 z"/>
+<text x="109" y="74" text-anchor="middle">curve E(𝔽ₚ)[r]</text>
+<text x="109" y="98" text-anchor="middle">Q = mP</text>
+<text x="109" y="124" text-anchor="middle" font-size="12">rho: about √r steps</text>
+<text x="350" y="74" text-anchor="middle" class="acc">field 𝔽ₚᵏ*, order-r part</text>
+<text x="350" y="98" text-anchor="middle">h = gᵐ</text>
+<text x="350" y="124" text-anchor="middle" font-size="12">NFS: L[1/3], subexponential</text>
+<text x="561" y="74" text-anchor="middle">the secret m</text>
+<text x="561" y="98" text-anchor="middle" font-size="12">check mP = Q</text>
+<text x="561" y="124" text-anchor="middle" font-size="12">on the curve</text>
+<text x="227" y="40" text-anchor="middle" font-size="12">pair with S</text>
+<text x="227" y="172" text-anchor="middle" font-size="12">Miller:</text>
+<text x="227" y="188" text-anchor="middle" font-size="12">poly time</text>
+<text x="473" y="40" text-anchor="middle" font-size="12">index calculus</text>
+<text x="320" y="226" text-anchor="middle" font-size="12">g = e(P, S), h = e(Q, S). The attack pays when 𝔽ₚᵏ is small: k = 1 or 2.</text>
+</svg>
+<figcaption>Figure 13.4. The MOV reduction. The pairing costs about as much as one scalar multiplication; the hard work moves from the curve, where only square-root attacks are known, to a finite field, where the number field sieve is subexponential.</figcaption>
+</figure>
+
+The attack ended a family of curves. Supersingular curves had been attractive in
+the late 1980s for their fast arithmetic; after 1993 nobody used them for plain
+discrete logarithms. They returned around 2001 as pairing curves over
+$\mathbb{F}_{2^n}$ and $\mathbb{F}_{3^n}$ with embedding degrees 4 and 6, and fell
+again when the fields did: Antoine Joux found an $L[1/4]$ index calculus for small
+characteristic in 2013, and Razvan Barbulescu, Pierrick Gaudry, Joux and Emmanuel
+Thomé a quasi-polynomial one in 2014. Gora Adj, Alfred Menezes, Thomaz Oliveira and
+Francisco Rodríguez-Henríquez showed in 2013 that the curve over
+$\mathbb{F}_{3^{509}}$ with $k = 6$, meant for 128-bit security, offered far less, and
+in 2016 a team including them computed a discrete logarithm in its target field
+$\mathbb{F}_{3^{6 \cdot 509}}$. Pairings have used large prime fields ever since
+(§13.9).
+
 ## 13.7 Pairings
 
 *Level: intermediate.*
@@ -614,6 +686,7 @@ contributes one line, evaluated at $Q$. The result is raised to $(p^k - 1)/r$, t
 **final exponentiation**, which makes the answer an $r$-th root of unity and removes
 everything that lies in a proper subfield. For even $k$ the vertical lines take
 values in such a subfield and can be dropped (**denominator elimination**).
+§13.13 runs this loop by hand, line by line, for $r = 5$.
 
 ### The distortion map
 
@@ -727,7 +800,7 @@ group would of course be weak anyway; the point is that a supersingular curve wi
 <text x="520" y="126" text-anchor="middle" font-size="12">e(aP, bQ) = e(P, Q)^(ab)</text>
 <text x="320" y="210" text-anchor="middle" font-size="12">one multiplication "inside the exponent": the reason pairings enable BLS, IBE and SNARKs</text>
 </svg>
-<figcaption>Figure 13.4. A bilinear pairing takes two curve points to a root of unity in 𝔽ₚᵏ. Scalars on either side come out as one exponent, so a product of two secrets can be checked without knowing either.</figcaption>
+<figcaption>Figure 13.5. A bilinear pairing takes two curve points to a root of unity in 𝔽ₚᵏ. Scalars on either side come out as one exponent, so a product of two secrets can be checked without knowing either.</figcaption>
 </figure>
 
 ### What pairings made possible
@@ -772,7 +845,10 @@ $$
 because $e(G, \sigma_i) = e(pk_i, H(m_i))$ for each $i$ and the pairing is linear in
 its second argument. Thousands of signatures compress into one point. Ethereum's
 proof-of-stake chain, running since December 2020, aggregates the votes of its
-validators in exactly this way.
+validators in exactly this way. The protocols built on this equation (threshold BLS,
+aggregation at scale, proofs of possession) belong to the Advanced book's
+[§4.7](../advanced/04-Threshold-Cryptography.md#47-bls-signatures-that-add-up); this
+chapter keeps to the mathematics, and §13.13 checks the equation by hand.
 
 ### Code it
 
@@ -830,7 +906,7 @@ Mallory. Alice never signed.
 
 **Try-and-increment** takes a number of steps that depends on the message, so it
 leaks timing information, and its output is not uniformly distributed in a way that
-is easy to analyse.
+is easy to analyze.
 
 ### Fix it
 
@@ -914,6 +990,30 @@ $p$ (381 bits, so $p^{12}$ has about 4,572 bits); estimates put it close to, tho
 by some counts slightly below, 128 bits. The lesson generalizes: a pairing-based
 system is only as strong as the weaker of the curve and the field, and the field is
 where the progress has been.
+
+Why does a tower help? The tower variant writes $\mathbb{F}_{p^{12}}$ as an extension of a
+subfield, such as $\mathbb{F}_{(p^2)^6}$, and sieves over a number field of the inner
+degree, so the elements it tests are smaller and more often factor over the small
+primes. A BN prime helps the attacker further, because $p = p(u)$ is a polynomial of degree 4 with small
+coefficients. In $L[1/3, c]$ the constant for such fields fell from about
+$(96/9)^{1/3} \approx 2.20$ to $(48/9)^{1/3} \approx 1.75$ with exTNFS, and to
+$(32/9)^{1/3} \approx 1.53$ for primes of special form like BN's.
+
+The $o(1)$ is not small at real sizes, so turning a constant into bits takes careful
+counting:
+
+| curve | $p$ | $\mathbb{F}_{p^{12}}$ | believed before 2016 | estimates after |
+|---|---|---|---|---|
+| BN254 | 254 bits | 3,048 bits | 128 bits | about 100 bits |
+| BLS12-381 | 381 bits | 4,572 bits | (designed in 2017) | about 126 bits |
+| BN462 | 462 bits | 5,544 bits | (sized after 2016) | about 128 bits, as intended |
+
+Alfred Menezes, Palash Sarkar and Shashank Singh raised the alarm in 2016, pointing
+to BN or BLS12 curves over primes of about 384 bits for 128-bit security. The IRTF
+draft on pairing-friendly curves (still an Internet-Draft as of November 2026) says
+BN254 gives no more than about 100 bits, and recommends BLS12-381 and BN462 for the
+128-bit level, noting that BLS12-381's estimate of about 126 bits is slightly below
+the target.
 
 ## 13.10 Break it: anomalous curves and Smart's attack
 
@@ -1093,6 +1193,476 @@ Curve25519's trace has only 128 bits, as Hasse demands. Its twist has $4 \times$
 discrete logarithm in a group of 253-bit prime order. P-256 has prime order, a 127-bit trace, and no small
 embedding degree.
 
+## 13.12 Schoof's algorithm, worked
+
+*Level: expert.*
+
+§13.4 gave Schoof's idea in a paragraph. Here it is with numbers: by hand for the
+two smallest primes on the curve $y^2 = x^3 + 2x + 3$ over $\mathbb{F}_7$ of §13.2,
+then in code.
+
+### One prime at a time
+
+Frobenius satisfies $\pi^2 - t\pi + p = 0$ on every point of the curve, including
+points over extension fields. On the $\ell$-torsion $E[\ell]$, the $\ell^2$ points
+with $\ell P = \mathcal{O}$, an integer acts only through its residue mod $\ell$, so
+
+$$
+\pi^2(P) + \bar p\,P = \bar t\,\pi(P) \qquad (P \in E[\ell]),
+$$
+
+with $\bar p = p \bmod \ell$ and $\bar t = t \bmod \ell$. Compute both sides, try
+$\bar t = 0, 1, \ldots, \ell - 1$, and keep the one that fits. Once the product of
+the primes used exceeds $4\sqrt{p}$, the width of the Hasse interval, the Chinese
+remainder theorem of [Chapter 3](03-Modular-Arithmetic.md) fixes $t$. The product of
+the primes up to $L$ is about $e^L$, so $L$ grows like $\ln p$.
+
+### Modulo 2, by hand
+
+Since $p + 1$ is even, $t = p + 1 - N$ has the parity of $N$. An abelian group has
+even order exactly when it has an element of order 2, and the points of order 2 are
+the $(x_0, 0)$ with $x_0^3 + ax + b = 0$. So
+
+$$
+t \equiv 0 \pmod 2 \iff \gcd\big(x^p - x,\; x^3 + ax + b\big) \ne 1,
+$$
+
+because the roots of $x^p - x$ are exactly the elements of $\mathbb{F}_p$. A program
+reduces $x^p$ modulo the cubic by square and multiply, about $\log_2 p$ steps. On our
+curve, with $x^3 \equiv -2x - 3 = 5x + 4$ over $\mathbb{F}_7$:
+
+$$
+x^6 \equiv (5x + 4)^2 \equiv 4x^2 + 5x + 2,
+\qquad
+x^7 \equiv 4x^3 + 5x^2 + 2x \equiv 5x^2 + x + 2 .
+$$
+
+So $x^7 - x \equiv 5x^2 + 2 = 5(x - 1)(x + 1)$. Dividing $x^3 + 2x + 3$ by
+$x^2 - 1$ leaves $3x + 3$, so the gcd is $x + 1$: the root is $x = 6$, the point
+$(6, 0)$ of §13.2 has order 2, and $t \equiv 0 \pmod 2$.
+
+### Modulo 3, by hand
+
+The points of order 3 are the inflection points of the curve, and their
+$x$-coordinates are the roots of the **3-division polynomial**
+$\psi_3(x) = 3x^4 + 6ax^2 + 12bx - a^2$. Here it is $3x^4 + 5x^2 + x + 3$, with
+values $3, 5, 3, 0, 1, 6, 3$ at $x = 0, \ldots, 6$. The one root is $x_0 = 3$, and
+$f(3) = 36 \equiv 1^2$, so $P = (3, 1)$ has order 3 and coordinates in
+$\mathbb{F}_7$. Frobenius fixes it, so $P - tP + 7P = (8 - t)P = \mathcal{O}$, and
+
+$$
+t \equiv 8 \equiv 2 \pmod 3 .
+$$
+
+Had $f(x_0)$ been a non-square, $y_0$ would lie in $\mathbb{F}_{49}$ with
+$y_0^p = -y_0$, so $\pi(P) = -P$ and $t \equiv -1 - p$. Both cases are one rule: if
+$\pi(P) = \lambda P$ for some $P \ne \mathcal{O}$ of order $\ell$, then
+$\lambda^2 - t\lambda + p \equiv 0$, that is,
+$t \equiv \lambda + p\,\lambda^{-1} \pmod \ell$. This is Elkies's idea in SEA: for
+about half of all $\ell$, $\psi_\ell$ has a factor of degree $(\ell - 1)/2$ made of
+such eigenpoints, much smaller than $\psi_\ell$'s degree $(\ell^2 - 1)/2$.
+
+Together, $t \equiv 2 \pmod 6$. Hasse allows $|t| \le 2\sqrt 7 \approx 5.29$, which
+leaves $t = 2$ or $t = -4$, because $6 < 4\sqrt 7$. The prime 5 settles it: the code
+below finds $t \equiv 2 \pmod 5$, so $t = 2$ and $N = 6$, as §13.2 counted.
+
+### The general step
+
+Usually $\psi_\ell$ has no root in $\mathbb{F}_p$. Schoof's method needs none: it
+computes with a *generic* point $(x, y)$ of $E[\ell]$, reducing every polynomial in
+$x$ modulo $\psi_\ell$ and replacing $y^2$ by $f(x) = x^3 + ax + b$. Every point that
+appears has the form $(X(x), Y(x)\,y)$, since a slope is a multiple of $y$ and its
+square brings in $y^2 = f(x)$.
+
+<div class="mars-steps" markdown>
+1. Compute $\pi(P) = (x^p, f^{(p-1)/2}\,y)$ and $\pi^2(P) = (x^{p^2},
+   f^{(p^2-1)/2}\,y)$ by square and multiply modulo $\psi_\ell$.
+2. Compute $P, 2P, \ldots, (\ell - 1)P$ and the sum $S = \pi^2(P) + \bar p P$.
+3. Compare $S$ with $\tau\,\pi(P) = \pi(\tau P)$ for $\tau = 0, \ldots, \ell - 1$.
+   The $\tau$ that matches is $t \bmod \ell$.
+</div>
+
+If a denominator is not invertible modulo $\psi_\ell$, Euclid's algorithm has found
+a factor of $\psi_\ell$, and the computation restarts modulo it. That is safe, since
+the characteristic equation holds on every point of $E[\ell]$.
+
+Schoof's 1985 analysis gave $O(\log^8 p)$ bit operations with schoolbook
+arithmetic; SEA with fast arithmetic runs in about $\log^4 p$ heuristically, and the
+implementations of Reynald Lercier, François Morain and others in the 1990s made it
+routine.
+
+### Code it: Schoof on a toy curve
+
+`division_polys` builds $\psi_\ell$ by the standard recurrences, `gadd` adds points
+$(X(x), Y(x)\,y)$ modulo $\psi_\ell$, and `t_mod_l` runs the three steps.
+
+```python
+# Uses count_naive() from the listing in §13.2.
+# Schoof's algorithm on a toy: t mod l from Frobenius on the l-torsion, then the CRT.
+# A polynomial over F_p is a list of coefficients, lowest degree first.
+def trim(f):
+    while f and f[-1] == 0:
+        f.pop()
+    return f
+
+def padd(f, g, p, s=1):                           # f + s*g
+    n = max(len(f), len(g))
+    return trim([((f[i] if i < len(f) else 0) + s * (g[i] if i < len(g) else 0)) % p for i in range(n)])
+
+def pmul(f, g, p):
+    out = [0] * (len(f) + len(g))
+    for i, c in enumerate(f):
+        for j, d in enumerate(g):
+            out[i + j] = (out[i + j] + c * d) % p
+    return trim(out)
+
+def pdivmod(f, g, p):
+    f, q, inv = f[:], [0] * max(len(f) - len(g) + 1, 1), pow(g[-1], -1, p)
+    while len(f) >= len(g):
+        c, d = f[-1] * inv % p, len(f) - len(g)
+        q[d] = c
+        f = padd(f, [0] * d + g, p, -c)
+    return trim(q), f
+
+def pgcd(f, g, p):
+    while g:
+        f, g = g, pdivmod(f, g, p)[1]
+    return [c * pow(f[-1], -1, p) % p for c in f]
+
+class Factor(Exception):                        # carries a factor of m that was found
+    pass
+
+def pinv(f, m, p):
+    r0, r1, s0, s1 = m, f, [], [1]
+    while r1:
+        q, rem = pdivmod(r0, r1, p)
+        r0, r1, s0, s1 = r1, rem, s1, padd(s0, pmul(q, s1, p), p, -1)
+    if len(r0) > 1:
+        raise Factor(pgcd(r0, m, p))
+    return [c * pow(r0[0], -1, p) % p for c in s0]
+
+def ppow(f, e, m, p):
+    out = [1]
+    for bit in bin(e)[2:]:
+        out = pdivmod(pmul(out, out, p), m, p)[1]
+        if bit == "1":
+            out = pdivmod(pmul(out, f, p), m, p)[1]
+    return out
+
+def division_polys(a, b, p, n):
+    f2 = pmul([b, a, 0, 1], [b, a, 0, 1], p)
+    F = [[], [1], [2], [-a * a % p, 12 * b % p, 6 * a % p, 0, 3],
+         [4 * c % p for c in (-8 * b * b - a**3, -4 * a * b, -5 * a * a, 20 * b, 5 * a, 0, 1)]]
+    cube = lambda g: pmul(g, pmul(g, g, p), p)
+    for k in range(5, n + 1):
+        m = k // 2
+        if k % 2:
+            u, v = pmul(F[m + 2], cube(F[m]), p), pmul(F[m - 1], cube(F[m + 1]), p)
+            u, v = (pmul(f2, u, p), v) if m % 2 == 0 else (u, pmul(f2, v, p))
+            F.append(padd(u, v, p, -1))
+        else:
+            u = padd(pmul(F[m + 2], pmul(F[m - 1], F[m - 1], p), p),
+                     pmul(F[m - 2], pmul(F[m + 1], F[m + 1], p), p), p, -1)
+            F.append([c * (p + 1) // 2 % p for c in pmul(u, F[m], p)])
+    return F
+
+def gadd(P, Q, a, E, m, p):
+    # (X, Y) stands for the point (X(x), Y(x) y); everything is reduced modulo m
+    if P is None or Q is None:
+        return P or Q
+    if P[0] == Q[0]:
+        if padd(P[1], Q[1], p) == []:
+            return None
+        L = pmul(padd(pmul([3], pmul(P[0], P[0], p), p), [a], p), pinv(pmul([2], pmul(P[1], E, p), p), m, p), p)
+    else:
+        L = pmul(padd(Q[1], P[1], p, -1), pinv(padd(Q[0], P[0], p, -1), m, p), p)
+    X = pdivmod(padd(pmul(pmul(L, L, p), E, p), padd(P[0], Q[0], p), p, -1), m, p)[1]
+    return X, pdivmod(padd(pmul(L, padd(P[0], X, p, -1), p), P[1], p, -1), m, p)[1]
+
+def t_mod_l(a, b, p, l, F):
+    E = [b % p, a % p, 0, 1]
+    if l == 2:                                    # t even <=> x^3 + ax + b has a root in F_p
+        return 0 if len(pgcd(padd(ppow([0, 1], p, E, p), [0, 1], p, -1), E, p)) > 1 else 1
+    m = pgcd(F[l], F[l], p)                       # psi_l, made monic
+    while True:
+        try:
+            yp = ppow(E, (p - 1) // 2, m, p)              # y^p = y * E^((p-1)/2)
+            pi2 = (ppow([0, 1], p * p, m, p), ppow(E, (p * p - 1) // 2, m, p))
+            mult = [None, (pdivmod([0, 1], m, p)[1], [1])]
+            for j in range(2, l):
+                mult.append(gadd(mult[-1], mult[1], a, E, m, p))
+            S = gadd(pi2, mult[p % l], a, E, m, p)        # pi^2(P) + (p mod l) P
+            if S is None:
+                return 0
+            for tau in range(1, l):                       # is S = tau * pi(P)?
+                X, Y = mult[tau]
+                if S == (ppow(X, p, m, p), pdivmod(pmul(ppow(Y, p, m, p), yp, p), m, p)[1]):
+                    return tau
+        except Factor as found:
+            m = found.args[0]                     # continue on the points of that factor
+
+def schoof(a, b, p):
+    F, res, M, l = division_polys(a, b, p, 13), [], 1, 2
+    while M <= 4 * p**0.5:
+        if l != p:
+            res.append((l, t_mod_l(a, b, p, l, F)))
+            M *= l
+        l = next(q for q in range(l + 1, 99) if all(q % d for d in range(2, q)))
+    t = sum(c * (M // l) * pow(M // l, -1, l) for l, c in res) % M
+    t = t - M if t > M // 2 else t
+    return res, t, p + 1 - t
+
+print(schoof(2, 3, 7))
+print(schoof(5, 7, 10007), count_naive(5, 7, 10007))
+```
+
+It prints:
+
+```text
+([(2, 0), (3, 2), (5, 2)], 2, 6)
+([(2, 0), (3, 1), (5, 2), (7, 1), (11, 10)], -188, 10196) 10196
+```
+
+The first line finishes the hand computation with $\ell = 5$. The second recounts
+the curve of §13.3: five residues, combined modulo 2310, give $t = -188$ and the
+10,196 points brute force found (Figure 13.6). At 256 bits the largest $\psi_\ell$
+has degree above 5,000, and real implementations need SEA and fast polynomial
+arithmetic, but the logic is the one above.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 250" width="640" role="img" aria-label="Schoof's algorithm: residues of t modulo 2, 3, 5, 7 and 11 combine by the CRT to t = -188 modulo 2310" fill="currentColor" font-size="12">
+<g stroke="currentColor" stroke-width="1.3" fill="none">
+<rect x="20" y="20" width="110" height="54" rx="6"/>
+<rect x="142" y="20" width="110" height="54" rx="6"/>
+<rect x="264" y="20" width="110" height="54" rx="6"/>
+<rect x="386" y="20" width="110" height="54" rx="6"/>
+<rect x="508" y="20" width="110" height="54" rx="6"/>
+<rect x="190" y="120" width="260" height="40" rx="6" class="acc"/>
+<rect x="190" y="194" width="260" height="40" rx="6"/>
+<path d="M75 74 L 260 120 M197 74 L 290 120 M319 74 L 320 120 M441 74 L 350 120 M563 74 L 380 120"/>
+<path d="M320 160 L 320 188"/>
+</g>
+<path d="M320 192 l -5 -9 h 10 z"/>
+<text x="75" y="42" text-anchor="middle">t ≡ 0 (mod 2)</text>
+<text x="197" y="42" text-anchor="middle">t ≡ 1 (mod 3)</text>
+<text x="319" y="42" text-anchor="middle">t ≡ 2 (mod 5)</text>
+<text x="441" y="42" text-anchor="middle">t ≡ 1 (mod 7)</text>
+<text x="563" y="42" text-anchor="middle">t ≡ 10 (mod 11)</text>
+<g font-size="11" fill-opacity=".7" text-anchor="middle">
+<text x="75" y="62">root of the cubic</text>
+<text x="197" y="62">mod ψ₃, degree 4</text>
+<text x="319" y="62">mod ψ₅, degree 12</text>
+<text x="441" y="62">mod ψ₇, degree 24</text>
+<text x="563" y="62">mod ψ₁₁, degree 60</text>
+</g>
+<text x="320" y="145" text-anchor="middle" class="acc">CRT: t ≡ 2122 (mod 2310)</text>
+<text x="320" y="219" text-anchor="middle">|t| ≤ 2√p ≈ 200: t = −188, N = 10,196</text>
+<text x="470" y="180" font-size="11" fill-opacity=".7">2310 &gt; 4√p ≈ 400</text>
+</svg>
+<figcaption>Figure 13.6. Schoof's algorithm on y² = x³ + 5x + 7 over 𝔽₁₀₀₀₇. Each small prime ℓ gives t mod ℓ from Frobenius acting on the ℓ-torsion; once the product of the primes passes the width 4√p of the Hasse interval, only one value of t fits.</figcaption>
+</figure>
+
+## 13.13 One pairing, worked by hand
+
+*Level: intermediate.*
+
+Here the algorithm of §13.7 runs on a curve small enough for paper, and the same
+numbers then serve for MOV and BLS.
+
+### The toy curve
+
+Take $y^2 = x^3 + x$ over $\mathbb{F}_{19}$. Since $19 \equiv 3 \pmod 4$ the curve is
+supersingular, with $N = 20 = 4 \cdot 5$ points, so $r = 5$. Now 5 does not divide
+$19 - 1$ but divides $19^2 - 1 = 360$: the embedding degree is 2. As $-1$ is not a
+square modulo 19, $\mathbb{F}_{361} = \mathbb{F}_{19}(i)$ with $i^2 = -1$, multiplied
+like the complex numbers. The point $P = (5, 4)$ ($5^3 + 5 = 130 \equiv 16 = 4^2$) has
+order 5:
+
+| $j$ | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| $jP$ | $(5, 4)$ | $(9, 15)$ | $(9, 4)$ | $(5, 15)$ | $\mathcal{O}$ |
+
+The distortion map of §13.7 sends it to $\phi(P) = (-5, 4i) = (14, 4i)$. We compute
+$\hat e(P, P) = e(P, \phi(P))$.
+
+### The Miller loop
+
+In binary $r = 5$ is $101$: after the leading 1, a doubling, then a doubling and an
+addition. Each step multiplies $f$ by its line evaluated at $\phi(P) = (14, 4i)$
+(Figure 13.7).
+
+**Double $P$.** The slope is $(3 \cdot 5^2 + 1)/(2 \cdot 4) = 76/8 \equiv 0$, since
+$76 = 4 \cdot 19$: the tangent is the horizontal line $y - 4$. At $\phi(P)$ it is
+$4i - 4 = 15 + 4i$, so $f = 15 + 4i$ and $T = 2P = (9, 15)$.
+
+**Double $2P$.** The slope is $(3 \cdot 81 + 1)/(2 \cdot 15) \equiv 16/11 \equiv
+16 \cdot 7 \equiv 17$. The tangent $y - 15 - 17(x - 9)$ at $(14, 4i)$ is
+$4i - 15 - 85 \equiv 14 + 4i$, and
+
+$$
+f = (15 + 4i)^2 (14 + 4i) = (209 + 120i)(14 + 4i) \equiv 6i\,(14 + 4i)
+= -24 + 84i \equiv 14 + 8i,
+$$
+
+with $T = 4P = (5, 15)$.
+
+**Add $P$.** Now $T = -P$, and the line through $T$ and $P$ is the vertical $x - 5$.
+Its value $14 - 5 = 9$ lies in $\mathbb{F}_{19}$, so it is dropped. The loop ends with
+$f = 14 + 8i$.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="The three lines of the Miller loop for r = 5 and the running value f, from 1 to 7 + 3i" fill="currentColor" font-size="12">
+<g stroke="currentColor" stroke-width="1.3" fill="none">
+<rect x="12" y="14" width="196" height="122" rx="8"/>
+<rect x="222" y="14" width="196" height="122" rx="8"/>
+<rect x="432" y="14" width="196" height="122" rx="8" stroke-dasharray="5 4"/>
+<rect x="12" y="200" width="120" height="44" rx="6"/>
+<rect x="166" y="200" width="120" height="44" rx="6"/>
+<rect x="320" y="200" width="120" height="44" rx="6"/>
+<rect x="490" y="200" width="138" height="44" rx="6" class="acc"/>
+<path d="M132 222 L 160 222 M286 222 L 314 222 M440 222 L 484 222"/>
+<path d="M110 136 L 150 196 M320 136 L 300 196"/>
+</g>
+<path d="M164 222 l -9 -5 v 10 z"/><path d="M318 222 l -9 -5 v 10 z"/><path d="M488 222 l -9 -5 v 10 z"/>
+<text x="110" y="36" text-anchor="middle" font-size="13">tangent at P</text>
+<text x="110" y="58" text-anchor="middle">y − 4</text>
+<text x="110" y="80" text-anchor="middle" fill-opacity=".7">zeros 2(P) + (−2P)</text>
+<text x="110" y="122" text-anchor="middle">at φ(P): 15 + 4i</text>
+<text x="320" y="36" text-anchor="middle" font-size="13">tangent at 2P</text>
+<text x="320" y="58" text-anchor="middle">y − 15 − 17(x − 9)</text>
+<text x="320" y="80" text-anchor="middle" fill-opacity=".7">zeros 2(2P) + (−4P)</text>
+<text x="320" y="122" text-anchor="middle">at φ(P): 14 + 4i</text>
+<text x="530" y="36" text-anchor="middle" font-size="13">vertical through 4P, P</text>
+<text x="530" y="58" text-anchor="middle">x − 5</text>
+<text x="530" y="80" text-anchor="middle" fill-opacity=".7">zeros (P) + (−P)</text>
+<text x="530" y="122" text-anchor="middle">at φ(P): 9 ∈ 𝔽₁₉, dropped</text>
+<text x="72" y="227" text-anchor="middle">f = 1</text>
+<text x="226" y="227" text-anchor="middle">f = 15 + 4i</text>
+<text x="380" y="227" text-anchor="middle">f = 14 + 8i</text>
+<text x="559" y="227" text-anchor="middle" class="acc">f⁷² = 7 + 3i</text>
+<text x="146" y="270" text-anchor="middle" fill-opacity=".7">f ← f² · line</text>
+<text x="300" y="270" text-anchor="middle" fill-opacity=".7">f ← f² · line</text>
+<text x="462" y="270" text-anchor="middle" fill-opacity=".7">final exponentiation</text>
+<text x="320" y="292" text-anchor="middle" fill-opacity=".7">r = 5 = 101 in binary: double, double, add</text>
+</svg>
+<figcaption>Figure 13.7. The Miller loop for r = 5 on y² = x³ + x over 𝔽₁₉. Each line is the one the scalar multiplication 5P uses, evaluated at φ(P) = (14, 4i). With the vertical lines through 2P and 4P as denominators, the zeros and poles combine into the divisor 5(P) − 5(𝒪) of Miller's function; in the computation every vertical line is dropped, because their values lie in 𝔽₁₉ and the final exponentiation sends them to 1.</figcaption>
+</figure>
+
+### The final exponentiation by hand
+
+The exponent is $(p^2 - 1)/r = 72 = (p - 1) \cdot \frac{p + 1}{r} = 18 \cdot 4$.
+The first factor is the "easy part", because raising to the power $p$ in
+$\mathbb{F}_{p^2}$ is conjugation: $(u + vi)^{19} = u - vi$, as $i^{19} = -i$. So
+
+$$
+f^{p-1} = \frac{\bar f}{f} = \frac{(14 - 8i)^2}{14^2 + 8^2}
+= \frac{132 - 224i}{260} \equiv \frac{18 + 4i}{13} \equiv 3\,(18 + 4i) \equiv 16 + 12i .
+$$
+
+This step is also why the dropped 9 does no harm: every nonzero $c \in
+\mathbb{F}_{19}$ has $c^{p-1} = 1$. The "hard part" raises $u = 16 + 12i$ to the
+power 4: $u^2 = 112 + 384i \equiv 17 + 4i$ and $u^4 = 273 + 136i \equiv 7 + 3i$. So
+$g = \hat e(P, P) = 7 + 3i$, with powers
+
+| $j$ | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| $g^j$ | $7 + 3i$ | $2 + 4i$ | $2 + 15i$ | $7 + 16i$ | $1$ |
+
+Since $g \ne 1$ the pairing is non-degenerate, and bilinearity promises
+$\hat e(aP, bP) = g^{ab}$.
+
+### Code it: the toy pairing, step by step
+
+The loop of §13.7 with the field as a parameter and a switch that prints each line,
+then all sixteen cases of bilinearity, and the two applications below.
+
+```python
+# Uses ec_add() and ec_mul() from the listings above.
+# A Miller loop you can follow: y^2 = x^3 + x over F_19, r = 5, embedding degree 2.
+def mul2(s, t, q):                          # (u + v i)(u' + v' i) in F_{q^2}, with i^2 = -1
+    return ((s[0] * t[0] - s[1] * t[1]) % q, (s[0] * t[1] + s[1] * t[0]) % q)
+
+def pow2(s, e, q):
+    out = (1, 0)
+    for bit in bin(e)[2:]:
+        out = mul2(out, out, q)
+        if bit == "1":
+            out = mul2(out, s, q)
+    return out
+
+def miller(P, Q, q, n, show=False):
+    """Reduced Tate pairing of P and phi(Q) = (-x, y i) on y^2 = x^3 + x, for n = 5."""
+    xq, yq = -Q[0] % q, Q[1]
+    f, T = (1, 0), P
+    for bit in bin(n)[3:]:
+        lam = (3 * T[0] ** 2 + 1) * pow(2 * T[1], -1, q) % q
+        line = ((-T[1] - lam * (xq - T[0])) % q, yq)     # y - yT - lam (x - xT) at phi(Q)
+        f = mul2(mul2(f, f, q), line, q)
+        if show:
+            print("double", T, "lam", lam, "line", line, "f", f)
+        T = ec_add(T, T, 1, q)
+        if bit == "1":                        # for n = 5 this is 4P + P: T = -P, a vertical line
+            if show:                          # whose value lies in F_q and is dropped
+                print("add   ", T, "vertical, dropped")
+            T = None
+    if show:
+        print("easy part f^(q-1):", pow2(f, q - 1, q))
+    return pow2(f, (q * q - 1) // n, q)
+
+P5 = (5, 4)
+g5 = miller(P5, P5, 19, 5, show=True)
+print("e(P, P) =", g5, "powers:", [pow2(g5, j, 19) for j in range(1, 6)])
+mP = {j: ec_mul(j, P5, 1, 19) for j in range(1, 5)}
+print(all(miller(mP[a], mP[b], 19, 5) == pow2(g5, a * b, 19) for a in mP for b in mP))
+h = miller((9, 4), P5, 19, 5)                     # MOV: who is (9, 4)?
+print("MOV:", h, [j for j in range(5) if pow2(g5, j, 19) == h])
+pk, Hm = ec_mul(2, P5, 1, 19), (9, 4)             # BLS: sk = 2, H(m) = (9, 4)
+sig = ec_mul(2, Hm, 1, 19)
+print("BLS:", pk, sig, miller(P5, sig, 19, 5), miller(pk, Hm, 19, 5), miller(pk, (9, 15), 19, 5))
+```
+
+It prints:
+
+```text
+double (5, 4) lam 0 line (15, 4) f (15, 4)
+double (9, 15) lam 17 line (14, 4) f (14, 8)
+add    (5, 15) vertical, dropped
+easy part f^(q-1): (16, 12)
+e(P, P) = (7, 3) powers: [(7, 3), (2, 4), (2, 15), (7, 16), (1, 0)]
+True
+MOV: (2, 15) [3]
+BLS: (9, 15) (5, 4) (7, 3) (7, 3) (7, 16)
+```
+
+Every number of the hand computation appears; `True` covers all sixteen pairs.
+
+### The MOV attack in miniature
+
+Someone publishes $Q = (9, 4)$ and keeps secret the $m$ with $Q = mP$. The steps of
+§13.6: the embedding degree is 2; the partner is $S = \phi(P)$; pairing gives
+$g = 7 + 3i$ and $h = \hat e(Q, P) = 2 + 15i$ (the line `MOV:`); and the table shows
+$h = g^3$, so $m = 3$, and indeed $3P = (9, 4)$. The last step was a lookup among five
+values; at real sizes it is the number field sieve.
+
+### A BLS signature checked by hand
+
+Take $G = P = (5, 4)$, the secret key $sk = 2$ and $pk = 2G = (9, 15)$, and suppose
+a message hashes to $H(m) = (9, 4)$. (Here $H(m) = 3G$, which no
+real hash should let anyone know.) The signature is
+$\sigma = 2 \cdot (9, 4) = 6G = G = (5, 4)$. The verifier checks
+$\hat e(G, \sigma) = \hat e(pk, H(m))$: the left side is $\hat e(G, G) = 7 + 3i$, the
+right side $\hat e(2G, 3G) = g^6 = g = 7 + 3i$. For a message hashing to
+$(9, 15) = 2G$ the right side would be $g^4 = 7 + 16i$, and the same $\sigma$ fails
+(the line `BLS:`). BLS12-381 uses an asymmetric Type 3 pairing instead of this Type 1
+toy, with the same equation.
+
+That equation suits Arcadia City on Mars. Verification needs public keys, message
+and signature, and no conversation with any signer: a firmware image signed on Earth
+by several release keys travels as one aggregate point of 48 or 96 bytes, and a
+controller on Mars checks it without a round trip of 6 to 44 minutes. The rogue-key
+defense of §13.8 cannot wait: proofs of possession for the release keys are checked
+when the keys are installed.
+
 ## In the real world
 
 - **Point counting** with SEA is routine; SageMath, PARI/GP and Magma count 256-bit
@@ -1118,6 +1688,9 @@ embedding degree.
 - *Isogenies.* Curves with the same number of points over $\mathbb{F}_p$ are
   exactly those connected by isogenies (Tate's theorem); the isogeny graph is the
   stage for the isogeny-based cryptography mentioned above.
+- *Weil or Tate.* The MOV paper used the Weil pairing,
+  $(-1)^r f_{r,P}(Q)/f_{r,Q}(P)$ for normalized Miller functions: two loops, no final
+  exponentiation. Libraries prefer Tate's one loop.
 - *Ate and optimal pairings.* Practical pairings on BN and BLS12 curves shorten
   Miller's loop from $\log r$ to about $\log r / \varphi(k)$ bits (Frederik
   Vercauteren, 2010).
@@ -1147,10 +1720,10 @@ embedding degree.
 
     $N = p + 1$, so $r \mid p + 1$, and then $r \mid (p + 1)(p - 1) = p^2 - 1$.
 
-??? question "5. A curve has $N = 2^{20} \cdot 3^{30} \cdot 5^{40}$. How hard is its discrete logarithm?"
+??? question "5. Over $\mathbb{F}_p$ the cubic $x^3 + ax + b$ has no root. What is $t \bmod 2$, and what does that say about $N$?"
 
-    Easy: by Pohlig-Hellman it splits into problems in groups of order 2, 3 and 5,
-    whatever the size of $N$.
+    No root means no point of order 2, so $N$ is odd, and $t = p + 1 - N$ is odd too.
+    This is the $\ell = 2$ step of Schoof's algorithm (§13.12).
 
 ??? question "6. In BLS, why can't anyone forge $\sigma$ for a new message from old signatures?"
 
@@ -1179,6 +1752,13 @@ embedding degree.
     $p^2$, $p\tilde P$ is a point close to $\mathcal{O}$ whose parameter $t$ is
     $p$ times a value in $\mathbb{F}_p$, and that value is linear in $P$.
 
+??? question "10. On the toy curve of §13.13, someone publishes $Q$ with $\hat e(Q, P) = 7 + 16i$. Find $Q$. Which step of the MOV attack would be expensive at real size?"
+
+    $7 + 16i = g^4$, so $Q = 4P = (5, 15) = -P$. The pairing costs about one scalar
+    multiplication at any size; the expensive step is the discrete logarithm
+    $h = g^m$ in $\mathbb{F}_{p^k}^*$, which beats rho on the curve only when $k$ is
+    small.
+
 ## What you learned
 
 - Hasse: $N = p + 1 - t$ with $|t| \le 2\sqrt{p}$, because the degree is a positive
@@ -1187,14 +1767,19 @@ embedding degree.
 - Points are counted by brute force ($p$), baby-step giant-step ($p^{1/4}$), or
   Schoof and SEA (polynomial in $\log p$); the CM method builds curves with a chosen
   count.
+- Schoof finds $t \bmod \ell$ from $\pi^2 - t\pi + p = 0$ on the $\ell$-torsion,
+  modulo the division polynomial $\psi_\ell$, and combines residues by the CRT.
 - $E(\mathbb{F}_p) \cong \mathbb{Z}/n_1 \times \mathbb{Z}/n_2$ with $n_1 \mid
   \gcd(n_2, p - 1)$; standards want a large prime order and a small cofactor.
 - The embedding degree $k$ decides whether a pairing maps the discrete logarithm to
   a field: small $k$ breaks supersingular curves (MOV), moderate $k$ makes pairing
   cryptography possible, and ordinary curves have astronomically large $k$.
-- Miller's algorithm computes pairings by double-and-add; BLS signatures and their
-  aggregation follow in a few lines. BN254 dropped to about 100 bits after exTNFS;
-  BLS12-381 replaced it.
+- Miller's algorithm computes pairings by double-and-add, one line per step, then
+  the final exponentiation; on $y^2 = x^3 + x$ over $\mathbb{F}_{19}$,
+  $\hat e((5,4),(5,4)) = 7 + 3i$ by hand.
+- MOV takes four steps, and only the field discrete logarithm is hard.
+- BLS signatures and their aggregation follow in a few lines. BN254 dropped to about
+  100 bits after exTNFS; BLS12-381 (about 126 bits) and BN462 replaced it.
 - Anomalous curves ($N = p$) fall to Smart's attack by one division.
 - Curve choice: prime order, twist security, large $k$, not anomalous, explained
   constants. P-256's seed is unexplained; Curve25519's $A$ is the smallest that works.
@@ -1224,7 +1809,27 @@ behind post-quantum cryptography, with LLL in full.
 - Paulo Barreto and Michael Naehrig, "Pairing-Friendly Elliptic Curves of Prime Order",
   SAC 2005; David Freeman, Michael Scott and Edlyn Teske, "A Taxonomy of
   Pairing-Friendly Elliptic Curves", *Journal of Cryptology* 23 (2010).
+- Gerhard Frey and Hans-Georg Rück, "A Remark Concerning m-Divisibility and the
+  Discrete Logarithm in the Divisor Class Group of Curves", *Mathematics of
+  Computation* 62 (1994).
 - Taechan Kim and Razvan Barbulescu, "Extended Tower Number Field Sieve", CRYPTO 2016.
+- Alfred Menezes, Palash Sarkar and Shashank Singh, "Challenges with Assessing the
+  Impact of NFS Advances on the Security of Pairing-Based Cryptography", Mycrypt 2016
+  (IACR ePrint 2016/1102).
+- Razvan Barbulescu and Sylvain Duquesne, "Updating Key Size Estimations for
+  Pairings", *Journal of Cryptology* 32 (2019).
+- Yumi Sakemi, Satoru Kanno and Riad Wahby, "Pairing-Friendly Curves", IRTF CFRG Internet-Draft
+  draft-irtf-cfrg-pairing-friendly-curves (version 15, November 2026).
+- Antoine Joux, "A New Index Calculus Algorithm with Complexity L(1/4 + o(1)) in Small
+  Characteristic", SAC 2013; Razvan Barbulescu, Pierrick Gaudry, Antoine Joux and
+  Emmanuel Thomé, "A Heuristic Quasi-Polynomial Algorithm for Discrete Logarithm in
+  Finite Fields of Small Characteristic", EUROCRYPT 2014.
+- Gora Adj, Alfred Menezes, Thomaz Oliveira and Francisco Rodríguez-Henríquez,
+  "Weakness of $\mathbb{F}_{3^{6 \cdot 509}}$ for Discrete Logarithm Cryptography",
+  Pairing 2013.
+- Fabrice Boudot, Pierrick Gaudry, Aurore Guillevic, Nadia Heninger, Emmanuel Thomé
+  and Paul Zimmermann, "Comparing the Difficulty of Factorization and Discrete
+  Logarithm: A 240-Digit Experiment", CRYPTO 2020.
 - Craig Costello, "Pairings for Beginners" (2012), a free tutorial with worked examples.
 - Daniel Bernstein and Tanja Lange, SafeCurves, safecurves.cr.yp.to.
 - RFC 9380, Hashing to Elliptic Curves (2023).
