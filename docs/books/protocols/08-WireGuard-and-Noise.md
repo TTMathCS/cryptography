@@ -1460,7 +1460,7 @@ link to Earth, a design that keeps its good ideas would change these things:
 - **Forward secrecy from a schedule, not a reply.** One-way patterns stop at
   destination level 2: whoever later steals the recipient's key reads old
   bundles. The fix is Signal's for offline recipients
-  ([Chapter 16](16-Signal-and-the-Double-Ratchet.md#169-mars-a-ratchet-across-20-minutes)):
+  ([Chapter 16](16-Signal-and-the-Double-Ratchet.md#1611-mars-a-ratchet-across-20-minutes)):
   the gateway publishes in advance a series of signed medium-term keys, one
   per day; senders encrypt to the day's key, and the gateway deletes each when
   its day and the longest delivery delay are over. Forward secrecy comes in
