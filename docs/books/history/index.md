@@ -65,10 +65,10 @@ replace RSA and elliptic curves.
 | | [8. The world beyond Europe, from ancient China to the Ottomans](08-The-World-Beyond-Europe.md) | beginner |
 | | [9. Queens, spies and black chambers](09-Queens-Spies-and-Black-Chambers.md) | beginner to intermediate |
 | **III. Wires, radio and machines** | [10. The telegraph: codes by the word, and the keyword falls](10-The-Telegraph.md) | beginner to intermediate |
-| | 11. Radio, the First World War and the one-time pad | beginner to intermediate |
-| | 12. Rotors and Enigma, and the Poles who broke it | intermediate |
-| | 13. Bletchley Park, Lorenz and Colossus | intermediate |
-| | 14. The rest of the war | beginner to intermediate |
+| | [11. Radio, the First World War and the one-time pad](11-Radio-War-and-the-One-Time-Pad.md) | beginner to intermediate |
+| | [12. Rotors and Enigma, and the Poles who broke it](12-Rotors-and-Enigma.md) | intermediate |
+| | [13. Bletchley Park, Lorenz and Colossus](13-Bletchley-Park.md) | intermediate |
+| | [14. The rest of the war](14-The-Rest-of-the-War.md) | beginner to intermediate |
 | **IV. Mathematics, openness and the present** | 15. Shannon and the secret agencies | intermediate |
 | | 16. Feistel, Lucifer and DES | intermediate |
 | | 17. Public keys and the crypto wars | intermediate |

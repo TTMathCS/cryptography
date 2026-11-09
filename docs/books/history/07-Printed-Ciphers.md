@@ -1198,7 +1198,7 @@ MEETATTHEBRIDGE: every plaintext letter from A to M becomes a letter from N to Z
 from A to M. So the cipher gives away, for every letter, which half of the alphabet the plaintext letter came from, and it
 can never write a letter as itself. A breaker with a probable word can use both facts at once. The second of these faults, a cipher that
 can never write a letter as itself, comes back nearly four centuries later in a rotor machine, in
-Chapter 12, where the breakers made much of it. A key letter of A or B
+[Chapter 12](12-Rotors-and-Enigma.md), where the breakers made much of it. A key letter of A or B
 turns Porta's table into the simple shift of thirteen places that programmers call ROT13.
 
 The second idea is a **digraphic square**. Instead of one symbol for each letter, Porta gives one symbol for each *pair* of
@@ -1454,7 +1454,7 @@ The price is the same as the price of the prayer ciphers of §7.4: the cover mus
 is also a cipher in the loosest sense: the five marks are a code for each letter, and anyone who knows the code reads the
 text. Bacon's real contribution is the binary alphabet. It is, as far as I know, the first time anyone printed the
 idea that the whole alphabet can be written with two symbols and five places, the arithmetic behind the five-unit
-codes of teleprinters ([Chapter 10](10-The-Telegraph.md) and Chapter 11).
+codes of teleprinters ([Chapter 10](10-The-Telegraph.md) and [Chapter 11](11-Radio-War-and-the-One-Time-Pad.md)).
 
 There is a footnote to Bacon's cipher that belongs in this book, because it involves one of the great codebreaking couples.
 In the 1890s Elizabeth Wells Gallup, a schoolteacher from Michigan, announced that she had found Bacon's biliteral cipher
@@ -1462,7 +1462,7 @@ in the first printed edition of Shakespeare's plays, the First Folio of 1623. Sh
 type as *a* and *b*, and what she decoded said that Bacon wrote the plays. She published it in 1899 as *The Bi-literal
 Cypher of Francis Bacon*. In the 1910s the wealthy Illinois eccentric George Fabyan paid for such work at his Riverbank
 estate, and the young Elizebeth Smith, hired to help with it, met William Friedman there. Both of them became two of the most important
-American codebreakers of their century (Chapter 11). In 1957 William and Elizebeth
+American codebreakers of their century ([Chapter 11](11-Radio-War-and-the-One-Time-Pad.md)). In 1957 William and Elizebeth
 Friedman published *The Shakespearean Ciphers Examined*, which argued that the printed type of the period has far
 more varieties than two, because the printers' type was worn and mixed, and that Gallup could not say which letters were *a*
 and which were *b* without already knowing what she wanted to find. The cipher Bacon described is real. The one in the
@@ -1984,8 +1984,8 @@ the next letter.
 | The message itself, from a secret start | Vigenère (1586) | The book and the primer |
 
 Two further rows come later in this book. A key as long as the message, never used twice, is the one-time pad
-(Chapter 11). A machine that steps the choice through a huge cycle is a rotor
-machine (Chapter 12). It is interesting that Alberti, the earliest, *sent the key in the open*, as
+([Chapter 11](11-Radio-War-and-the-One-Time-Pad.md)). A machine that steps the choice through a huge cycle is a rotor
+machine ([Chapter 12](12-Rotors-and-Enigma.md)). It is interesting that Alberti, the earliest, *sent the key in the open*, as
 a capital letter in the text.
 
 **Historiography.** Three things make this chapter's priorities unsafe. The first is that printing creates a priority that

@@ -490,7 +490,7 @@ left ***   right *
 Polybius meant his grid for speed and distance, not for secrecy. Anyone who knew the tablets could read the torches, and he does not suggest otherwise. Nobody in the ancient world, so far as we know, scrambled the numbers. Yet his grid is probably the most reused idea in this chapter, because it makes a letter into a pair of numbers that someone can then tap, flash, shuffle or add to.
 
 - **Tap codes.** Russian political prisoners in the 1800s are said to have knocked out the row and then the column of each letter on their cell walls, on a grid like Polybius's. American prisoners of war in Hanoi did the same from about 1965, on a $5 \times 5$ Latin grid with C standing in for K. That is the program below. Dates and details for both come from memoirs and later retellings, not from documents.
-- **Ciphers.** The German army's ADFGVX cipher of 1918 started by turning each letter into grid coordinates and then shuffled them (chapter 11); Playfair's cipher of 1854 works inside a $5 \times 5$ square ([chapter 10](10-The-Telegraph.md)); and Russian revolutionaries of the 1880s used a number cipher built on the square, which cryptographers still call the Nihilist cipher.
+- **Ciphers.** The German army's ADFGVX cipher of 1918 started by turning each letter into grid coordinates and then shuffled them ([chapter 11](11-Radio-War-and-the-One-Time-Pad.md)); Playfair's cipher of 1854 works inside a $5 \times 5$ square ([chapter 10](10-The-Telegraph.md)); and Russian revolutionaries of the 1880s used a number cipher built on the square, which cryptographers still call the Nihilist cipher.
 
 ```python
 # The same square on the Latin alphabet, as the Hanoi prisoners used it:
