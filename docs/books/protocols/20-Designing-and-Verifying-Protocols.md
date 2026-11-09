@@ -216,7 +216,8 @@ message 3. At the end each knows the other is present, and the pair
 $(N_A, N_B)$ is a shared secret from which a session key can be derived.
 
 !!! note "Life story: the Needham-Schroeder protocols"
-    **Born:** 1978, Roger Needham and Michael Schroeder at Xerox PARC ·
+    **Born:** 1978, Roger Needham (University of Cambridge) and Michael
+    Schroeder (Xerox PARC) ·
     **Purpose:** authentication and key distribution for networks of
     computers, with a trusted server (symmetric version) or with public keys
     · **Grew by:** the symmetric version became Kerberos, after Dorothy
@@ -474,7 +475,7 @@ The record of these tools is now long:
 | WireGuard | Donenfeld and Milner, Tamarin, 2018; Lipp, Blanchet, Bhargavan, CryptoVerif, 2019 | proofs of the handshake as used |
 | 5G AKA | Basin et al., Tamarin, 2018 | properties the standard needed but did not state, and weaknesses where they were missing |
 | EMV payment cards | Basin, Sasse, Toro-Pozo, Tamarin, 2021 | a PIN bypass for Visa contactless cards, demonstrated on real terminals |
-| e-passports | Arapinis, Chothia, Ritter, Ryan, ProVerif, 2010 | French passports could be traced by their error messages |
+| e-passports | Arapinis, Chothia, Ritter, Ryan, applied pi calculus, 2010 | a formal account of the traceability attack Chothia and Smirnov found that year: French passports gave themselves away by their error messages |
 
 Two shifts followed. Standards bodies started asking for analysis *before*
 publication: TLS 1.3 was the first big IETF protocol designed with academic
