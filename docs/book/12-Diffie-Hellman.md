@@ -132,7 +132,7 @@ GCHQ, James Ellis had shown in a classified paper of January 1970 that
 what is essentially the Diffie-Hellman exchange in 1974. That work stayed
 secret until 1997. In the open, the first person to solve the problem at all
 was a student. (The full story is in [the History chapter on public key
-cryptography](../history/07-Public-Key.md).)
+cryptography](../books/history/17-Public-Keys-and-the-Crypto-Wars.md).)
 
 <figure class="mars-fig">
 <svg viewBox="0 0 600 606" width="600" role="img" aria-label="Timeline of the key distribution problem and Diffie-Hellman from 1963 to 2035">

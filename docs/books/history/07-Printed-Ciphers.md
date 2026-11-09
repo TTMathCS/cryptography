@@ -2087,7 +2087,7 @@ archival work on the Renaissance chanceries is where corrections may come from.
   letter, the sender, the position, a repeating key or the message itself.
 
 **Next:** [Chapter 8](08-The-World-Beyond-Europe.md) leaves Europe for the traditions of China, India, Persia, the Americas, Japan, Korea
-and the Ottoman Empire. For the terms, see the Glossary.
+and the Ottoman Empire. For the terms, see the [Glossary](Glossary.md).
 
 ## Further reading
 

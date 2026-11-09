@@ -22,7 +22,7 @@ with exercises.*
 - **The reference is under Topics.** The [Algorithm reference](../algorithms/index.md)
   has one page per algorithm with sizes, standards, status and closed "Going
   deeper" boxes; [Protocols, formats and tools](../protocols/index.md) covers the
-  rest. The [history of secret writing](../history/index.md), next to this book
+  rest. The [history of secret writing](../books/history/index.md), next to this book
   under Books, tells the whole story. The chapters link to them.
 
 ## Contents
@@ -57,7 +57,7 @@ with exercises.*
 size, standard, year and status; the [algorithm reference](../algorithms/index.md),
 one page per algorithm; the [protocols](../protocols/index.md),
 [formats](../formats/Encoding.md) and [tools](../tools/openssl.md); the full
-[world history of cryptography](../history/index.md); the [glossary](Glossary.md); and the [FAQ](../FAQ.md).
+[world history of cryptography](../books/history/index.md); the [glossary](Glossary.md); and the [FAQ](../FAQ.md).
 
 ## Three ways in
 

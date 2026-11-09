@@ -2726,4 +2726,4 @@ cipher that won it.
   64-bit Block Ciphers" (CCS 2016)](https://sweet32.info/).
 - Reference pages: [Retired ciphers](../04-symmetric-ciphers/Retired.md),
   [National ciphers](../04-symmetric-ciphers/National-Ciphers.md), and the history
-  appendix [From Shannon to DES](../history/06-Shannon-to-DES.md).
+  appendix [From Shannon to DES](../books/history/15-Shannon-and-the-Agencies.md).

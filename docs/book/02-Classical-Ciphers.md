@@ -145,7 +145,7 @@ In India the *Kama Sutra* (around the 3rd century AD) lists secret writing,
 swapping letters in fixed pairs, a substitution. Chinese military writers,
 whose script has thousands of characters, used codes instead: tallies whose
 length stood for a fixed message, and letters cut into three parts carried by
-three messengers. See [The ancient world](../history/01-Ancient.md).
+three messengers. See [The ancient world](../books/history/02-Egypt-Mesopotamia-and-the-Bible.md).
 
 <figure class="mars-fig">
 <svg viewBox="0 0 620 260" width="620" role="img" aria-label="A rod with a strip wound round it shows ATTA along the front; unwound, the strip reads ACDTKATAWATN" xmlns="http://www.w3.org/2000/svg">
@@ -2735,7 +2735,7 @@ and more than a hundred American ones.
 Enigma was not a bad machine. It lost to a design flaw (no letter to
 itself), to habits (doubled message keys, routine messages, lazy key choices
 like ABC), to captured key sheets, and to the scale of the effort against it.
-See [Machines and World War II](../history/05-Machines-and-WWII.md) for the
+See [Machines and World War II](../books/history/14-The-Rest-of-the-War.md) for the
 whole story, including Japan's Purple machine, the Lorenz cipher and Colossus.
 
 The secret outlived the war. Britain kept the Enigma break hidden for almost
@@ -2783,7 +2783,7 @@ government code charts and a cipher wheel for its telegraph in the 1870s;
 Russia's Okhrana read the empire's mail; Choctaw soldiers in 1918 and Navajo,
 Comanche and Meskwaki soldiers in the Second World War carried messages in
 languages the enemy didn't know, which were never broken. The
-[history appendix](../history/index.md) tells all of it.
+[history appendix](../books/history/index.md) tells all of it.
 
 ## 2.11 Practice: what to do with a classical ciphertext
 
@@ -3001,8 +3001,8 @@ theory that public-key cryptography stands on.
   Technical Journal* 28 (1949): unicity distance.
 - George Lasry, Norbert Biermann and Satoshi Tomokiyo, "Deciphering Mary
   Stuart's Lost Letters from 1578–1584", *Cryptologia* 47 (2023).
-- On this site: [The ancient world](../history/01-Ancient.md),
-  [Arab cryptanalysis](../history/02-Arab-Cryptanalysis.md),
-  [The Renaissance](../history/03-Renaissance.md),
-  [The telegraph age](../history/04-Telegraph-Age.md) and
-  [Machines and World War II](../history/05-Machines-and-WWII.md).
+- On this site: [The ancient world](../books/history/02-Egypt-Mesopotamia-and-the-Bible.md),
+  [Arab cryptanalysis](../books/history/04-Baghdad-and-Cairo.md),
+  [The Renaissance](../books/history/09-Queens-Spies-and-Black-Chambers.md),
+  [The telegraph age](../books/history/10-The-Telegraph.md) and
+  [Machines and World War II](../books/history/14-The-Rest-of-the-War.md).

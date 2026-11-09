@@ -1463,7 +1463,7 @@ protocols, and check what each one assumes about the other parties.
 **This is the end of the book.** The appendices hold the reference material:
 the [algorithm table](../index.md), one page per algorithm, the
 [protocols](../protocols/index.md), and the
-[world history of cryptography](../history/index.md).
+[world history of cryptography](../books/history/index.md).
 
 ## Further reading
 

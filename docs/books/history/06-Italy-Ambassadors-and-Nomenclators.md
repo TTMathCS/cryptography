@@ -997,7 +997,7 @@ If the number of signs is chosen in proportion to the letter's share, $k_i = s\,
 - Nomenclators outlived the disk in practice because they were faster, cheaper and carried names.
 
 **Next:** [Chapter 7](07-Printed-Ciphers.md), where Trithemius prints the first book on secret writing in 1518 and
-Bellaso moves Alberti's signal into a keyword. For the terms, see the Glossary.
+Bellaso moves Alberti's signal into a keyword. For the terms, see the [Glossary](Glossary.md).
 
 ## Further reading
 

@@ -2490,4 +2490,4 @@ cipher, which encrypts fixed-size blocks, through the story of DES.
 - Reference pages: [ChaCha and Salsa20](../04-symmetric-ciphers/ChaCha.md),
   [Retired ciphers: RC4](../04-symmetric-ciphers/Retired.md#rc4),
   [AEAD](../05-modes-aead/AEAD.md), and the history appendix
-  [From Shannon to DES](../history/06-Shannon-to-DES.md).
+  [From Shannon to DES](../books/history/15-Shannon-and-the-Agencies.md).

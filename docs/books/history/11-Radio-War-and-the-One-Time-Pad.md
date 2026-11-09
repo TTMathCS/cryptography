@@ -465,7 +465,7 @@ The idea has a forerunner. In 2011 Bellovin found an 1882 telegraph code book by
 
 ### Why it cannot be broken
 
-If the key is random and as long as the message, then for any ciphertext and any message of the same length exactly one key would turn one into the other, and every key is as likely as any other. The ciphertext tells the listener nothing about the message except its length. [Book 1, chapter 4](../../book/04-Randomness-and-Perfect-Secrecy.md) proves it; C. E. Shannon gave the first formal proof in a secret report of 1945, published in 1949, and showed that no cipher with a shorter key can match it (chapter 15 tells that story).
+If the key is random and as long as the message, then for any ciphertext and any message of the same length exactly one key would turn one into the other, and every key is as likely as any other. The ciphertext tells the listener nothing about the message except its length. [Book 1, chapter 4](../../book/04-Randomness-and-Perfect-Secrecy.md) proves it; C. E. Shannon gave the first formal proof in a secret report of 1945, published in 1949, and showed that no cipher with a shorter key can match it ([chapter 15](15-Shannon-and-the-Agencies.md) tells that story).
 
 The price is the key. Each message needs fresh random key material as long as itself, delivered ahead of time by a safe route to the other end and to no one else. That suits a diplomatic bag or a spy's pad and no army of a million men. And the whole security rests on one rule that must be obeyed every time: **never use the key twice.**
 

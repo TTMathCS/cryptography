@@ -2170,5 +2170,5 @@ asks how to stop an attacker from changing encrypted messages.
 - RFC 7693 (BLAKE2) and [the BLAKE3 paper](https://github.com/BLAKE3-team/BLAKE3-specs/blob/master/blake3.pdf).
 - Jean-Philippe Aumasson, *Serious Cryptography* (2nd ed., No Starch, 2024), chapter 6, for a second
   explanation from one of BLAKE's designers.
-- Appendix: [the history of the internet era](../history/08-Internet-Era.md), which places these breaks among
+- Appendix: [the history of the internet era](../books/history/18-The-Internet-Era.md), which places these breaks among
   the other events of the time.

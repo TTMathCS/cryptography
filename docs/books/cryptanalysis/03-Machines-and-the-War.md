@@ -1754,4 +1754,4 @@ that ignore structure altogether: exhaustive search, birthdays and trade-offs.
   *Cryptologia* 29 (2005).
 - Book 1: [Chapter 2](../../book/02-Classical-Ciphers.md) and
   [Chapter 4](../../book/04-Randomness-and-Perfect-Secrecy.md); the history
-  page [Machines and World War II](../../history/05-Machines-and-WWII.md).
+  page [Machines and World War II](../history/14-The-Rest-of-the-War.md).

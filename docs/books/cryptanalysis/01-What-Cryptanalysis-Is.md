@@ -1094,7 +1094,7 @@ Cryptanalysis has a history as long as cryptography's, but it is a different
 story, told by different people. Codebreakers were usually secret, often
 anonymous, and only rarely published. What follows is the short version, from
 the first known description of a method to the end of the Second World War.
-Book 1's [history of secret writing](../../history/index.md) tells the long one,
+Book 1's [history of secret writing](../history/index.md) tells the long one,
 and [Chapter 2](02-Breaking-Classical-Ciphers.md) and
 [Chapter 3](03-Machines-and-the-War.md) of this book redo the attacks.
 
@@ -1833,4 +1833,4 @@ climbing, and the unicity distance.
   (attack models, bits of security), [Chapter 2](../../book/02-Classical-Ciphers.md)
   (classical ciphers), [Chapter 6](../../book/06-Block-Ciphers.md) (DES and its
   attacks), [Chapter 17](../../book/17-Defining-Security.md) (games and
-  reductions), and the [history of secret writing](../../history/index.md).
+  reductions), and the [history of secret writing](../history/index.md).

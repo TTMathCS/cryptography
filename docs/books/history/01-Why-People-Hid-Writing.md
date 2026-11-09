@@ -1088,7 +1088,7 @@ thinner than the rest because the sources are, and they say so. The **Try it** a
 decrypt something with a pencil, so that you feel the work the historical breaker did; the Python in each chapter does
 the same job faster, and uses only the standard library. The **In the real world** boxes say what the sources show
 and what they do not. The **Life story** cards give, for a person, a cipher, a machine or an event, when it started, what it
-was for, what it made possible and how it ended. For words you do not know, there is the glossary; for the
+was for, what it made possible and how it ended. For words you do not know, there is the [glossary](Glossary.md); for the
 technical side of breaking, [the Cryptanalysis book](../cryptanalysis/01-What-Cryptanalysis-Is.md) is the companion.
 
 A last note on method. Where this book says a date or an attribution is disputed, it says so in the same sentence, not in a footnote.

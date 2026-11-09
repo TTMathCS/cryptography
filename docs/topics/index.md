@@ -12,7 +12,7 @@ Topics holds three kinds of page, all reached from the menu on the left:
 | **[Algorithm reference](../algorithms/index.md)** | one page per algorithm, grouped by what it does, and the [full table](../algorithms/table.md) |
 | **[Protocols, formats and tools](../protocols/index.md)** | TLS, SSH, Signal and the rest; key and certificate formats; the command-line tools |
 
-The longer reading, the [book](../book/index.md) and the [history of secret writing](../history/index.md), is under **Books**.
+The longer reading, the [book](../book/index.md) and the [history of secret writing](../books/history/index.md), is under **Books**.
 
 ## How each guide is laid out
 

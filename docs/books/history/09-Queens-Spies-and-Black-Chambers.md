@@ -1269,7 +1269,7 @@ the 1580s letters in the BnF say in detail. Whether Peggy Shippen began the Arno
 - Women in the record: Mary, her household, two empresses, Peggy Shippen, with the petticoat and "355" flagged as unproved.
 
 **Next:** Chapter 10, the telegraph, where codes are priced by the word and the keyword cipher falls. For the terms, see
-the Glossary.
+the [Glossary](Glossary.md).
 
 ## Further reading
 

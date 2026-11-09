@@ -1196,7 +1196,7 @@ But it closes from both sides: hardware improves, and better circuits need less
 of it. Newer preprints, which use other error-correcting codes and hardware
 that can move qubits around, claim lower numbers still for both RSA and
 elliptic curves; those are not yet checked by others. The history appendix's
-[quantum chapter](../history/10-Quantum-and-Post-Quantum.md#how-big-must-it-be)
+[quantum chapter](../books/history/19-Hardware-Quantum-and-the-Long-View.md)
 lists them with their sources.
 
 <figure class="mars-fig">
@@ -1786,5 +1786,5 @@ ML-KEM and ML-DSA.
   Ready?", *IEEE Security & Privacy* 16, no. 5 (2018).
 - NIST IR 8105 (2016), NIST IR 8413 (round 3 report, 2022), NIST IR 8547
   (transition), and the [NIST post-quantum project](https://csrc.nist.gov/projects/post-quantum-cryptography).
-- The appendix chapter [Quantum and post-quantum](../history/10-Quantum-and-Post-Quantum.md)
+- The appendix chapter [Quantum and post-quantum](../books/history/19-Hardware-Quantum-and-the-Long-View.md)
   for the full timeline.

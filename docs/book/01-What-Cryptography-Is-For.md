@@ -923,7 +923,7 @@ algorithms, and never invent your own** (see the
 
 ## 1.10 Four thousand years in one page
 
-The full story is in the [history appendix](../history/index.md); each
+The full story is in the [history appendix](../books/history/index.md); each
 chapter of this book opens with the part of it that belongs there. Here is
 the shape of the whole.
 
@@ -996,12 +996,12 @@ the shape of the whole.
 </figure>
 
 **Hiding and scrambling (before 800).** Around 1900 BC a scribe in the tomb of
-[Khnumhotep II](../history/01-Ancient.md#egypt-the-scribe-who-changed-the-signs)
+[Khnumhotep II](../books/history/02-Egypt-Mesopotamia-and-the-Bible.md)
 at Beni Hasan in Egypt swapped ordinary hieroglyphs for rare ones: the oldest
 known deliberate change to a script, though not yet meant to hide anything.
 A few centuries later a Mesopotamian potter wrote a glaze recipe in rare sign
 values to guard a trade secret. The Hebrew Bible hides names with
-[Atbash](../history/01-Ancient.md#the-hebrew-bible-atbash), which swaps the
+[Atbash](../books/history/02-Egypt-Mesopotamia-and-the-Bible.md), which swaps the
 alphabet end to end. Greek writers describe the Spartan skytale and hidden
 messages; Polybius describes a 5 by 5 grid that turns letters into pairs of
 numbers; Julius Caesar shifts letters three places. In China, military texts
@@ -1016,7 +1016,7 @@ all.
 **The first science of breaking (800 to 1500).** In 9th-century Baghdad the
 philosopher al-Kindi wrote the oldest surviving text on breaking ciphers. He
 counted how often each letter appears and matched the counts to the
-language: [frequency analysis](../history/02-Arab-Cryptanalysis.md#al-kindi-counting-letters).
+language: [frequency analysis](../books/history/04-Baghdad-and-Cairo.md).
 Scholars in Damascus and Cairo built on it for five centuries, ending in
 al-Qalqashandi's encyclopedia of 1412. For Byzantium, the neighbor and rival,
 almost nothing has been studied, and the record is silent.
@@ -1079,7 +1079,7 @@ computer would break RSA and elliptic curves. In August 2024 NIST published the
 first post-quantum standards, Korea and China launched their own processes,
 and hybrid post-quantum key exchange is now the default in SSH, major browsers
 and Signal. [Chapter 20](20-Quantum-Computers.md) and the
-[last history chapter](../history/10-Quantum-and-Post-Quantum.md) tell that
+[last history chapter](../books/history/19-Hardware-Quantum-and-the-Long-View.md) tell that
 story.
 
 Two threads run through all of it. Every cipher was trusted until someone
@@ -1303,4 +1303,4 @@ hand for two thousand years, and breaks every one of them.
   Technical Journal* 28 (1949).
 - Jean-Philippe Aumasson, *Serious Cryptography* (2nd edition, 2024), chapter 1.
 - Christof Paar and Jan Pelzl, *Understanding Cryptography* (2010), chapter 1.
-- The [history appendix](../history/index.md) and the [FAQ](../FAQ.md) on this site.
+- The [history appendix](../books/history/index.md) and the [FAQ](../FAQ.md) on this site.

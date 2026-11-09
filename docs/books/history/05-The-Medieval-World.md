@@ -1151,7 +1151,7 @@ drawings are taken to agree. A careful reader asks, for each date in a book on t
   the difference with Europe looks like demand.
 
 **Next:** [Chapter 6](06-Italy-Ambassadors-and-Nomenclators.md), where permanent embassies create the demand, and the first
-European codebreakers appear. For the terms, see the Glossary.
+European codebreakers appear. For the terms, see the [Glossary](Glossary.md).
 
 ## Further reading
 

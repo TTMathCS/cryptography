@@ -99,6 +99,7 @@ not_in_nav: |
   /formats/ASN.1-DER.md
   /formats/Encoding.md
   /learn/
+  /history/
   /protocols/PKI.md
   /protocols/TLS-1.3.md
   /protocols/SSH.md
@@ -437,15 +438,10 @@ nav:
               - books/history/12-Rotors-and-Enigma.md
               - books/history/13-Bletchley-Park.md
               - books/history/14-The-Rest-of-the-War.md
-          - The earlier history pages (until the book replaces them):
-              - history/index.md
-              - history/01-Ancient.md
-              - history/02-Arab-Cryptanalysis.md
-              - history/03-Renaissance.md
-              - history/04-Telegraph-Age.md
-              - history/05-Machines-and-WWII.md
-              - history/06-Shannon-to-DES.md
-              - history/07-Public-Key.md
-              - history/08-Internet-Era.md
-              - history/09-Hardware-and-Engineering.md
-              - history/10-Quantum-and-Post-Quantum.md
+          - IV. Mathematics, openness and the present:
+              - books/history/15-Shannon-and-the-Agencies.md
+              - books/history/16-Feistel-Lucifer-and-DES.md
+              - books/history/17-Public-Keys-and-the-Crypto-Wars.md
+              - books/history/18-The-Internet-Era.md
+              - books/history/19-Hardware-Quantum-and-the-Long-View.md
+          - Glossary: books/history/Glossary.md
