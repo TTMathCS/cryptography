@@ -744,7 +744,7 @@ it shows up in courses and proofs to this day.
 
 *Level: expert.*
 
-**Cipolla's algorithm.** Michele Cipolla (1907) gave a second square-root method
+**Cipolla's algorithm.** Michele Cipolla (in the early 1900s; sources give dates from 1903 to 1907) gave a second square-root method
 that works well when $p - 1$ is divisible by a high power of 2. Find $t$ with $t^2
 - a$ a non-residue, work in the field $\mathbb{F}_{p^2} = \mathbb{F}_p(\omega)$
 with $\omega^2 = t^2 - a$ (Chapter 8), and compute $(t + \omega)^{(p+1)/2}$, which

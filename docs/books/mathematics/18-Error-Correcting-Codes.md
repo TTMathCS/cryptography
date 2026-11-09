@@ -772,7 +772,7 @@ distributing a key once) and not others (TLS handshakes).
 
 The **syndrome decoding problem**: given a parity-check matrix $H$, a syndrome $s$
 and a weight $w$, find $e$ with $He^T = s$ and $\mathrm{wt}(e) \le w$. Elwyn Berlekamp,
-Robert McEliece and Henk van Tilborg proved in 1978 that it is NP-complete. As with
+Elwyn Berlekamp, Robert McEliece and Henk van Tilborg proved in 1978 that it is NP-complete. As with
 lattices (Chapter 14), NP-hardness of the worst case is not what cryptography needs;
 the evidence that matters is sixty years of attacks on random instances, all
 exponential.

@@ -994,7 +994,8 @@ Adi Shamir broke the basic scheme in 1982 by recovering a trapdoor directly. The
 general tool came three years later. Jeffrey Lagarias and Andrew Odlyzko (1985)
 showed that subset-sum problems of low **density** $n / \log_2 \max a_i$ are solved by
 lattice reduction, and Matthijs Coster, Antoine Joux, Brian LaMacchia, Andrew Odlyzko,
-Claus-Peter Schnorr and Jacques Stern (1992) raised the density limit to 0.9408. The
+Matthijs Coster, Antoine Joux, Brian LaMacchia, Andrew Odlyzko, Claus-Peter Schnorr and
+Jacques Stern (1992) raised the density limit to 0.9408. The
 lattice has rows
 
 $$
