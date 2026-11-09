@@ -718,7 +718,7 @@ in two places.
   of RFC 9381 outputs $\Gamma = H(m)^x$ and attaches exactly this proof that
   $\Gamma$ used the same $x$ as the public key; the verifiable OPRF of RFC 9497,
   behind Privacy Pass tokens, does the same for its blinded evaluations
-  (Chapter 11).
+  ([Chapter 11](11-Private-Set-Intersection-OPRFs-and-PIR.md)).
 
 ### The protocol
 

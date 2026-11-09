@@ -36,7 +36,7 @@ machines and rollups prove millions of steps today.*
     (Fiat-Shamir), [Chapter 3](03-Commitments.md) (Pedersen commitments and Merkle
     trees), and arithmetic modulo a prime. Polynomials and Reed-Solomon codes are
     in [Mathematics, chapter 11](../mathematics/11-Polynomials-at-Work.md) and
-    [chapter 18](../mathematics/index.md).
+    [chapter 18](../mathematics/18-Error-Correcting-Codes.md).
 
     **Levels:** §8.1 is for beginners; §8.2 to §8.7 and §8.10 are
     intermediate; §8.8, §8.9 and §8.11 are expert.
@@ -909,7 +909,7 @@ difference has degree below $k$ and so at most $k - 1$ roots. Now evaluate a
 polynomial of degree below $k$ at $N$ points, with $N$ several times $k$. The
 list of $N$ values is a **Reed-Solomon codeword**, the same code that protects
 CDs, QR codes and deep-space radio (the mathematics is in
-[Mathematics, chapter 18](../mathematics/index.md)). The
+[Mathematics, chapter 18](../mathematics/18-Error-Correcting-Codes.md)). The
 ratio $\rho = k / N$ is the **rate**, and $1/\rho$ the **blowup factor**. Two
 different codewords differ in at least $N - k + 1$ of their $N$ places: more
 than three quarters of them if the blowup is 4.
@@ -1828,7 +1828,7 @@ post-quantum assumptions; the lattice problems are in
     Amounts live modulo the group order $q$. An output of $-5$ is a commitment
     to $q - 5$, and outputs of 15 and $-5$ balance an input of 10. Nobody can
     see the amounts, so the balance check passes and 5 coins appear. A range
-    proof shows each amount is in $0, 2^{64})$, far too small to wrap around
+    proof shows each amount is in $[0, 2^{64})$, far too small to wrap around
     $q \approx 2^{252}$.
 
 ??? question "5. In the Fibonacci trace of §8.4, why is the vanishing polynomial Z built from only six of the eight points?"
@@ -1904,7 +1904,7 @@ post-quantum assumptions; the lattice problems are in
   failures have been transcripts, implementation shortcuts, parameters and
   circuits, not broken assumptions.
 
-**Next:** [Chapter 9 leaves
+**Next:** [Chapter 9](09-Oblivious-Transfer-and-Garbled-Circuits.md) leaves
 proofs for secure computation, starting with oblivious transfer and Yao's
 garbled circuits.
 

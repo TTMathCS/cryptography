@@ -97,7 +97,7 @@ must survive lost copies and disloyal insiders.
 Today the idea guards the root key of the domain name system, corporate secret
 stores and the paper backups of hardware wallets. It is also the foundation of
 much of this book: threshold signatures ([Chapter 4](04-Threshold-Cryptography.md)), secure
-multi-party computation (Chapter 10)
+multi-party computation ([Chapter 10](10-Multi-Party-Computation-in-Practice.md))
 and electronic voting (Chapter 16) all start by
 secret-sharing something. Figure 2.1 shows the main steps.
 
@@ -251,7 +251,7 @@ public constant $c$ gives shares of $ca$. So the holders can compute any linear
 function of shared secrets, each working only on its own shares, without
 talking to each other and without anyone seeing $a$ or $b$. Multiplying two
 shared secrets needs interaction, the subject of
-Chapter 10. Linearity is also
+[Chapter 10](10-Multi-Party-Computation-in-Practice.md). Linearity is also
 behind secure aggregation (Chapter 19) and the
 refresh trick of §2.7.
 
@@ -1781,7 +1781,7 @@ of holders dishonest, Ben-Or, Goldwasser and Wigderson (1988) built perfectly
 secure verifiable sharing, using Reed-Solomon decoding instead of commitments;
 Rabin and Ben-Or (1989) reached an honest majority with a tiny error
 probability. These underlie the information-theoretic multi-party computation
-of Chapter 10.
+of [Chapter 10](10-Multi-Party-Computation-in-Practice.md).
 
 **Other algebra and asynchrony.** Maurice Mignotte (1982) and Charles Asmuth
 and John Bloom (1983) built threshold schemes from the Chinese remainder

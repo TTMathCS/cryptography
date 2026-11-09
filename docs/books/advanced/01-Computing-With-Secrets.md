@@ -67,7 +67,7 @@ exchanging messages built with public-key cryptography, so that each learns the
 bit and nothing more. His 1982 protocol was slow, with a cost that grew with
 the range of possible fortunes, but it worked. Four years later he described a
 general method for any function, which grew into the garbled circuits of
-Chapter 9, where the
+[Chapter 9](09-Oblivious-Transfer-and-Garbled-Circuits.md), where the
 millionaires get their real solution.
 
 Yao was not the only one asking such questions. In 1979 Adi Shamir, Ronald
@@ -407,7 +407,7 @@ records each party's view, counts how many fortunes of the other party would
 have produced that same view, and averages $\log_2$ of that count. The result is
 how many of the other party's four bits remain hidden, on average. (For
 uniformly random inputs this average is the conditional entropy of
-[Mathematics, Chapter 17](../mathematics/index.md).)
+[Mathematics, Chapter 17](../mathematics/17-Information-and-Entropy.md).)
 
 ```python
 import hashlib
@@ -481,7 +481,7 @@ uses oblivious transfer so that Bob can collect the scrambled versions of his
 own input bits without Alice learning them. A comparison of two 32-bit numbers
 is a circuit of about a hundred gates and runs in a fraction of a millisecond. Both pieces, and the
 millionaires solved at last, are in
-Chapter 9.
+[Chapter 9](09-Oblivious-Transfer-and-Garbled-Circuits.md).
 
 !!! note "Life story: Yao's millionaires' problem"
     **Born:** 1982, in Andrew Yao's paper "Protocols for Secure Computations"
@@ -527,7 +527,7 @@ mix their messages. Protection against malicious parties needs extra machinery,
 usually commitments ([Chapter 3](03-Commitments.md)) to fix values in advance,
 zero-knowledge proofs ([Chapter 5](05-Zero-Knowledge-Proofs.md)) that each
 message was computed correctly, or message authentication codes on shared
-values (Chapter 10). In 1987
+values ([Chapter 10](10-Multi-Party-Computation-in-Practice.md)). In 1987
 Goldreich, Micali and Wigderson showed a general **compiler** that turns any
 semi-honest protocol into a malicious one by having each party prove, in zero
 knowledge, that every message follows the rules. The compiler is a theorem
@@ -593,12 +593,12 @@ trusted party for the whole computation:
   participants so that one honest participant is enough;
 - a **dealer of correlated randomness**: before the inputs exist, someone hands
   out random shares with a useful structure, such as the Beaver triples of
-  Chapter 10. The dealer never sees
+  [Chapter 10](10-Multi-Party-Computation-in-Practice.md). The dealer never sees
   any input, but must not collude with the parties;
 - **trusted hardware**, such as a processor enclave that promises to run only
   the agreed code. This replaces trust in a person with trust in a chip
   manufacturer and its attestation keys, and the attacks on such enclaves are
-  told in Chapter 10.
+  told in [Chapter 10](10-Multi-Party-Computation-in-Practice.md).
 
 Each is a smaller Trent: trusted for less, for a shorter time, and often
 splittable among many so that only one need be honest.
@@ -1153,10 +1153,10 @@ the terminology that Andreas Pfitzmann and Marit Hansen refined over the 2000s.
 
 **Input privacy** is the guarantee of §1.5: a party's input stays hidden,
 except for what the output implies. It is what secure computation
-(Chapters 9 and
-10), homomorphic encryption
-(Chapter 12), private set intersection
-(Chapter 11) and zero-knowledge
+([Chapters 9](09-Oblivious-Transfer-and-Garbled-Circuits.md) and
+[10](10-Multi-Party-Computation-in-Practice.md)), homomorphic encryption
+([Chapter 12](12-Homomorphic-Encryption.md)), private set intersection
+([Chapter 11](11-Private-Set-Intersection-OPRFs-and-PIR.md)) and zero-knowledge
 proofs (where the hidden input is a witness, [Chapter 5](05-Zero-Knowledge-Proofs.md))
 provide.
 
@@ -1407,8 +1407,8 @@ and $t$.
   yes-voter that exactly three of the other six said yes. If the council wanted
   only "passed" or "failed", the tellers would have to compute a comparison on
   shares, which is the millionaires' problem again
-  (Chapters 9 and
-  10).
+  ([Chapters 9](09-Oblivious-Transfer-and-Garbled-Circuits.md) and
+  [10](10-Multi-Party-Computation-in-Practice.md)).
 - **Invalid votes.** A member who sends shares of 5 instead of 0 or 1 casts five
   yes votes, and no teller can tell: each share looks random. The ideal Trent
   would refuse any vote other than 0 or 1, so this protocol is not secure
@@ -1468,7 +1468,7 @@ protocol, and the answer is a matter of policy as much as of mathematics.
     the market clearing price in about half an hour of computation; the first
     large practical use of secure multi-party computation · **Status:** a
     landmark; the team's work led to MPC companies and to the protocols of
-    Chapter 10
+    [Chapter 10](10-Multi-Party-Computation-in-Practice.md)
 
 ## 1.10 A map of the book
 
@@ -1568,20 +1568,20 @@ interactive proofs to the short proofs that check blockchains.
 **Part III. Computing on hidden data.** The general tools for secure
 computation, and the special-purpose ones that are fast enough to deploy.
 
-- Chapter 9, oblivious transfer
+- [Chapter 9](09-Oblivious-Transfer-and-Garbled-Circuits.md), oblivious transfer
   and garbled circuits: the two building blocks of two-party computation, and
   the millionaires solved.
-- Chapter 10, multi-party
+- [Chapter 10](10-Multi-Party-Computation-in-Practice.md), multi-party
   computation in practice: BGW, Beaver triples, SPDZ, the auctions and studies
   that use them, and trusted hardware as the shortcut. Mars: clinics on Mars and
   Earth pooling children's health data.
-- Chapter 11, private set
+- [Chapter 11](11-Private-Set-Intersection-OPRFs-and-PIR.md), private set
   intersection, oblivious PRFs and private information retrieval: password
   breach checks, contact discovery and private lookups.
-- Chapter 12, homomorphic encryption: computing
+- [Chapter 12](12-Homomorphic-Encryption.md), homomorphic encryption: computing
   on ciphertexts, from Paillier to fully homomorphic schemes. Mars: an Earth lab
   that analyzes medical data it never sees.
-- Chapter 13,
+- [Chapter 13](13-Identity-Attribute-and-Functional-Encryption.md),
   identity-based, attribute-based and functional encryption: encrypting to a
   name or a policy. Mars: a message for any medic on shift in District 3.
 

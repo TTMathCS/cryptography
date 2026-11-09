@@ -64,11 +64,11 @@ privacy statistics, from first idea to current research.
 | | [6. Sigma protocols and Fiat-Shamir](06-Sigma-Protocols-and-Fiat-Shamir.md) | intermediate |
 | | [7. SNARKs: short proofs about any computation](07-SNARKs.md) | expert |
 | | [8. STARKs, Bulletproofs and recursion](08-STARKs-Bulletproofs-and-Recursion.md) | expert |
-| **III. Computing on hidden data** | 9. Oblivious transfer and garbled circuits | intermediate |
-| | 10. Multi-party computation in practice | intermediate to expert |
-| | 11. Private set intersection, OPRFs and private information retrieval | intermediate |
-| | 12. Homomorphic encryption | intermediate to expert |
-| | 13. Identity-based, attribute-based and functional encryption | intermediate to expert |
+| **III. Computing on hidden data** | [9. Oblivious transfer and garbled circuits](09-Oblivious-Transfer-and-Garbled-Circuits.md) | intermediate |
+| | [10. Multi-party computation in practice](10-Multi-Party-Computation-in-Practice.md) | intermediate to expert |
+| | [11. Private set intersection, OPRFs and private information retrieval](11-Private-Set-Intersection-OPRFs-and-PIR.md) | intermediate |
+| | [12. Homomorphic encryption](12-Homomorphic-Encryption.md) | intermediate to expert |
+| | [13. Identity-based, attribute-based and functional encryption](13-Identity-Attribute-and-Functional-Encryption.md) | intermediate to expert |
 | **IV. Privacy for people** | 14. Blind signatures and anonymous credentials | intermediate |
 | | 15. Anonymous communication: mixes, onion routing and Tor | intermediate |
 | | 16. Electronic voting | intermediate |

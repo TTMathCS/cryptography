@@ -363,7 +363,7 @@ which can be checked quickly (in polynomial time). An ordinary proof of an NP
 statement is a single message: the prover sends the witness and the verifier
 checks it. That proof is complete and perfectly sound, and it gives away
 everything. Zero-knowledge proofs keep the first two properties and drop the
-third. [Mathematics, chapter 19](../mathematics/index.md)
+third. [Mathematics, chapter 19](../mathematics/19-Complexity-and-Reductions.md)
 covers P, NP and reductions properly; here only the idea of a witness is needed.
 
 ### The interactive proof
@@ -464,7 +464,7 @@ transcripts and the simulator's fakes. How close must they be?
 The difference is the same as between a one-time pad and a block cipher in
 [Book 1, chapter 17](../../book/17-Defining-Security.md): information-theoretic
 versus computational security. The words "negligible" and "statistical
-distance" are made precise in [Mathematics, chapter 16](../mathematics/index.md).
+distance" are made precise in [Mathematics, chapter 16](../mathematics/16-Probability.md).
 
 ## 5.4 Graph isomorphism, by hand
 
@@ -1424,7 +1424,7 @@ designed for parties who follow the rules (semi-honest), and then each party
 can be made to prove, in zero knowledge, that every message it sends follows
 the rules. The result is secure against parties who cheat. This **GMW
 compiler** is the root of the theory of secure multi-party computation in
-Chapter 10.
+[Chapter 10](10-Multi-Party-Computation-in-Practice.md).
 
 ### Why nobody proves real statements this way
 

@@ -1324,7 +1324,7 @@ sub-protocol that turns shares of $a$ and $b$ into shares of $ab$.
 The usual tool is called **multiplicative-to-additive** conversion (MtA). Alice
 holds $a$, Bob holds $b$, and they want $\alpha + \beta = ab$ with Alice learning only
 $\alpha$ and Bob only $\beta$. Alice sends $\mathrm{Enc}(a)$ under her own **Paillier**
-key, an additively homomorphic encryption (Chapter 12).
+key, an additively homomorphic encryption ([Chapter 12](12-Homomorphic-Encryption.md)).
 Bob picks a random $\beta$ and computes, using the homomorphism,
 $\mathrm{Enc}(a)^b \cdot \mathrm{Enc}(-\beta) = \mathrm{Enc}(ab - \beta)$, and sends it
 back. Alice decrypts $\alpha = ab - \beta$. With MtA between every pair of signers,
@@ -1588,7 +1588,7 @@ signing only the round number: the current one, quicknet, started on 23 August
 2023, produces a value every 3 seconds and uses 48-byte signatures. Unchained
 rounds make **timelock encryption** possible: encrypt a message now to "round
 $r$", using the round number as an identity in identity-based encryption
-(Chapter 13), and it becomes
+([Chapter 13](13-Identity-Attribute-and-Functional-Encryption.md)), and it becomes
 decryptable when the League publishes $\sigma_r$, and not before. Filecoin uses drand
 to elect block producers. The League's membership has grown to about twenty
 organizations; the exact number changes as members join.
