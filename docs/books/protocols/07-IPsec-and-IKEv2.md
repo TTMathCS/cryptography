@@ -6,10 +6,11 @@ whatever program sent it. It is what joins a branch office to its head office,
 what the VPN client built into Windows, macOS and iOS speaks, and what most
 cloud providers offer when you link your network to theirs. This chapter takes
 IPsec apart into its two halves. IKEv2 agrees on keys: you will run a whole
-exchange, derive its seven keys, compute both sides' authentication values, and
-reproduce the key schedule of a real strongSwan connection byte for byte. ESP
-then carries the packets: you will build its anti-replay window and its NAT
-detection. Then the history that gave IPsec its reputation for complexity,
+exchange, reproduce the key schedule of a real strongSwan connection byte for
+byte, and build a binary message and its AUTH payload by hand. ESP then
+carries the packets: you will encrypt one with AES-GCM and build its
+anti-replay window, and see what rekeying does when both gateways start at
+once or sit a 44-minute round trip apart. Then the history that gave IPsec its reputation for complexity,
 the attacks on IKEv1 and on weak pre-shared keys, a backdoor in a firewall's
 random number generator, and the post-quantum extensions.*
 
@@ -20,13 +21,18 @@ random number generator, and the post-quantum extensions.*
       transport and tunnel mode, and the key exchange IKE;
     - IKEv2's two exchanges, its key schedule (SKEYSEED and prf+) and its
       authentication, by computing them;
-    - ESP's packet format, its sequence numbers and anti-replay window;
+    - ESP's packet format, its AES-GCM nonce, sequence numbers and
+      anti-replay window, and how a gateway cluster can repeat a nonce;
+    - the bytes of an IKEv2 message and its AUTH payload, how traffic
+      selectors are narrowed, and how SAs are rekeyed, including the rule
+      that settles a collision;
     - how IPsec crosses NAT and firewalls;
     - how peers authenticate: pre-shared keys, certificates and EAP, and why a
       weak pre-shared key can be cracked offline;
     - the history of IKEv1 and the attacks on it, the Juniper Dual EC
       incident, and the case against encryption without integrity;
-    - post-quantum IKEv2 and what a link to Mars does to it.
+    - post-quantum IKEv2 with IKE_INTERMEDIATE, and what a 44-minute round
+      trip does to IKE's timers.
 
     **You need:** [Chapter 1](01-What-a-Protocol-Must-Do.md) (SIGMA, forward
     secrecy) and [Chapter 2](02-Certificates-and-PKI.md) for certificates;
@@ -34,8 +40,8 @@ random number generator, and the post-quantum extensions.*
     [10](../../book/10-Message-Authentication.md) and
     [8](../../book/08-Modes-of-Operation.md) of book 1.
 
-    **Levels:** §7.1 to §7.3 are for beginners, §7.4 to §7.11 are
-    intermediate, §7.12 is expert.
+    **Levels:** §7.1 to §7.3 are for beginners, §7.4 to §7.13 are
+    intermediate, §7.14 is expert.
 
 ## 7.1 The problem
 
@@ -369,6 +375,8 @@ $$\mathrm{AUTH} = \mathrm{prf}\bigl(\mathrm{prf}(\text{PSK}, \texttt{"Key Pad fo
 \text{own first message} \,\|\, \text{peer's nonce} \,\|\, \mathrm{prf}(SK_p, \mathrm{ID})\bigr).$$
 
 With a certificate, the same octets are signed with the private key instead.
+§7.11 builds these octets from a real binary message and computes the AUTH
+payload byte by byte.
 
 ### Code it: a real connection
 
@@ -547,6 +555,165 @@ though it was never seen, because it fell more than 64 places behind the top;
 that is the price of a fixed window. Fast links with many parallel paths
 reorder more, and Linux allows windows of thousands of packets.
 
+### By hand: the AES-GCM nonce and what the tag covers
+
+Take the ping from the strongSwan run, SPI `b9697120`, sequence number 4, and
+encrypt it with AES-128-GCM under an example key and the example salt
+`cafebabe` (in a real SA both are cut from the child SA's keying material,
+key first, then four salt bytes).
+
+<div class="mars-steps" markdown>
+
+1. **IV**: the sequence number as 8 bytes, `00 00 00 00 00 00 00 04`, sent in
+   the clear.
+2. **Nonce**: salt then IV, `ca fe ba be 00 00 00 00 00 00 00 04`. GCM adds a
+   4-byte block counter; block 1 masks the tag, blocks 2 onward make the
+   keystream.
+3. **Plaintext**: the 84-byte inner packet, then the trailer, which must end
+   on a 4-byte boundary. 84 + 2 = 86, so two padding bytes are needed, and by
+   default they count up from 1. The trailer is `01 02 02 04`: padding, pad
+   length 2, next header 4 (IPv4). That makes 88 bytes.
+4. **Additional data**: SPI and sequence number, `b9 69 71 20 00 00 00 04`.
+   With extended sequence numbers it is 12 bytes, SPI, high half, low half,
+   which is how the high half is authenticated without being sent.
+5. **Tag**: GHASH over the additional data, the ciphertext and their lengths,
+   masked with counter block 1; 16 bytes.
+
+</div>
+
+The IV is not in the additional data and need not be: changing it changes
+the nonce, and the tag check fails.
+
+### Code it: an ESP packet with AES-GCM
+
+The program has AES-128 (book 1's [Chapter 6](../../book/06-Block-Ciphers.md))
+and GCM in a few dozen lines, checks them against test case 2 of McGrew and
+Viega's GCM specification, and builds the packet of Figure 7.4: a ping from
+10.1.0.23 to 10.2.0.9, checksums left at zero.
+
+```python
+# One ESP packet with AES-128-GCM (RFC 4106), from a small pure-Python AES and GCM.
+# AES and GCM are checked first against test case 2 of the GCM specification.
+def xt(a): return ((a << 1) ^ 0x11B) & 0xFF if a & 0x80 else a << 1
+def mul(a, b):
+    r = 0
+    while b:
+        if b & 1: r ^= a
+        a, b = xt(a), b >> 1
+    return r
+SBOX = []
+for x in range(256):
+    inv = next((y for y in range(1, 256) if mul(x, y) == 1), 0)
+    s = inv
+    for k in range(1, 5): s ^= ((inv << k) | (inv >> (8 - k))) & 0xFF
+    SBOX.append(s ^ 0x63)
+def aes128(key, block):
+    w, rc = [list(key[i:i + 4]) for i in range(0, 16, 4)], 1
+    for i in range(4, 44):
+        t = list(w[i - 1])
+        if i % 4 == 0:
+            t = [SBOX[b] for b in t[1:] + t[:1]]; t[0] ^= rc; rc = xt(rc)
+        w.append([a ^ b for a, b in zip(w[i - 4], t)])
+    s = [b ^ k for b, k in zip(block, sum(w[:4], []))]
+    for r in range(1, 11):
+        s = [SBOX[b] for b in s]
+        s = [s[(i + 4 * (i % 4)) % 16] for i in range(16)]           # ShiftRows
+        if r < 10:                                                   # MixColumns
+            s = [mul(s[4 * (i // 4) + (i + k) % 4], m) for i in range(16) for k, m in
+                 enumerate((2, 3, 1, 1))]
+            s = [s[4 * i] ^ s[4 * i + 1] ^ s[4 * i + 2] ^ s[4 * i + 3] for i in range(16)]
+        s = [b ^ k for b, k in zip(s, sum(w[4 * r:4 * r + 4], []))]
+    return bytes(s)
+def gf128(x, y):                                     # multiply in GCM's field
+    z, R = 0, 0xE1 << 120
+    for i in range(127, -1, -1):
+        if y >> i & 1: z ^= x
+        x = (x >> 1) ^ R if x & 1 else x >> 1
+    return z
+def gcm(key, nonce, plain, aad):
+    h = int.from_bytes(aes128(key, bytes(16)), "big")
+    ctr = lambda i: aes128(key, nonce + i.to_bytes(4, "big"))
+    ct = b"".join(bytes(a ^ b for a, b in zip(plain[j:j + 16], ctr(2 + j // 16)))
+                  for j in range(0, len(plain), 16))
+    pad = lambda d: d + bytes(-len(d) % 16)
+    data, y = pad(aad) + pad(ct) + (8 * len(aad)).to_bytes(8, "big") + (8 * len(ct)).to_bytes(8, "big"), 0
+    for j in range(0, len(data), 16):
+        y = gf128(y ^ int.from_bytes(data[j:j + 16], "big"), h)
+    return ct, bytes(a ^ b for a, b in zip(y.to_bytes(16, "big"), ctr(1)))
+ct, tag = gcm(bytes(16), bytes(12), bytes(16), b"")
+print("GCM test case 2:", ct.hex() == "0388dace60b6a392f328c2b971b2fe78" and
+      tag.hex() == "ab6e47d42cec13bdf53a67b21257bddf")
+
+# The ESP packet: SPI and sequence number from the strongSwan run; an example key
+# and salt (in a real SA, 16 key bytes then 4 salt bytes cut from KEYMAT).
+key, salt = bytes.fromhex("feffe9928665731c6d6a8f9467308308"), bytes.fromhex("cafebabe")
+spi, seq = 0xB9697120, 4
+inner = bytes.fromhex("4500005400004000400100000a0100170a020009") + bytes([8, 0]) + bytes(62)
+trailer = bytes([1, 2]) + bytes([2, 4])              # padding 1, 2; pad length 2; next header 4 (IPv4)
+header = spi.to_bytes(4, "big") + seq.to_bytes(4, "big")
+iv = seq.to_bytes(8, "big")                          # the sequence number doubles as the IV
+nonce = salt + iv
+ct, tag = gcm(key, nonce, inner + trailer, header)   # AAD = SPI | sequence number
+packet = header + iv + ct + tag
+print("nonce:", nonce.hex(), " AAD:", header.hex())
+print("ESP packet:", len(packet), "bytes =", len(header), "+", len(iv), "+", len(ct), "+", len(tag))
+print("first 24 bytes:", packet[:24].hex(" ", 4))
+```
+
+It prints:
+
+```text
+GCM test case 2: True
+nonce: cafebabe0000000000000004  AAD: b969712000000004
+ESP packet: 120 bytes = 8 + 8 + 88 + 16
+first 24 bytes: b9697120 00000004 00000000 00000004 4b726e8b 89b895e0
+```
+
+The length is the 120 bytes tcpdump reported. The sequence number appears
+twice in the first 16 bytes, in the header and as the IV, which is the waste
+RFC 8750's implicit IV removes. Neither copy is secret; the nonce only has to
+be *unique*.
+
+### Break it: one sequence number, two packets
+
+Uniqueness is easy for one gateway, hard for two sharing an SA. In a
+**high-availability pair** the active gateway copies its SA state to a standby
+that takes over if it fails, with no new IKE exchange. The copies are made
+every so often, so after a failover the standby's counter is behind, and it
+resends sequence numbers, and so nonces, already used.
+
+```python
+# Uses gcm(), key, salt, spi, header, inner, trailer and packet from the listing above.
+# Break it: a standby gateway takes over the SA from a stale copy of its state
+# and sends sequence number 4 again, so the same nonce encrypts a new packet.
+secret = (bytes.fromhex("4500005400004000400600000a0100170a020009") +
+          b"login ops / password dust-storm-7 / site=arcadia-west / ...".ljust(64, b"."))
+ct2, tag2 = gcm(key, salt + (4).to_bytes(8, "big"), secret + trailer, header)
+ct1 = packet[16:-16]                                 # the earlier packet's ciphertext
+known = inner + trailer                              # an eavesdropper guesses a ping
+leak = bytes(a ^ b ^ c for a, b, c in zip(ct1, ct2, known))
+print("recovered:", leak[20:84].decode())
+```
+
+It prints:
+
+```text
+recovered: login ops / password dust-storm-7 / site=arcadia-west / ........
+```
+
+Two ciphertexts under one nonce XOR to the XOR of the plaintexts, so one
+guessable packet gives away the other. The receiver drops the second packet as
+a replay, but an eavesdropper has already seen both. Two tags under one nonce
+also reveal GCM's hash key, the "forbidden attack" of
+[Cryptanalysis §10.7](../cryptanalysis/10-Attacks-on-Modes-and-MACs.md#107-the-forbidden-attack-gcms-key-as-a-root).
+
+**Fix it.** RFC 6311 (2011) has the newly active member and its peer each skip
+their ESP counters forward by a large number after a failover, and
+resynchronize IKE's message IDs in the same exchange; skipping is safe because
+IPsec always let a sender skip counter values. The general rule is RFC 4106's:
+the IV must not repeat under one key, and anything that copies state, a
+cluster, a virtual machine snapshot, a restored backup, can make it repeat.
+
 ## 7.5 Crossing NAT and firewalls
 
 *Level: intermediate.*
@@ -634,20 +801,35 @@ AUTH first, before it has seen any proof from the responder.
 
 ```python
 # Break it: an attacker who answers IKE_SA_INIT in the responder's place gets
-# the initiator's AUTH, and can then test passwords offline. Continue from above.
+# the initiator's AUTH, and can then test passwords offline. The key schedule
+# and AUTH are those of the first listing in section 7.3.
+import hashlib, hmac
+def prf(key, data): return hmac.new(key, data, hashlib.sha256).digest()
+def prf_plus(key, seed, n):
+    out, t, i = b"", b"", 1
+    while len(out) < n:
+        t = prf(key, t + seed + bytes([i])); out += t; i += 1
+    return out[:n]
+def auth(psk, own_msg, peer_nonce, sk_p, id_payload):
+    return prf(prf(psk, b"Key Pad for IKEv2"), own_msg + peer_nonce + prf(sk_p, id_payload))
+
+# The victim sends Alice's key share from RFC 7748's X25519 example; the attacker
+# answers with Bob's, so both hold that example's shared secret.
+KE_i = bytes.fromhex("8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a")
+g_ir = bytes.fromhex("4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742")
+spi_i, spi_r = bytes.fromhex("ab2f5674aebd0a70"), bytes.fromhex("5eed5eed5eed5eed")
+n_i, n_r = hashlib.sha256(b"Ni").digest(), hashlib.sha256(b"Nr").digest()
+msg1 = spi_i + bytes(8) + b"SA:aes256gcm16-prfsha256-x25519" + KE_i + n_i
+stream = prf_plus(prf(n_i + n_r, g_ir), n_i + n_r + spi_i + spi_r, 168)
+SK_pi = stream[104:136]                 # after SK_d (32), no SK_a, SK_ei and SK_er (36 each)
+ID_i = bytes([2, 0, 0, 0]) + b"gw1.arcadia.mars"
+weak_psk = b"arcadia2026"
+captured = auth(weak_psk, msg1, n_r, SK_pi, ID_i)    # decrypted from the victim's IKE_AUTH
+
 words = ["password", "arcadia", "mars2026", "letmein", "olympus", "gateway1",
          "arcadia2026", "redplanet"] + ["guess%05d" % i for i in range(20000)]
-weak_psk = b"arcadia2026"
-
-# The attacker runs its own X25519 with the victim, so it knows SK_ei and SK_pi
-# and can decrypt IKE_AUTH. The victim, using the weak PSK, sends:
-evil = seed("attacker x25519")
-msg2_evil = spi_i + spi_r + b"SA:aes256gcm16-prfsha256-x25519" + x25519(evil, G) + n_r
-k_evil = ike_keys(n_i, n_r, x25519(evil, KE_i))
-captured = auth(weak_psk, msg1, n_r, k_evil["SK_pi"], ID_i)
-
 for tries, w in enumerate(words, 1):                  # offline: no more packets needed
-    if auth(w.encode(), msg1, n_r, k_evil["SK_pi"], ID_i) == captured:
+    if auth(w.encode(), msg1, n_r, SK_pi, ID_i) == captured:
         print("PSK found after", tries, "guesses:", w)
         break
 print("the same attack on a random 32-byte PSK: 2^256 guesses")
@@ -769,6 +951,15 @@ PIX firewalls and got back a chunk of memory containing the VPN's private keys
 and configuration. Cisco found the same flaw in IOS (CVE-2016-6415). Nothing in
 IKE's cryptography was broken; a parsing bug handed over the keys.
 
+**Cisco's fragment reassembly** (2016). In February 2016 Cisco fixed
+CVE-2016-1287, found by David Barksdale, Jordan Gruskovnjak and Alex Wheeler
+of Exodus Intelligence: a heap overflow in the ASA firewalls' reassembly of
+fragmented IKE messages, reachable by one crafted UDP packet on any ASA that
+terminated IKEv1 or IKEv2 VPNs, before any authentication. Cisco scored it
+10.0, and it won that year's Pwnie Award for the best server-side bug.
+Microsoft's fix for CVE-2022-34721 (September 2022, scored 9.8) told the same
+story for the Windows IKE protocol extensions.
+
 **The gateways themselves.** Since 2019, the VPN gateways at the edge of
 corporate networks, both IPsec and TLS-based, have been among the most
 exploited devices on the Internet, appearing every year in the lists of
@@ -825,13 +1016,62 @@ ML-KEM-768 in one IKE_INTERMEDIATE exchange, at the cost of one more round
 trip. In strongSwan it is written as an extra key exchange in the proposal,
 such as `aes256gcm16-prfsha384-x25519-ke1_mlkem768`.
 
-The document that assigns ML-KEM its IKEv2 numbers was approved by the IESG in
-July 2026. strongSwan has supported ML-KEM since version 6.0 (December 2024),
-Libreswan since 5.4 (August 2026), and Apple's IKEv2 client since iOS 26 and
-macOS 26, set up through a configuration profile. None of them uses it by
-default yet. Authentication is still classical everywhere; ML-DSA for IKEv2 is
-a draft. As in TLS and SSH, signatures can wait, because a forged signature
-must be forged *during* the exchange, not years later.
+The document that assigns ML-KEM its IKEv2 numbers,
+draft-ietf-ipsecme-ikev2-mlkem, was approved by the IESG on 7 July 2026 and,
+as of November 2026, is in the RFC Editor's queue without an RFC number. It
+gives ML-KEM-512, -768 and -1024 the numbers 35, 36 and 37, and allows
+ML-KEM-512 (an 800-byte key, a 768-byte ciphertext) in IKE_SA_INIT itself;
+the larger sets belong in IKE_INTERMEDIATE unless IKE runs over TCP or the
+path carries large packets. strongSwan has supported ML-KEM since version 6.0
+(December 2024), Libreswan since 5.4 (August 2026), and Apple's IKEv2 client
+since iOS 26 and macOS 26, set up through a configuration profile. None of
+them uses it by default yet. Authentication is still classical everywhere;
+ML-DSA for IKEv2 is a draft. As in TLS and SSH, signatures can wait, because a
+forged signature must be forged *during* the exchange, not years later.
+
+### IKE_INTERMEDIATE, step by step
+
+<div class="mars-steps" markdown>
+
+1. **IKE_SA_INIT** with X25519, as in §7.3, proposing ML-KEM-768 as
+   "additional key exchange 1" (transform type 6; RFC 9370 defines types 6
+   to 12). Its keys are generation 0.
+2. **IKE_INTERMEDIATE** (exchange type 43, message ID 1), encrypted with
+   generation 0: a 1,184-byte encapsulation key one way, a 1,088-byte
+   ciphertext back, and a shared 32-byte secret $SK(1)$.
+3. **Key update**: $\mathrm{SKEYSEED}(1) = \mathrm{prf}(SK_d, SK(1) \| N_i \| N_r)$,
+   then prf+ as before gives generation 1, which depends on both exchanges.
+4. **IKE_AUTH** (message ID 2), encrypted with generation 1, with one more
+   piece in each AUTH.
+
+</div>
+
+The AUTH of §7.3 covers only the first message, but now messages were
+exchanged in between, protected only by classical keys and from peers not yet
+authenticated. RFC 9242 appends a summary of them:
+
+$$
+\begin{aligned}
+\text{InitiatorSignedOctets} &= \text{RealMessage1} \,\|\, N_r \,\|\, \mathrm{prf}(SK_{pi}, ID_i') \,\|\, \text{IntAuth},\\
+\text{IntAuth} &= \text{IntAuth}_{i} \,\|\, \text{IntAuth}_{r} \,\|\, \text{IKE\_AUTH message ID}.
+\end{aligned}
+$$
+
+$\text{IntAuth}_i$ is the PRF, under $SK_{pi}$, of the initiator's
+intermediate message: its header and the Encrypted payload's header, then the
+inner payloads in the clear, so the result does not depend on how the message
+was fragmented. $\text{IntAuth}_r$ is the same for the responder under
+$SK_{pr}$. The keys are those that protected the round, generation 0 for the
+first; with several rounds the values chain. The message ID at the end is 2,
+the IKE_AUTH that follows one intermediate round.
+
+Since generation 1 is keyed with the old $SK_d$, every later key, ESP keys
+included, depends on both secrets. Dependence is not yet security: if X25519
+falls, $SK_d$ is known, and the new keys are HMAC under a *known* key
+of a secret message, safe only under the "dual PRF" assumption that TLS 1.3's
+hybrid key schedule also makes. The cost is one more round trip and about
+2,300 bytes; across the Mars link of §7.10, one more round trip is up to 44
+minutes.
 
 ## 7.10 Mars: a VPN across the light-time gap
 
@@ -846,13 +1086,96 @@ about reordering.
 
 **IKE** is the problem. Bringing up a tunnel takes two round trips; at the
 average distance of about 12.5 light-minutes that is about 50 minutes, and at
-the far side of the Sun nearly an hour and a half. Worse, IKE's timers assume
-Earth. strongSwan, by default, retransmits a request after 4 seconds, then
-waits 1.8 times longer each time, and gives up after five retransmissions,
-about 165 seconds in all. Across the gap every exchange would fail long
-before the answer arrived. Liveness checks (dead peer detection) would declare
-the peer dead, and rekeys, which by default happen every hour for child SAs,
-would collide with the delay.
+the far side of the Sun nearly an hour and a half. Worse, IKE's retransmission
+timers, liveness checks and rekey schedules all assume Earth, and across the
+gap every exchange would fail long before its answer arrived.
+
+### Retransmission timers against a 44-minute round trip
+
+IKE is reliable over UDP because the sender of a request retransmits it,
+bit for bit, until the answer comes or it gives up, and the responder answers
+a retransmission by replaying its stored response (RFC 7296 §2.1). The gaps
+must grow exponentially; the RFC suggests at least a dozen retransmissions
+over at least several minutes, not long enough for one Mars answer.
+
+```python
+# IKE's retransmission timers against the Earth-Mars round trip (6 to 44 min).
+def schedule(timeout, base, tries):        # send times, and when it gives up
+    sent, t = [], 0.0
+    for k in range(tries + 1):
+        sent.append(t); t += timeout * base ** k
+    return sent, t
+sent, give_up = schedule(4.0, 1.8, 5)      # strongSwan's defaults
+print("default: sends at", [round(x) for x in sent], "s, gives up at", round(give_up), "s")
+sent, give_up = schedule(2700.0, 1.2, 3)   # first wait longer than 44 minutes
+print("Mars:    sends at", [round(x / 60) for x in sent], "min, gives up at",
+      round(give_up / 3600, 1), "h")
+for one_way in (3, 12.5, 22):              # a rekey plus deleting the old SA
+    print(f"one way {one_way:4} min: two exchanges take {4 * one_way:3.0f} min")
+```
+
+It prints:
+
+```text
+default: sends at [0, 4, 11, 24, 47, 89] s, gives up at 165 s
+Mars:    sends at [0, 45, 99, 164] min, gives up at 4.0 h
+one way    3 min: two exchanges take  12 min
+one way 12.5 min: two exchanges take  50 min
+one way   22 min: two exchanges take  88 min
+```
+
+The default sends six copies in 90 seconds and gives up at 165 seconds; the
+earliest a Mars answer can come back is six minutes (Figure 7.5). The Mars
+setting (strongSwan's `retransmit_timeout`, `retransmit_base` and
+`retransmit_tries`) waits 45 minutes before its first retransmission: a lost
+packet costs most of an hour, but the link is not filled with copies of a
+request whose answer is already on its way.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 250" width="640" role="img" aria-label="Time line from 0 to 48 minutes: the default retransmissions all fall in the first 90 seconds and give up at 2.75 minutes, while Mars answers arrive at 6, 25 and 44 minutes; the Mars setting retransmits first at 45 minutes" fill="currentColor" font-size="13">
+<text x="80" y="26" font-weight="bold">default timers: six sends in 90 s, then give up</text>
+<rect x="80" y="36" width="17" height="22" fill-opacity=".6"/>
+<text x="110" y="53" font-size="18" text-anchor="middle">×</text>
+<text x="124" y="53" font-size="12">gives up at 2.75 min</text>
+<text x="80" y="88" font-weight="bold">the first answer arrives</text>
+<rect x="80" y="98" width="484" height="22" fill-opacity=".12"/>
+<circle cx="146" cy="109" r="5"/><text x="146" y="138" text-anchor="middle" font-size="12">6 min (near)</text>
+<circle cx="355" cy="109" r="5"/><text x="355" y="138" text-anchor="middle" font-size="12">25 min (average)</text>
+<circle cx="564" cy="109" r="5"/><text x="564" y="138" text-anchor="middle" font-size="12">44 min (far)</text>
+<text x="80" y="166" font-weight="bold">Mars setting: wait 45 min before the first retransmission</text>
+<line x1="80" y1="176" x2="80" y2="198" stroke="currentColor" stroke-width="2"/>
+<line x1="80" y1="187" x2="575" y2="187" stroke="currentColor" stroke-dasharray="5 4" stroke-opacity=".6"/>
+<line x1="575" y1="176" x2="575" y2="198" stroke="currentColor" stroke-width="2"/>
+<line x1="80" y1="214" x2="608" y2="214" stroke="currentColor"/>
+<text x="80" y="234" text-anchor="middle" font-size="12">0</text><text x="344" y="234" text-anchor="middle" font-size="12">24</text><text x="608" y="234" text-anchor="middle" font-size="12">48 min</text>
+</svg>
+<figcaption>Figure 7.5. One IKE request across the gap. With Earth's default timers the initiator has given up long before even the nearest answer can arrive. Times are minutes after the request is sent.</figcaption>
+</figure>
+
+### Liveness, windows and rekeys
+
+**Liveness.** A gateway that has heard nothing for a while sends an empty
+INFORMATIONAL request, and declares the peer dead, deleting every SA, if the
+request goes unanswered through the retransmission schedule. RFC 7296 notes
+that "dead peer detection" really detects live peers. A check after 30 seconds
+of silence, a common setting, would declare a Mars peer dead before its first
+answer. On this link the check should be off or set to hours; any fresh,
+authenticated ESP packet already proves the peer alive. And unless a peer
+raises its window with SET_WINDOW_SIZE, only one request may be outstanding at
+a time: about 32 exchanges a day in each direction at 44 minutes each.
+
+**Rekeys.** The last lines of the program are a child SA rekey: a
+CREATE_CHILD_SA exchange, then a Delete of the old SA (§7.12), four one-way
+trips, 88 minutes at the far side. strongSwan's defaults rekey a child SA
+after about an hour and expire it six minutes later, so the old SA would
+expire in the middle of its own replacement. The fix is long lifetimes with
+wide margins, say a day with the rekey three hours early; daily slices are
+still forward secret if each rekey runs a new Diffie-Hellman exchange.
+RFC 7296 notes that the end with the shorter lifetime always starts the rekey; giving it to the city's gateway avoids the collisions of
+§7.12, which on a 22-minute link happen whenever both rekeys start within 22
+minutes of each other.
+
+### A conversation is the wrong shape
 
 With timers stretched to hours, IKE would work: nothing in its cryptography
 depends on time. But the deeper mismatch is that IKE is a conversation, and a
@@ -866,7 +1189,384 @@ local links, and bundles, with long-lived keys rotated on a schedule, across
 the gap. [Chapter 20](20-Designing-and-Verifying-Protocols.md) returns to
 designing protocols for delay.
 
-## 7.11 In the real world
+## 7.11 IKEv2 on the wire: the AUTH payload, byte by byte
+
+*Level: intermediate.*
+
+§7.3 ran IKEv2 on stand-in messages. Real ones are binary, and the binary
+matters, because AUTH covers the first message exactly as sent, every byte.
+
+### The message
+
+Every IKE message starts with a 28-byte header: the initiator's and
+responder's SPIs (8 bytes each), the type of the first payload, the version,
+the exchange type (34 IKE_SA_INIT, 35 IKE_AUTH, 36 CREATE_CHILD_SA,
+37 INFORMATIONAL, 43 IKE_INTERMEDIATE), flags, a message ID and the length.
+Payloads follow as a chain, each with a 4-byte header: the type of the *next*
+payload, a critical bit, and a length. The SA payload holds proposals made of
+8-byte transforms, each a type (1 encryption, 2 PRF, 3 integrity, 4 key
+exchange) and an ID: AES-GCM with a 16-byte tag is encryption 20 with the
+attribute `80 0e 00 80` (key length 128), PRF_HMAC_SHA2_256 is PRF 5, and
+Curve25519 is method 31. A real initiator also sends NAT detection
+notifications (§7.5); they change which bytes are signed, not how.
+
+### Code it: message 1, the keys and the AUTH payload
+
+The initiator's key share is Alice's public key from RFC 7748's X25519
+example and $g^{ir}$ is that example's shared secret, which the first program
+in §7.3 reproduced. The nonces are 16 bytes, the shortest RFC 7296 allows.
+
+```python
+# IKE_SA_INIT on the wire, then SKEYSEED, prf+ and the initiator's AUTH (RFC 7296).
+import hashlib, hmac, struct
+
+def prf(key, data): return hmac.new(key, data, hashlib.sha256).digest()  # PRF_HMAC_SHA2_256
+def payload(next_type, body):                       # generic payload header: 4 bytes
+    return struct.pack(">BBH", next_type, 0, 4 + len(body)) + body
+def transform(last, ttype, tid, attr=b""):
+    return struct.pack(">BBHBBH", 0 if last else 3, 0, 8 + len(attr), ttype, 0, tid) + attr
+
+# One proposal: AES-128-GCM (20, key length 128), HMAC-SHA-256 (5), Curve25519 (31).
+tfs = (transform(False, 1, 20, struct.pack(">HH", 0x800E, 128)) +
+       transform(False, 2, 5) + transform(True, 4, 31))
+proposal = struct.pack(">BBHBBBB", 0, 0, 8 + len(tfs), 1, 1, 0, 3) + tfs  # #1, IKE, no SPI
+KE_i = bytes.fromhex("8520f0098930a754748b7ddcb43ef75a0dbf3a0d26381af4eba4a98eaa9b4e6a")
+g_ir = bytes.fromhex("4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742")
+n_i, n_r = bytes(range(16)), bytes(range(16, 32))   # 16 bytes: the shortest nonce allowed
+spi_i, spi_r = bytes.fromhex("1122334455667788"), bytes.fromhex("99aabbccddeeff00")
+
+body = (payload(34, proposal) +                                  # SA, next is KE (34)
+        payload(40, struct.pack(">HH", 31, 0) + KE_i) +           # KE, next is Nonce (40)
+        payload(0, n_i))                                          # Nonce, last
+hdr = spi_i + bytes(8) + struct.pack(">BBBBII", 33, 0x20, 34, 0x08, 0, 28 + len(body))
+msg1 = hdr + body                     # next payload SA (33), version 2.0, IKE_SA_INIT (34), I flag
+print("IKE header:", hdr.hex(" "))
+print(f"message 1: {len(msg1)} bytes = header 28 + SA {4 + len(proposal)} + KE 40 + Nonce 20")
+
+skeyseed = prf(n_i + n_r, g_ir)
+print("SKEYSEED:", skeyseed.hex())
+S, T, stream = n_i + n_r + spi_i + spi_r, b"", b""
+for i in range(1, 6):                 # 136 bytes of keys need five 32-byte blocks
+    T = prf(skeyseed, T + S + bytes([i])); stream += T
+    print(f"T{i}:", T.hex())
+keys, pos = {}, 0
+for name, size in [("SK_d", 32), ("SK_ai", 0), ("SK_ar", 0), ("SK_ei", 20),
+                   ("SK_er", 20), ("SK_pi", 32), ("SK_pr", 32)]:
+    keys[name], pos = stream[pos:pos + size], pos + size
+print("SK_pi:", keys["SK_pi"].hex())
+
+ID_i = bytes([2, 0, 0, 0]) + b"gw1.arcadia.mars"     # IDi' = type FQDN, 3 reserved, name
+maced_id = prf(keys["SK_pi"], ID_i)
+signed = msg1 + n_r + maced_id
+print("signed octets:", len(msg1), "+", len(n_r), "+", len(maced_id), "=", len(signed), "bytes")
+pad_key = prf(b"correct horse battery staple, Arcadia gateway 1", b"Key Pad for IKEv2")
+AUTH = prf(pad_key, signed)
+print("AUTH payload:", payload(33, bytes([2, 0, 0, 0]) + AUTH).hex(" ", 4))
+```
+
+It prints:
+
+```text
+IKE header: 11 22 33 44 55 66 77 88 00 00 00 00 00 00 00 00 21 20 22 08 00 00 00 00 00 00 00 80
+message 1: 128 bytes = header 28 + SA 40 + KE 40 + Nonce 20
+SKEYSEED: b0ef915c48b15e3292a474783a59ffbd7a8f06b05e1a6efe90e23b46ffeaef91
+T1: 49876a9056991195e7059c7db5010ccb9717522341156c4f88b8dfb3f64e8676
+T2: 75a07ddd8bbade07478363f6c76df7eb049c1539b7d1c1e2371daa7fc4ec83fa
+T3: bddda3dac54fe7678ee4a51ee98114e5eb1d15f8060c32279f4cb2941035c7c1
+T4: f7cb3d3cc52602978655a8b99ea6d26c7790126dd67e65e609018159b18ca7a6
+T5: 01f470e7571bbc1406bc3b10758353356fdece4dbb41622005a717a935d8f9cb
+SK_pi: 8ee4a51ee98114e5eb1d15f8060c32279f4cb2941035c7c1f7cb3d3cc5260297
+signed octets: 128 + 16 + 32 = 176 bytes
+AUTH payload: 21000028 02000000 8b72d688 0004608d 3b6cc726 f9c93e52 d4fc6d57 5af12cac ba029660 41b566ec
+```
+
+### By hand: what the program did
+
+**The header.** SPIs `11 22 ... 88` and eight zeros; `21` = 33, SA next;
+`20`, version 2.0; `22` = 34, IKE_SA_INIT; `08`, the initiator flag; message
+ID 0; length `80` = 128. The SA payload is 4 + 8 (proposal) + 12 (encryption
+with its attribute) + 8 + 8 = 40 bytes, KE 4 + 4 + 32 = 40, Nonce 4 + 16 = 20.
+
+**SKEYSEED** is HMAC-SHA-256 keyed with the nonces, the 32 bytes
+`00 01 ... 1f`, over $g^{ir}$. HMAC pads the key to 64 bytes and XORs it with
+`0x36`, so the inner hash starts `36 37 34 35 32 33 30 31` and continues with
+32 bytes of `36`; the outer hash starts `5c 5d 5e 5f`. The *nonces* are the
+key and the secret is the message, so HMAC works as an extractor with a public
+key, the move HKDF-Extract makes with its salt. Result: `b0ef915c ... ffeaef91`.
+
+**prf+.** With $S = N_i \| N_r \| SPI_i \| SPI_r$ (48 bytes) and $K$ =
+SKEYSEED,
+
+$$
+T_1 = \mathrm{prf}(K,\; S \,\|\, \texttt{01}),\qquad
+T_2 = \mathrm{prf}(K,\; T_1 \,\|\, S \,\|\, \texttt{02}),\ \dots
+$$
+
+The one-byte counter allows at most 255 blocks. The keys need 136 bytes:
+$SK_d$ 32; $SK_{ai}$, $SK_{ar}$ none, since AES-GCM authenticates itself;
+$SK_{ei}$, $SK_{er}$ 20 each (key and salt); $SK_{pi}$, $SK_{pr}$ 32 each.
+Five blocks make 160 bytes, and the cuts ignore block boundaries
+(Figure 7.6): $SK_{pi}$ is the last 24 bytes of $T_3$, `8ee4a51e ... 1035c7c1`,
+then the first 8 of $T_4$, `f7cb3d3c c5260297`, exactly the program's SK_pi.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 215" width="640" role="img" aria-label="Five 32-byte prf+ blocks T1 to T5 laid over the keys cut from them: SK_d fills T1, SK_ei and SK_er share T2 and spill into T3, SK_pi spans T3 and T4, SK_pr spans T4 and T5, and the last 24 bytes are unused" fill="currentColor" font-size="13">
+<text x="320" y="20" text-anchor="middle">T(i) = prf(SKEYSEED, T(i−1) ‖ S ‖ i),   S = Ni ‖ Nr ‖ SPIi ‖ SPIr</text>
+<rect x="40" y="36" width="112" height="36" fill-opacity=".12" stroke="currentColor"/><text x="96" y="59" text-anchor="middle">T1</text>
+<rect x="152" y="36" width="112" height="36" fill-opacity=".12" stroke="currentColor"/><text x="208" y="59" text-anchor="middle">T2</text>
+<rect x="264" y="36" width="112" height="36" fill-opacity=".12" stroke="currentColor"/><text x="320" y="59" text-anchor="middle">T3</text>
+<rect x="376" y="36" width="112" height="36" fill-opacity=".12" stroke="currentColor"/><text x="432" y="59" text-anchor="middle">T4</text>
+<rect x="488" y="36" width="112" height="36" fill-opacity=".12" stroke="currentColor"/><text x="544" y="59" text-anchor="middle">T5</text>
+<line x1="152" y1="72" x2="152" y2="150" stroke="currentColor" stroke-dasharray="3 3" stroke-opacity=".6"/>
+<line x1="264" y1="72" x2="264" y2="150" stroke="currentColor" stroke-dasharray="3 3" stroke-opacity=".6"/>
+<line x1="376" y1="72" x2="376" y2="150" stroke="currentColor" stroke-dasharray="3 3" stroke-opacity=".6"/>
+<line x1="488" y1="72" x2="488" y2="150" stroke="currentColor" stroke-dasharray="3 3" stroke-opacity=".6"/>
+<rect x="40" y="110" width="112" height="36" fill-opacity=".3" stroke="currentColor"/><text x="96" y="133" text-anchor="middle">SK_d</text>
+<rect x="152" y="110" width="70" height="36" fill-opacity=".2" stroke="currentColor"/><text x="187" y="133" text-anchor="middle">SK_ei</text>
+<rect x="222" y="110" width="70" height="36" fill-opacity=".2" stroke="currentColor"/><text x="257" y="133" text-anchor="middle">SK_er</text>
+<rect x="292" y="110" width="112" height="36" fill-opacity=".3" stroke="currentColor"/><text x="348" y="133" text-anchor="middle">SK_pi</text>
+<rect x="404" y="110" width="112" height="36" fill-opacity=".2" stroke="currentColor"/><text x="460" y="133" text-anchor="middle">SK_pr</text>
+<rect x="516" y="110" width="84" height="36" fill="none" stroke="currentColor" stroke-dasharray="4 3"/><text x="558" y="133" text-anchor="middle" fill-opacity=".7">unused</text>
+<text x="40" y="168" text-anchor="middle" font-size="12">0</text>
+<text x="152" y="168" text-anchor="middle" font-size="12">32</text>
+<text x="222" y="168" text-anchor="middle" font-size="12">52</text>
+<text x="292" y="168" text-anchor="middle" font-size="12">72</text>
+<text x="404" y="168" text-anchor="middle" font-size="12">104</text>
+<text x="516" y="168" text-anchor="middle" font-size="12">136</text>
+<text x="600" y="168" text-anchor="middle" font-size="12">160</text>
+<text x="320" y="200" text-anchor="middle" font-size="12.5">byte offsets; SK_ai and SK_ar are empty with AES-GCM</text>
+</svg>
+<figcaption>Figure 7.6. prf+ makes one stream and the keys are cut from it in a fixed order, with AES-128-GCM for IKE and HMAC-SHA-256 as the PRF. Only SK_d happens to fill a block exactly.</figcaption>
+</figure>
+
+**AUTH** covers three pieces (Figure 7.7): RealMessage1, the 128 bytes from
+the first byte of the initiator's SPI to the last byte of the nonce (without
+the four zero bytes that precede IKE on port 4500); the responder's nonce,
+16 bytes, value only; and $\mathrm{prf}(SK_{pi}, ID_i')$, where $ID_i'$ is
+the ID payload without its header: type 2 (a domain name), three zero bytes,
+and `gw1.arcadia.mars`. That is 128 + 16 + 32 = 176 bytes. The PSK is first
+padded, $\mathrm{prf}(\text{PSK}, \texttt{"Key Pad for IKEv2"})$ with the
+17 characters and no terminating zero, so a gateway can store this value
+instead of the PSK; AUTH is the PRF of it over the 176 bytes.
+
+The AUTH payload is `21 00 00 28` (next payload 33, the child SA's proposal;
+length 40), `02 00 00 00` (method 2, "shared key message integrity code", and
+three reserved bytes), then the 32-byte MAC. With a certificate the method is
+1 (RSA), 9 to 11 (ECDSA), or 14 (RFC 7427's "digital signature"), and the
+data is a signature over the same 176 bytes.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="The initiator's signed octets: 128 bytes of message 1, the 16-byte responder nonce, and a 32-byte MAC of the identity under SK_pi, fed into a PRF keyed with the padded pre-shared key to give the 32-byte AUTH value" fill="currentColor" font-size="13">
+<text x="20" y="24" font-weight="bold">InitiatorSignedOctets, 176 bytes</text>
+<rect x="20" y="36" width="320" height="44" fill-opacity=".12" stroke="currentColor"/>
+<text x="180" y="55" text-anchor="middle">RealMessage1: 128 bytes</text>
+<text x="180" y="71" text-anchor="middle" font-size="12">header, SA, KE, Ni as sent</text>
+<rect x="340" y="36" width="60" height="44" fill-opacity=".3" stroke="currentColor"/>
+<text x="370" y="55" text-anchor="middle">Nr</text>
+<text x="370" y="71" text-anchor="middle" font-size="12">16</text>
+<rect x="400" y="36" width="140" height="44" fill-opacity=".2" stroke="currentColor"/>
+<text x="470" y="55" text-anchor="middle">prf(SK_pi, IDi′)</text>
+<text x="470" y="71" text-anchor="middle" font-size="12">32</text>
+<rect x="360" y="122" width="270" height="40" rx="4" fill="none" stroke="currentColor"/>
+<text x="495" y="140" text-anchor="middle" font-size="12">IDi′ = 02 00 00 00 ‖ gw1.arcadia.mars</text>
+<text x="495" y="155" text-anchor="middle" font-size="12">(20 bytes; no payload header)</text>
+<line x1="470" y1="122" x2="470" y2="86" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="470,80 465,91 475,91"/>
+<line x1="280" y1="80" x2="280" y2="194" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="280,200 275,189 285,189"/>
+<rect x="20" y="200" width="400" height="40" rx="4" fill-opacity=".12" stroke="currentColor"/>
+<text x="220" y="225" text-anchor="middle">prf( prf(PSK, "Key Pad for IKEv2"), octets )</text>
+<line x1="420" y1="220" x2="474" y2="220" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="480,220 469,215 469,225"/>
+<rect x="480" y="200" width="140" height="40" rx="4" fill-opacity=".3" stroke="currentColor"/>
+<text x="550" y="225" text-anchor="middle">AUTH, 32 bytes</text>
+<text x="20" y="272" font-size="12.5">with a certificate: the same 176 bytes are signed with the private key (method 1, 9 to 11, or 14)</text>
+</svg>
+<figcaption>Figure 7.7. What the initiator's AUTH covers. Neither the responder's nonce nor the MACed identity is sent in IKE_AUTH; each side rebuilds them from what it already holds.</figcaption>
+</figure>
+
+**What the responder checks.** It holds message 1 as it arrived, chose $N_r$,
+derived the same $SK_{pi}$, and reads $ID_i'$ from IKE_AUTH; it rebuilds the
+176 bytes and compares MACs. If an attacker had deleted the strongest proposal
+from message 1, the two copies of message 1 would differ and the check would
+fail: IKEv2's downgrade protection comes free with covering the whole
+message, and implementations must keep the exact bytes, not a parsed copy.
+The responder's AUTH mirrors this with RealMessage2, $N_i$ and
+$\mathrm{prf}(SK_{pr}, ID_r')$.
+
+## 7.12 Child SAs: traffic selectors, rekeying and collisions
+
+*Level: intermediate.*
+
+An IKE SA lives for hours; the child SAs under it come and go, each with its
+own traffic, its own keys and its own rekeys.
+
+### Traffic selectors, narrowed
+
+A request that creates a child SA carries two traffic selector payloads, TSi
+for the initiator's side and TSr for the responder's; each selector is an
+address range, a port range and a protocol (0 for any). The responder may
+accept them, refuse with TS_UNACCEPTABLE, or **narrow** them to what its
+policy allows, never widen them. When a packet caused the request, the
+initiator lists that packet's exact addresses, ports and protocol first, and a
+responder that narrows must keep that first choice.
+
+A laptop at 10.1.0.23 calls the Earth office's SIP server, 10.2.0.9 on TCP
+port 5060. Its gateway asks for 10.1.0.0/16 to 10.2.0.0/16, the call first;
+the Earth gateway allows only 10.1.0.0/24 to 10.2.0.0/24. By hand, intersect:
+the call's selectors lie inside the policy and survive; the /16 ranges shrink
+to the /24s. A request for 10.3.0.0/16 would get TS_UNACCEPTABLE. The program
+continues the one in §7.11: it narrows the selectors, plays out a rekey
+collision, and derives the surviving SA's keys from the IKE SA's $SK_d$.
+
+```python
+# Uses prf() and keys from the listing above.
+# Traffic selector narrowing (RFC 7296 section 2.9): each selector is an address
+# range, a port range and a protocol (0 = any). The responder keeps what its
+# policy allows, and must keep the initiator's first, packet-specific choice.
+import ipaddress
+def sel(net, ports=(0, 65535), proto=0):
+    n = ipaddress.ip_network(net)
+    return (int(n[0]), int(n[-1]), ports, proto)
+def meet(a, b):                                       # intersection of two selectors
+    lo, hi = max(a[0], b[0]), min(a[1], b[1])
+    plo, phi = max(a[2][0], b[2][0]), min(a[2][1], b[2][1])
+    if lo > hi or plo > phi or (a[3] and b[3] and a[3] != b[3]):
+        return None
+    return (lo, hi, (plo, phi), a[3] or b[3])
+def show(s):
+    if s is None: return "TS_UNACCEPTABLE"
+    a, b = ipaddress.ip_address(s[0]), ipaddress.ip_address(s[1])
+    return f"{a}-{b} ports {s[2][0]}-{s[2][1]} proto {s[3] or 'any'}"
+# The habitat laptop 10.1.0.23 opened SIP (TCP 5060) to 10.2.0.9 and asked for more:
+TSi = [sel("10.1.0.23/32", (40001, 40001), 6), sel("10.1.0.0/16")]
+TSr = [sel("10.2.0.9/32", (5060, 5060), 6), sel("10.2.0.0/16")]
+policy_i, policy_r = sel("10.1.0.0/24"), sel("10.2.0.0/24")   # what the gateway allows
+for name, ts, pol in (("TSi", TSi, policy_i), ("TSr", TSr, policy_r)):
+    print(name, "first choice kept:", show(meet(ts[0], pol)))
+    print(name, "narrowed to:      ", show(meet(ts[1], pol)))
+print("TSr for 10.3.0.0/16:", show(meet(sel("10.3.0.0/16"), policy_r)))
+
+# Rekeying a child SA with a fresh exchange (section 2.17): new nonces, new secret.
+SK_d = keys["SK_d"]                                     # from the IKE SA above
+def keymat(sk_d, g_new, n_i, n_r, n):
+    out, t, i = b"", b"", 1
+    while len(out) < n:
+        t = prf(sk_d, t + g_new + n_i + n_r + bytes([i])); out += t; i += 1
+    return out[:n]
+# Both gateways start a rekey of the same child SA at once: four fresh nonces.
+# A sends 16-byte nonces, B sends 32-byte ones; both lengths are allowed.
+A_req, B_resp = bytes.fromhex("5c" * 16), bytes.fromhex("a0" * 32)   # exchange 1: A asks
+B_req, A_resp = bytes.fromhex("3e" * 32), bytes.fromhex("71" * 16)   # exchange 2: B asks
+low = min(A_req, B_resp, B_req, A_resp)               # bytes compare octet by octet
+loser = "exchange 1 (started by A)" if low in (A_req, B_resp) else "exchange 2 (started by B)"
+print("lowest nonce:", low.hex()[:16] + "...", "-> redundant:", loser)
+print("compared as integers, the lowest would be:", min((A_req, B_resp, B_req, A_resp),
+      key=lambda n: int.from_bytes(n, "big")).hex()[:16] + "...")
+g_new = bytes.fromhex("7e" * 32)                       # stand-in for the new X25519 secret
+k = keymat(SK_d, g_new, A_req, B_resp, 40)
+print("surviving SA keys: A->B", k[:20].hex()[:16] + "...", " B->A", k[20:40].hex()[:16] + "...")
+```
+
+It prints:
+
+```text
+TSi first choice kept: 10.1.0.23-10.1.0.23 ports 40001-40001 proto 6
+TSi narrowed to:       10.1.0.0-10.1.0.255 ports 0-65535 proto any
+TSr first choice kept: 10.2.0.9-10.2.0.9 ports 5060-5060 proto 6
+TSr narrowed to:       10.2.0.0-10.2.0.255 ports 0-65535 proto any
+TSr for 10.3.0.0/16: TS_UNACCEPTABLE
+lowest nonce: 3e3e3e3e3e3e3e3e... -> redundant: exchange 2 (started by B)
+compared as integers, the lowest would be: 5c5c5c5c5c5c5c5c...
+surviving SA keys: A->B cda9a194638e85a3...  B->A 87f6fa9320b95e37...
+```
+
+Narrowing lets differently configured gateways connect instead of failing.
+Rekeying has the opposite rule: a replacement SA must not be narrower than the
+one it replaces.
+
+### Rekeying, step by step
+
+A child SA is rekeyed with a CREATE_CHILD_SA exchange inside the IKE SA:
+
+$$
+\begin{aligned}
+&\text{request:}\quad \text{HDR},\ \text{SK}\{\,\text{N(REKEY\_SA)},\ \text{SA},\ N_i,\ [KE_i],\ TS_i,\ TS_r\,\}\\
+&\text{response:}\quad \text{HDR},\ \text{SK}\{\,\text{SA},\ N_r,\ [KE_r],\ TS_i,\ TS_r\,\}
+\end{aligned}
+$$
+
+REKEY_SA names the SPI being replaced, and the nonces are fresh. The optional
+key shares decide forward secrecy: with them,
+$\mathrm{KEYMAT} = \mathrm{prf{+}}(SK_d,\; g^{ir}_{\text{new}} \| N_i \| N_r)$;
+without them, $\mathrm{KEYMAT} = \mathrm{prf{+}}(SK_d,\; N_i \| N_r)$, and
+whoever later learns $SK_d$ can compute those keys from recorded nonces
+(§7.13). Keys are cut initiator-to-responder first, encryption key before
+integrity key (with AES-GCM, key then salt).
+
+The IKE SA is rekeyed the same way, without selectors and always with a new
+key exchange:
+$\mathrm{SKEYSEED} = \mathrm{prf}(SK_d^{\text{old}},\; g^{ir}_{\text{new}} \| N_i \| N_r)$,
+then prf+ with the new SPIs; it inherits every child SA. No AUTH is computed,
+so a rekey is not a new authentication.
+
+The responder installs the new SA before answering, so it can receive on it
+at once; the initiator sends on it when the answer arrives, then deletes the
+old one. Until then both SAs carry packets.
+
+### When both sides rekey at once
+
+Two gateways with the same lifetimes may each send a CREATE_CHILD_SA request
+before receiving the other's, and each answers: now there are three SA pairs,
+the old one and two new. RFC 7296 §2.8.1 picks the redundant one with no
+further message: the SA from the exchange holding the lowest of the four
+nonces is closed by the gateway that started that exchange, and the gateway
+that started the other deletes the old SA.
+
+"Lowest" means octet by octet, as in a dictionary, a nonce that runs out first
+being the lower. With nonces of different lengths (each side picks its own,
+16 to 256 bytes) that is not numeric order. Python's comparison of `bytes` is
+exactly the RFC's rule. In the program A sends 16-byte nonces and B 32-byte
+ones; `3e...`, in B's exchange, is lowest, so B closes its new SA and A deletes
+the old one (Figure 7.8). As integers, A's short `5c...` is smallest. A
+gateway comparing that way would close the *other* new SA: both new SAs would
+be deleted, each side would wait for the other to delete the old one, and the
+tunnel would run on the old SA until it expired.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 330" width="640" role="img" aria-label="Two gateways A and B both send rekey requests that cross, both answer, three SA pairs exist, and the exchange containing the lowest nonce, B's, gives up its new SA while A deletes the old SA" fill="currentColor" font-size="13">
+<defs><marker id="ah78" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+<text x="110" y="22" text-anchor="middle" font-weight="bold">gateway A</text>
+<text x="530" y="22" text-anchor="middle" font-weight="bold">gateway B</text>
+<line x1="110" y1="32" x2="110" y2="250" stroke="currentColor"/>
+<line x1="530" y1="32" x2="530" y2="250" stroke="currentColor"/>
+<line x1="110" y1="60" x2="528" y2="126" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah78)"/>
+<line x1="530" y1="60" x2="112" y2="126" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah78)"/>
+<text x="118" y="52" font-size="12.5">req 1: REKEY_SA, Ni = 5c5c… (16 bytes)</text>
+<text x="522" y="52" font-size="12.5" text-anchor="end">req 2: REKEY_SA, Ni = 3e3e… (32 bytes)</text>
+<line x1="110" y1="150" x2="528" y2="200" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah78)"/>
+<line x1="530" y1="150" x2="112" y2="200" stroke="currentColor" stroke-width="1.5" marker-end="url(#ah78)"/>
+<text x="118" y="146" font-size="12.5">resp 2: Nr = 7171…</text>
+<text x="522" y="146" font-size="12.5" text-anchor="end">resp 1: Nr = a0a0…</text>
+<rect x="60" y="214" width="520" height="30" rx="4" fill-opacity=".12"/>
+<text x="320" y="234" text-anchor="middle" font-size="12.5">three SA pairs now: the old one, one from exchange 1, one from exchange 2</text>
+<text x="320" y="272" text-anchor="middle">lowest of the four nonces, octet by octet: 3e3e…, in exchange 2</text>
+<text x="110" y="304" text-anchor="middle" font-weight="bold">A deletes the old SA</text>
+<text x="530" y="304" text-anchor="middle" font-weight="bold">B deletes the SA of exchange 2</text>
+<text x="320" y="324" text-anchor="middle" font-size="12" fill-opacity=".7">the SA from exchange 1 carries the traffic from now on</text>
+</svg>
+<figcaption>Figure 7.8. A rekey collision and RFC 7296's rule for it. Neither gateway needs another message to agree on which new SA survives.</figcaption>
+</figure>
+
+Most collisions never happen, because implementations jitter their rekey
+times; strongSwan moves each rekey up to a few minutes earlier at random. Two
+requests must cross in flight, which on Earth means timers firing within tens
+of milliseconds. On the Mars link the window is the one-way delay, which is
+why §7.10 gives one gateway the shorter lifetime. Colliding rekeys of the
+IKE SA itself follow the same rule, with the child SAs moved to the surviving
+IKE SA.
+
+## 7.13 In the real world
 
 *Level: intermediate.*
 
@@ -898,7 +1598,7 @@ designing protocols for delay.
   failed tunnels than any attack. Tools that print the negotiated proposal,
   such as `swanctl --list-sas`, are the first thing to look at.
 
-## 7.12 Going deeper
+## 7.14 Going deeper
 
 *Level: expert.*
 
@@ -966,10 +1666,10 @@ kernel, is the same one that WireGuard adopted in a much smaller form.
     replayed), and prf($SK_p$, own identity) (binds the identity to this
     exchange's keys, preventing misbinding).
 
-??? question "5. Why must the anti-replay check come after the integrity check?"
-    Otherwise an attacker could send forged packets with high sequence numbers,
-    slide the window forward, and make the receiver reject the real packets as
-    too old.
+??? question "5. A responder allows only 10.1.0.0/24 to 10.2.0.0/24 and is offered TSi = (10.1.0.23, TCP 40001), (10.1.0.0/16) and TSr = (10.2.0.9, TCP 5060), (10.2.0.0/16). What comes back?"
+    TSi narrowed to 10.1.0.0 to 10.1.0.255 and TSr to 10.2.0.0 to 10.2.0.255;
+    the first, packet-specific selectors lie inside and must be kept, since
+    they describe the packet that caused the request.
 
 ??? question "6. Why can an active attacker crack a weak IKEv2 pre-shared key, but a passive one cannot?"
     IKE_AUTH is encrypted under keys from the Diffie-Hellman exchange. A
@@ -977,11 +1677,12 @@ kernel, is the same one that WireGuard adopted in a much smaller form.
     initiator itself shares a Diffie-Hellman secret with it, decrypts IKE_AUTH,
     and gets an AUTH value that depends only on the PSK and known data.
 
-??? question "7. How does IPsec detect and cross a NAT?"
-    Each side sends a hash of its SPIs, address and port in IKE_SA_INIT; a
-    mismatch with what the peer sees means a NAT rewrote them. Both then move
-    to UDP port 4500, wrap ESP in UDP, and send keepalives to keep the NAT's
-    mapping alive.
+??? question "7. Why may ESP use the sequence number as the AES-GCM IV, and how can a pair of gateways turn that into nonce reuse?"
+    The nonce is the SA's salt followed by the IV, and it only has to be
+    unique under the key, which a counter that never wraps guarantees. A standby gateway
+    that takes over from a stale copy of the SA resends sequence numbers, and
+    so nonces, the failed gateway already used, leaking the XOR of the
+    plaintexts. RFC 6311 has both ends skip their counters far ahead.
 
 ??? question "8. How did the Juniper backdoor let someone decrypt VPN traffic without touching the VPN?"
     The Dual EC random number generator's point Q was replaced by one whose
@@ -990,16 +1691,19 @@ kernel, is the same one that WireGuard adopted in a much smaller form.
     the Diffie-Hellman private keys, and so compute the session keys from a
     recorded exchange.
 
-??? question "9. Why does post-quantum IKEv2 put ML-KEM in a separate IKE_INTERMEDIATE exchange?"
-    An ML-KEM key share would push IKE_SA_INIT over typical packet sizes, and
-    IKE_SA_INIT cannot use IKE's own fragmentation because no keys exist yet.
-    IKE_INTERMEDIATE is encrypted and can be fragmented, and the extra
-    exchange's secret is mixed into the keys.
+??? question "9. In a rekey collision, A's exchange used nonces 5c5c... (16 bytes) and a0a0... (32 bytes), B's 3e3e... (32) and 7171... (16). Who closes what, and what if one side compared nonces as integers?"
+    Octet by octet, 3e3e... in B's exchange is lowest: B closes its new SA
+    and A deletes the old one. As integers, the short 5c5c... is smallest,
+    so that side would close the other new SA; both new SAs would go, and
+    the tunnel would run on the old SA until it expired.
 
-??? question "10. Which part of IPsec works unchanged across the Earth to Mars gap, and which does not?"
-    ESP works: each packet is processed on its own, whatever its delay. IKE
-    does not with normal settings: it needs two round trips to start, and its
-    retransmission, liveness and rekey timers are set for seconds, not hours.
+??? question "10. Arcadia's gateway connects to Earth, 22 light-minutes away, with X25519 in IKE_SA_INIT and ML-KEM-768 in IKE_INTERMEDIATE. How long until the tunnel carries traffic, and why does it never get there with default timers?"
+    Three exchanges, IKE_SA_INIT, IKE_INTERMEDIATE and IKE_AUTH, are three
+    round trips of 44 minutes: 132 minutes. Default timers retransmit for
+    about 165 seconds and then give up, long before the first answer arrives
+    after 44 minutes, so the first exchange already fails. ESP itself would
+    be fine; it is IKE's conversation and its timers that need stretching to
+    hours.
 
 ## What you learned
 
@@ -1016,8 +1720,18 @@ kernel, is the same one that WireGuard adopted in a much smaller form.
 - The worst IPsec failures came from complexity and from around the protocol:
   encryption without integrity, 1024-bit groups, a backdoored random number
   generator and parser bugs in gateways.
-- Post-quantum IKEv2 adds ML-KEM as an extra exchange in IKE_INTERMEDIATE, or
-  a pre-shared PPK.
+- On the wire, AUTH covers the exact bytes of the first message, the peer's
+  nonce and a MAC of the identity; prf+ chains HMAC blocks with a one-byte
+  counter, and keys are cut from the stream across block boundaries.
+- ESP with AES-GCM uses salt and IV as the nonce and SPI and sequence number
+  as additional data; anything that copies SA state can repeat a nonce.
+- Responders narrow traffic selectors; child SA rekeys are forward secret
+  only with a fresh key exchange; collisions are settled by the lowest nonce,
+  octet by octet.
+- Post-quantum IKEv2 adds ML-KEM in IKE_INTERMEDIATE, which IntAuth folds
+  into AUTH, or a pre-shared PPK.
+- Across the Earth-Mars gap ESP works unchanged, but IKE's timers must be
+  stretched from seconds to hours.
 
 **Next:** [Chapter 8](08-WireGuard-and-Noise.md), a VPN with no negotiation at
 all.
@@ -1030,7 +1744,13 @@ all.
   (implicit IV), RFC 8221 and RFC 8247 (algorithm requirements), RFC 9395
   (deprecating IKEv1).
 - RFC 8784 (post-quantum PPK), RFC 9242 (IKE_INTERMEDIATE), RFC 9370 (multiple
-  key exchanges).
+  key exchanges); draft-ietf-ipsecme-ikev2-mlkem, ML-KEM in IKEv2 (approved
+  by the IESG in July 2026; in the RFC Editor's queue as of November 2026).
+- RFC 5282 (AEAD ciphers for IKEv2's own messages), RFC 7427 (signature
+  authentication), RFC 7748 (X25519, whose example keys §7.11 uses), RFC 6311
+  (counter synchronization for high-availability clusters, 2011).
+- David McGrew and John Viega, "The Galois/Counter Mode of Operation (GCM)"
+  (submitted to NIST, 2004; revised 2005); SP 800-38D (2007).
 - Niels Ferguson and Bruce Schneier, "A cryptographic evaluation of IPsec"
   (1999).
 - Hugo Krawczyk, "SIGMA: the 'SIGn-and-MAc' approach to authenticated
@@ -1048,6 +1768,8 @@ all.
 - Dennis Felsch, Martin Grothe, Jörg Schwenk, Adam Czubak and Marcin
   Szymanek, "The dangers of key reuse: practical attacks on IPsec IKE" (USENIX
   Security 2018).
+- Cisco Security Advisory cisco-sa-20160210-asa-ike, "Cisco ASA Software IKEv1
+  and IKEv2 Buffer Overflow Vulnerability" (CVE-2016-1287, February 2016).
 - RFC 9172, Bundle Protocol Security (2022).
-- The strongSwan documentation, especially the pages on `swanctl.conf` and
-  proposals.
+- The strongSwan documentation, especially the pages on `swanctl.conf`,
+  proposals, and the retransmission settings in `strongswan.conf`.
