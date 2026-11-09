@@ -125,7 +125,7 @@ the plaintext you encrypted so carefully is not sitting in a log file
 
 Some neighboring subjects belong to other chapters and books. Full-disk
 encryption and file encryption with age are
-[Protocols chapter 18](../protocols/index.md); this
+[Protocols chapter 18](../protocols/18-Encrypting-Files-and-Disks.md); this
 chapter treats them only as one layer among several. Key hierarchies,
 wrapping and rotation are introduced as ideas in
 [Chapter 10](10-The-Life-of-a-Key.md), and HSMs and cloud key services are
@@ -207,7 +207,7 @@ cloud now encrypts storage by default (Amazon S3 has done so for all new
 objects since January 2023), which is good, and which is why "encrypted at
 rest" on a compliance form tells you almost nothing about a breach. How
 disk encryption works, from XTS to cold-boot attacks, is
-[Protocols chapter 18](../protocols/index.md).
+[Protocols chapter 18](../protocols/18-Encrypting-Files-and-Disks.md).
 
 **Transparent data encryption** (TDE) is the database's own version. Oracle
 introduced it in 2005 and Microsoft SQL Server in 2008; PostgreSQL has had
@@ -1822,7 +1822,7 @@ complete compromise of the server, or a legal order served on its
 operator, yields ciphertext. **End-to-end encryption** is the same idea
 between users, so that only the sender's and receivers' devices hold the
 keys; how messaging does it, with forward secrecy and the double ratchet,
-is [Protocols chapter 16](../protocols/index.md).
+is [Protocols chapter 16](../protocols/16-Signal-and-the-Double-Ratchet.md).
 For an application, client-side encryption raises three problems that the
 earlier sections did not have.
 

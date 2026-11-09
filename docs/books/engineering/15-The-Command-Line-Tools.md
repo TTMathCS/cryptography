@@ -313,7 +313,7 @@ version 5 keys and its own OCB encrypted-data packet (packet type 20). The
 two formats do not read each other's new messages. Sequoia PGP and
 OpenPGP.js follow RFC 9580; GnuPG follows LibrePGP. The
 [OpenPGP page](../../protocols/OpenPGP.md) has the table; Protocols
-[Chapter 15](../protocols/index.md) has the story. For
+[Chapter 15](../protocols/15-Email-OpenPGP-and-SMIME.md) has the story. For
 a user of `gpg` 2.4, the practical result is that the default key is still a
 version 4 key with a SHA-1 fingerprint, and that an encrypted message may use
 a packet only GnuPG understands.
@@ -337,7 +337,7 @@ enough to read in an afternoon. Its reference implementation is in Go; 1.0.0
 came out in September 2021, and a Rust implementation, rage, reads the same
 files. age encrypts to X25519 keys, to SSH public keys, or to a passphrase
 through scrypt. Its design and header are Protocols
-[Chapter 18](../protocols/index.md)'s subject; here
+[Chapter 18](../protocols/18-Encrypting-Files-and-Disks.md)'s subject; here
 it matters as the answer to "what should I use instead of `openssl enc`?"
 
 !!! note "Life story: age"
@@ -1482,7 +1482,7 @@ the decrypted HTML contained an image link carrying the plaintext to the
 attacker's server, and clients that rendered gpg's output despite the warning
 sent it there. GnuPG 2.2.8 (June 2018) made a missing MDC a hard failure for
 modern ciphers. The full story belongs to Protocols
-[Chapter 15](../protocols/index.md) and to this book's
+[Chapter 15](../protocols/15-Email-OpenPGP-and-SMIME.md) and to this book's
 [Chapter 1](01-What-Cryptographic-Engineering-Is.md); the lesson for the
 command line is narrower. A tool that writes plaintext before it has checked
 integrity, or that signals failure only through a warning or an exit code, is
@@ -1612,7 +1612,7 @@ The `---` line is an HMAC over the whole header, keyed from the file key, so
 nobody can add, remove or change a recipient. The payload that follows is
 ChaCha20-Poly1305 in 64 KiB chunks, each authenticated, with the last chunk
 marked so that truncation is detected. Protocols
-[Chapter 18](../protocols/index.md) codes the header.
+[Chapter 18](../protocols/18-Encrypting-Files-and-Disks.md) codes the header.
 
 Against the four flaws of §15.1, age answers each one by design rather than by
 flag. With a recipient key there is no password on the encrypting machine at
