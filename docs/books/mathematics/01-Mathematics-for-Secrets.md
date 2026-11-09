@@ -726,13 +726,13 @@ digits:
 | $2^{40}$ | $10^{12}$ | a trillion: bytes in a terabyte |
 | $2^{56}$ | $7 \times 10^{16}$ | DES keys, searched by a \$250,000 machine in days in 1998 |
 | $2^{64}$ | $1.8 \times 10^{19}$ | the first SHA-1 collision, in 2017, took about $2^{63}$ hash computations |
-| $2^{93}$ | $10^{28}$ | about the hashes the Bitcoin network computes in a year (2025) |
+| $2^{95}$ | $4 \times 10^{28}$ | about the hashes the Bitcoin network computes in a year at its late-2025 rate |
 | $2^{128}$ | $3.4 \times 10^{38}$ | AES-128 keys |
 | $2^{256}$ | $1.2 \times 10^{77}$ | AES-256 keys; close to the number of atoms in the observable universe ($10^{78}$ to $10^{82}$) |
 
 The Bitcoin row deserves a note, because it is the largest computation humans
-have ever run. The network's hash rate was near $10^{21}$ hashes a second in
-2025 (about one zettahash per second, according to public mining statistics). A
+have ever run. The network's hash rate reached about $10^{21}$ hashes a second in
+late 2025 (one zettahash per second, according to public mining statistics). A
 year has about $3.16 \times 10^7$ seconds, so that is about $3 \times 10^{28}
 \approx 2^{95}$ hashes a year. Even this enormous worldwide effort, burning a
 measurable fraction of the planet's electricity, is $2^{128 - 95} = 2^{33}$,
