@@ -64,7 +64,7 @@ enemy has the book, what is left that he does not have?* The answers come one af
 - **Vigenère** (1586) lets the message itself serve as the key, so that the key never repeats.
 
 Alongside them come two ideas that are not about changing the alphabet. **Cardano** (1550) describes a card with holes
-that you lay over a page, a way to hide that a message exists. **Bacon** (1605) shows how to write any letter with two
+that you lay over a page, a way to hide that a message exists. **Bacon** (1623) shows how to write any letter with two
 marks, and so to hide a message in anything that can be seen in two forms.
 
 Figure 7.1 puts the dates on one line. The faded entries are not in this chapter. Alberti is on the line because
@@ -97,7 +97,7 @@ everything starts with his disk, and Kasiski is on it because he is where the st
 <text x="98" y="271" font-size="14" text-anchor="end" font-weight="bold">1586</text>
 <circle cx="112" cy="266" r="3.5" fill="currentColor"/>
 <text x="128" y="271" font-size="14" text-anchor="start">Vigenère's Traicté des chiffres, with a true autokey</text>
-<text x="98" y="305" font-size="14" text-anchor="end" font-weight="bold">1605</text>
+<text x="98" y="305" font-size="14" text-anchor="end" font-weight="bold">1623</text>
 <circle cx="112" cy="300" r="3.5" fill="currentColor"/>
 <text x="128" y="305" font-size="14" text-anchor="start">Bacon describes the two-letter (biliteral) cipher</text>
 <text x="98" y="339" font-size="14" text-anchor="end" font-weight="bold">1624</text>
@@ -253,7 +253,7 @@ fails to, is often the people around the cipher and what they expect, not the ci
 
 The *Steganographia* circulated in manuscript and alarmed some of its readers. The *Polygraphia* ("many
 writings") was written to be used. Trithemius finished it in 1508, and as far as I know it is dedicated to the Emperor
-Maximilian I, but it was not printed until 1518, two years after the author's death, by the printer Johann Haselberg.
+Maximilian I, but it was not printed until 1518, two years after the author's death, by the publisher Johann Haselberg of Constance.
 Library catalogs give the place as Oppenheim, and some older lists give Basel; I do not know which is right. It is in six
 books and it was a success. It went through several editions, and a French translation by Gabriel de Collange appeared in
 Paris in 1561, which is a sign that readers outside Germany wanted it. It is the first printed book on cryptography.
@@ -1308,7 +1308,7 @@ ciphers, and he came to the subject late.
 Paris on 19 February 1596. He entered the service of the Duke of Nevers as a young man and went on missions for him and
 for the French crown. In 1549 he was sent to Rome, and Rome was where he learned of the Italian writers on ciphers: it was
 the place, as [Chapter 6](06-Italy-Ambassadors-and-Nomenclators.md) showed, where most of them were to be found. In
-1570, at the age of forty-seven, he retired on a pension and spent the last twenty-five years of his life writing. He
+1570, at the age of forty-seven, he retired from public service and spent the last twenty-five years of his life writing. He
 translated Julius Caesar's *Commentaries* (1576), Livy, and the *Images* of Philostratus into French, and wrote on the
 chemistry of fire and salt. He published the *Traicté des chiffres, ou secrètes manières d'escrire* ("Treatise on ciphers,
 or secret ways of writing") in Paris in 1586.
@@ -1398,8 +1398,8 @@ The last idea of the century is not about the alphabet at all. **Francis Bacon**
 philosopher who became Lord Chancellor in 1618, tells us in his Latin *De augmentis scientiarum* of 1623 that he devised
 it as a young man in Paris, where he had gone in 1576 in the household of the English ambassador, Sir Amias Paulet. The
 same Paulet was later Mary, Queen of Scots's last jailer ([Chapter 9](09-Queens-Spies-and-Black-Chambers.md)). Bacon had
-described the cipher already in the English *Advancement of Learning* of 1605, and the longer account is the one that is
-usually quoted. He called it the **biliteral** cipher, because it uses two forms of letter. [Chapter 1](01-Why-People-Hid-Writing.md)
+touched on ciphers already in the English *Advancement of Learning* of 1605, but the full account of this one is the Latin
+text of 1623, which is the one usually quoted. He called it the **biliteral** cipher, because it uses two forms of letter. [Chapter 1](01-Why-People-Hid-Writing.md)
 gave his three properties of a good cipher, from the same book.
 
 The idea is simple, and it is a deep one. Write each letter of the secret with five marks, each mark being either *a* or
@@ -1469,7 +1469,7 @@ and which were *b* without already knowing what she wanted to find. The cipher B
 First Folio is not.
 
 !!! note "Life story: Bacon's biliteral cipher"
-    **Born:** devised in Paris in the 1570s by Francis Bacon, as he says; described in English in 1605 and in Latin in
+    **Born:** devised in Paris in the 1570s by Francis Bacon, as he says; mentioned in English in 1605 and described in Latin in
     1623, *De augmentis scientiarum*, book 6, chapter 1 · **Purpose:** to hide that a message exists inside any text whose
     letters can take two forms, five letters of cover to one of secret · **Helped:** the idea of a two-symbol code for the
     alphabet; a long and mistaken search for secret messages in Shakespeare · **Status:** a steganographic curiosity; the
@@ -2052,7 +2052,7 @@ archival work on the Renaissance chanceries is where corrections may come from.
     Trithemius: the tabula recta and a progressive choice of alphabet, printed 1518. Bellaso: the keyword, or *contrasegno*,
     printed 1553. Porta: the reciprocal table and the 400-symbol square for pairs, 1563. Cardano: the grille, a card with holes,
     and an early autokey, 1550. Vigenère: the true autokey, the key being the message, 1586. Bacon: a two-symbol, five-place
-    alphabet for hiding a message in a text with two forms of letter, 1605 and 1623.
+    alphabet for hiding a message in a text with two forms of letter, 1623.
 
 ??? question "9. How many letters of cover text does Bacon's biliteral cipher need to hide a 12-letter secret? Why five?"
 
@@ -2078,7 +2078,7 @@ archival work on the Renaissance chanceries is where corrections may come from.
 - Blaise de Vigenère (1586) printed a true autokey, in which the message is its own key. The cipher with the repeating
   keyword that bears his name is Bellaso's. A single known plaintext letter breaks the autokey with a one-letter primer, and a
   guessed word the length of the primer breaks a longer one.
-- Francis Bacon (1605 and 1623) showed that an alphabet can be written with two symbols in five places, so that a message
+- Francis Bacon (1623) showed that an alphabet can be written with two symbols in five places, so that a message
   can hide in any text with two forms of letter. The claim that Bacon's cipher is in Shakespeare was ended by William and
   Elizebeth Friedman in 1957.
 - The strong ciphers were rarely used for 250 years, probably because by hand they are slow and fragile: one dropped letter

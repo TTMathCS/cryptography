@@ -182,7 +182,7 @@ Heidenheim in what is now Bavaria, wrote the life of two brothers who had come f
 Boniface: Willibald, who became bishop of Eichstätt, and Wynnebald, who founded the monastery. The *Life of Willibald*
 includes an account of Willibald's pilgrimage through Italy, Cyprus, Syria and Palestine in the 720s, which Hygeburg says
 she took from his own telling, and which is among the earliest travel narratives written by anyone from the British Isles.
-She wrote it by about 780. The oldest copy, now in Munich (Bayerische Staatsbibliothek, Clm 1086) and made around the year
+She wrote it by about 780. The oldest copy, now in Munich (Bayerische Staatsbibliothek, Clm 1086) and made around or soon after the year
 800, has a line of odd letters in which each vowel is written as a short form of a Latin number word. *Secd*, from
 *secundum*, "second," stands for *e*. In 1931 Bernhard Bischoff solved it. It reads, roughly, that Hugeburc, a Saxon
 woman, wrote this. It is the only place her name is recorded, and until Bischoff the book was credited to "the nun of
@@ -514,7 +514,7 @@ the cipher.
 
 Ireland had its own alphabet. **Ogham** is a script of short strokes cut along the edge of a standing stone: the edge of
 the stone is the stem line, and the letters are strokes on one side or the other, across it, or notched into it. About
-four hundred ogham stones stand in Ireland, most in the south-west, and a hundred or so more in Wales, Scotland, the Isle
+three hundred and sixty ogham stones stand in Ireland, most in the south-west, and several dozen more in Wales, Scotland, the Isle
 of Man and southwest England (the counts vary by source). They were carved from the 4th to the 7th centuries, and they
 are mostly memorials of a few words, a name and a father's name, in an early form of Irish. The best-supported account of
 how ogham began is that someone who knew Latin grammar, and the way grammarians sorted the Latin alphabet into vowels and
@@ -716,8 +716,8 @@ his life arguing that experiment and mathematics were the way to know nature. In
 asked for it, a long work, the *Opus maius*. He was not always free to write. As it is usually told, the order's rules
 of 1260 forbade its members to publish without approval, and Bacon complained of the difficulty.
 
-His short *Letter on the Secret Works of Art and Nature* (the Latin title adds "and on the Nullity of Magic"), usually
-dated to the later 1200s, lists seven ways of concealing secrets in writing. It says that a man is out of his mind who
+His short *Letter on the Secret Works of Art and Nature* (the Latin title adds "and on the Nullity of Magic"), of
+uncertain date (scholars place it anywhere from about 1250 to the 1270s), lists seven ways of concealing secrets in writing. It says that a man is out of his mind who
 writes a secret in any way other than one that hides it from the common crowd, a line I know through David Kahn's
 account and not from the Latin. Bacon's seven ways are not a manual of ciphers, and I have not seen the full
 list in the original, so I do not set it out. For Bacon the question was not who might steal a message. It was whether wisdom should be written in a form that
@@ -727,7 +727,7 @@ Bacon is the origin of a long-lived mistake, and it is worth naming. In 1912 a b
 one could read and, partly because a seventeenth-century letter said it had been thought to be Bacon's, spent years
 trying to show that Bacon wrote it. That is the book of Section 5.8, and Bacon did not write it. The English statesman
 **Francis Bacon** (1561-1626), who has nothing to do with the friar, described a different cipher of his own, the
-*biliteral*, in 1605 and 1623; it belongs to the printed ciphers of the next chapters.
+*biliteral*, in 1623; it belongs to the printed ciphers of the next chapters.
 
 !!! note "Life story: Roger Bacon"
     **Born:** c. 1220, England; studied at Oxford and Paris, became a Franciscan, and died about 1292 · **Purpose:** to
@@ -773,9 +773,9 @@ first, since the document exists; the Rök stone passes it too, since you can vi
 Every period has its own unsolved secret, and the early 1400s has one that is famous enough to have a crowd of amateurs
 around it. The **Voynich manuscript**, kept as MS 408 at the Beinecke Library of Yale University, is a codex of about 240
 surviving pages of vellum, written in an unknown script, illustrated with drawings that match no known tradition. It is
-roughly 15 centimeters by 23. The text runs in neat lines, with no corrections that anyone can agree on, in a script of
+roughly 16 centimeters by 23. The text runs in neat lines, with no corrections that anyone can agree on, in a script of
 about two dozen to thirty distinct characters (the count depends on how you split ligatures), and the whole runs to
-something like 35,000 words, about eight thousand of them different, by the usual transcriptions. The drawings fall into
+something like 35,000 to 38,000 words, about eight thousand of them different, depending on the transcription. The drawings fall into
 sections. A **herbal** pictures hundreds of plants, most of which no botanist has matched to a real species. An
 **astronomical** section has suns, moons and stars in circles, and a zodiac with the usual signs. A **bath** section shows
 small nude figures in pools and tubes. A **cosmological** section has large circular diagrams, a **pharmaceutical**

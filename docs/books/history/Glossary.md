@@ -341,7 +341,7 @@ Codebreaker (26 August 1892 to 31 October 1980) hired in 1916 to look for cipher
 See [Chapter 11](11-Radio-War-and-the-One-Time-Pad.md#119-elizebeth-friedman-and-the-rum-runners).
 
 **Friedman, William F.**
-Geneticist who became the United States' chief cryptanalyst (24 September 1891 to 12 November 1969). He made the index of coincidence in 1920, founded the Signal Intelligence Service in 1930 and directed the break of Purple.
+Geneticist who became the United States' chief cryptanalyst (24 September 1891 to 2 November 1969). He made the index of coincidence in 1920, founded the Signal Intelligence Service in 1930 and directed the break of Purple.
 See [Chapter 11](11-Radio-War-and-the-One-Time-Pad.md#1110-william-friedmans-index-of-coincidence).
 
 ## G
@@ -729,7 +729,7 @@ The first practical public-key encryption and signature scheme, worked out at MI
 See [Chapter 17](17-Public-Keys-and-the-Crypto-Wars.md#174-rivest-shamir-and-adleman-the-lock-that-opens-one-way).
 
 **RSA-129**
-The 129-digit challenge number printed in Martin Gardner's column in 1977. It was factored on 26 April 1994 by Atkins, Graff, Lenstra and Leyland with about 600 volunteers, and the message under it read THE MAGIC WORDS ARE SQUEAMISH OSSIFRAGE.
+The 129-digit challenge number printed in Martin Gardner's column in 1977. Its factorization was announced on 26 April 1994 by Atkins, Graff, Lenstra and Leyland with about 600 volunteers, and the message under it read THE MAGIC WORDS ARE SQUEAMISH OSSIFRAGE.
 See [Chapter 17](17-Public-Keys-and-the-Crypto-Wars.md#175-the-squeamish-ossifrage-a-129-digit-number-falls).
 
 ## S
@@ -865,7 +865,7 @@ Paul Kocher's attack of 1996 showing that a correct implementation can leak a ke
 See [Chapter 19](19-Hardware-Quantum-and-the-Long-View.md#196-the-leak-in-the-open-timing-power-faults-and-caches).
 
 **TLS 1.3**
-The version of the protocol published on 10 August 2018 as RFC 8446, edited by Eric Rescorla. It gives every connection forward secrecy and a one-round-trip handshake, and removed every feature earlier attacks had used.
+The version of the protocol published on 10 August 2018 as RFC 8446, edited by Eric Rescorla (a revised text, RFC 9846, replaced it in July 2026). It gives every connection forward secrecy and a one-round-trip handshake, and removed every feature earlier attacks had used.
 See [Chapter 18](18-The-Internet-Era.md#183-from-ssl-to-tls-13-and-the-attacks-with-names).
 
 **Transposition cipher**

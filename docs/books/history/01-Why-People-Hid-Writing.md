@@ -417,8 +417,8 @@ seventeenth centuries had a large repertoire. Some locks only closed the letter;
 had been opened; some were hard to reseal even for a skilled forger. The best collection is a trunk of undelivered
 mail kept in The Hague, the Brienne Collection, left over from the postal service of the late 1600s; it holds about
 2,600 letters, and about 600 have never been opened. In 2021 the group published a method, using X-ray
-microtomography and software, for virtually unfolding such a letter without touching it. They read one dated 1697,
-sent to a merchant in Lille, which asked for a legal document. The letter was ordinary; the point was that for the first
+microtomography and software, for virtually unfolding such a letter without touching it. They read one dated 31 July 1697,
+sent by a merchant in Lille to a cousin in The Hague, which asked for a copy of a legal document. The letter was ordinary; the point was that for the first
 time a modern reader could see how its writer had locked it.
 
 !!! note "Life story: letterlocking"
@@ -472,8 +472,8 @@ bones of the Shang kings, about 1250 BC) and Mesoamerica (by the middle of the f
 Egypt a little after Mesopotamia; the script of the Indus cities, about 2600 to 1900 BC, has never been read. In every
 one of these places writing began in the hands of a small class of trained specialists. Scholars guess that
 literacy in pharaonic Egypt was one person in a hundred, or a few more. William Harris, in his study *Ancient
-Literacy* (1989), argued that in the Roman empire, at its most schooled and urban, it probably did not exceed one in
-seven, and was lower in most places. Egyptian schoolbooks praise the scribe's life over every other trade, and the
+Literacy* (1989), argued that in the Roman empire as a whole it probably did not exceed 10 to 15 percent, and was lower in
+most places. Egyptian schoolbooks praise the scribe's life over every other trade, and the
 praise is partly a reminder of what the skill was worth.
 
 That has a consequence for everything else in this chapter. A plain letter in cuneiform or hieratic was already a locked box to
@@ -523,8 +523,8 @@ Persian Royal Road are all states' machinery. §1.7 comes back to why this skews
 
 **Merchants and craftsmen.** The Kanesh archive is a merchant's archive, and what it shows is a business that kept its
 letters sealed. The great commercial secrets were not letters but methods, and those were kept by guards and law more
-than by writing. The Byzantine historian Procopius tells how in the 550s two monks brought silkworm eggs from the east to the
-emperor Justinian hidden in hollow canes, after generations in which the Chinese silk makers had kept their art to
+than by writing. The Byzantine historian Procopius tells how in the 550s monks brought silkworm eggs from the east to the
+emperor Justinian (later tellings add that they hid them in hollow canes), after generations in which the Chinese silk makers had kept their art to
 themselves. The glassmakers of Venice were moved to the island of Murano in 1291, and later, according to
 tradition, a glassmaker who left the republic risked being hunted down. In 1708 Johann Friedrich Böttger and
 Ehrenfried Walther von Tschirnhaus made the first European hard-paste porcelain for Augustus the Strong of Saxony,
