@@ -9,8 +9,9 @@ ring $\mathbb{Z}_q[x]/(x^n + 1)$, cyclotomic polynomials, and the negacyclic
 number-theoretic transform, written out in full and checked against schoolbook
 multiplication, in both its complete form and the incomplete form of ML-KEM. We
 build the small noise distributions, encrypt with plain, ring and module LWE, explain
-why deciding is as hard as searching, and end with the parameters of ML-KEM and the
-reason its modulus is 3329.*
+why deciding is as hard as searching, and reach the parameters of ML-KEM and the
+reason its modulus is 3329. Then we build a toy ML-KEM, compute its failure rate exactly
+and check it, and meet attacks on badly shaped noise and learning with rounding.*
 
 !!! abstract "In this chapter"
     **You will learn:**
@@ -24,8 +25,11 @@ reason its modulus is 3329.*
     - LWE in search and decision form, Regev's encryption, and Regev's reduction in
       outline;
     - why search and decision LWE are equally hard;
+    - short secrets and the normal form;
     - Ring-LWE and Module-LWE, with an ML-KEM-style encryption;
-    - the parameters of ML-KEM, and why $q = 3329$.
+    - the parameters of ML-KEM, and why $q = 3329$;
+    - a toy KEM with compression, and its failure rate computed exactly;
+    - Arora-Ge and BKW in outline, and learning with rounding.
 
     **You need:** [Chapter 8](08-Rings-Fields-and-Polynomials.md) (polynomial rings,
     quotients, finite fields), [Chapter 9](09-Linear-Algebra.md) (Gaussian
@@ -33,7 +37,7 @@ reason its modulus is 3329.*
     [Chapter 14](14-Lattices.md) (lattices, BDD).
 
     **Levels:** §15.1 to §15.3 are for beginners, §15.4 to §15.7 are intermediate,
-    §15.8 to §15.10 are expert.
+    §15.8 to §15.14 are expert.
 
 ## 15.1 The problem
 
@@ -364,6 +368,14 @@ becomes 256 pointwise multiplications. We check it against the schoolbook produc
 import random
 rng = random.Random(15)
 
+def ring_mul(a, b, q):                       # the schoolbook product of section 15.2, repeated
+    n, c = len(a), [0] * len(a)
+    for i in range(n):
+        for j in range(n):
+            if i + j < n: c[i + j] += a[i] * b[j]
+            else:         c[i + j - n] -= a[i] * b[j]
+    return [x % q for x in c]
+
 def bitrev(i, bits):
     return int(format(i, "0%db" % bits)[::-1], 2)
 
@@ -568,6 +580,37 @@ probability. Forty sampled polynomials (10,240 coefficients) have variance $1.02
 <figcaption>Figure 15.3. The centered binomial distribution CBD₂ (bars) and the discrete Gaussian with the same variance, 1 (dots). ML-KEM samples the binomial, which is exact and constant-time from random bits, and its security analysis uses the variance.</figcaption>
 </figure>
 
+### Why binomial and not Gaussian
+
+**The binomial, by hand.** Write $\mathrm{CBD}_\eta = \sum a_i - \sum b_i$ with $2\eta$
+fair bits and replace each $-b_i$ by $(1 - b_i) - 1$; since $1 - b_i$ is again a fair bit,
+$\mathrm{CBD}_\eta = B - \eta$ with $B$ binomial on $2\eta$ trials, and $\Pr[\mathrm{CBD}_\eta
+= x] = \binom{2\eta}{\eta + x}/4^{\eta}$, the `cbd_pmf` above. Each bit has variance
+$\frac14$, so the variance is $2\eta \cdot \frac14 = \eta/2$. For $\eta = 2$ the entropy is
+$2 \cdot \frac{1}{16} \cdot 4 + 2 \cdot \frac{4}{16} \cdot 2 + \frac{6}{16} \log_2
+\frac{16}{6} = 0.5 + 1 + 0.531 = 2.031$ bits, from 4 random bits; the Gaussian of the same
+variance has 2.047. A polynomial takes $256 \cdot 2\eta$ bits, $64\eta$ bytes, exactly the
+PRF output that FIPS 203 feeds to SamplePolyCBD.
+
+**Why the Gaussian is awkward.** The theory prefers it: sums of independent Gaussians are
+Gaussian, Regev's reduction produces Gaussian errors, and it has the largest entropy for
+its variance. But an exact sampler needs high-precision tables of cumulative
+probabilities, a Knuth-Yao tree walk or rejection sampling, and in each the steps taken or
+the entries touched depend on the output. In 2016 Leon Groot Bruinderink, Andreas
+Hülsing, Tanja Lange and Yuval Yarom's "Flush, Gauss, and Reload" cache attack recovered
+BLISS signing keys from exactly that. Constant-time Gaussian samplers exist (Falcon,
+which NIST has chosen to standardize as FN-DSA, needs one), but they cost care and speed,
+and the unbounded tails must be cut somewhere. The binomial's range is bounded: the
+Gaussian with $\sigma = 1$ puts 0.9% of its mass outside $[-2, 2]$, which accounts for most
+of the 3.3% statistical distance between the two.
+
+**The argument for the swap.** The lattice attacks that set the parameters see only the
+noise's standard deviation (§15.13 meets those that see its shape). For the proofs, Erdem
+Alkim, Léo Ducas, Thomas Pöppelmann and Peter Schwabe argued in their 2016 NewHope paper,
+using the Rényi divergence (Bai, Langlois, Lepoint, Stehlé and Steinfeld, 2015), that a
+centered binomial in place of a rounded Gaussian of the same variance costs only a few
+bits of security. NewHope used $\eta = 16$; Kyber used $\eta$ from 2 to 5.
+
 ## 15.6 LWE and Regev's encryption
 
 *Level: intermediate.*
@@ -585,7 +628,8 @@ $\{y : y \equiv Ax \pmod q\}$ of [Chapter 14](14-Lattices.md): $b$ is a point at
 distance $\|e\|$ from the lattice point $As$, much closer than the Gaussian heuristic
 spacing. A secret drawn from $\chi$ instead of uniformly is no easier: a simple
 transformation (Applebaum, Cash, Peikert and Sahai, 2009) turns any LWE instance into
-one with a short secret, which is why ML-KEM can use small secrets.
+one with a short secret, which is why ML-KEM can use small secrets (the normal form, at
+the end of this section).
 
 ### Regev's encryption
 
@@ -686,6 +730,97 @@ classical reductions for related parameters. The theorem says nothing about any
 particular $n$ and $q$, but it shows that LWE has no "easy average case": a random
 instance is as hard as the hardest lattice instance, up to polynomial factors.
 
+### Short secrets: the normal form
+
+Regev's secret is uniform; ML-KEM's comes from the error distribution. Benny Applebaum,
+David Cash, Chris Peikert and Amit Sahai showed in 2009 that this is no weaker, at the
+cost of $n$ samples. Split the samples into the first $n$, with an invertible matrix
+$A_0$, and the rest: $b_0 = A_0 s + e_0$ and $b_1 = A_1 s + e_1$. The first block gives $s
+= A_0^{-1}(b_0 - e_0)$, and putting that into the second,
+
+$$
+b_1 - A_1 A_0^{-1} b_0 = \left(-A_1 A_0^{-1}\right) e_0 + e_1.
+$$
+
+So $(A', b') = (-A_1 A_0^{-1},\; b_1 - A_1 A_0^{-1} b_0)$ are LWE samples whose *secret is
+$e_0$*, the first $n$ errors, with the old errors $e_1$. $A'$ is uniform because $A_1$ is;
+if the $b$ were uniform, so are the $b'$, so the decision problem carries over too.
+This is the **normal form** of LWE.
+
+<div class="mars-steps" markdown>
+
+**The normal form by hand, with $n = 2$ and $q = 17$.**
+
+1. Secret $s = (7, 11)$, $A_0 = \begin{pmatrix} 1 & 2 \\ 3 & 5 \end{pmatrix}$, errors
+   $e_0 = (1, -1)$: $b_0 = (7 + 22 + 1,\; 21 + 55 - 1) = (30, 75) \equiv (13, 7)$.
+2. A third sample $a_1 = (4, 9)$ with error $1$: $b_1 = 28 + 99 + 1 = 128 \equiv 9$.
+3. $\det A_0 = -1$, so $A_0^{-1} = -\begin{pmatrix} 5 & -2 \\ -3 & 1 \end{pmatrix} \equiv
+   \begin{pmatrix} 12 & 2 \\ 3 & 16 \end{pmatrix}$ (the first row of $A_0 A_0^{-1}$ is $(18,
+   34) \equiv (1, 0)$).
+4. $a_1 A_0^{-1} = (48 + 27,\; 8 + 144) = (75, 152) \equiv (7, 16)$.
+5. New sample: $a' = -(7, 16) \equiv (10, 1)$ and $b' = 9 - (7 \cdot 13 + 16 \cdot 7) =
+   -194 \equiv 10$.
+6. Check with the new secret $e_0 = (1, -1)$: $10 - 1 + 1 = 10$.
+
+</div>
+
+The listing does the same with $n = 16$ and 48 samples.
+
+```python
+# Uses Q from the listings above.
+# The normal form: turn LWE with a uniform secret into LWE whose secret is the first n errors.
+import random
+rnf = random.Random(203)
+
+def mat_inv(M, q):                     # inverse modulo a prime q, by Gauss-Jordan elimination
+    n = len(M)
+    R = [row[:] + [int(i == j) for j in range(n)] for i, row in enumerate(M)]
+    for c in range(n):
+        piv = next(r for r in range(c, n) if R[r][c] % q)
+        R[c], R[piv] = R[piv], R[c]
+        inv = pow(R[c][c], -1, q)
+        R[c] = [x * inv % q for x in R[c]]
+        for r in range(n):
+            if r != c and R[r][c]:
+                R[r] = [(x - R[r][c] * y) % q for x, y in zip(R[r], R[c])]
+    return [row[n:] for row in R]
+
+def small():
+    return sum(rnf.getrandbits(1) for _ in range(2)) - sum(rnf.getrandbits(1) for _ in range(2))
+
+def dot(u, v):
+    return sum(x * y for x, y in zip(u, v)) % Q
+
+nn, mm = 16, 48
+secret = [rnf.randrange(Q) for _ in range(nn)]                  # a uniform, "large" secret
+rows = [[rnf.randrange(Q) for _ in range(nn)] for _ in range(mm)]
+errors = [small() for _ in range(mm)]
+rhs = [(dot(a, secret) + ei) % Q for a, ei in zip(rows, errors)]
+
+cols = list(zip(*mat_inv(rows[:nn], Q)))
+new = []
+for a, bi in zip(rows[nn:], rhs[nn:]):
+    c = [dot(a, col) for col in cols]                          # c = a A0^{-1}
+    new.append(([-x % Q for x in c], (bi - dot(c, rhs[:nn])) % Q))
+errs = [(bi - dot(a2, errors[:nn]) + Q // 2) % Q - Q // 2 for a2, bi in new]
+print(secret[:4], errors[:4])
+print(len(new), errs == errors[nn:], errs[:8])
+```
+
+It prints:
+
+```text
+[371, 173, 2015, 2459] [-1, 0, -1, 0]
+32 True [0, 2, 0, 0, 0, 0, 0, 0]
+```
+
+The secret $(371, 173, 2015, \ldots)$ becomes $(-1, 0, -1, \ldots)$, and all 32 new samples
+keep their old errors. So FIPS 203 may draw $s$ from $\mathrm{CBD}_\eta$ with no loss in
+the reduction. It covers secrets with the *error's* distribution, not smaller ones such as
+the binary secrets of some homomorphic schemes; and attacks do exploit a short secret by
+rescaling the lattice (Shi Bai and Steven Galbraith, 2014), which ML-KEM's estimates
+include.
+
 ## 15.7 Search versus decision
 
 *Level: intermediate.*
@@ -743,6 +878,97 @@ levels.
 | public matrix | $n \times n$ numbers | 1 polynomial | $k \times k$ polynomials |
 | lattice dimension | $n$ | $n$ | $kn$ |
 | used in | FrodoKEM | NewHope (withdrawn) | ML-KEM, ML-DSA |
+
+Figure 15.5 writes this out for $k = 2$ and $n = 4$: a $2 \times 2$ matrix of
+polynomials is an $8 \times 8$ integer matrix of four negacyclic blocks, so Module-LWE is
+LWE in dimension $kn$ with $k^2 n$ numbers to store instead of $(kn)^2$. Plain LWE is the
+case $n = 1$, Ring-LWE the case $k = 1$.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 290" width="640" role="img" aria-label="A 2 by 2 matrix of ring elements written out as an 8 by 8 integer matrix: four negacyclic blocks, each filled from the four coefficients of one polynomial, times a vector made of two secret polynomials" fill="currentColor" font-size="13">
+<rect x="30" y="40" width="160" height="112" fill-opacity=".1"/><rect x="190" y="152" width="160" height="112" fill-opacity=".1"/>
+<g stroke="currentColor" stroke-width="1.5" fill="none"><rect x="30" y="40" width="320" height="224"/><path d="M190 40v224M30 152h320M390 152h40"/><rect x="390" y="40" width="40" height="224"/></g>
+<g text-anchor="middle">
+<text x="50" y="59">a₀</text>
+<text x="210" y="59">b₀</text>
+<text x="50" y="87">a₁</text>
+<text x="90" y="87">a₀</text>
+<text x="210" y="87">b₁</text>
+<text x="250" y="87">b₀</text>
+<text x="50" y="115">a₂</text>
+<text x="90" y="115">a₁</text>
+<text x="130" y="115">a₀</text>
+<text x="210" y="115">b₂</text>
+<text x="250" y="115">b₁</text>
+<text x="290" y="115">b₀</text>
+<text x="50" y="143">a₃</text>
+<text x="90" y="143">a₂</text>
+<text x="130" y="143">a₁</text>
+<text x="170" y="143">a₀</text>
+<text x="210" y="143">b₃</text>
+<text x="250" y="143">b₂</text>
+<text x="290" y="143">b₁</text>
+<text x="330" y="143">b₀</text>
+<text x="50" y="171">c₀</text>
+<text x="210" y="171">d₀</text>
+<text x="50" y="199">c₁</text>
+<text x="90" y="199">c₀</text>
+<text x="210" y="199">d₁</text>
+<text x="250" y="199">d₀</text>
+<text x="50" y="227">c₂</text>
+<text x="90" y="227">c₁</text>
+<text x="130" y="227">c₀</text>
+<text x="210" y="227">d₂</text>
+<text x="250" y="227">d₁</text>
+<text x="290" y="227">d₀</text>
+<text x="50" y="255">c₃</text>
+<text x="90" y="255">c₂</text>
+<text x="130" y="255">c₁</text>
+<text x="170" y="255">c₀</text>
+<text x="210" y="255">d₃</text>
+<text x="250" y="255">d₂</text>
+<text x="290" y="255">d₁</text>
+<text x="330" y="255">d₀</text>
+<g fill-opacity=".7">
+<text x="90" y="59">−a₃</text>
+<text x="130" y="59">−a₂</text>
+<text x="170" y="59">−a₁</text>
+<text x="250" y="59">−b₃</text>
+<text x="290" y="59">−b₂</text>
+<text x="330" y="59">−b₁</text>
+<text x="130" y="87">−a₃</text>
+<text x="170" y="87">−a₂</text>
+<text x="290" y="87">−b₃</text>
+<text x="330" y="87">−b₂</text>
+<text x="170" y="115">−a₃</text>
+<text x="330" y="115">−b₃</text>
+<text x="90" y="171">−c₃</text>
+<text x="130" y="171">−c₂</text>
+<text x="170" y="171">−c₁</text>
+<text x="250" y="171">−d₃</text>
+<text x="290" y="171">−d₂</text>
+<text x="330" y="171">−d₁</text>
+<text x="130" y="199">−c₃</text>
+<text x="170" y="199">−c₂</text>
+<text x="290" y="199">−d₃</text>
+<text x="330" y="199">−d₂</text>
+<text x="170" y="227">−c₃</text>
+<text x="330" y="227">−d₃</text>
+</g>
+<text x="410" y="59">f₀</text>
+<text x="410" y="87">f₁</text>
+<text x="410" y="115">f₂</text>
+<text x="410" y="143">f₃</text>
+<text x="410" y="171">g₀</text>
+<text x="410" y="199">g₁</text>
+<text x="410" y="227">g₂</text>
+<text x="410" y="255">g₃</text>
+<text x="370" y="157">×</text>
+<g font-size="12"><text x="110" y="30">A₁₁ = a(x)</text><text x="270" y="30">A₁₂ = b(x)</text><text x="110" y="284">A₂₁ = c(x)</text><text x="270" y="284">A₂₂ = d(x)</text><text x="410" y="30">s</text></g></g>
+<g font-size="11"><text x="448" y="54">k = 2, n = 4: a 2 × 2</text><text x="448" y="73">matrix of polynomials is</text><text x="448" y="92">an 8 × 8 integer matrix</text><text x="448" y="111">of four negacyclic blocks.</text><text x="448" y="149">Each block is stored as</text><text x="448" y="168">one polynomial: 16 numbers</text><text x="448" y="187">in all, not 64.</text><text x="448" y="206">Entries above a block's</text><text x="448" y="225">diagonal wrap around with</text><text x="448" y="244">a minus sign (lighter).</text></g>
+</svg>
+<figcaption>Figure 15.5. Module-LWE for k = 2 and n = 4. Each block is the negacyclic matrix of one polynomial: column j holds x^j times it, so entries above a block's diagonal carry a minus sign. ML-KEM-768 is the same picture with k = 3 and n = 256: a 768 × 768 matrix from nine polynomials, or from one 32-byte seed.</figcaption>
+</figure>
 
 ### Code it: an ML-KEM-style encryption
 
@@ -836,9 +1062,10 @@ coefficient, $32(d_u k + d_v)$ bytes.
 
 ```python
 # ML-KEM sizes in bytes (FIPS 203): keys, ciphertexts and the parameters behind them.
+poly = 256 * Q.bit_length() // 8                 # one polynomial at 12 bits a coefficient: 384 bytes
 for name, kk, eta1, du, dv in (("ML-KEM-512", 2, 3, 10, 4), ("ML-KEM-768", 3, 2, 10, 4), ("ML-KEM-1024", 4, 2, 11, 5)):
-    ek = 384 * kk + 32
-    dk = 768 * kk + 96
+    ek = poly * kk + 32
+    dk = 2 * poly * kk + 96
     ct = 32 * (du * kk + dv)
     print(name, kk, eta1, du, dv, ek, dk, ct)
 ```
@@ -936,8 +1163,8 @@ coordinates. With $\mathrm{CBD}_2$ noise it gets none of them right: the outputs
 large, essentially random numbers. Errors that are *too structured* are almost as
 bad: if every error lies in a known small set such as $\{0, 1\}$, each sample gives a
 polynomial equation $\prod_{c}(b - \langle a, s \rangle - c) = 0$ that can be
-linearized and solved with enough samples. That is the Arora-Ge attack, worked out
-in *Post-quantum cryptography*,
+linearized and solved with enough samples. That is the Arora-Ge attack, outlined in
+§15.13 and worked out in *Post-quantum cryptography*,
 [chapter 5](../post-quantum/05-Lattices-and-Their-Hard-Problems.md).
 
 ### Fix it
@@ -966,6 +1193,517 @@ in *Post-quantum cryptography*,
 - **Homomorphic encryption** (BGV, BFV, CKKS) uses Ring-LWE with much larger
   moduli, products of NTT-friendly primes, and the same transform.
 
+### From Regev to FIPS 203
+
+Regev's 2005 paper generalized "learning parity with noise" (equations modulo 2, some
+right-hand sides flipped) to a larger modulus with small errors; it won the Gödel Prize in
+2018. Then came trapdoors and signatures (Gentry, Peikert and Vaikuntanathan, 2008), a
+classical reduction for large moduli (Peikert, 2009), the normal form (2009), Ring-LWE
+with the encryption $u = A^T r + e_1$, $v = t^T r + e_2 + \text{message}$ that ML-KEM still
+uses (2010), parameters for plain LWE (Lindner and Peikert, 2011), fully homomorphic
+encryption (Brakerski, Gentry and Vaikuntanathan, 2011 and 2012), Module-LWE (2012) and a
+classical reduction for polynomial moduli (2013).
+
+Bos, Costello, Naehrig and Stebila put Ring-LWE into TLS in 2015; Google tried NewHope
+with X25519 in Chrome in 2016 (CECPQ1); Frodo (2016) showed plain LWE practical. NIST
+called for proposals in December 2016. Kyber entered the first round (69 candidates, end
+of 2017) with $q = 7681$ and a compressed public key; for the second (January 2019) it
+dropped the public-key compression, which its proof did not cover, and moved to $q = 3329$. Kyber, Saber and NTRU were the lattice KEMs among the
+seven third-round finalists (July 2020); NIST chose Kyber in July 2022 and published
+FIPS 203 on 13 August 2024. What changed from round-3 Kyber is in the *Post-quantum
+cryptography* book,
+[§8.11](../post-quantum/08-ML-KEM.md#811-what-changed-from-kyber-to-fips-203).
+
+## 15.11 A toy ML-KEM, compression included
+
+*Level: expert.*
+
+The encryption of §15.8 sends $u$ and $v$ in full: 1,536 bytes for $k = 3$, where
+ML-KEM-768 sends 1,088. The difference is **compression**, which drops low bits and adds
+one more error. We do it by hand, then build a whole KEM in the shape of FIPS 203, small
+enough that §15.12 can watch it fail.
+
+### Compress and Decompress
+
+For $d$ bits,
+
+$$
+\mathrm{Compress}_d(x) = \left\lceil \tfrac{2^d}{q}\, x \right\rfloor \bmod 2^d, \qquad
+\mathrm{Decompress}_d(y) = \left\lceil \tfrac{q}{2^d}\, y \right\rfloor,
+$$
+
+with $\lceil \cdot \rfloor$ rounding halves up. Put $2^d$ marks evenly round the circle
+$\mathbb{Z}_q$, $q/2^d$ apart: Compress names the nearest mark, Decompress returns its
+position rounded to an integer, and the round trip moves $x$ by at most $\lceil
+q/2^{d+1} \rfloor$ (FIPS 203's bound). Examples with $q = 3329$ are in the *Post-quantum
+cryptography* book, [§8.4](../post-quantum/08-ML-KEM.md#84-compression-parameter-sets-and-sizes).
+
+<div class="mars-steps" markdown>
+
+**Compression by hand, $q = 17$ and $d = 2$.** The marks sit at $0, 4.25, 8.5, 12.75$,
+so $\mathrm{Decompress}_2$ returns $0, 4, 9, 13$.
+
+1. $x = 7$: $4 \cdot 7/17 = 1.65$ rounds to 2; back, $17 \cdot 2/4 = 8.5$ gives 9. Error
+   $+2$.
+2. $x = 5$: $20/17 = 1.18$ rounds to 1; back, 4. Error $-1$.
+3. $x = 15$: $60/17 = 3.53$ rounds to 4, and $4 \bmod 4 = 0$; back, 0. Error $-15 \equiv
+   +2$: on the circle 15 is $-2$, nearest to the mark at 0.
+4. The bound is $\lceil 17/8 \rfloor = 2$, and no $x$ does worse.
+
+</div>
+
+Figure 15.6 shows all 17 inputs: a sawtooth, zero at each mark. For uniform $x$ the error
+is close to uniform on an interval of width $q/2^d$, with variance near $(q/2^d)^2/12$:
+about 3,608 for $q = 3329$ and $d = 4$, under 1 for $d = 10$.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 260" width="640" role="img" aria-label="The rounding error of Decompress after Compress with q equal to 17 and d equal to 2, plotted for x from 0 to 16: a sawtooth between minus 2 and plus 2 that drops to zero at the four points 0, 4, 9 and 13" fill="currentColor" font-size="13">
+<g stroke="currentColor" fill="none"><path d="M45 125H587"/><path d="M45 69H587M45 181H587" stroke-dasharray="4 4" opacity=".5"/>
+<path stroke-width="1.5" d="M60 125L92 153L124 181M156 97L188 125L220 153L252 181M284 69L316 97L348 125L380 153M412 69L444 97L476 125L508 153M540 69L572 97"/></g>
+<circle cx="60" cy="125" r="4.5"/><circle cx="92" cy="153" r="4.5"/><circle cx="124" cy="181" r="4.5"/><circle cx="156" cy="97" r="4.5"/><circle cx="188" cy="125" r="4.5"/><circle cx="220" cy="153" r="4.5"/><circle cx="252" cy="181" r="4.5"/><circle cx="284" cy="69" r="4.5"/><circle cx="316" cy="97" r="4.5"/><circle cx="348" cy="125" r="4.5"/><circle cx="380" cy="153" r="4.5"/><circle cx="412" cy="69" r="4.5"/><circle cx="444" cy="97" r="4.5"/><circle cx="476" cy="125" r="4.5"/><circle cx="508" cy="153" r="4.5"/><circle cx="540" cy="69" r="4.5"/><circle cx="572" cy="97" r="4.5"/>
+<path fill-opacity=".5" d="M60 133l-6 10h12zM188 133l-6 10h12zM348 133l-6 10h12zM476 133l-6 10h12z"/>
+<g font-size="11" text-anchor="middle"><text x="60" y="213">0</text><text x="92" y="213">1</text><text x="124" y="213">2</text><text x="156" y="213">3</text><text x="188" y="213">4</text><text x="220" y="213">5</text><text x="252" y="213">6</text><text x="284" y="213">7</text><text x="316" y="213">8</text><text x="348" y="213">9</text><text x="380" y="213">10</text><text x="412" y="213">11</text><text x="444" y="213">12</text><text x="476" y="213">13</text><text x="508" y="213">14</text><text x="540" y="213">15</text><text x="572" y="213">16</text>
+<g fill-opacity=".7"><text x="60" y="233">0</text><text x="92" y="233">0</text><text x="124" y="233">0</text><text x="156" y="233">1</text><text x="188" y="233">1</text><text x="220" y="233">1</text><text x="252" y="233">1</text><text x="284" y="233">2</text><text x="316" y="233">2</text><text x="348" y="233">2</text><text x="380" y="233">2</text><text x="412" y="233">3</text><text x="444" y="233">3</text><text x="476" y="233">3</text><text x="508" y="233">3</text><text x="540" y="233">0</text><text x="572" y="233">0</text></g></g>
+<g font-size="11"><g text-anchor="end"><text x="38" y="73">+2</text><text x="38" y="129">0</text><text x="38" y="185">−2</text></g><text x="8" y="213">x</text><text x="8" y="233" fill-opacity=".7">C(x)</text><text x="40" y="22">rounding error, centered; triangles mark 0, 4, 9 and 13, the values Decompress returns</text></g>
+</svg>
+<figcaption>Figure 15.6. Compression with q = 17 and d = 2: the centered error Decompress(Compress(x)) − x for every x, with the compressed value C(x) below; lines join inputs with the same C(x). The error never exceeds 2 = ⌈17/8⌋; 15 and 16 wrap around to the mark at 0.</figcaption>
+</figure>
+
+### Where the compression error goes
+
+With $u' = u + \Delta_u$ and $v' = v + \Delta_v$,
+
+$$
+w = v' - s^T u' = \underbrace{e^T r + e_2 - s^T e_1}_{\text{as in §15.8}} \;+\; \Delta_v
+\;-\; s^T \Delta_u \;+\; \lceil q/2 \rfloor\, m.
+$$
+
+$\Delta_v$ is added once, but each coefficient of $s^T \Delta_u$ sums $kn$ products $s_i
+\Delta_{u,j}$, with variance $kn \cdot \frac{\eta}{2} \cdot \mathrm{Var}(\Delta_u)$. That
+is why ML-KEM compresses $u$ gently ($d_u = 10$ or 11) and $v$ hard ($d_v = 4$ or 5).
+
+### The toy
+
+The listing has every part of ML-KEM in miniature: $n = 32$, $k = 2$, $q = 3329$, $\eta =
+2$, $d_u = 10$, $d_v = 4$. $A$ comes from a seed by SHAKE128, the noise from SHAKE256; the
+message has 32 bits, one per coefficient. Around it is the **Fujisaki-Okamoto transform** as FIPS 203 applies it.
+*Encaps* hashes a random $m$ and $H(\mathrm{ek})$ by $G$ (SHA3-512) into the shared key
+and the coins for the noise, and encrypts $m$ with them. *Decaps* decrypts to
+$m'$, recomputes key and coins, *encrypts $m'$ again* and compares: equal, it returns the
+key; different, it returns $J(z \,\|\, c)$, a key derived from a secret $z$ and unrelated
+to $m'$ (**implicit rejection**). Re-encryption catches every dishonest ciphertext, which
+makes the KEM secure against chosen ciphertexts
+([§8.9](../post-quantum/08-ML-KEM.md#89-fix-it-the-fujisaki-okamoto-transform) of the
+*Post-quantum cryptography* book).
+
+```python
+# A toy ML-KEM: n = 32, k = 2, q = 3329, CBD_2 noise, compression, Fujisaki-Okamoto.
+import hashlib
+Q, N, K, ETA = 3329, 32, 2, 2
+
+def G(b): return hashlib.sha3_512(b).digest()
+def H(b): return hashlib.sha3_256(b).digest()
+def J(b): return hashlib.shake_256(b).digest(32)
+
+def compress(x, d):   return ((x << d) + Q // 2) // Q % (1 << d)
+def decompress(y, d): return (y * Q + (1 << (d - 1))) >> d
+
+def mul(a, b):                                               # in Z_q[x]/(x^32 + 1)
+    c = [0] * N
+    for i in range(N):
+        for j in range(N):
+            if i + j < N: c[i + j] += a[i] * b[j]
+            else:         c[i + j - N] -= a[i] * b[j]
+    return [x % Q for x in c]
+
+def add(*ps): return [sum(c) % Q for c in zip(*ps)]
+
+def uniform(rho, i, j):                                      # A[i][j] from SHAKE128, rejecting values >= q
+    out, stream, pos = [], hashlib.shake_128(rho + bytes([j, i])).digest(4 * N), 0
+    while len(out) < N:
+        x = int.from_bytes(stream[pos:pos + 2], "little") & 0xFFF
+        pos += 2
+        if x < Q: out.append(x)
+    return out
+
+def cbd(seed, nonce):                                        # CBD_2 from SHAKE256, 4 bits each
+    bits = int.from_bytes(hashlib.shake_256(seed + bytes([nonce])).digest(N // 2), "little")
+    return [((bits >> 4 * i & 1) + (bits >> 4 * i + 1 & 1) - (bits >> 4 * i + 2 & 1) - (bits >> 4 * i + 3 & 1)) % Q
+            for i in range(N)]
+
+def keygen(d):
+    rho, sigma = G(d)[:32], G(d)[32:]
+    A = [[uniform(rho, i, j) for j in range(K)] for i in range(K)]
+    s = [cbd(sigma, i) for i in range(K)]
+    e = [cbd(sigma, K + i) for i in range(K)]
+    t = [add(*[mul(A[i][j], s[j]) for j in range(K)], e[i]) for i in range(K)]       # t = A s + e
+    return (t, rho), s
+
+def encrypt(pk, m, coins, du, dv):                           # m: a list of N bits
+    t, rho = pk
+    A = [[uniform(rho, i, j) for j in range(K)] for i in range(K)]
+    r = [cbd(coins, i) for i in range(K)]
+    e1 = [cbd(coins, K + i) for i in range(K)]
+    e2 = cbd(coins, 2 * K)
+    u = [add(*[mul(A[i][j], r[i]) for i in range(K)], e1[j]) for j in range(K)]      # A^T r + e1
+    v = add(*[mul(t[i], r[i]) for i in range(K)], e2, [bit * 1665 for bit in m])    # t^T r + e2 + m q/2
+    return [[compress(x, du) for x in p] for p in u], [compress(x, dv) for x in v]
+
+def decrypt(s, c, du, dv):
+    u = [[decompress(x, du) for x in p] for p in c[0]]
+    v = [decompress(x, dv) for x in c[1]]
+    w = add(v, *[[-x for x in mul(s[i], u[i])] for i in range(K)])                  # w = v - s^T u
+    return [compress(x, 1) for x in w], w
+
+def bits(b): return [b[i // 8] >> (i % 8) & 1 for i in range(8 * len(b))]
+def unbits(m): return bytes(sum(m[8 * i + j] << j for j in range(8)) for i in range(len(m) // 8))
+
+def kem_keygen(seed64):                                      # d, then the rejection secret z
+    pk, s = keygen(seed64[:32])
+    return pk, (s, pk, H(repr(pk).encode()), seed64[32:])
+
+def encaps(pk, m, du=10, dv=4):                              # m: 4 random bytes
+    g = G(m + H(repr(pk).encode()))
+    return g[:32], encrypt(pk, bits(m), g[32:], du, dv)       # shared key, ciphertext
+
+def decaps(sk, c, du=10, dv=4):
+    s, pk, h, z = sk
+    m2 = unbits(decrypt(s, c, du, dv)[0])
+    g = G(m2 + h)
+    if encrypt(pk, bits(m2), g[32:], du, dv) == c:           # re-encrypt and compare
+        return g[:32]
+    return J(z + repr(c).encode())                           # implicit rejection
+
+pk, sk = kem_keygen(bytes(range(64)))
+key, c = encaps(pk, bytes([7, 77, 177, 250]))
+print(key.hex()[:16], decaps(sk, c).hex()[:16], decaps(sk, c) == key)
+c[1][0] ^= 1                                                 # change one bit of the ciphertext
+print(decaps(sk, c).hex()[:16])
+print(12 * N * K // 8 + 32, N * (10 * K + 4) // 8)            # public key and ciphertext, bytes
+```
+
+It prints:
+
+```text
+9f7cfffeb5ab2894 9f7cfffeb5ab2894 True
+01ad12134a1d7487
+128 96
+```
+
+Both sides hold the same key; one changed bit gives an unrelated key, so the first message
+protected with it fails to authenticate. The sizes, 128 and 96 bytes, are the formulas of
+§15.9 with 32 in place of 256. Left out: the NTT, byte encodings (`repr` stands in), input
+checks and FIPS 203's exact hash inputs. Nor is it secure: 32 bits of key entropy, and
+dimension 64 is within reach of [Chapter 14](14-Lattices.md)'s lattice reduction. But
+every number in it can be checked, including how often it fails.
+
+## 15.12 How often does decryption fail?
+
+*Level: expert.*
+
+FIPS 203 puts the chance that some noise coefficient leaves $(-q/4, q/4)$ at
+$2^{-138.8}$ for ML-KEM-512. No experiment can check that: at a million trials a second,
+one failure would take about $10^{28}$ years. It comes from a calculation, which we now do
+for the toy, where a simulation *can* check it.
+
+### The noise of one coefficient
+
+Coefficient $c$ of $e^T r$ collects one product from each pair of coefficients whose
+degrees add to $c$, with a minus sign where they wrap past $x^n = -1$:
+
+$$
+(e^T r)_c = \sum_{i < k} \; \sum_{j < n} \pm\, e_{i,j}\, r_{i,\, c - j},
+$$
+
+$kn$ products in which no coefficient of $e$ or $r$ appears twice. The same holds for
+$s^T(e_1 + \Delta_u)$. So one coefficient of noise is
+
+$$
+\text{noise} = \sum_{kn} e \cdot r \;-\; \sum_{kn} s \cdot (e_1 + \Delta_u) \;+\; e_2 \;+\;
+\Delta_v,
+$$
+
+a sum of independent terms, given one modeling step: the compression errors are treated
+as independent draws from the sawtooth law, as they would be if $u$ and $v$ were uniform
+and unrelated to the rest. The law of
+a sum of independent terms is the **convolution** of their laws, $\Pr[X + Y = z] =
+\sum_x \Pr[X = x]\Pr[Y = z - x]$, so the law of the noise can be computed exactly.
+
+<div class="mars-steps" markdown>
+
+**The first steps by hand, $\eta = 2$.** $\mathrm{CBD}_2$ gives $0, \pm1, \pm2$ with
+probabilities $\frac{6}{16}, \frac{4}{16}, \frac{1}{16}$.
+
+1. $e \cdot r = 0$ unless both are nonzero: $\Pr[0] = 1 - (\frac{10}{16})^2 =
+   \frac{156}{256}$.
+2. $\pm1$ needs both factors $\pm1$: $(\frac{8}{16})^2 = \frac{64}{256}$, so
+   $\frac{32}{256}$ each.
+3. $\pm2$ needs one $\pm1$ and one $\pm2$: $2 \cdot \frac{8}{16} \cdot \frac{2}{16} =
+   \frac{32}{256}$, so $\frac{16}{256}$ each; $\pm4$ needs both $\pm2$: $\frac{2}{256}$
+   each. The variance is $(64 + 32 \cdot 4 + 4 \cdot 16)/256 = 1$.
+4. One convolution: two such products sum to 0 when both are 0, or are opposite: $\Pr[0] =
+   (156^2 + 2 \cdot 32^2 + 2 \cdot 16^2 + 2 \cdot 2^2)/256^2 = 26{,}904/65{,}536 \approx
+   0.411$.
+
+</div>
+
+The variance needs no convolution. With $d_u = 10$, $d_v = 4$: 64 terms $e \cdot r$ of
+variance 1, 64 terms $s \cdot (e_1 + \Delta_u)$ of variance $1.9$, then 1 for $e_2$ and
+3,608 for $\Delta_v$, about 3,794 in all. A normal law would put 832, 13.5 standard
+deviations out, at about $2^{-136}$, far too pessimistic: $\Delta_v$ never exceeds 104, so
+the rest (standard deviation under 14) must reach 729 alone. To see failures, the listing
+also runs a squeezed toy with $d_u = 5$, where $\mathrm{Var}(\Delta_u) \approx 902$ and the total is about
+$64 + 64 \cdot 903 + 1 + 3{,}608 \approx 61{,}465$: the threshold is only 3.4 standard
+deviations out.
+
+```python
+# Uses Q, N, K, ETA, compress(), decompress(), keygen(), encrypt() and decrypt() from the listing above.
+# The law of one noise coefficient, exactly, by convolution; then a simulation.
+from math import comb, log2, erfc, sqrt
+import random
+
+def law_cbd(eta):                       # {value: probability}
+    return {x - eta: comb(2 * eta, x) / 4 ** eta for x in range(2 * eta + 1)}
+
+def law_round(d):                       # Decompress(Compress(x)) - x, x uniform
+    law = {}
+    for x in range(Q):
+        err = (decompress(compress(x, d), d) - x + Q // 2) % Q - Q // 2
+        law[err] = law.get(err, 0) + 1 / Q
+    return law
+
+def law_mul(A, B):                      # a * b, independent
+    C = {}
+    for a, pa in A.items():
+        for b, pb in B.items():
+            C[a * b] = C.get(a * b, 0) + pa * pb
+    return C
+
+def law_add(A, B):                      # a + b: a convolution, dropping p < 2^-200
+    lo, blo = min(A) + min(B), min(B)
+    row = [B.get(b, 0.0) for b in range(blo, max(B) + 1)]
+    out = [0.0] * (max(A) + max(B) - lo + 1)
+    for a, pa in A.items():
+        i = a + blo - lo
+        out[i:i + len(row)] = [o + pa * pb for o, pb in zip(out[i:i + len(row)], row)]
+    return {lo + i: p for i, p in enumerate(out) if p > 2 ** -200}
+
+def law_sum(A, n):                      # n independent copies, by doubling
+    R = {0: 1.0}
+    while n:
+        if n & 1:
+            R = law_add(R, A)
+        A, n = law_add(A, A), n >> 1
+    return R
+
+def noise_law(du, dv):                  # e^T r + e2 + (v's error) - s^T (e1 + u's error)
+    er = law_mul(law_cbd(ETA), law_cbd(ETA))
+    se = law_mul(law_cbd(ETA), law_add(law_cbd(ETA), law_round(du)))
+    return law_add(law_add(law_sum(er, K * N), law_sum(se, K * N)), law_add(law_cbd(ETA), law_round(dv)))
+
+for du, dv in ((10, 4), (5, 4)):
+    law = noise_law(du, dv)
+    var = sum(x * x * p for x, p in law.items())
+    p = sum(p for x, p in law.items() if abs(x) > Q // 4)
+    normal = erfc((Q // 4 + 0.5) / sqrt(2 * var))
+    print(du, dv, round(var), "below 2^-200" if p == 0 else round(log2(p), 2), round(log2(normal), 2))
+
+rng = random.Random(2026)               # 3,000 messages with du = 5, dv = 4
+fails, noise = 0, []
+for trial in range(3000):
+    if trial % 20 == 0:
+        pk, s = keygen(rng.randbytes(32))
+    m = [rng.getrandbits(1) for _ in range(N)]
+    got, w = decrypt(s, encrypt(pk, m, rng.randbytes(32), 5, 4), 5, 4)
+    fails += sum(x != y for x, y in zip(got, m))
+    noise += [(wi - 1665 * bit + Q // 2) % Q - Q // 2 for wi, bit in zip(w, m)]
+print(len(noise), round(sum(x * x for x in noise) / len(noise)))
+for t in (832, 780):
+    print(t, sum(abs(x) > t for x in noise), round(len(noise) * sum(p for x, p in law.items() if abs(x) > t), 1))
+print(fails)
+```
+
+It prints (in about ten seconds):
+
+```text
+10 4 3796 below 2^-200 -135.8
+5 4 61467 -10.22 -10.31
+96000 61922
+832 87 80.7
+780 164 165.9
+93
+```
+
+The first two lines give $d_u$, $d_v$, the variance, and $\log_2$ of the failure
+probability per coefficient, exact and normal. With $d_u = 10$ the exact law has nothing
+above $2^{-200}$ past 832, against the normal $2^{-135.8}$. With $d_u = 5$ the dominant
+term is itself a sum of 64 similar terms, nearly normal, and the two agree: $2^{-10.22}
+\approx 1/1{,}190$. The simulation of 3,000 messages matches: variance 61,922
+against 61,467, and 87 and 164 coefficients beyond 832 and 780 against 80.7 and 165.9.
+(A bit 1 also fails at noise exactly 832: the other 6 of the 93
+wrong bits.)
+
+### What a longer run shows
+
+Ten times as many messages give 890 beyond 832 against 806.7, and 1,520 beyond 780
+against 1,658.8: right to about 10 percent. The noise values show why: they sit within a few units of the multiples of $q/32 \approx 104.03$: $s^T u'$ is
+$q/32$ times an integer plus a small rounding term, since $u'$ has coefficients $\lceil
+qy/32 \rfloor$; $\lceil q/2 \rfloor m$ is 16 times $q/32$; and $v'$ lies on every other
+multiple. The threshold $q/4 = 832.25$ is the 8th multiple, so it cuts through the middle
+of a spike. The calculation smears each spike across its bin: right bin by bin (Figure
+15.7), not inside the bin at the threshold. In ML-KEM, with $d_u = 10$ or 11,
+the spikes are 3.25 or 1.6 apart, narrower than their spread (a standard deviation of
+about 8), and run together. What remains is the independence assumption across
+coefficients (D'Anvers, Vercauteren and Verbauwhede, 2019).
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 290" width="640" role="img" aria-label="Histogram on a logarithmic scale of the noise of one coefficient in the squeezed toy KEM, in bins centered on multiples of q over 32; simulated bars and exact-law dots agree, falling from about 0.17 at zero to about 0.00002 at plus or minus 1040; dashed lines mark the failure threshold at plus or minus 832" fill="currentColor" font-size="13">
+<path stroke="currentColor" stroke-width=".5" opacity=".35" d="M52 30h535M52 70h535M52 110h535M52 150h535M52 190h535M52 230h535"/>
+<g font-size="11" text-anchor="end"><text x="48" y="34">1</text><text x="48" y="74">10⁻¹</text><text x="48" y="114">10⁻²</text><text x="48" y="154">10⁻³</text><text x="48" y="194">10⁻⁴</text><text x="48" y="234">10⁻⁵</text></g>
+<g fill-opacity=".35"><rect x="59" y="214" width="21" height="16"/><rect x="84" y="182" width="21" height="48"/><rect x="109" y="159" width="21" height="71"/><rect x="134" y="137" width="21" height="93"/><rect x="159" y="116" width="21" height="114"/><rect x="184" y="99" width="21" height="131"/><rect x="209" y="86" width="21" height="144"/><rect x="234" y="75" width="21" height="155"/><rect x="259" y="67" width="21" height="163"/><rect x="284" y="63" width="21" height="167"/><rect x="309" y="61" width="21" height="169"/><rect x="334" y="63" width="21" height="167"/><rect x="359" y="67" width="21" height="163"/><rect x="384" y="75" width="21" height="155"/><rect x="409" y="86" width="21" height="144"/><rect x="434" y="99" width="21" height="131"/><rect x="459" y="116" width="21" height="114"/><rect x="484" y="136" width="21" height="94"/><rect x="509" y="159" width="21" height="71"/><rect x="534" y="181" width="21" height="49"/><rect x="559" y="220" width="21" height="10"/></g>
+<circle cx="69.5" cy="209.8" r="3.5"/><circle cx="94.5" cy="182.0" r="3.5"/><circle cx="119.5" cy="157.0" r="3.5"/><circle cx="144.5" cy="134.8" r="3.5"/><circle cx="169.5" cy="115.4" r="3.5"/><circle cx="194.5" cy="99.0" r="3.5"/><circle cx="219.5" cy="85.4" r="3.5"/><circle cx="244.5" cy="74.8" r="3.5"/><circle cx="269.5" cy="67.2" r="3.5"/><circle cx="294.5" cy="62.7" r="3.5"/><circle cx="319.5" cy="61.0" r="3.5"/><circle cx="344.5" cy="62.7" r="3.5"/><circle cx="369.5" cy="67.2" r="3.5"/><circle cx="394.5" cy="74.8" r="3.5"/><circle cx="419.5" cy="85.4" r="3.5"/><circle cx="444.5" cy="99.0" r="3.5"/><circle cx="469.5" cy="115.4" r="3.5"/><circle cx="494.5" cy="134.8" r="3.5"/><circle cx="519.5" cy="157.0" r="3.5"/><circle cx="544.5" cy="182.0" r="3.5"/><circle cx="569.5" cy="209.8" r="3.5"/>
+<path stroke="currentColor" stroke-width="1.2" stroke-dasharray="5 4" d="M119.5 24V232M519.5 24V232"/>
+<g font-size="11" text-anchor="middle"><text x="69.5" y="248">-1040</text><text x="119.5" y="248">-832</text><text x="219.5" y="248">-416</text><text x="319.5" y="248">0</text><text x="419.5" y="248">416</text><text x="519.5" y="248">832</text><text x="569.5" y="248">1040</text><text x="519.5" y="18">fails past 832</text><text x="119.5" y="18">fails past −832</text></g>
+<text x="319.5" y="272" text-anchor="middle" font-size="12">noise value (bin centers: multiples of q/32 ≈ 104)</text>
+<g font-size="11"><rect x="527" y="44" width="14" height="14" fill-opacity=".35"/><text x="547" y="56">simulated</text><circle cx="534" cy="72" r="3.5"/><text x="547" y="76">exact law</text></g>
+</svg>
+<figcaption>Figure 15.7. The noise of one coefficient in the squeezed toy (d_u = 5, d_v = 4), log scale, in bins q/32 ≈ 104 wide centered on multiples of q/32: bars from 960,000 simulated coefficients, dots from the exact law. They agree over five orders of magnitude. The failure thresholds at ±832 cut through the bins at ±8, whose real noise sits at the bin's center.</figcaption>
+</figure>
+
+### From the toy to $2^{-139}$
+
+By the union bound over coefficients, $32 \cdot 2^{-10.22} \approx 2.7\%$ of the squeezed
+toy's encapsulations fail. For ML-KEM it is the same three functions with $n = 256$ and
+ML-KEM's parameters. The *Post-quantum cryptography* book runs exactly that in
+[§8.7](../post-quantum/08-ML-KEM.md#87-how-often-does-decryption-fail), gets $2^{-139.1}$,
+$2^{-165.2}$ and $2^{-175.2}$ against the published $2^{-138.8}$, $2^{-164.8}$ and
+$2^{-174.8}$, and shows a normal approximation 63 bits off for ML-KEM-512.
+
+Failures are silent: nobody notices until the first authenticated message fails, and
+the handshake starts again. Between
+Arcadia City and Earth that costs another round trip of 6 to 44 minutes, so at the toy's
+2.7% a relay making a few hundred key exchanges a day could lose hours. The stronger
+reason is security: failures depend on $s$, so observing them leaks it ([why failures
+must be this rare](../post-quantum/08-ML-KEM.md#why-failures-must-be-this-rare)).
+
+## 15.13 Attacks that use the shape of the noise
+
+*Level: expert.*
+
+Lattice attacks ([Chapter 14](14-Lattices.md); *Post-quantum cryptography*,
+[chapter 5](../post-quantum/05-Lattices-and-Their-Hard-Problems.md)) see only the size of
+the noise. Arora-Ge uses its few values, BKW a large supply of samples; why neither
+threatens ML-KEM sets two rules for noise.
+
+### Arora-Ge: few error values make polynomial equations
+
+If every error lies in $\{-\eta, \ldots, \eta\}$, every sample satisfies
+
+$$
+P\big(b - \langle a, s \rangle\big) = 0, \qquad P(t) = t \prod_{j=1}^{\eta} (t - j)(t + j),
+$$
+
+an equation of degree $D = 2\eta + 1$ in $s_1, \ldots, s_n$. Sanjeev Arora and Rong Ge (2011) made it
+*linear* by treating each of the $\binom{n + D}{D}$ monomials of degree at most $D$ as an
+unknown; about that many samples let elimination find them all, the $s_i$ among them. For $n = 4$ and errors in $\{-1, 0, 1\}$,
+$D = 3$ and $\binom{7}{3} = 35$: some 35 samples break such a toy, with no lattice in sight. For
+ML-KEM-768 ($n = 768$, $\eta = 2$, $D = 5$) the count is $\binom{773}{5} \approx 2^{41.0}$,
+and for ML-KEM-512 ($n = 512$, $\eta_1 = 3$, $D = 7$) it is $\binom{519}{7} \approx 2^{50.8}$;
+solving such systems costs $2^{100}$ and more. But the public key holds only $kn$
+samples for $s$, and every ciphertext uses a fresh $r$, so the attack never starts: hence
+§15.9's rule against unbounded samples for one secret. For Gaussian errors of width $\alpha q$ the time is
+$2^{\tilde O(\alpha^2 q^2)}$, subexponential below $\alpha q = \sqrt n$: the other side of
+Regev's condition $\alpha q > 2\sqrt n$ (§15.6). The
+*Post-quantum cryptography* book carries the attack out in
+[§5.11](../post-quantum/05-Lattices-and-Their-Hard-Problems.md#511-break-it-the-arora-ge-attack).
+
+### BKW: cancel coordinates, pay in noise
+
+Avrim Blum, Adam Kalai and Hal Wasserman (2000) devised BKW for learning parity with noise;
+Albrecht, Cid, Faugère, Fitzpatrick and Perret analyzed it for LWE (2015). It is
+elimination by additions only, so errors are never multiplied by large numbers:
+
+1. Sort the samples by their first block of $b$ coordinates. Two that agree there (or are
+   negatives) give, subtracted (or added), a sample that is zero on the block, with an
+   error of twice the variance.
+2. Repeat on the next block. After $t$ stages, $tb$ coordinates are zero and the error
+   has variance $2^t \sigma^2$.
+3. Guess the few coordinates left, keeping the guess that makes $b - \langle a, g \rangle$
+   cluster near 0.
+
+Each stage needs a table of about $q^b/2$ entries and eats samples at that rate, and once
+$2^{t/2}\sigma$ nears $q$ the samples look uniform. Balancing the two gives time, memory
+and samples all $2^{\Theta(n)}$; for ML-KEM's parameters, published estimates put BKW and
+its "coded" variants behind lattice reduction, and it needs far more samples than a
+public key offers. In a toy with $q = 31$ and $n = 4$, three stages on 4,000
+samples raise the error variance from 1 to about 7 and the last secret coordinate still
+stands out among the 31 guesses; in dimension 512 the tables, growing as $q^b$, are
+hopeless.
+
+## 15.14 Learning with rounding
+
+*Level: expert.*
+
+LWE errors cost random bits, a constant-time sampler, and coins that the
+Fujisaki-Okamoto transform must regenerate. Abhishek Banerjee, Chris Peikert and Alon
+Rosen asked in 2012 whether the randomness is needed. In **learning with rounding**
+(LWR) a sample is
+
+$$
+b = \left\lceil \tfrac{p}{q} \langle a, s \rangle \right\rfloor \bmod p, \qquad p < q,
+$$
+
+the inner product with its low bits thrown away. Scaled back up, $\tfrac{q}{p} b = \langle
+a, s \rangle + e$ with $|e| \le \tfrac{q}{2p}$: an LWE sample whose error is the rounding
+error, fixed by $a$ and $s$ but spread almost uniformly when $a$ is random. Being
+deterministic, LWR gives pseudorandom functions directly, their purpose.
+
+They proved LWR as hard as LWE when $q/p$ exceeds the LWE error by a superpolynomial
+factor; Alwen, Krenn, Pietrzak and Wichs (2013) and Bogdanov, Guo, Masny, Richelson and
+Rosen (2016) brought $q$ down to polynomial size for a bounded number of samples, as in a
+KEM. Real
+parameters are still outside these reductions; their security is estimated as for LWE,
+with the rounding error as uniform noise of variance about $(q/p)^2/12$.
+
+**Saber** (D'Anvers, Karmakar, Sinha Roy and Vercauteren, 2018) is Module-LWR in
+$\mathbb{Z}_q[x]/(x^{256} + 1)$ with rank 2, 3 or 4, binomial secrets, $q = 2^{13}$, $p =
+2^{10}$, and a third modulus $T$ ($2^3$, $2^4$ or $2^6$) for the message part. Powers of two
+make rounding a shift and reduction free, and no error is sampled. The price is the NTT:
+$2^{13}$ is not prime, so Saber uses Toom-Cook and Karatsuba. It was a third-round
+finalist; NIST chose Kyber.
+
+```python
+# Learning with rounding, Saber's moduli: q = 2^13, p = 2^10. The sample is <a, s> rounded to p's
+# scale, a shift by 3 bits; scaled back up, it is an LWE sample whose error is the rounding error.
+import random
+rl = random.Random(2018)
+q, p, n = 2 ** 13, 2 ** 10, 256
+s = [rl.choice((-1, 0, 0, 1)) for _ in range(n)]           # a small secret
+errs = []
+for _ in range(20000):
+    a = [rl.randrange(q) for _ in range(n)]
+    x = sum(ai * si for ai, si in zip(a, s)) % q
+    b = ((x + 4) >> 3) % p                                    # round(p x / q) mod p: add half, shift
+    errs.append(((b << 3) - x + q // 2) % q - q // 2)         # (q/p) b - <a, s>: the hidden error
+mean = sum(errs) / len(errs)
+print(sorted(set(errs)), round(mean, 3), round(sum((e - mean) ** 2 for e in errs) / len(errs), 2), (8 ** 2 - 1) / 12)
+```
+
+It prints:
+
+```text
+[-3, -2, -1, 0, 1, 2, 3, 4] 0.492 5.19 5.25
+```
+
+With $q/p = 8$, rounding is "add 4, shift right by 3" (4 is Saber's rounding constant),
+and the hidden error takes the values $-3$ to $4$ about equally often: variance 5.19
+against $(8^2 - 1)/12 = 5.25$ for exactly uniform. Relative to the modulus,
+$\sqrt{5.25}/8192 \approx 2.8 \times 10^{-4}$, about the width of ML-KEM's $\mathrm{CBD}_2$
+against 3329, $3.0 \times 10^{-4}$.
+
+ML-KEM's compression is rounding too: $\mathrm{Compress}_{d_u}(A^T r + e_1)$ is an LWR
+sample stacked on an LWE sample. Round-1 Kyber rounded its public key as well, until 2019.
+
 ## Going deeper
 
 - *Cyclotomic fields.* $R = \mathbb{Z}[x]/(\Phi_m)$ is the ring of integers of
@@ -977,9 +1715,11 @@ in *Post-quantum cryptography*,
   approximation factors there are quantum algorithms that exploit the field's unit
   group (Cramer, Ducas, Peikert, Regev 2016; Cramer, Ducas, Wesolowski 2017). They do
   not reach the small factors that LWE needs.
-- *Learning with rounding.* Replace random errors by deterministic rounding,
-  $b = \lfloor (p/q)\langle a, s \rangle \rceil$ (Banerjee, Peikert and Rosen, 2012).
-  The NIST finalist Saber used its module version.
+- *Estimating security.* Claims like "ML-KEM-768 is as hard as AES-192" come from cost
+  models of the primal attack (one unusually short vector, found with BKZ) and the dual
+  attack (short dual vectors that expose $b$ as non-uniform), collected by Martin
+  Albrecht, Rachel Player and Sam Scott (2015) in what is now the lattice estimator. Its
+  answers move as sieving improves, hence the margins.
 - *NTRU.* The older ring problem (Hoffstein, Pipher and Silverman, 1996), behind
   Falcon and sntrup761: a public key $h = g/f$ with small $f, g$.
 
@@ -989,9 +1729,10 @@ in *Post-quantum cryptography*,
 
     $x^5 = x \cdot x^4 = x \cdot (-1) = -x \equiv 16x$.
 
-??? question "2. What is $\Phi_9(x)$?"
+??? question "2. With $q = 17$ and $d = 2$, what are $\mathrm{Compress}_2(11)$, its decompression, and the error?"
 
-    $x^9 - 1 = \Phi_1 \Phi_3 \Phi_9 = (x^3 - 1)\Phi_9$, so $\Phi_9 = x^6 + x^3 + 1$.
+    $44/17 = 2.59$ rounds to 3; $\lceil 51/4 \rfloor = 13$; the error is $+2$, the
+    largest allowed.
 
 ??? question "3. Does $x^{256} + 1$ split into linear factors modulo 12289?"
 
@@ -1005,9 +1746,11 @@ in *Post-quantum cryptography*,
     Pointwise products and the inverse transform use the same order, so the
     permutation cancels.
 
-??? question "5. What are the mean and variance of $\mathrm{CBD}_3$?"
+??? question "5. What are the mean and variance of $\mathrm{CBD}_3$, and why does ML-KEM sample it rather than a discrete Gaussian?"
 
-    Mean 0; variance $3/2$ (each of the 6 coin flips contributes $1/4$).
+    Mean 0; variance $3/2$ (each of the 6 coin flips contributes $1/4$). It costs 6
+    random bits and the same work for every value; exact Gaussian samplers use tables or
+    loops whose timing depends on the output. The estimates need only the variance.
 
 ??? question "6. In Regev's scheme, why does a random 0/1 combination of the public samples hide the bit?"
 
@@ -1026,11 +1769,18 @@ in *Post-quantum cryptography*,
     that is $9 \cdot 384 = 3{,}456$ bytes, almost three times the whole 1,184-byte
     key.
 
-??? question "9. Why does ML-KEM keep $\hat{A}$ and $s$ in NTT form?"
+??? question "9. In the normal form, which samples are used up, and what is the new secret? Why can ML-KEM then draw $s$ from $\mathrm{CBD}_\eta$?"
 
-    The NTT is linear, so $A s$ can be computed as $\mathrm{NTT}^{-1}(\hat{A} \circ
-    \hat{s})$; generating $\hat{A}$ directly from the seed and storing $\hat{s}$ skips
-    their forward transforms entirely.
+    The first $n$ samples (matrix $A_0$). The rest become $(-A_1 A_0^{-1},\; b_1 - A_1
+    A_0^{-1} b_0)$, samples with secret $e_0$ and unchanged errors. A short-secret solver
+    finds $e_0$, and then $s = A_0^{-1}(b_0 - e_0)$, so short secrets are no easier.
+
+??? question "10. Why is $d_u$ larger than $d_v$ in ML-KEM, and why does a normal approximation get the toy's failure rate with $d_u = 10$ badly wrong?"
+
+    $\Delta_u$ is multiplied by the secret and summed over $kn$ terms; $\Delta_v$ is added
+    once. With $d_u = 10$, $\Delta_v$ holds most of the variance but never exceeds 104, so
+    the rest (standard deviation under 14) must reach 729 alone. The normal approximation
+    says $2^{-136}$; the exact law, nothing above $2^{-200}$.
 
 ## What you learned
 
@@ -1041,14 +1791,20 @@ in *Post-quantum cryptography*,
 - The negacyclic NTT follows that factorization layer by layer with Cooley-Tukey
   butterflies and bit-reversed roots; ML-KEM's 7-layer version ends in 128 base
   multiplications.
-- $\mathrm{CBD}_\eta$ has variance $\eta/2$, is easy to sample exactly, and stands in
-  for the Gaussian of the theory.
+- $\mathrm{CBD}_\eta$ has variance $\eta/2$, costs $2\eta$ bits, runs in constant time,
+  and stands in for the Gaussian of the theory.
 - LWE: $b = As + e$; decryption works while the noise stays under $q/4$; Regev's
   reduction ties average-case LWE to worst-case lattice problems.
+- The normal form makes short secrets as hard as uniform ones, for $n$ samples.
 - Search and decision LWE are equivalent for prime polynomial $q$.
 - Ring- and Module-LWE trade structure for size and speed; ML-KEM is Module-LWE with
   $n = 256$, $q = 3329$, $k = 2, 3, 4$; 3329 is the smallest NTT-friendly prime that
   leaves room for the noise.
+- Compression adds a sawtooth error up to $\lceil q/2^{d+1} \rfloor$; the secret
+  multiplies the error of $u$, so $d_u > d_v$.
+- The failure rate is a tail of the noise law, a convolution computed exactly.
+- Arora-Ge needs about $\binom{n + D}{D}$ samples, BKW pays doubled noise per block; LWR
+  (Saber) replaces random errors by rounding.
 
 **Next:** [Chapter 16](16-Probability.md), probability for
 cryptographers: the birthday bound, statistical distance and the advantage
@@ -1070,6 +1826,34 @@ calculations behind every security proof.
 - NIST FIPS 203, Module-Lattice-Based Key-Encapsulation Mechanism Standard (2024).
 - Gregor Seiler, "Faster AVX2 Optimized NTT Multiplication for Ring-LWE Lattice
   Cryptography" (2018), for the merged negacyclic NTT.
+- Benny Applebaum and others, "Fast Cryptographic Primitives and Circular-Secure
+  Encryption Based on Hard Learning Problems", CRYPTO 2009 (the normal form).
+- Richard Lindner and Chris Peikert, "Better Key Sizes (and Attacks) for LWE-Based
+  Encryption", CT-RSA 2011.
+- Erdem Alkim and others, "Post-quantum Key Exchange: A New Hope", USENIX Security 2016.
+- Shi Bai and others, "Improved Security Proofs in Lattice-Based Cryptography: Using the
+  Rényi Divergence Rather than the Statistical Distance", ASIACRYPT 2015.
+- Leon Groot Bruinderink and others, "Flush, Gauss, and Reload: A Cache Attack on the
+  BLISS Lattice-Based Signature Scheme", CHES 2016.
+- Joppe Bos and others, "Post-Quantum Key Exchange for the TLS Protocol from the Ring
+  Learning with Errors Problem", IEEE S&P 2015; "Frodo: Take off the Ring!", CCS 2016.
+- Jan-Pieter D'Anvers and others, "The Impact of Error Dependencies on Ring/Mod-LWE/LWR
+  Based Schemes", PQCrypto 2019, and "Decryption Failure Attacks on IND-CCA Secure
+  Lattice-Based Schemes", PKC 2019.
+- Sanjeev Arora and Rong Ge, "New Algorithms for Learning in Presence of Errors", ICALP 2011.
+- Avrim Blum, Adam Kalai and Hal Wasserman, "Noise-Tolerant Learning, the Parity Problem,
+  and the Statistical Query Model", STOC 2000; *Journal of the ACM* 50 (2003).
+- Martin Albrecht and others, "On the Complexity of the BKW Algorithm on LWE", *Designs,
+  Codes and Cryptography* 74 (2015).
+- Shi Bai and Steven Galbraith, "Lattice Decoding Attacks on Binary LWE", ACISP 2014.
+- Martin Albrecht, Rachel Player and Sam Scott, "On the Concrete Hardness of Learning with
+  Errors", *Journal of Mathematical Cryptology* 9 (2015).
+- Abhishek Banerjee, Chris Peikert and Alon Rosen, "Pseudorandom Functions and Lattices",
+  EUROCRYPT 2012; Joël Alwen and others, "Learning with Rounding, Revisited", CRYPTO 2013;
+  Andrej Bogdanov and others, "On the Hardness of Learning with Rounding over Small
+  Modulus", TCC 2016.
+- Jan-Pieter D'Anvers and others, "Saber: Module-LWR Based Key Exchange, CPA-Secure
+  Encryption and CCA-Secure KEM", AFRICACRYPT 2018.
 - In *Post-quantum cryptography*: [chapter 5](../post-quantum/05-Lattices-and-Their-Hard-Problems.md),
   [chapter 7](../post-quantum/07-Rings-Modules-and-the-NTT.md) and
   [chapter 8](../post-quantum/08-ML-KEM.md).
