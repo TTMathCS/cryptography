@@ -79,7 +79,7 @@ worthless.
 Six weeks later, on 7 April, OpenSSL announced Heartbleed: a missing length
 check that let anyone on the internet read up to 64 KB of a server's memory per
 request, again and again, including private keys (§1.4 tells it briefly and
-Chapter 8 fully). In June, at a workshop in Beijing, four
+[Chapter 8](08-Hostile-Input.md) fully). In June, at a workshop in Beijing, four
 researchers at MIT published a short paper with a blunt question for a title:
 "Why does cryptographic software fail?" They had read every vulnerability in
 the public CVE database from January 2011 to May 2014 that was tagged as a
@@ -405,7 +405,7 @@ private key. Neel Mehta of Google and a team at Codenomicon in Finland found it
 independently; it was disclosed on 7 April 2014 as CVE-2014-0160, when
 measurements later put between a quarter and a half of the most popular HTTPS
 sites at risk. Nothing about TLS's cryptography was wrong; a bounds check was
-missing. Chapter 8 tells it fully, builds a toy version,
+missing. [Chapter 8](08-Hostile-Input.md) tells it fully, builds a toy version,
 and finds it again with a twenty-line fuzzer. The protocol view is in
 [Protocols chapter 4](../protocols/04-Thirty-Years-of-TLS-Attacks.md).
 
@@ -416,7 +416,7 @@ and finds it again with a twenty-line fuzzer. The protocol view is in
     certificates in 2014, the Linux Foundation's Core Infrastructure
     Initiative, the LibreSSL and BoringSSL forks, and fuzzing of TLS libraries
     as routine · **Status:** fixed in OpenSSL 1.0.1g on 7 April 2014;
-    Chapter 8
+    [Chapter 8](08-Hostile-Input.md)
 
 **The PlayStation 3 key (2010): one constant where a random number belonged.**
 Sony signed every piece of PS3 software with ECDSA, and the console refused to
@@ -432,7 +432,7 @@ changed. The equations were implemented correctly; one value that the standard
 says must be random was a constant. The attack is told in
 [Cryptanalysis chapter 14](../cryptanalysis/14-Attacks-on-Signatures-and-Nonces.md);
 [Chapter 4](04-Randomness-in-Practice.md) here covers nonces in practice and
-Chapter 6 the defenses in signing code,
+[Chapter 6](06-Big-Numbers-and-Public-Key-Code.md) the defenses in signing code,
 including deterministic nonces (RFC 6979), which make this mistake impossible.
 
 !!! note "Life story: the PlayStation 3 signing key"
@@ -459,7 +459,7 @@ the key, so how the key escaped is still not known publicly. And enterprise mail
 servers accepted tokens signed by a consumer key, because the validation code
 did not check which keys may sign for which issuer. The US Cyber Safety Review
 Board's report of April 2024 called the intrusion preventable and the result of
-"a cascade of security failures" at Microsoft. Chapter 12
+"a cascade of security failures" at Microsoft. [Chapter 12](12-Secrets-in-Operations.md)
 tells it fully, as the central case of secrets in operations; the token format
 is in [Protocols chapter 14](../protocols/14-OAuth-OpenID-Connect-and-JWT.md).
 
@@ -471,7 +471,7 @@ is in [Protocols chapter 14](../protocols/14-OAuth-OpenID-Connect-and-JWT.md).
     Safety Review Board report (April 2024) and Microsoft's commitments to
     move signing keys into hardware and rotate them automatically ·
     **Status:** revoked in 2023; how it was stolen is not publicly known;
-    Chapter 12
+    [Chapter 12](12-Secrets-in-Operations.md)
 
 Line the three up and they sit at three different depths. Heartbleed was a
 bug in the code of a library. The PS3 was a correct implementation of the

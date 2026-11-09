@@ -392,6 +392,17 @@ nav:
               - books/engineering/02-Bytes-Encodings-and-Text.md
               - books/engineering/03-ASN1-DER-and-Key-Files.md
               - books/engineering/04-Randomness-in-Practice.md
+          - II. Writing it safely:
+              - books/engineering/05-Constant-Time-Programming.md
+              - books/engineering/06-Big-Numbers-and-Public-Key-Code.md
+              - books/engineering/07-Masking-and-Fault-Resistance.md
+              - books/engineering/08-Hostile-Input.md
+              - books/engineering/09-APIs-That-Resist-Misuse.md
+          - III. Keys and secrets:
+              - books/engineering/10-The-Life-of-a-Key.md
+              - books/engineering/11-Hardware-for-Keys.md
+              - books/engineering/12-Secrets-in-Operations.md
+              - books/engineering/13-Passwords-on-the-Server.md
       - History of secret writing:
           - Start here: books/history/index.md
           - I. Beginnings:

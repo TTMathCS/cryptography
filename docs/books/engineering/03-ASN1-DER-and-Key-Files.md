@@ -1288,7 +1288,7 @@ What to do:
 
 - Write new private keys as PKCS#8. Encrypt them with PBES2 and a high
   iteration count or scrypt, or better, keep them in a key store or hardware
-  that never writes them out (Chapter 11).
+  that never writes them out ([Chapter 11](11-Hardware-for-Keys.md)).
 - When you read a PEM file, check the label is the one you expect before you
   parse the DER. A `PRIVATE KEY` where you expected a `PUBLIC KEY` is a leak
   in progress, not a format to be accepted.
@@ -1549,7 +1549,7 @@ PBKDF2 iterations costs more than fifty thousand times as much. That factor
 buys about sixteen bits of password strength ($2^{15.7} \approx 54{,}000$),
 the same as three or four more random lowercase letters. It does not rescue a weak password;
 it makes a merely decent one survive. The rule from
-Chapter 13 applies here too: the only
+[Chapter 13](13-Passwords-on-the-Server.md) applies here too: the only
 protection that really holds is a long random password.
 
 **Fix it.** Convert JKS and JCEKS stores to PKCS#12 with `keytool
@@ -2276,7 +2276,7 @@ place.
 6. **Bound all work** done on attacker-chosen numbers and structures: loop
    counts, nesting depth, sizes.
 7. **Fuzz and differentially test** the parser against others
-   (Chapter 8, Chapter 17),
+   ([Chapter 8](08-Hostile-Input.md), Chapter 17),
    or better, use one that is already fuzzed and verified.
 </div>
 
@@ -2291,7 +2291,7 @@ arithmetic: SHA-384 over bytes 4 to 424, then ECDSA verification on P-384,
 with the curve constants of SP 800-186. It then changes one byte of the
 issuer name and checks again. The arithmetic is plain affine point addition,
 fine for checking public data and far too slow and leaky for secrets
-(Chapter 6 does it properly).
+([Chapter 6](06-Big-Numbers-and-Public-Key-Code.md) does it properly).
 
 ```python
 # Check ISRG Root X2's signature on itself: SHA-384 over the exact tbsCertificate

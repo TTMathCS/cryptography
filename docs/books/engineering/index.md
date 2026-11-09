@@ -59,15 +59,15 @@ signature are; [the cryptography book](../../book/index.md) teaches that.
 | | [2. Bytes, encodings and text](02-Bytes-Encodings-and-Text.md) | beginner to intermediate |
 | | [3. ASN.1, DER and key files](03-ASN1-DER-and-Key-Files.md) | intermediate |
 | | [4. Randomness in practice](04-Randomness-in-Practice.md) | intermediate |
-| **II. Writing it safely** | 5. Constant-time programming | intermediate to expert |
-| | 6. Big numbers and public-key code | intermediate to expert |
-| | 7. Masking and fault resistance | expert |
-| | 8. Hostile input: memory, parsing and denial of service | intermediate |
-| | 9. APIs that resist misuse | intermediate |
-| **III. Keys and secrets** | 10. The life of a key | intermediate |
-| | 11. Hardware for keys: HSMs, TPMs, enclaves and tokens | intermediate |
-| | 12. Secrets in operations | beginner to intermediate |
-| | 13. Passwords on the server | beginner to intermediate |
+| **II. Writing it safely** | [5. Constant-time programming](05-Constant-Time-Programming.md) | intermediate to expert |
+| | [6. Big numbers and public-key code](06-Big-Numbers-and-Public-Key-Code.md) | intermediate to expert |
+| | [7. Masking and fault resistance](07-Masking-and-Fault-Resistance.md) | expert |
+| | [8. Hostile input: memory, parsing and denial of service](08-Hostile-Input.md) | intermediate |
+| | [9. APIs that resist misuse](09-APIs-That-Resist-Misuse.md) | intermediate |
+| **III. Keys and secrets** | [10. The life of a key](10-The-Life-of-a-Key.md) | intermediate |
+| | [11. Hardware for keys: HSMs, TPMs, enclaves and tokens](11-Hardware-for-Keys.md) | intermediate |
+| | [12. Secrets in operations](12-Secrets-in-Operations.md) | beginner to intermediate |
+| | [13. Passwords on the server](13-Passwords-on-the-Server.md) | beginner to intermediate |
 | **IV. Building and running systems** | 14. Encrypting application data | intermediate |
 | | 15. The command-line tools | beginner to intermediate |
 | | 16. Signing software and the supply chain | intermediate |

@@ -509,7 +509,7 @@ no way to seed:
 | a hex token | `secrets.token_hex(16)` | `"%032x" % random.getrandbits(128)` |
 | a number below n | `secrets.randbelow(n)` | `random.randrange(n)`, `os.urandom(...)[0] % n` |
 | a choice from a list | `secrets.choice(seq)` | `random.choice(seq)` |
-| comparing a secret | `secrets.compare_digest(a, b)` | `a == b` (see Chapter 5) |
+| comparing a secret | `secrets.compare_digest(a, b)` | `a == b` (see [Chapter 5](05-Constant-Time-Programming.md)) |
 | a `random`-style object | `random.SystemRandom()` | `random.Random()` |
 
 Everything in `secrets` reads `os.urandom`. `random.SystemRandom` gives the
@@ -533,7 +533,7 @@ With $b = 128$ that is $2^{-68}$. With a 32-bit token the bound exceeds 1:
 the attacker wins long before running out of guesses. `secrets.token_urlsafe()`
 defaults to 32 bytes, which is generous; 16 is enough. Store a hash of each
 token rather than the token, so a database leak hands out no live credentials
-(Chapter 13 makes the same argument for
+([Chapter 13](13-Passwords-on-the-Server.md) makes the same argument for
 passwords).
 
 !!! note "Life story: Python's secrets module"
@@ -542,7 +542,7 @@ passwords).
     the kernel generator · **Purpose:** a short, unseedable, obviously named
     module for keys, tokens and passwords, so that the safe choice is also the
     easy one · **Helped:** gave tutorials, reviewers and linters one safe answer
-    to point to; a model for "one right way" APIs (Chapter 9)
+    to point to; a model for "one right way" APIs ([Chapter 9](09-APIs-That-Resist-Misuse.md))
     · **Status:** current; the answer to "how do I make a token in Python"
 
 ### Break it: a seed that someone else set
@@ -1031,7 +1031,7 @@ Two details are where implementations go wrong. The additional input is
 mixed in twice, before and after the output, and code that skips the first
 mix still passes vectors with empty additional input; that is why the first
 vector here has it. And `uninstantiate` in Python only drops references; the
-bytes stay in memory until reused (Chapter 8 covers
+bytes stay in memory until reused ([Chapter 8](08-Hostile-Input.md) covers
 wiping secrets).
 
 ### Break it: the update left out "for speed"
@@ -1366,7 +1366,7 @@ output; `RDSEED` returns conditioned entropy for seeding. Three lessons:
   fix made them much slower.
 
 TPMs, secure elements and HSMs have hardware generators too, one more input
-for the pool (Chapter 11).
+for the pool ([Chapter 11](11-Hardware-for-Keys.md)).
 
 !!! note "Life story: SP 800-90B"
     **Born:** drafts in 2012 and 2016; final in January 2018 (Meltem Sönmez
@@ -1405,7 +1405,7 @@ counter; one that had to be secret is logged.
 | AES-GCM or ChaCha20-Poly1305 nonce | unique per key | counter, or random within limits | one repeat can expose the authentication key ([§10.7](../cryptanalysis/10-Attacks-on-Modes-and-MACs.md#107-the-forbidden-attack-gcms-key-as-a-root)) |
 | CTR nonce | unique per key | counter | two-time pad ([§10.6](../cryptanalysis/10-Attacks-on-Modes-and-MACs.md#106-the-two-time-pad-nonce-reuse-in-ctr)) |
 | CBC IV | unpredictable | OS generator | BEAST ([§10.5](../cryptanalysis/10-Attacks-on-Modes-and-MACs.md#105-beast-a-predictable-iv)) |
-| password salt | unique | 16 random bytes | precomputed tables (Chapter 13) |
+| password salt | unique | 16 random bytes | precomputed tables ([Chapter 13](13-Passwords-on-the-Server.md)) |
 | ECDSA nonce $k$ | secret and uniform | RFC 6979 or hedged | key recovery from a repeat or a bias ([Chapter 14](../cryptanalysis/14-Attacks-on-Signatures-and-Nonces.md)) |
 | session ID, reset token | unpredictable | 128+ random bits | account takeover (§4.4) |
 | database or log ID | unique | UUID, counter | not a security property: never use it as one |
@@ -1454,7 +1454,7 @@ $2^{48}$ messages a repeat is more likely than not to be close. The second
 column is why XChaCha20-Poly1305 (draft-irtf-cfrg-xchacha) uses 192-bit
 nonces: random nonces become safe for any number of messages a key will ever
 see. AES-GCM-SIV (RFC 8452) takes the other route and makes a repeat cost
-much less; Chapter 9 compares them.
+much less; [Chapter 9](09-APIs-That-Resist-Misuse.md) compares them.
 
 !!! note "Life story: the GCM nonce rules (SP 800-38D)"
     **Born:** November 2007, Morris Dworkin's SP 800-38D, standardizing the
@@ -1570,7 +1570,7 @@ After the "reboot" the counter resumes at 1,000, above everything the first
 run could have used. What this cannot survive is a restore of the file from a
 backup or a clone of the disk: then two copies of the counter run on. Where
 that can happen, derive a fresh key per boot or per instance
-(Chapter 10), or use a nonce-misuse-resistant mode.
+([Chapter 10](10-The-Life-of-a-Key.md)), or use a nonce-misuse-resistant mode.
 
 ### Unique IDs are not secrets
 
@@ -1834,7 +1834,7 @@ reseeding are handled. In 2020 Cohney, Kwong, Paz, Genkin, Heninger, Ronen and
 Yarom ("Pseudorandom Black Swans", IEEE S&P 2020) recovered CTR_DRBG states,
 and then TLS keys, through cache timing from implementations whose AES used
 lookup tables; the defense is constant-time primitives
-(Chapter 5).
+([Chapter 5](05-Constant-Time-Programming.md)).
 
 **Credit and conditioning.** The leftover hash lemma bounds the entropy of a
 conditioned output for universal hash families; for HMAC or SHA-256 the
@@ -1951,7 +1951,7 @@ idea to encryption.
   96-bit GCM nonces are limited to $2^{32}$ messages per key; counters must be
   written ahead and never restored.
 
-**Next:** Chapter 5, where the secret is
+**Next:** [Chapter 5](05-Constant-Time-Programming.md), where the secret is
 safe from the generator's side and must now be kept from leaking through the
 time the code takes.
 

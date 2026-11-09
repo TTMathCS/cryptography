@@ -352,7 +352,7 @@ secret is zero and then solve for the whole secret as a lattice problem
 and is hard to run, but it is a pure encoding bug: the leak is the length of a
 byte string. TLS 1.3 pads the secret to the
 full width of the group (RFC 8446 §7.4.1). The timing side of this story
-belongs to Chapter 5.
+belongs to [Chapter 5](05-Constant-Time-Programming.md).
 
 !!! note "Life story: the Raccoon attack"
     **Born:** September 2020, Robert Merget, Marcus Brinkmann, Nimrod Aviram,
@@ -652,7 +652,7 @@ Florian Sieck, Sebastian Berndt, Jan Wichelmann and Thomas Eisenbarth showed
 such attacks on the PEM key loading of several libraries, including OpenSSL,
 inside SGX enclaves ("Util::Lookup", ACM CCS 2021). libsodium's Base64
 functions were already constant-time; the technique (comparisons and masks
-instead of a table) is in Chapter 5.
+instead of a table) is in [Chapter 5](05-Constant-Time-Programming.md).
 
 !!! note "Life story: Base64"
     **Born:** February 1987 as the "printable encoding" of Privacy Enhanced
@@ -1552,7 +1552,7 @@ False
 
 Apply the password profile *before* the password hash, both at registration
 and at login, or a user whose keyboard changes will be locked out; the
-hashing itself is in Chapter 13. Note also
+hashing itself is in [Chapter 13](13-Passwords-on-the-Server.md). Note also
 what PRECIS let through: `pаypal` with a Cyrillic `а`.
 
 ### Lookalikes: two strings, one appearance
@@ -1793,7 +1793,7 @@ and Mt. Gox blamed this "malleability" when it halted withdrawals in February
 password, concatenated. bcrypt reads only 72 bytes, so with usernames of 52
 characters or more the password fell outside the hashed part and a cached
 login could succeed with any password (advisory of 1 November 2024; see
-Chapter 13).
+[Chapter 13](13-Passwords-on-the-Server.md)).
 
 !!! note "Life story: the Android Master Key bug"
     **Born:** found by Jeff Forristal at Bluebox Security, reported to Google
@@ -1903,7 +1903,7 @@ variable-length field (RFC 8446 §3), so its transcript hash is unambiguous.
 Scheme** (RFC 8785, 2020) fix one byte form for those formats. Protocol
 Buffers promise no canonical form, so sign the bytes you send, not a message
 re-serialized on the other side. HKDF's `info` label does for keys what
-TupleHash's $S$ does for hashes (Chapter 10).
+TupleHash's $S$ does for hashes ([Chapter 10](10-The-Life-of-a-Key.md)).
 
 !!! note "Life story: SP 800-185 and TupleHash"
     **Born:** December 2016, NIST SP 800-185, "SHA-3 Derived Functions:
