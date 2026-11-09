@@ -21,7 +21,10 @@ offline, the attack called Kerberoasting.*
     - how a password becomes a key, and how Kerberos encrypts, checked against
       RFC 8009;
     - how Active Directory uses Kerberos, and why RC4 survived there until 2026;
-    - PKINIT, FAST and SPAKE: getting the password off the wire;
+    - PKINIT, FAST and SPAKE: getting the password off the wire, with
+      PKINIT and FAST's armor key coded;
+    - delegation (S4U2Self, S4U2Proxy, RBCD) and the 2020 to 2022 attacks on
+      the PAC;
     - pass-the-ticket, golden and silver tickets, Kerberoasting and AS-REP
       roasting, and which key each one needs;
     - what the light delay between Earth and Mars does to a protocol built on
@@ -35,8 +38,8 @@ offline, the attack called Kerberoasting.*
     [10](../../book/10-Message-Authentication.md) and
     [11](../../book/11-Passwords-and-Key-Derivation.md).
 
-    **Levels:** §12.1 and §12.2 are for beginners, §12.3 to §12.10 are
-    intermediate, §12.11 is expert.
+    **Levels:** §12.1 and §12.2 are for beginners, §12.3 to §12.14 are
+    intermediate, §12.15 is expert.
 
 ## 12.1 The problem
 
@@ -669,12 +672,16 @@ local KDC on each machine) to cover the cases that still need it.
     **Weaknesses:** unsalted MD4 keys, RC4 itself (book 1, Chapter 5), and
     tickets that cost one MD4 per guess to attack · **Status:** marked
     Historic and "not to be used" by RFC 8429 (2018); AES has been available
-    since Windows Server 2008, and November 2022 updates made AES the default
-    for accounts with no stated preference. Microsoft's updates for
-    CVE-2026-20833 have domain controllers assume AES only from April 2026,
-    with no way back from July 2026 (as summarized from Microsoft's notices;
-    the bulletins themselves could not be checked here). MIT Kerberos stopped
-    issuing RC4 and triple-DES session keys by default in version 1.21 (2023).
+    since Windows Server 2008, and November 2022 updates made AES session
+    keys the default for accounts with no stated preference. Microsoft's updates for CVE-2026-20833 (KB5073381)
+    then took RC4 away from service tickets in three steps: audit events
+    from January 2026; from the 14 April 2026 updates, domain controllers
+    assume AES only for accounts with no stated enctypes; and the July 2026
+    updates removed audit mode and the setting that rolled the change back.
+    As of November 2026, RC4 still works only where an administrator has
+    written it into an account's `msDS-SupportedEncryptionTypes` or into
+    the domain controllers' defaults by hand. MIT Kerberos stopped issuing
+    RC4 and triple-DES session keys by default in version 1.21 (2023).
 
 ## 12.7 Getting the password off the wire
 
@@ -692,7 +699,7 @@ the computer's TPM chip. Because the reply key comes from Diffie-Hellman, a
 recording of a PKINIT login cannot be attacked offline. RFC 8636 (2019) added
 the ability to name hash functions other than SHA-1; an IETF draft from 2026
 adds ML-KEM so that the key exchange survives quantum computers (see the
-Post-quantum book).
+Post-quantum book). §12.9 runs a PKINIT login message by message.
 
 PKINIT moves the trust to the certificates. In 2021 Will Schroeder and Lee
 Christensen published "Certified Pre-Owned", a study of Active Directory
@@ -706,7 +713,8 @@ certificate authority is part of the login system.
 Windows calls **Kerberos armoring**, wraps the AS exchange in a tunnel
 protected by a key the client's machine already has, typically from its own
 computer account's TGT. An eavesdropper sees only tunnel traffic, not the
-encrypted timestamp, so it has nothing to guess against.
+encrypted timestamp, so it has nothing to guess against. §12.10 shows how the
+tunnel key is made and codes it.
 
 **SPAKE pre-authentication** (RFC 9588) uses a password-authenticated key
 exchange of the kind met in Chapter 11 inside FAST, so that even the KDC side
@@ -896,7 +904,548 @@ The defenses follow the same table:
 - **Watch for the shapes of the attacks:** a single account asking for tickets
   to many SPNs, or RC4 tickets in a domain that should have none.
 
-## 12.9 Mars: a city's single sign-on
+## 12.9 PKINIT: a key pair instead of a password
+
+*Level: intermediate.*
+
+§12.7 described PKINIT in a paragraph; this section runs it. Its goal is
+narrow: replace the password-derived key in the AS exchange and change nothing
+after it. The TGT that comes out is ordinary, and services never learn that a
+certificate was involved.
+
+RFC 4556 delivers the **reply key**, which seals the AS-REP's encrypted part,
+in one of two ways. In **public-key encryption mode** the KDC picks the key,
+signs it and encrypts it to the client's RSA key; this is the mode in which
+Cervesato's team found the attack of §12.15, fixed by the `asChecksum` field,
+a signed checksum of the whole AS-REQ. In **Diffie-Hellman mode** each side
+sends a signed Diffie-Hellman share and the key comes from the shared secret.
+Both exponents are thrown away after the login, so a recording stays sealed
+even if both private keys leak later. It is the only forward secrecy anywhere
+in Kerberos.
+
+**The messages** (Figure 12.4). The AS-REQ carries `PA-PK-AS-REQ`: the
+client's certificate chain and a signed `AuthPack` holding the client's time,
+a random nonce, `paChecksum` (a SHA-1 hash of the request body) and the
+client's share $g^x \bmod p$, signed as CMS SignedData, the container S/MIME
+uses ([Chapter 15](15-Email-OpenPGP-and-SMIME.md)). The KDC validates the
+certificate, maps it to an account, and checks the signature, `paChecksum`
+and the time. It answers with `PA-PK-AS-REP`, a signed `KDCDHKeyInfo` holding its share $g^y \bmod p$ and the client's nonce,
+and seals the AS-REP's encrypted part under
+
+$$k = \mathrm{octetstring2key}\bigl(Z \,\|\, n_c \,\|\, n_k\bigr),\qquad Z = g^{xy} \bmod p,$$
+
+where $Z$ is written big-endian and exactly as long as the modulus, and the
+nonces $n_c$ and $n_k$ are empty unless the KDC reuses its Diffie-Hellman key.
+For a key of $K$ bits,
+
+$$\begin{aligned}\mathrm{octetstring2key}(s) = \text{first } K \text{ bits of }&\mathrm{SHA1}(\texttt{00}\,\|\,s)\\ \|\,&\mathrm{SHA1}(\texttt{01}\,\|\,s)\,\|\,\cdots\end{aligned}$$
+
+Each signature has a job. Alice's, with `paChecksum` under it, ties her
+identity to this request body and this $g^x$, so a captured request cannot be
+edited. The KDC's ties $g^y$ to Alice's nonce, so an attacker cannot slip in
+its own share and read the reply. Without them this is the unauthenticated
+Diffie-Hellman of [Chapter 1](01-What-a-Protocol-Must-Do.md), open to a man
+in the middle.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 360" width="640" role="img" aria-label="A PKINIT login in Diffie-Hellman mode: the client sends a signed AuthPack with its time, nonce, a checksum of the request body and g to the x; the KDC answers with a signed g to the y and the nonce, plus the TGT and an encrypted part under a key derived from g to the xy" fill="currentColor" font-size="13">
+  <rect x="20" y="16" width="160" height="40" rx="6" fill="currentColor" fill-opacity="0.12" stroke="currentColor"/>
+  <text x="100" y="34" text-anchor="middle">client (alice)</text>
+  <text x="100" y="50" text-anchor="middle" font-size="11" fill-opacity=".7">private key, certificate</text>
+  <rect x="460" y="16" width="160" height="40" rx="6" fill="currentColor" fill-opacity="0.12" stroke="currentColor"/>
+  <text x="540" y="34" text-anchor="middle">KDC</text>
+  <text x="540" y="50" text-anchor="middle" font-size="11" fill-opacity=".7">private key, trusted CAs</text>
+  <line x1="100" y1="56" x2="100" y2="262" stroke="currentColor" stroke-dasharray="4 4" stroke-opacity="0.5"/>
+  <line x1="540" y1="56" x2="540" y2="262" stroke="currentColor" stroke-dasharray="4 4" stroke-opacity="0.5"/>
+  <line x1="100" y1="84" x2="536" y2="84" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="537,84 525,79 525,89"/>
+  <text x="320" y="77" text-anchor="middle" font-weight="bold">1 AS-REQ with PA-PK-AS-REQ</text>
+  <rect x="150" y="94" width="340" height="68" rx="5" fill="none" stroke="currentColor"/>
+  <text x="162" y="112" font-size="12">AuthPack, signed with Alice's private key:</text>
+  <text x="172" y="130" font-size="12">ctime, nonce, paChecksum = SHA-1(request body)</text>
+  <text x="172" y="148" font-size="12">clientPublicValue = g^x mod p</text>
+  <line x1="540" y1="188" x2="104" y2="188" stroke="currentColor" stroke-width="1.5"/>
+  <polygon points="103,188 115,183 115,193"/>
+  <text x="320" y="181" text-anchor="middle" font-weight="bold">2 AS-REP with PA-PK-AS-REP</text>
+  <rect x="150" y="198" width="340" height="68" rx="5" fill="none" stroke="currentColor"/>
+  <text x="162" y="216" font-size="12">KDCDHKeyInfo, signed with the KDC's key:</text>
+  <text x="172" y="234" font-size="12">g^y mod p, the client's nonce</text>
+  <text x="162" y="256" font-size="12">TGT, and {TGT session key} under k</text>
+  <rect x="20" y="284" width="600" height="64" rx="6" fill="currentColor" fill-opacity="0.08" stroke="currentColor"/>
+  <text x="36" y="306" font-size="12.5">Both compute Z = g^xy mod p and k = first bits of SHA-1(00‖Z) ‖ SHA-1(01‖Z) ‖ …</text>
+  <text x="36" y="328" font-size="12.5">x and y are then discarded: no password to guess, nothing to open later.</text>
+</svg>
+<figcaption>Figure 12.4. A PKINIT login in Diffie-Hellman mode. Each side signs its own public value; the reply key comes from the shared secret, not from a password.</figcaption>
+</figure>
+
+### A Diffie-Hellman login by hand
+
+Take a toy group, $p = 23$ and $g = 5$. Alice picks $x = 6$. By
+square-and-multiply, $5^2 = 25 \equiv 2$ and $5^4 \equiv 4$, so
+$g^x = 5^4 \cdot 5^2 \equiv 8 \pmod{23}$, which she sends in her signed
+`AuthPack`. The KDC picks $y = 15$: $5^8 \equiv 16$, so
+$5^{15} = 5^8 \cdot 5^4 \cdot 5^2 \cdot 5 \equiv 16 \cdot 4 \cdot 2 \cdot 5 = 640 \equiv 19$,
+which it sends in its signed `KDCDHKeyInfo`.
+
+Alice computes $19^6$: $19^2 = 361 \equiv 16$ and
+$19^4 \equiv 16^2 = 256 \equiv 3$, so $19^6 \equiv 16 \cdot 3 = 48 \equiv 2$.
+The KDC computes $8^{15}$: $8^2 = 64 \equiv 18$, $8^4 \equiv 18^2 = 324 \equiv 2$,
+$8^8 \equiv 4$, so $8^{15} = 8^8 \cdot 8^4 \cdot 8^2 \cdot 8 \equiv 4 \cdot 2 \cdot 18 \cdot 8 = 1152 \equiv 2$.
+Both hold $Z = 2$, the single byte `02` since the modulus fits in one byte.
+With no nonces, the reply key for a 128-bit enctype is the first 16 bytes of
+$\mathrm{SHA1}(\texttt{00 02})$, which a computer gives as
+`9ac521e32f8e19473bc914e1af8ae423`.
+
+An eavesdropper saw 8, 19 and the sealed reply. To read it she needs $Z$:
+here at most 22 tries, in a 2048-bit group a discrete logarithm no one can
+compute. There is no password in the transcript to guess.
+
+### Code it: PKINIT with a real group
+
+The program does the same at real size, with the 2048-bit prime of RFC
+3526's group 14,
+$p = 2^{2048} - 2^{1984} - 1 + 2^{64}\,(\lfloor 2^{1918}\pi\rfloor + 124476)$,
+built with 1,918 bits of $\pi$ from Machin's formula. Per RFC 2412 (1998),
+the 64 ones at each end speed up reduction, $\pi$ shows that nothing is
+hidden in the middle, and 124476 counts the steps of $2^{64}$ taken until $p$
+and $(p-1)/2$ were both prime. Simplified: JSON instead of ASN.1 and CMS, no
+certificates (the KDC holds Alice's public key), and RSA signatures without
+padding, which are unsafe outside a demonstration (book 1, [Chapter 13](../../book/13-RSA.md)).
+
+```python
+# PKINIT in Diffie-Hellman mode (RFC 4556 section 3.2.3.1) with RFC 3526's
+# group 14; JSON for ASN.1, no X.509, textbook RSA. Continue from above.
+import secrets
+
+def arctan_inv(x, one):                        # arctan(1/x) * one, in integers
+    total, term, k, sign = 0, one // x, 1, 1
+    while term:
+        total += sign * (term // k)
+        term, k, sign = term // (x * x), k + 2, -sign
+    return total
+
+one = 1 << (1918 + 32)                         # 32 guard bits
+pi_bits = (16 * arctan_inv(5, one) - 4 * arctan_inv(239, one)) >> 32   # [2^1918 pi]
+P, G = 2**2048 - 2**1984 - 1 + 2**64 * (pi_bits + 124476), 2           # RFC 3526 group 14
+
+def is_prime(n, rounds=8):                     # Miller-Rabin
+    d, s = n - 1, 0
+    while d % 2 == 0: d, s = d // 2, s + 1
+    for _ in range(rounds):
+        x = pow(secrets.randbelow(n - 3) + 2, d, n)
+        if x in (1, n - 1): continue
+        for _ in range(s - 1):
+            x = x * x % n
+            if x == n - 1: break
+        else: return False
+    return True
+
+h = format(P, "x")
+print("group 14:", h[:16], "...", h[-24:], P.bit_length(), "bits; prime and safe:",
+      is_prime(P) and is_prime((P - 1) // 2))
+
+def rsa_prime(bits=512):
+    while True:
+        p = secrets.randbits(bits) | 1 << bits - 1 | 1
+        if (p - 1) % 65537 and is_prime(p): return p
+def rsa_keys():                                # toy RSA: n, e and d
+    p, q = rsa_prime(), rsa_prime()
+    return p * q, 65537, pow(65537, -1, (p - 1) * (q - 1))
+digest = lambda m: int.from_bytes(hashlib.sha256(m).digest(), "big")
+sign = lambda key, m: pow(digest(m), key[2], key[0])
+verify = lambda key, m, sig: pow(sig, key[1], key[0]) == digest(m)
+
+def octetstring2key(x, nbytes):                # RFC 4556: SHA-1(0x00|x) | SHA-1(0x01|x) | ...
+    out = b"".join(hashlib.sha1(bytes([i]) + x).digest() for i in range(nbytes // 20 + 1))
+    return out[:nbytes]                        # random-to-key is the identity for AES
+
+alice_rsa, kdc_rsa = rsa_keys(), rsa_keys()
+certs = {"alice@" + REALM: alice_rsa}          # what the KDC trusts, in place of X.509
+
+def kdc_pkinit(req, at):
+    ap = json.loads(req["auth_pack"])
+    if not verify(certs[req["cert"]], req["auth_pack"], req["sig"]): return "refused: signature"
+    if ap["paChecksum"] != hashlib.sha1(req["body"]).hexdigest(): return "refused: body changed"
+    if abs(ap["ctime"] - at) > SKEW: return "refused: clock skew"
+    y = secrets.randbits(256)                  # the KDC's fresh DH secret
+    dh_info = json.dumps({"subjectPublicKey": pow(G, y, P), "nonce": ap["nonce"]}).encode()
+    k = octetstring2key(pow(ap["clientPublicValue"], y, P).to_bytes(256, "big"), 16)
+    session = os.urandom(16).hex()
+    return {"dh_info": dh_info, "sig": sign(kdc_rsa, dh_info),
+            "ticket": seal(kdc_db["krbtgt/" + REALM], 2, {"cname": "alice", "key": session}),
+            "enc_part": seal(k, 3, {"key": session, "end": now + LIFE})}
+
+body = json.dumps({"cname": "alice", "sname": "krbtgt/" + REALM, "etype": [19]}).encode()
+x = secrets.randbits(256)                      # Alice's fresh DH secret
+auth_pack = json.dumps({"ctime": now, "nonce": 2718281828, "paChecksum": hashlib.sha1(body).hexdigest(),
+                        "clientPublicValue": pow(G, x, P)}).encode()
+as_req = {"body": body, "auth_pack": auth_pack, "sig": sign(alice_rsa, auth_pack), "cert": "alice@" + REALM}
+
+rep = kdc_pkinit(as_req, now + 2)
+info = json.loads(rep["dh_info"])
+print("KDC's signature good, nonce echoed:",
+      verify(kdc_rsa, rep["dh_info"], rep["sig"]) and info["nonce"] == 2718281828)
+k = octetstring2key(pow(info["subjectPublicKey"], x, P).to_bytes(256, "big"), 16)
+print("Alice opens the AS-REP with the DH reply key:", unseal(k, 3, rep["enc_part"]) is not None)
+print("same AuthPack, body asks for RC4:",
+      kdc_pkinit(dict(as_req, body=body.replace(b"[19]", b"[23]")), now + 5))
+print("same AS-REQ replayed an hour later:", kdc_pkinit(as_req, now + 3600))
+```
+
+It prints:
+
+```text
+group 14: ffffffffffffffff ... 8aacaa68ffffffffffffffff 2048 bits; prime and safe: True
+KDC's signature good, nonce echoed: True
+Alice opens the AS-REP with the DH reply key: True
+same AuthPack, body asks for RC4: refused: body changed
+same AS-REQ replayed an hour later: refused: clock skew
+```
+
+The prime agrees with all 512 hex digits of the RFC's listing; only its ends
+are printed. The last two lines give Alice's signature its meaning:
+`paChecksum` refuses a body changed under a valid signature (here, a push
+down to RC4), and the clock check refuses a replayed request, which could not
+be read without $x$ but should not earn a ticket either.
+
+### What PKINIT does not fix
+
+**The CA becomes the password,** as Certified Pre-Owned (§12.7) and
+Certifried (§12.12) showed.
+
+**The NT hash rides along.** So that smart-card users can still answer NTLM
+challenges, the Windows KDC puts the user's NT hash into the PAC of a PKINIT
+reply, in a `PAC_CREDENTIAL_INFO` buffer sealed under the reply key. Attack
+tools call reading it "UnPAC the hash": a stolen certificate becomes a stolen
+NT hash, and through overpass-the-hash (§12.8), more tickets.
+
+**SHA-1 is written into the format.** In Diffie-Hellman mode only the SHA-1
+`paChecksum` binds the request to the reply. RFC 8636 (2019) made the key
+derivation negotiable, with KDFs following SP 800-56A whose input includes the
+whole AS-REQ and the KDC's reply, so the key depends on the transcript, as in
+TLS 1.3 ([Chapter 3](03-TLS-1.3-Message-by-Message.md)). RFC 5349 (2008)
+defines an elliptic-curve version.
+
+**Only the login changes.** Service tickets are still sealed under long-term
+keys, with no forward secrecy.
+
+## 12.10 FAST: a tunnel for the first exchange
+
+*Level: intermediate.*
+
+Password logins have two weak points PKINIT does not touch. The encrypted
+timestamp can be tested against guesses by anyone who records it (§12.2). And
+base Kerberos's errors carry no integrity check: the
+`KDC_ERR_PREAUTH_REQUIRED` error that names the enctypes and salt to use can
+be rewritten in flight, to claim the realm supports only RC4 and collect a
+timestamp that costs one MD4 per guess. That is a downgrade, the failure
+[Chapter 20](20-Designing-and-Verifying-Protocols.md) opens with.
+
+**FAST** (Flexible Authentication Secure Tunneling, RFC 6113, 2011) runs the AS
+exchange inside a tunnel whose key does not come from the password. The
+**armor key** must come from something the client has before anyone types:
+usually the computer's own TGT, which a domain-joined machine gets at boot
+with its random machine key (§12.6). The client sends that TGT, with an
+authenticator carrying a fresh **subkey**, as the armor of the user's request
+(Figure 12.5), and both sides compute
+
+$$\begin{aligned}\text{armor key} = \text{KRB-FX-CF2}\bigl(&\text{subkey},\ \text{TGT session key},\\ &\texttt{"subkeyarmor"},\ \texttt{"ticketarmor"}\bigr).\end{aligned}$$
+
+KRB-FX-CF2 mixes two keys: each goes through the enctype's pseudorandom
+function with its own label (a "pepper"), and the results are XORed,
+
+$$\text{KRB-FX-CF2}(K_1, K_2, a, b) = \mathrm{PRF{+}}(K_1, a) \oplus \mathrm{PRF{+}}(K_2, b),$$
+
+where $\mathrm{PRF{+}}(K, s) = \mathrm{prf}(K, \texttt{01}\|s)\,\|\,\mathrm{prf}(K, \texttt{02}\|s)\,\|\cdots$
+cut to the key length.
+
+Inside the tunnel the encrypted timestamp becomes an **encrypted challenge**:
+the time, sealed with key usage 54 under
+
+$$\begin{aligned}K_\text{chal} = \text{KRB-FX-CF2}\bigl(&\text{armor key},\ K_\text{alice},\\ &\texttt{"clientchallengearmor"},\ \texttt{"challengelongterm"}\bigr).\end{aligned}$$
+
+The KDC answers in kind, with `"kdcchallengearmor"` and usage 55, which proves
+that it too knows $K_\text{alice}$. The reply key is strengthened by one more
+KRB-FX-CF2, a checksum under the armor key covers the whole outer request, and
+errors travel inside the tunnel.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 350" width="640" role="img" aria-label="FAST armoring: the computer's TGT session key and a fresh subkey are combined by KRB-FX-CF2 into the armor key; the armor key and Alice's long-term key are combined into the challenge key; the outer AS-REQ carries the armor and, encrypted under the armor key, the inner request with the encrypted challenge" fill="currentColor" font-size="13">
+  <text x="20" y="22" font-weight="bold">keys</text>
+  <rect x="20" y="34" width="110" height="44" rx="6" fill="currentColor" fill-opacity="0.12" stroke="currentColor"/>
+  <text x="75" y="53" text-anchor="middle" font-size="12">computer's TGT</text>
+  <text x="75" y="69" text-anchor="middle" font-size="12">session key</text>
+  <rect x="145" y="34" width="95" height="44" rx="6" fill="currentColor" fill-opacity="0.12" stroke="currentColor"/>
+  <text x="192" y="53" text-anchor="middle" font-size="12">fresh</text>
+  <text x="192" y="69" text-anchor="middle" font-size="12">subkey</text>
+  <line x1="75" y1="78" x2="120" y2="110" stroke="currentColor"/>
+  <line x1="192" y1="78" x2="150" y2="110" stroke="currentColor"/>
+  <rect x="60" y="110" width="150" height="36" rx="6" fill="currentColor" fill-opacity="0.28" stroke="currentColor"/>
+  <text x="135" y="133" text-anchor="middle" font-size="12" font-weight="bold">CF2 → armor key</text>
+  <rect x="20" y="176" width="110" height="44" rx="6" fill="currentColor" fill-opacity="0.12" stroke="currentColor"/>
+  <text x="75" y="195" text-anchor="middle" font-size="12">K_alice</text>
+  <text x="75" y="211" text-anchor="middle" font-size="12">(password)</text>
+  <line x1="135" y1="146" x2="150" y2="250" stroke="currentColor"/>
+  <line x1="75" y1="220" x2="110" y2="250" stroke="currentColor"/>
+  <rect x="40" y="250" width="190" height="36" rx="6" fill="currentColor" fill-opacity="0.28" stroke="currentColor"/>
+  <text x="135" y="273" text-anchor="middle" font-size="12" font-weight="bold">CF2 → challenge key</text>
+  <text x="20" y="312" font-size="11.5" fill-opacity=".7">the KDC gets the session key from the</text>
+  <text x="20" y="328" font-size="11.5" fill-opacity=".7">TGT and the subkey from the authenticator</text>
+  <text x="270" y="22" font-weight="bold">the AS-REQ on the wire</text>
+  <rect x="270" y="34" width="350" height="296" rx="8" fill="none" stroke="currentColor"/>
+  <text x="284" y="56" font-size="12">outer request: realm, unprotected body</text>
+  <rect x="284" y="68" width="322" height="58" rx="6" fill="currentColor" fill-opacity="0.08" stroke="currentColor"/>
+  <text x="296" y="88" font-size="12">armor: AP-REQ with the computer's TGT</text>
+  <text x="296" y="108" font-size="12">and an authenticator holding the subkey</text>
+  <rect x="284" y="138" width="322" height="178" rx="6" fill="currentColor" fill-opacity="0.2" stroke="currentColor"/>
+  <text x="296" y="158" font-size="12" font-weight="bold">sealed under the armor key (usage 51)</text>
+  <text x="296" y="180" font-size="12">inner request: cname alice, sname krbtgt,</text>
+  <text x="296" y="198" font-size="12">enctypes, lifetimes</text>
+  <rect x="296" y="212" width="298" height="58" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <text x="308" y="234" font-size="12">PA-ENCRYPTED-CHALLENGE: the time,</text>
+  <text x="308" y="254" font-size="12">sealed under the challenge key (usage 54)</text>
+  <text x="296" y="296" font-size="12">plus a checksum of the outer request</text>
+</svg>
+<figcaption>Figure 12.5. FAST armoring. The armor key comes from the computer's own TGT; the user's password key is used only after being mixed with it, so nothing on the wire is sealed under the password alone.</figcaption>
+</figure>
+
+### Code it: armor and the encrypted challenge
+
+The program checks KRB-FX-CF2 against RFC 8009's PRF example and RFC 6113's
+test vector, which uses RC4 keys (the NT hash of §12.3, with HMAC-SHA-1 as
+the PRF). Then it runs one armored login from terminal 7 and plays the
+eavesdropper.
+
+```python
+# FAST armoring (RFC 6113): the armor key comes from the computer's own TGT,
+# and an encrypted challenge replaces the encrypted timestamp. Continue from above.
+def prf(key, data):                            # RFC 8009 section 5, aes128-cts-hmac-sha256-128
+    return hmac.new(key, struct.pack(">I", 1) + b"prf\0" + data + struct.pack(">I", 256), "sha256").digest()
+
+def cf2(k1, k2, pepper1, pepper2, prf=prf, n=16):      # KRB-FX-CF2, RFC 6113 section 5.1
+    plus = lambda k, pepper: b"".join(prf(k, bytes([i]) + pepper) for i in (1, 2))[:n]   # PRF+
+    return xor(plus(k1, pepper1), plus(k2, pepper2))
+
+print("RFC 8009 PRF('test'):", prf(bytes.fromhex("3705d96080c17728a0e800eab6e0d23c"), b"test").hex()[:32])
+rc4_prf = lambda k, data: hmac.new(k, data, "sha1").digest()      # RC4's PRF (RFC 4757)
+print("RFC 6113 CF2 vector, RC4:", cf2(nt_hash("key1"), nt_hash("key2"), b"a", b"b", rc4_prf).hex())
+
+# At boot, terminal 7 logged in with its own random machine key and holds a TGT.
+host_session = os.urandom(16)
+host_tgt = seal(kdc_db["krbtgt/" + REALM], 2, {"cname": "host/term7", "key": host_session.hex()})
+subkey = os.urandom(16)                        # fresh for this request
+armor_ap = {"ticket": host_tgt, "authenticator": seal(host_session, 11, {"subkey": subkey.hex()})}
+armor = cf2(subkey, host_session, b"subkeyarmor", b"ticketarmor")
+
+# Inside the tunnel, Alice proves her password with an encrypted challenge.
+challenge_key = cf2(armor, alice_key, b"clientchallengearmor", b"challengelongterm")
+fast_req = seal(armor, 51, {"cname": "alice", "padata": seal(challenge_key, 54, {"ts": now})})
+
+def kdc_fast(armor_ap, fast_req):
+    t = unseal(kdc_db["krbtgt/" + REALM], 2, armor_ap["ticket"])
+    sub = unseal(bytes.fromhex(t["key"]), 11, armor_ap["authenticator"])["subkey"]
+    a = cf2(bytes.fromhex(sub), bytes.fromhex(t["key"]), b"subkeyarmor", b"ticketarmor")
+    inner, lt = unseal(a, 51, fast_req), kdc_db["alice@" + REALM]
+    ts = unseal(cf2(a, lt, b"clientchallengearmor", b"challengelongterm"), 54, inner["padata"])
+    proof = seal(cf2(a, lt, b"kdcchallengearmor", b"challengelongterm"), 55, {"ts": now})
+    return ts is not None and abs(ts["ts"] - now) <= SKEW, proof
+ok, proof = kdc_fast(armor_ap, fast_req)
+kdc_key = cf2(armor, alice_key, b"kdcchallengearmor", b"challengelongterm")
+print("KDC accepts Alice:", ok, "  Alice accepts the KDC:", unseal(kdc_key, 55, proof) is not None)
+
+# An eavesdropper's view. The old encrypted timestamp falls to a word list;
+# FAST traffic gives even the right password nothing to open.
+old_style = seal(alice_key, 1, {"patimestamp": now})
+for guess in [b"password", b"Mars2026!", b"Olympus-Mons-21"]:
+    k = string_to_key(guess, (REALM + "alice").encode(), E)
+    if unseal(k, 1, old_style): print("PA-ENC-TIMESTAMP cracked:", guess.decode())
+print("FAST with the right password, no armor key:", unseal(k, 51, fast_req), unseal(k, 54, fast_req))
+```
+
+It prints:
+
+```text
+RFC 8009 PRF('test'): 9d188616f63852fe86915bb840b4a886
+RFC 6113 CF2 vector, RC4: 24d7f6b6bae4e5c00d2082c5ebab3672
+KDC accepts Alice: True   Alice accepts the KDC: True
+PA-ENC-TIMESTAMP cracked: Olympus-Mons-21
+FAST with the right password, no armor key: None None
+```
+
+Both test values match: the first 16 bytes of RFC 8009's PRF output
+`9D188616…`, and RFC 6113 Appendix A's `24d7f6b6…`. The last line is the
+point: the eavesdropper has the right password and opens nothing, because
+every key on the wire depends on a TGT session key that only terminal 7 and
+the KDC hold.
+
+**Where the armor comes from.** Machines outside the domain can use anonymous
+PKINIT (RFC 8062, 2017), which authenticates only the KDC and yields a TGT
+for the anonymous principal, enough for armor: with MIT Kerberos,
+`kinit -n -c armor.cc`, then `kinit -T armor.cc alice`. SPAKE (§12.7) and
+the one-time passwords of RFC 6560 run inside FAST, which is how a realm adds
+the codes of [Chapter 11](11-One-Time-Codes-and-Password-Protocols.md) to a
+password.
+
+**In Windows** FAST is called Kerberos armoring (Windows Server 2012 and
+Windows 8 onward). A policy turns it on and another, "Fail unarmored
+authentication requests", makes it mandatory, which few domains do: one old
+client without armoring could no longer log in.
+
+## 12.11 Delegation: acting for the user
+
+*Level: intermediate.*
+
+Alice uses the city's records portal, a web front end that reads a database.
+The database should see Alice, not the portal, but her ticket for the portal
+is sealed under the portal's key. Kerberos has three ways to give the portal a
+database ticket in her name, each handing out a different amount of trust.
+
+**Unconstrained delegation.** Alice's client forwards her TGT and its session
+key to a service trusted for delegation (domain controllers are, by default),
+which can then ask for tickets as Alice to anything. Whoever controls that
+service holds every visitor's TGT, and coercion tricks such as the 2018
+"printer bug" and 2021's PetitPotam can make a domain controller send that
+service its own.
+
+**Constrained delegation (S4U2Proxy).** Windows Server 2003 added two
+extensions to the TGS exchange, specified in Microsoft's MS-SFU. In
+**S4U2Proxy** the portal asks for a database ticket and attaches Alice's
+ticket for the portal as *evidence*. The KDC checks that the database's SPN is
+in the portal account's `msDS-AllowedToDelegateTo` list and that the evidence
+is forwardable, then issues the ticket with the PAC copied from the evidence.
+The portal never holds Alice's TGT.
+
+**Protocol transition (S4U2Self).** If Alice came in with a passkey
+([Chapter 13](13-Passkeys-FIDO2-and-WebAuthn.md)) or a one-time code and has no
+Kerberos ticket, **S4U2Self** lets the portal ask for a ticket *to itself* in
+her name, with her PAC and no proof from her. That ticket is forwardable, and
+so good evidence, only if the portal is trusted for protocol transition and
+Alice is not marked "sensitive and cannot be delegated" or in Protected Users.
+Figure 12.6 shows both steps.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 380" width="640" role="img" aria-label="Constrained delegation with protocol transition: Alice logs in to the portal without Kerberos; the portal asks the KDC by S4U2Self for a ticket to itself in Alice's name, then by S4U2Proxy for a ticket to the database, presenting the first ticket as evidence; the KDC checks the delegation list; the portal then connects to the database as Alice" fill="currentColor" font-size="13">
+  <rect x="10" y="14" width="110" height="36" rx="6" fill="currentColor" fill-opacity="0.12" stroke="currentColor"/>
+  <text x="65" y="37" text-anchor="middle">alice</text>
+  <rect x="170" y="14" width="120" height="36" rx="6" fill="currentColor" fill-opacity="0.12" stroke="currentColor"/>
+  <text x="230" y="37" text-anchor="middle">portal</text>
+  <rect x="340" y="14" width="120" height="36" rx="6" fill="currentColor" fill-opacity="0.12" stroke="currentColor"/>
+  <text x="400" y="37" text-anchor="middle">KDC</text>
+  <rect x="510" y="14" width="120" height="36" rx="6" fill="currentColor" fill-opacity="0.12" stroke="currentColor"/>
+  <text x="570" y="37" text-anchor="middle">database</text>
+  <g stroke="currentColor" stroke-dasharray="4 4" stroke-opacity="0.5">
+    <line x1="65" y1="50" x2="65" y2="360"/><line x1="230" y1="50" x2="230" y2="360"/>
+    <line x1="400" y1="50" x2="400" y2="360"/><line x1="570" y1="50" x2="570" y2="360"/>
+  </g>
+  <line x1="65" y1="80" x2="226" y2="80" stroke="currentColor" stroke-width="1.5"/><polygon points="227,80 215,75 215,85"/>
+  <text x="70" y="72" font-size="11.5">1 passkey or code</text>
+  <line x1="230" y1="114" x2="396" y2="114" stroke="currentColor" stroke-width="1.5"/><polygon points="397,114 385,109 385,119"/>
+  <text x="236" y="106" font-size="11.5">2 S4U2Self: me, for alice</text>
+  <line x1="400" y1="146" x2="234" y2="146" stroke="currentColor" stroke-width="1.5"/><polygon points="233,146 245,141 245,151"/>
+  <text x="246" y="140" font-size="11.5">3 ticket alice → portal</text>
+  <line x1="230" y1="186" x2="396" y2="186" stroke="currentColor" stroke-width="1.5"/><polygon points="397,186 385,181 385,191"/>
+  <text x="236" y="172" font-size="11.5">4 S4U2Proxy: database,</text>
+  <text x="236" y="200" font-size="11.5">evidence = ticket 3</text>
+  <rect x="410" y="200" width="220" height="70" rx="6" fill="currentColor" fill-opacity="0.08" stroke="currentColor"/>
+  <text x="420" y="219" font-size="11.5">KDC checks: evidence forwardable;</text>
+  <text x="420" y="237" font-size="11.5">database on portal's list, or</text>
+  <text x="420" y="255" font-size="11.5">portal on database's list (RBCD)</text>
+  <line x1="400" y1="290" x2="234" y2="290" stroke="currentColor" stroke-width="1.5"/><polygon points="233,290 245,285 245,295"/>
+  <text x="246" y="284" font-size="11.5">5 ticket alice → database</text>
+  <line x1="230" y1="334" x2="566" y2="334" stroke="currentColor" stroke-width="2"/><polygon points="567,334 555,329 555,339"/>
+  <text x="300" y="326" font-size="11.5" font-weight="bold">6 AP-REQ: the database sees alice</text>
+</svg>
+<figcaption>Figure 12.6. Constrained delegation with protocol transition. The portal never holds Alice's TGT; the KDC decides, from a list, which services it may reach in her name.</figcaption>
+</figure>
+
+**Resource-based constrained delegation (RBCD).** Windows Server 2012 put the
+list on the target: the database account's
+`msDS-AllowedToActOnBehalfOfOtherIdentity` names who may reach it in a user's
+name, and the database's own administrators can set it. Elad Shamir's
+"Wagging the Dog" (2019) showed the cost: anyone who can write that attribute
+on a computer can name an account they control (by default any user may
+create ten computer accounts, `ms-DS-MachineAccountQuota`), then run S4U2Self
+and S4U2Proxy from it to reach the target as any unprotected user.
+
+### Break it: the Bronze Bit
+
+The S4U2Self ticket is sealed under the portal's own key, so the portal can
+open it, edit it and seal it again. Before November 2020 the KDC checked only
+the PAC's signatures, and the *forwardable* flag is not in the PAC. Jake
+Karnes of NetSPI showed in 2020 that a compromised service could flip that
+bit and delegate as a protected user: the Bronze Bit, CVE-2020-17049. The fix added a **ticket signature** under the `krbtgt` key
+over the rest of the ticket.
+
+No cryptanalysis was needed. The flaw was the KDC's belief that a field inside
+a ticket sealed under a service's key had been written by the KDC. Encryption
+under a key someone else also holds is not a signature.
+
+### Fix it
+
+- Unconstrained delegation for domain controllers only.
+- Administrators in Protected Users, or marked "sensitive and cannot be
+  delegated", so no S4U path yields a forwardable ticket for them.
+- `ms-DS-MachineAccountQuota` set to 0, so ordinary users cannot create the
+  computer accounts that RBCD abuse and the attacks of §12.12 start from.
+- Alerts on changes to `msDS-AllowedToActOnBehalfOfOtherIdentity` and on
+  S4U2Self requests from accounts with no reason to make them.
+
+## 12.12 The PAC under attack, 2021 to 2022
+
+*Level: intermediate.*
+
+Since Windows 2000 the PAC has said what a ticket's holder may do (§12.5):
+user and group identifiers, names, times and, after PKINIT, credentials. It
+began with two signatures: the **server signature**, under the service's key
+over the whole PAC, which the service can check alone, and the **KDC
+signature**, under the `krbtgt` key over the server signature only. Each
+attack since has found something they missed: the ticket signature of 2020
+(§12.11), and after the three attacks below, a requestor buffer and a fourth
+signature over the whole PAC.
+
+!!! note "Life story: noPac (sAMAccountName spoofing)"
+    **Born:** fixed 9 November 2021 as CVE-2021-42278 and CVE-2021-42287;
+    public tools followed in December 2021 · **The flaw:** computer account
+    names end in `$`, but a user could rename a computer account they had
+    made to `DC1`, get a TGT as `DC1`, and rename it back. Given that TGT in an
+    S4U2Self request, the KDC looked for `DC1`, found nothing, tried `DC1$`,
+    and found the domain controller: it issued a ticket under the
+    controller's own key with a PAC for any user the attacker named · **Fix:**
+    account names are checked, and every TGT carries a **PAC requestor**
+    buffer with the security identifier of its account, which the KDC
+    compares; mandatory from 11 October 2022 (KB5008380) · **Lesson:** a
+    ticket that names its holder by a string trusts every later lookup of
+    that string
+
+!!! note "Life story: Certifried (CVE-2022-26923)"
+    **Born:** reported by Oliver Lyak of IFCR; fixed 10 May 2022 · **The
+    flaw:** Active Directory matched a computer's certificate to its account
+    by DNS name. A user who created a computer account could set its
+    `dNSHostName` to the domain controller's name, get a machine certificate
+    from the domain's own CA, and log in with it by PKINIT (§12.9) as the
+    domain controller · **Fix:** strong mapping (KB5014754): certificates
+    carry the account's security identifier in a new extension, which the KDC
+    checks; full enforcement in February 2025, with the way back removed by
+    the September 2025 updates · **Lesson:** in a PKINIT realm the CA's
+    naming rules are part of the login protocol
+
+The third attack was on the signatures. In S4U2Proxy the KDC copies the PAC
+from an evidence ticket the service has held, and the service can rewrite the
+PAC and redo the server signature with its own key. The KDC signature covered
+only the server signature, which for RC4 tickets is an HMAC-MD5. Tom
+Tervoort of Secura showed (CVE-2022-37967, Black Hat Europe 2022) that an MD5 collision gives a PAC with
+added groups and the same server signature, so the KDC signature still
+verifies. The fix, an **extended KDC signature** over the whole PAC under the
+`krbtgt` key, shipped on 8 November 2022 (KB5020805), was enforced by default
+from 11 July 2023, and could not be switched off after 10 October 2023.
+
+Each time, something the KDC had not vouched for, a field under a key a
+service also holds or a name that could change hands, was taken as proof of
+who the user was. Each fix bound it to something the KDC controls, a `krbtgt`
+signature or a security identifier, and each took a year or more to enforce,
+because every old client and appliance had to be found first.
+
+## 12.13 Mars: a city's single sign-on
 
 *Level: intermediate.*
 
@@ -911,10 +1460,19 @@ back. Kerberos already has the answer, **cross-realm trust**: the KDCs of
 `ARCADIA.MARS` and `EARTH.ORG` share an inter-realm key, stored as a principal
 named `krbtgt/EARTH.ORG@ARCADIA.MARS`. A resident's Mars TGS issues a
 **referral TGT** encrypted under that key, and the Earth KDC accepts it as
-proof that Mars vouches for the resident (Figure 12.3). Every Earth service
+proof that Mars vouches for the resident (Figure 12.7). Every Earth service
 ticket still needs one exchange with the Earth KDC, so the realms keep each
 other's ticket requests to a minimum by giving out long-lived tickets for the
 few Earth services residents use.
+
+**Referrals find the path.** A resident's client need not know which realm an
+Earth service belongs to. With the referrals of RFC 6806 (2012) it asks its own
+KDC for `HTTP/archive.earth.org`; the Mars KDC, which has no such principal,
+answers with a referral TGT for `EARTH.ORG`, and the client follows it. When
+two realms share no key, the path runs through realms that do, one TGS
+exchange per hop, recorded in the ticket's *transited* field. From Mars every
+hop on the Earth side costs a round trip of 6 to 44 minutes, so the city keeps
+a direct inter-realm key with each Earth realm its residents use.
 
 **The authenticator check confuses delay with skew.** A service checks that
 the authenticator's time is within five minutes of its own clock. On one planet
@@ -963,10 +1521,37 @@ costs a round trip.
 <text x="485" y="240" text-anchor="middle" font-size="12">no way to recall a ticket</text>
 <text x="485" y="256" text-anchor="middle" font-size="12">before its end time</text>
 </svg>
-<figcaption>Figure 12.3. Cross-realm Kerberos between Mars and Earth. Each planet runs its own KDC; one shared key links the realms.</figcaption>
+<figcaption>Figure 12.7. Cross-realm Kerberos between Mars and Earth. Each planet runs its own KDC; one shared key links the realms.</figcaption>
 </figure>
 
-## 12.10 In the real world
+### Sizing the window, by hand
+
+Take the city's mail relay on Earth, accepting 40 AP-REQs a minute from Mars,
+with clocks held within the usual 5 minutes. Three designs:
+
+1. **Widen the window.** One-way light time is 3 to 22 minutes, so the relay
+   must accept an authenticator written up to 22 + 5 = 27 minutes ago and,
+   for skew the other way, 5 minutes ahead: a window 32 minutes wide, not 10. The replay cache grows from
+   $10 \times 40 = 400$ entries to $32 \times 40 = 1{,}280$, and a stolen
+   authenticator stays usable for up to 27 minutes.
+2. **Subtract the light time.** The planets' positions give the light time to
+   the second. If today it is 14 minutes, the relay checks
+   $|(\text{arrival} - \text{ctime}) - 14\text{ min}| \le 5\text{ min}$ and keeps
+   the 400-entry cache. But a bundle that waited at a relay satellite for a
+   ground-station pass ([Chapter 20](20-Designing-and-Verifying-Protocols.md))
+   arrives late and is refused.
+3. **Count.** Each sender numbers its authenticators, and the relay keeps the
+   highest number seen from each and refuses anything not above it: for the
+   city's 300 sending hosts, 300 numbers, whatever the delay.
+
+For mail the city combines the first and third, as said above: the wide
+window bounds a message's age, and the sequence numbers catch replays inside
+it. Interactive sessions that must reach Earth use the second. The trade is
+the one [Chapter 11](11-One-Time-Codes-and-Password-Protocols.md#1111-mars-a-counter-not-a-clock)
+made for one-time codes on Mars: a counter needs state at both ends, and a
+clock needs agreement about time.
+
+## 12.14 In the real world
 
 *Level: intermediate.*
 
@@ -1011,8 +1596,17 @@ What to check in a Kerberos deployment:
   service accounts.
 - Clocks are synchronized, and the KDCs are the best-protected machines in
   the building.
+- No account but the domain controllers has unconstrained delegation,
+  administrators are in Protected Users, and `ms-DS-MachineAccountQuota` is 0.
+- Armoring is on, and required where every client supports it.
 
-## 12.11 Going deeper
+**RC4's last years in Windows.** The end of RC4 followed the same staged
+pattern as the PAC fixes of §12.12: log what would break, change the default
+with a way back, then remove the way back (the Life story in §12.6 has the
+dates). As of November 2026, RC4 survives only where an administrator wrote it
+into an account by hand, which is what the 2026 audit events were for.
+
+## 12.15 Going deeper
 
 *Level: expert.*
 
@@ -1033,24 +1627,17 @@ seeded with too little entropy, so they could be found by search. The protocol
 was sound; its keys were not. The Cryptanalysis book tells this and other
 random-number failures.
 
-**Delegation.** A web front end often has to reach a database on the user's
-behalf. Kerberos offers three ways, each a lesson in how much trust to hand
-out. **Unconstrained delegation** sends the user's own TGT to the front end,
-which can then act as the user anywhere. **Constrained delegation**, built on
-Microsoft's S4U2Self and S4U2Proxy extensions, lets the KDC issue tickets to a
-named list of services only. **Resource-based constrained delegation** puts the
-list on the target service instead. Each has had its attacks: unconstrained
-delegation hands any administrator of the front end every visitor's TGT, and
-the "Bronze Bit" flaw (CVE-2020-17049, Jake Karnes, 2020) let a service flip
-the "forwardable" flag in a ticket it could open with its own key, because
-that flag was not covered by any signature the KDC checked. The fix added yet
-another PAC signature, a pattern visible across this chapter: whatever field a
-signature or MAC leaves out sooner or later becomes the attack.
+**Delegation and the PAC.** One pattern runs through §12.11, §12.12 and this
+whole chapter: whatever field a signature or MAC leaves out sooner or later
+becomes the attack. RFC 4120's ticket, encrypted for one service and opened
+only by it, never had to say who else could write one. The S4U extensions,
+which let services hand tickets back to the KDC as evidence, made that
+question matter.
 
 **Forward secrecy.** Core Kerberos has none, as §12.2 showed. PKINIT gives it
-for the AS exchange only; the tickets themselves are still encrypted under
-long-term keys. RFC 4121's GSS-API layer lets client and server add a subkey of
-their own to the AP exchange, but both choose it and send it under the
+for the AS exchange only (§12.9); the tickets themselves are still encrypted
+under long-term keys. RFC 4121's GSS-API layer lets client and server add a
+subkey of their own to the AP exchange, but both choose it and send it under the
 session key, so it adds no forward secrecy either. Protocols that need it run
 TLS inside, with Kerberos only for authentication.
 
@@ -1070,54 +1657,57 @@ Chapter 3.
     passwords and nothing needs to be shared in advance between client and
     service.
 
-??? question "2. Why can Alice not read her own TGT, and why does it not matter?"
-    It is encrypted under the `krbtgt` key, which only the KDC has. She
-    doesn't need to read it: she gets the session key $S_1$ separately, under
-    her own key, and the TGT only has to be shown back to the KDC.
-
-??? question "3. What does pre-authentication prevent, and what does it not prevent?"
+??? question "2. What does pre-authentication prevent, and what does it not prevent?"
     It stops anyone from asking the AS for a reply encrypted under any user's
     key without proving knowledge of that key first. It does not stop an
     eavesdropper from guessing the password offline from a captured encrypted
     timestamp.
 
-??? question "4. Why does Kerberos derive separate keys for each key usage number?"
-    So that a value encrypted for one purpose (for example a pre-authentication
-    timestamp) cannot be accepted as another (an authenticator). It separates
-    domains inside one long-term key.
-
-??? question "5. Why does a Kerberos service need both a time window and a replay cache?"
+??? question "3. Why does a Kerberos service need both a time window and a replay cache?"
     The window bounds how long an authenticator can be replayed and so how
     much the cache must remember; the cache refuses copies within the window.
     Either alone fails.
 
-??? question "6. Why does Kerberos have no forward secrecy?"
-    Session keys are chosen by the KDC and sent encrypted under long-term keys.
-    Anyone who later learns the service's key can open recorded tickets,
-    recover the session keys and decrypt the old traffic.
-
-??? question "7. What is Kerberoasting, and why does AES not stop it?"
+??? question "4. What is Kerberoasting, and why does AES not stop it?"
     Any user can request a service ticket encrypted under a service account's
     key; if that key comes from a weak password, the ticket can be cracked
     offline. AES only makes each guess slower; a guessable password is still
     guessed.
 
-??? question "8. Compare a golden ticket and a silver ticket."
+??? question "5. Compare a golden ticket and a silver ticket."
     A golden ticket is a TGT forged with the `krbtgt` key: it gets tickets for
     any service as anyone. A silver ticket is a service ticket forged with one
     service's key: it works only at that service, but never touches the KDC,
     so it leaves no trace there.
 
-??? question "9. Why must the krbtgt password be reset twice after a compromise?"
+??? question "6. Why must the krbtgt password be reset twice after a compromise?"
     The KDC accepts tickets under both the current and the previous `krbtgt`
     key. After one reset, the stolen key is the "previous" one and still works;
     the second reset removes it.
 
-??? question "10. Why does a five-minute authenticator window fail between Earth and Mars, even with perfect clocks?"
+??? question "7. A recording of a Diffie-Hellman PKINIT login is stolen, and years later so are Alice's private key and the library's keytab. What can the thief read?"
+    Not the AS exchange: its key came from $g^{xy}$, and $x$ and $y$ were
+    discarded, so neither private key helps. But the service tickets are
+    sealed under the library's long-term key, so the thief opens them, reads
+    the session keys and decrypts the sessions. PKINIT gives forward secrecy
+    to the login only.
+
+??? question "8. In FAST, why does an eavesdropper who knows Alice's password still learn nothing, and what must the client have before Alice types it?"
+    Every key on the wire is mixed with the armor key, which depends on a TGT
+    session key only the client machine and the KDC hold. The client needs
+    that TGT first: usually the computer's own, or an anonymous PKINIT one.
+
+??? question "9. Why could a service flip the forwardable flag in the Bronze Bit attack, and what stopped it?"
+    The ticket is encrypted under the service's own key, so the service can
+    decrypt, edit and re-encrypt it, and the flag was outside the signed PAC.
+    The 2020 fix added a `krbtgt`-keyed ticket signature.
+
+??? question "10. Why does a five-minute authenticator window fail between Earth and Mars, even with perfect clocks, and what are the alternatives?"
     The service compares the authenticator's time with its own clock on
-    arrival, so light time (3 to 22 minutes) counts as if it were skew. The
-    window must be widened, at the cost of a larger replay cache and longer
-    replay exposure, or replaced by a challenge costing a round trip.
+    arrival, so light time (3 to 22 minutes) counts as if it were skew.
+    Widening the window to about 32 minutes triples the replay cache;
+    subtracting the known light time refuses messages that waited in a relay;
+    sequence numbers need one counter per sender, whatever the delay.
 
 ## What you learned
 
@@ -1138,6 +1728,14 @@ Chapter 3.
 - Attacks follow the keys: pass-the-ticket, overpass-the-hash, AS-REP
   roasting, Kerberoasting, silver and golden tickets. Long random service keys,
   AES only and protected domain controllers are the answers.
+- Diffie-Hellman PKINIT signs both shares and derives the reply key from
+  $g^{xy}$: the login has forward secrecy and nothing to guess, and the CA
+  becomes the target.
+- FAST mixes every key on the wire with an armor key from the computer's own
+  TGT, so recorded logins cannot be attacked offline.
+- Delegation comes as a forwarded TGT, S4U2Self and S4U2Proxy, or RBCD. The
+  Bronze Bit, noPac, Certifried and CVE-2022-37967 each used a field the KDC
+  trusted without having signed it.
 - Between planets, delay counts as skew, revocation is slower still, and each
   planet needs its own realm.
 
@@ -1167,3 +1765,17 @@ Chapter 3.
   Christopher Walstad, "Breaking and fixing public-key Kerberos", 2006.
 - MIT Kerberos documentation, `doc/admin/enctypes.rst` and
   `doc/admin/spake.rst`.
+- RFC 3526 (MODP groups, 2003) and RFC 2412 (1998), Appendix E, on how
+  such primes are chosen; RFC 5349 (elliptic-curve PKINIT, 2008), RFC 8062
+  (anonymous PKINIT, 2017), RFC 6806 (referrals, 2012), RFC 6560 (one-time
+  passwords, 2012).
+- Microsoft's MS-SFU (S4U) and MS-PAC specifications, and support articles
+  KB5008380 (2021), KB5014754 (2022), KB5020805 (2022) and KB5073381
+  (2025-2026).
+- Elad Shamir, "Wagging the Dog: Abusing Resource-Based Constrained
+  Delegation to Attack Active Directory", 2019.
+- Jake Karnes, "CVE-2020-17049: Kerberos Bronze Bit Attack", NetSPI, 2020.
+- Oliver Lyak, "Certifried: Active Directory Domain Privilege Escalation
+  (CVE-2022-26923)", IFCR, 2022.
+- Tom Tervoort, "Breaking Kerberos' RC4 Cipher and Spoofing Windows PACs",
+  Black Hat Europe, 2022.
