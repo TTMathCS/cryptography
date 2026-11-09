@@ -1,0 +1,1046 @@
+# 20. Designing and verifying protocols
+
+*Nineteen chapters have taken protocols apart. Almost every one carried a
+story of a design that looked right, was deployed, and then failed: an export
+cipher suite left switched on, a padding error that answered too helpfully, a
+nonce used twice, a field nobody bound into a signature. This last chapter
+turns those stories into rules, and then asks how anyone can know a protocol
+is right before it ships. The answer of the last thirty years is formal
+analysis: write the protocol down as precisely as a program, describe the
+attacker as a machine, and let a tool search every way the two can interact.
+You will run such a search yourself and watch it rediscover, in a fraction of
+a second, an attack on a 1978 protocol that took seventeen years to find by
+hand. Then the chapter looks forward: what post-quantum algorithms change in
+protocol design, how the Bundle Protocol secures messages that may wait hours
+in a relay orbiter on their way to Mars, and which problems are still open.*
+
+!!! abstract "In this chapter"
+    **You will learn:**
+
+    - ten rules that summarize the failures in this book;
+    - why a negotiation must be bound to its transcript, coded;
+    - the Dolev-Yao attacker and the symbolic model of a protocol;
+    - Lowe's attack on Needham-Schroeder, by hand and found by a model
+      checker you write;
+    - what ProVerif, Tamarin, CryptoVerif and verified code have proved,
+      and where proofs stop;
+    - how post-quantum algorithms change the shape of protocols;
+    - delay-tolerant networking and BPSec, checked against RFC 9173;
+    - the open problems this book leaves for its readers.
+
+    **You need:** [Chapter 1](01-What-a-Protocol-Must-Do.md) (what
+    protocols guarantee); the TLS chapters
+    ([3](03-TLS-1.3-Message-by-Message.md),
+    [4](04-Thirty-Years-of-TLS-Attacks.md)) and
+    [Chapter 16](16-Signal-and-the-Double-Ratchet.md) for the examples;
+    public-key encryption and MACs from book 1.
+
+    **Levels:** 20.1 to 20.3 beginner; 20.4 to 20.8 intermediate; 20.9
+    advanced; 20.10 expert.
+
+## 20.1 What thirty years of failures teach
+
+*Level: beginner.*
+
+Read the attack sections of this book together and the same few mistakes come
+back in new clothes. None of the rules below is new; each is a summary of a
+chapter.
+
+1. **Say who you are talking to, inside the protected message.** A message
+   that does not name its sender and intended receiver can be replayed into a
+   different conversation. Lowe's attack in §20.3 is the classic case; the
+   Selfie attack on TLS 1.3 with pre-shared keys (§20.5) is a modern one.
+2. **Bind the whole transcript.** Whatever was negotiated must be
+   authenticated afterwards by both sides, or an attacker who edits the
+   negotiation chooses the weakest option: FREAK, Logjam and the SSL 3.0
+   fallbacks of [Chapter 4](04-Thirty-Years-of-TLS-Attacks.md). TLS 1.3 signs
+   and MACs a hash of every message.
+3. **Authenticate before you process.** Decrypting, decompressing or parsing
+   data that has not been authenticated hands the attacker an oracle: padding
+   oracles in TLS and SSH, EFAIL's gadgets in
+   [Chapter 15](15-Email-OpenPGP-and-SMIME.md). Use an AEAD and reject before
+   reading.
+4. **One key, one purpose.** Derive separate keys with labels for each
+   direction, message type and role (the HKDF labels of TLS 1.3, Signal and
+   MLS). A key used both to sign and to decrypt, or in two protocols, lets
+   one protocol become an oracle for the other.
+5. **Fresh means provably fresh.** Nonces must never repeat under one key
+   (KRACK in [Chapter 9](09-Wi-Fi-Security.md), the Android wallets in
+   [Chapter 19](19-Ledgers-Bitcoin.md)), and a receiver must be able to tell
+   an old message from a new one.
+6. **Fail the same way every time.** Different error messages, or different
+   times to fail, turn a server into a decryption oracle: Bleichenbacher's
+   attack and its many returns.
+7. **Fewer options.** Every choice is a downgrade path and a code path that
+   is rarely tested. WireGuard has no negotiation at all; JWT's `alg` field
+   ([Chapter 14](14-OAuth-OpenID-Connect-and-JWT.md)) shows the opposite.
+8. **Plan for compromise.** Assume keys will leak: forward secrecy limits
+   what an old key reveals, and post-compromise security, as in the Double
+   Ratchet, limits what a stolen state reveals later.
+9. **A small, explicit state machine.** Implementations that accept messages
+   in the wrong order skip steps without noticing (the SMACK bugs of 2015).
+   A protocol whose states fit on a page is a protocol that gets implemented
+   correctly.
+10. **Keys and people are part of the protocol.** Most real losses in this
+    book came from how keys were made, stored, checked and recovered: weak
+    random numbers, unchecked fingerprints, lost seed phrases. A design that
+    assumes users compare 60-digit numbers will be used without it.
+
+### Code it: a downgrade, and what catches it
+
+Rule 2 is the one most often broken, so here it is in miniature. A client
+offers a strong key exchange and a weak one; an attacker deletes the strong
+offer; the server, seeing only the weak one, picks it. Three checks are
+compared: none, a `Finished` MAC over the transcript keyed by the new session
+key (as in TLS 1.2), and a signature over the transcript by the server's
+long-term key (TLS 1.3's `CertificateVerify`). The third attacker can break
+the weak exchange while the handshake is still running, as the Logjam authors
+did for 512-bit Diffie-Hellman with a week of precomputation and about a
+minute per connection.
+
+```python
+# Rule 2 in code: bind the transcript. A client offers two key exchanges, an
+# attacker in the middle deletes the strong one, and the server picks the weak
+# one. A MAC over everything said notices, unless the attacker can break the
+# weak exchange during the handshake (Logjam). A signature by the server's
+# long-term key over the transcript, as in TLS 1.3, still notices.
+import hashlib, hmac
+mac = lambda k, m: hmac.new(k, m, hashlib.sha256).digest()
+server_long_term = hashlib.sha256(b"server's signing key, never sent").digest()   # stands in for a signature key
+
+def handshake(attacker, check):
+    offer = ["X25519MLKEM768", "DH-512"]                # strongest first
+    seen = offer[1:] if attacker else offer             # the attacker deletes the strong offer
+    choice = seen[0]
+    key = hashlib.sha256(b"session key via " + choice.encode()).digest()
+    transcript = lambda offered: repr((offered, choice)).encode()
+    if check == "none": proof, expect = b"", b""
+    elif check == "finished":                           # MAC keyed by the new session key
+        proof, expect = mac(key, transcript(seen)), mac(key, transcript(offer))
+        if attacker == "breaks DH-512" and choice == "DH-512":
+            proof = mac(key, transcript(offer))         # it knows the key, so it forges the MAC
+    else:                                               # signature over the transcript
+        proof, expect = mac(server_long_term, transcript(seen)), mac(server_long_term, transcript(offer))
+    verdict = "accepts" if hmac.compare_digest(proof, expect) else "ABORTS"
+    return f"server chose {choice:15} client {verdict}"
+for attacker in (None, "strips", "breaks DH-512"):
+    for check in ("none", "finished", "signature"):
+        print(f"attacker {attacker or 'none':13} check {check:9}:", handshake(attacker, check))
+```
+
+```text
+attacker none          check none     : server chose X25519MLKEM768  client accepts
+attacker none          check finished : server chose X25519MLKEM768  client accepts
+attacker none          check signature: server chose X25519MLKEM768  client accepts
+attacker strips        check none     : server chose DH-512          client accepts
+attacker strips        check finished : server chose DH-512          client ABORTS
+attacker strips        check signature: server chose DH-512          client ABORTS
+attacker breaks DH-512 check none     : server chose DH-512          client accepts
+attacker breaks DH-512 check finished : server chose DH-512          client accepts
+attacker breaks DH-512 check signature: server chose DH-512          client ABORTS
+```
+
+The last line is Logjam's lesson. A MAC keyed by the negotiated secret can
+only be as strong as the weakest option the attacker can force, because the
+attacker who breaks that option holds the MAC key. The transcript must be
+authenticated with something the negotiation cannot weaken (a long-term
+signature over a hash of every message, as TLS 1.3 does), or the weak options
+must be removed, which TLS 1.3 also did.
+
+## 20.2 Modeling a protocol and its attacker
+
+*Level: beginner.*
+
+A protocol in a standard is prose and diagrams. To analyze it mechanically,
+it has to become something more like a program: a set of **roles** (initiator,
+responder, server), each a sequence of messages to send and patterns to
+receive, and a statement of what should be true at the end, such as "if B
+finishes a run believing it spoke to A, then A really ran the protocol with
+B" (**authentication**) or "the attacker never learns this key" (**secrecy**).
+
+The attacker gets a precise definition too. In 1983 Danny Dolev and Andrew
+Yao proposed the one still used: the attacker **is the network**. It reads
+every message, deletes any message, delivers messages to anyone in any order,
+and sends any message it can construct. It can also be a legitimate user,
+with its own name and keys, because real attackers usually are. What it
+cannot do is break the cryptography: it cannot decrypt without the key, forge
+a signature, or invert a hash. Messages are treated as **symbolic terms**,
+trees built from names, nonces, keys and function symbols like
+$\mathrm{enc}(m, \mathit{pk}(B))$, and the attacker's knowledge grows by two
+kinds of rules:
+
+- **analysis**: from a pair it learns both halves; from
+  $\mathrm{enc}(m, \mathit{pk}(X))$ it learns $m$ only if it knows $X$'s
+  private key;
+- **synthesis**: it can pair, encrypt, hash and sign anything it knows,
+  using keys it knows.
+
+This is the **symbolic** or **Dolev-Yao model**. It throws away bits,
+probabilities and running times, so it cannot see a weak cipher or a timing
+leak. What it sees very well is the *logic* of a protocol: who sends what to
+whom, and whether a message from one run can be used in another. Logic flaws
+are the ones humans miss, because they hide in interleavings of several runs
+that nobody draws on a whiteboard.
+
+The other model is the **computational** one of cryptographers: messages are
+bit strings, the attacker is any probabilistic polynomial-time algorithm, and
+security is proved by a reduction (an attacker on the protocol would give an
+attacker on, say, the decisional Diffie-Hellman problem). Computational proofs
+say more, but are long and written by hand. §20.4 shows tools for both.
+
+## 20.3 Lowe's attack on Needham-Schroeder
+
+*Level: beginner.*
+
+[Chapter 1](01-What-a-Protocol-Must-Do.md#14-needham-schroeder-and-lowes-attack)
+told this story in brief. It returns here in full, because it is the first
+example in every course on protocol analysis. In 1978 Roger Needham and
+Michael Schroeder published protocols for
+authentication in "large networks of computers", one with a trusted server and
+symmetric keys (the ancestor of Kerberos, [Chapter 12](12-Kerberos.md)) and
+one with public keys. Leaving out the steps that fetch public keys, the
+public-key protocol is three messages. A and B each make a fresh random
+nonce, and each nonce is sent only under the other's public key:
+
+$$
+\begin{aligned}
+&1.\quad A \to B:\ \{N_A, A\}_{\mathit{pk}(B)}\\
+&2.\quad B \to A:\ \{N_A, N_B\}_{\mathit{pk}(A)}\\
+&3.\quad A \to B:\ \{N_B\}_{\mathit{pk}(B)}
+\end{aligned}
+$$
+
+The reasoning looks airtight. Only B can read message 1, so only B can return
+$N_A$ in message 2; only A can read message 2, so only A can return $N_B$ in
+message 3. At the end each knows the other is present, and the pair
+$(N_A, N_B)$ is a shared secret from which a session key can be derived.
+
+!!! note "Life story: the Needham-Schroeder protocols"
+    **Born:** 1978, Roger Needham and Michael Schroeder at Xerox PARC ·
+    **Purpose:** authentication and key distribution for networks of
+    computers, with a trusted server (symmetric version) or with public keys
+    · **Grew by:** the symmetric version became Kerberos, after Dorothy
+    Denning and Giovanni Sacco showed in 1981 that an old, compromised
+    session key could be replayed, which Kerberos fixed with timestamps ·
+    **Status:** the public-key version was broken by Gavin Lowe in 1995 and
+    survives as Needham-Schroeder-Lowe, the standard first example of every
+    protocol analysis tool
+
+### A worked example by hand: the attack
+
+In 1995 Gavin Lowe found the flaw. Suppose A starts an honest session with
+I, who is a registered user and also the attacker. I uses A's messages to
+impersonate A to B:
+
+$$
+\begin{aligned}
+&1.\quad A \to I:\ \{N_A, A\}_{\mathit{pk}(I)}\\
+&1'.\quad I(A) \to B:\ \{N_A, A\}_{\mathit{pk}(B)}\\
+&2'.\quad B \to A:\ \{N_A, N_B\}_{\mathit{pk}(A)}\\
+&2.\quad I \to A:\ \text{the same message, passed on}\\
+&3.\quad A \to I:\ \{N_B\}_{\mathit{pk}(I)}\\
+&3'.\quad I(A) \to B:\ \{N_B\}_{\mathit{pk}(B)}
+\end{aligned}
+$$
+
+Follow it step by step. A wants to talk to I, so it encrypts $N_A$ for I.
+I decrypts it (it is I's own key) and re-encrypts the same content for B;
+"$I(A)$" means I sending while claiming to be A. B believes A is calling and
+answers with its nonce under A's key. I cannot read that, but it does not
+need to: it forwards the ciphertext to A, who sees its own $N_A$ and thinks
+this is I's reply. A dutifully returns the second nonce to its partner,
+encrypted for I. Now I knows $N_B$, encrypts it for B, and B finishes. B
+believes it shares the secret $(N_A, N_B)$ with A alone; in fact I knows both.
+If B is a bank and the session key comes from those nonces, I can now act as
+A.
+
+Nothing was broken: every encryption was perfect. The flaw is that message 2
+does not say *who* sent it. A cannot tell a reply from B apart from a reply
+from I. Lowe's repair adds one name:
+
+$$
+2.\quad B \to A:\ \{N_A, N_B, B\}_{\mathit{pk}(A)}
+$$
+
+In the attack, A would receive a message naming B while it expected I, and
+stop. This repaired version is called **Needham-Schroeder-Lowe** (NSL). The
+attack had escaped the authors, the reviewers and the analyses of the 1980s,
+which did not consider a legitimate user acting dishonestly. Lowe found it
+while encoding the protocol for FDR, a model checker for the process algebra
+CSP, and his 1996 paper, "Breaking and fixing the Needham-Schroeder
+public-key protocol using FDR", helped start the field of automated protocol
+analysis.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 310" width="640" role="img" aria-label="Message sequence chart of Lowe's attack: A sends its nonce to the attacker I; I re-encrypts it for B claiming to be A; B's reply goes to A through I; A returns B's nonce to I; I re-encrypts it for B, who finishes believing it spoke to A" fill="currentColor" font-size="12">
+<text x="100" y="26" text-anchor="middle" font-weight="bold">A</text>
+<text x="100" y="42" text-anchor="middle" font-size="11">honest</text>
+<text x="320" y="26" text-anchor="middle" font-weight="bold" class="acc-fill">I</text>
+<text x="320" y="42" text-anchor="middle" font-size="11">attacker, also a user</text>
+<text x="540" y="26" text-anchor="middle" font-weight="bold">B</text>
+<text x="540" y="42" text-anchor="middle" font-size="11">honest</text>
+<line x1="100" y1="52" x2="100" y2="262" stroke="currentColor" opacity="0.5"/>
+<line x1="320" y1="52" x2="320" y2="262" stroke="currentColor" opacity="0.5" class="acc"/>
+<line x1="540" y1="52" x2="540" y2="262" stroke="currentColor" opacity="0.5"/>
+<line x1="100" y1="80" x2="308" y2="80" stroke="currentColor" stroke-width="1.5"/><polygon points="318,80 306,75 306,85"/>
+<text x="210" y="73" text-anchor="middle" font-size="11.5">1. {Na, A} for I</text>
+<line x1="320" y1="116" x2="528" y2="116" stroke="currentColor" stroke-width="1.5" class="acc"/><polygon points="538,116 526,111 526,121" class="acc-fill"/>
+<text x="430" y="109" text-anchor="middle" font-size="11.5" class="acc-fill">1′. {Na, A} for B, "from A"</text>
+<line x1="540" y1="152" x2="112" y2="152" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 3"/><polygon points="102,152 114,147 114,157"/>
+<rect x="356" y="132" width="148" height="16" style="fill: var(--md-default-bg-color)"/>
+<text x="430" y="145" text-anchor="middle" font-size="11.5">2′. {Na, Nb} for A</text>
+<rect x="132" y="156" width="156" height="16" style="fill: var(--md-default-bg-color)"/>
+<text x="210" y="168" text-anchor="middle" font-size="11">passed on by I unread</text>
+<line x1="100" y1="196" x2="308" y2="196" stroke="currentColor" stroke-width="1.5"/><polygon points="318,196 306,191 306,201"/>
+<text x="210" y="189" text-anchor="middle" font-size="11.5">3. {Nb} for I</text>
+<line x1="320" y1="232" x2="528" y2="232" stroke="currentColor" stroke-width="1.5" class="acc"/><polygon points="538,232 526,227 526,237" class="acc-fill"/>
+<text x="430" y="225" text-anchor="middle" font-size="11.5" class="acc-fill">3′. {Nb} for B</text>
+<text x="100" y="284" text-anchor="middle" font-size="11">thinks: talked to I</text>
+<text x="320" y="284" text-anchor="middle" font-size="11" class="acc-fill">knows Na and Nb</text>
+<text x="540" y="284" text-anchor="middle" font-size="11">thinks: talked to A</text>
+</svg>
+<figcaption>Figure 20.1. Lowe's attack. Each encryption is perfect; the flaw is that message 2′ does not name its sender, so A cannot tell B's reply from I's.</figcaption>
+</figure>
+
+### Code it: a model checker finds the attack
+
+The program below is a complete, if tiny, symbolic model checker. Messages
+are Python tuples: `("enc", "B", (na, "A"))` is $\{N_A, A\}_{\mathit{pk}(B)}$.
+The attacker's knowledge starts with every name, every public key and its own
+nonce `Ni`; it learns the contents of anything encrypted for I. Three role
+instances run: A starting a session with I, A starting another with B, and B
+answering whoever calls. When a role waits for a message, the attacker may
+deliver any instance of the expected pattern that it can construct, with the
+pattern's variables filled from every name and nonce in the system. A
+breadth-first search over all interleavings stops at the first state where B
+has finished believing it spoke to A while either the attacker knows $N_B$ or
+A never finished a run with B. Then the same search runs on Lowe's repair.
+
+```python
+# A model checker in seventy lines: the Needham-Schroeder public-key protocol
+# against a Dolev-Yao attacker who controls the network and owns one identity, I.
+# Breadth-first search over every interleaving finds the shortest attack.
+from collections import deque
+from itertools import product
+
+NAMES = ["A", "B", "I"]
+def enc(to, *parts): return ("enc", to, parts)          # {parts} under the public key of `to`
+def show(t):
+    if isinstance(t, str): return t
+    if t[0] == "enc": return "{" + ", ".join(show(p) for p in t[2]) + "}" + t[1]
+    return "?" + t[1]                                    # a variable
+V = lambda name: ("var", name)
+
+def roles(fixed):                                        # fixed=True is Lowe's repair (NSL)
+    init = lambda me, peer, na: [("send", enc(peer, na, me)),
+        ("recv", enc(me, na, V("nb"), peer) if fixed else enc(me, na, V("nb"))),
+        ("send", enc(peer, V("nb"))), ("end", peer)]
+    resp = lambda me, nb: [("recv", enc(me, V("na"), V("a"))),
+        ("send", enc(V("a"), V("na"), nb, me) if fixed else enc(V("a"), V("na"), nb)),
+        ("recv", enc(me, nb)), ("end", V("a"))]
+    return [("A", init("A", "I", "Na")), ("A", init("A", "B", "Na2")), ("B", resp("B", "Nb"))]
+
+def subst(t, env):
+    if isinstance(t, str): return t
+    if t[0] == "var": return env.get(t[1], t)
+    return ("enc", subst(t[1], env), tuple(subst(p, env) for p in t[2]))
+def analyse(known):                                      # I decrypts whatever is under its own key
+    known = set(known)
+    for t in list(known):
+        if not isinstance(t, str) and t[1] == "I": known |= set(t[2])
+    return frozenset(known)
+def derivable(t, known):
+    if t in known or t in NAMES: return True             # names and public keys are public
+    return not isinstance(t, str) and t[0] == "enc" and all(derivable(p, known) for p in t[2])
+def variables(t):
+    if isinstance(t, str): return set()
+    if t[0] == "var": return {t[1]}
+    return set().union(variables(t[1]), *(variables(p) for p in t[2]))
+
+def search(fixed):
+    threads = roles(fixed)
+    atoms = NAMES + ["Na", "Na2", "Nb", "Ni"]
+    start = ((0,) * len(threads), (frozenset(),) * len(threads), analyse({"Ni"}), ())
+    queue, seen = deque([start]), set()
+    while queue:
+        pc, envs, known, trace = queue.popleft()
+        if (pc, envs, known) in seen: continue
+        seen.add((pc, envs, known))
+        for i, (who, steps) in enumerate(threads):
+            env = dict(envs[i])
+            if pc[i] == len(steps) - 1 and who == "B":   # B has finished: check its beliefs
+                partner = subst(steps[-1][1], env)
+                done_A = pc[1] == len(threads[1][1]) - 1
+                if partner == "A" and (derivable("Nb", known) or not done_A):
+                    return trace + (f"B finishes, believing it spoke to A; I knows Nb: {derivable('Nb', known)}",), len(seen)
+            if pc[i] >= len(steps) - 1: continue
+            kind, msg = steps[pc[i]]
+            if kind == "send":
+                m = subst(msg, env)
+                moves = [(env, known | {m}, f"{who} sends {show(m)}")]
+            else:                                         # the attacker chooses what arrives
+                vs, moves = sorted(variables(subst(msg, env))), []
+                for choice in product(atoms, repeat=len(vs)):
+                    e = {**env, **dict(zip(vs, choice))}
+                    m = subst(msg, e)
+                    if derivable(m, known): moves.append((e, known, f"{who} receives {show(m)}"))
+            for e, k, line in moves:
+                npc = pc[:i] + (pc[i] + 1,) + pc[i + 1:]
+                nenv = envs[:i] + (frozenset(e.items()),) + envs[i + 1:]
+                queue.append((npc, nenv, analyse(k), trace + (line,)))
+    return None, len(seen)
+
+for fixed in (False, True):
+    attack, states = search(fixed)
+    print("Needham-Schroeder-Lowe" if fixed else "Needham-Schroeder (1978)", f"- {states} states explored")
+    for n, line in enumerate(attack or ["no attack in these three sessions: whenever B ends believing A, A really ran with B"], 1):
+        print(f"  {n}. {line}" if attack else "  " + line)
+```
+
+```text
+Needham-Schroeder (1978) - 1349 states explored
+  1. A sends {Na, A}I
+  2. B receives {Na, A}B
+  3. B sends {Na, Nb}A
+  4. A receives {Na, Nb}A
+  5. A sends {Nb}I
+  6. B receives {Nb}B
+  7. B finishes, believing it spoke to A; I knows Nb: True
+Needham-Schroeder-Lowe - 1406 states explored
+  no attack in these three sessions: whenever B ends believing A, A really ran with B
+```
+
+Breadth-first search returns the shortest attack, and it is Lowe's, step for
+step. On the repaired protocol the search explores every reachable state of
+these three sessions and finds none that violates the goal. That is weaker
+than a proof: an attack might need four sessions, or a nonce used in two
+roles. Real tools close that gap, either by searching much larger bounded
+spaces or, as ProVerif and Tamarin do, by reasoning about an unbounded number
+of sessions at once.
+
+## 20.4 The tools and what they proved
+
+*Level: intermediate.*
+
+**ProVerif** (Bruno Blanchet, from 2001) takes a protocol written in the
+applied pi calculus, a small language of processes that send and receive on
+channels, and translates it into logical rules about what the attacker can
+know. It then tries to show that a secret is not derivable or that every
+"end" event is preceded by a matching "begin" event. It handles an unbounded
+number of sessions and is fully automatic, at the price that it may fail to
+terminate or report a false attack. In ProVerif's language, the core of the
+Needham-Schroeder responder and the authentication query look like this
+(abridged):
+
+```text
+let responder(skB: skey) =
+  in(c, m1: bitstring);
+  let (na: nonce, a: host) = adec(m1, skB) in
+  new nb: nonce;
+  out(c, aenc((na, nb), pkey(a)));            (* NSL adds B's name here *)
+  in(c, m3: bitstring);
+  if adec(m3, skB) = nb then
+  event endB(a, hostB, na, nb).
+
+query a: host, na: nonce, nb: nonce;
+  event(endB(a, hostB, na, nb)) ==> event(beginA(a, hostB, na, nb)).
+```
+
+The query says: whenever B ends a run with A, A began that same run with B.
+For the original protocol ProVerif reports the query false and prints Lowe's
+trace; for the repaired one it proves it.
+
+**Tamarin** (Simon Meier, Benedikt Schmidt, Cas Cremers and David Basin,
+2012) describes a protocol as multiset rewriting rules and properties in
+first-order logic over traces. It can run automatically or interactively,
+where a person guides the proof, which lets it handle protocols with loops,
+global state and Diffie-Hellman exponentiation that defeat fully automatic
+tools.
+
+**CryptoVerif** (Blanchet) works in the computational model: it produces
+game-based proofs as sequences of games, each step justified by an
+assumption about a primitive. **EasyCrypt** does the same with more human
+guidance. Their proofs give concrete bounds on an attacker's advantage, not
+just "no attack exists in the model".
+
+The record of these tools is now long:
+
+| Protocol | Analysis | What it found or proved |
+| --- | --- | --- |
+| TLS 1.3 drafts | Cremers, Horvat, Scott, van der Merwe, Tamarin, 2016 | an attack on draft 10 combining resumption with delayed client authentication, fixed before the RFC |
+| TLS 1.3 | Bhargavan, Blanchet, Kobeissi, ProVerif and CryptoVerif, 2017 | proofs for a late draft's handshake, with the weaker guarantees of 0-RTT spelled out |
+| TLS 1.2 | Bhargavan et al. (miTLS), 2014 | the triple handshake attack on renegotiation and resumption |
+| Signal | Cohn-Gordon, Cremers, Dowling, Garratt, Stebila, 2017 | a computational proof of the key secrecy of Signal's key agreement and ratchet |
+| WireGuard | Donenfeld and Milner, Tamarin, 2018; Lipp, Blanchet, Bhargavan, CryptoVerif, 2019 | proofs of the handshake as used |
+| 5G AKA | Basin et al., Tamarin, 2018 | properties the standard needed but did not state, and weaknesses where they were missing |
+| EMV payment cards | Basin, Sasse, Toro-Pozo, Tamarin, 2021 | a PIN bypass for Visa contactless cards, demonstrated on real terminals |
+| e-passports | Arapinis, Chothia, Ritter, Ryan, ProVerif, 2010 | French passports could be traced by their error messages |
+
+Two shifts followed. Standards bodies started asking for analysis *before*
+publication: TLS 1.3 was the first big IETF protocol designed with academic
+analysts in the loop, and MLS ([Chapter 17](17-Group-Messaging-MLS.md)) went
+the same way. And verification moved from models to code. Project Everest
+produced **HACL\***, verified C code for Curve25519, ChaCha20-Poly1305 and
+SHA-2, used in Firefox's NSS library; **fiat-crypto** generates elliptic-curve
+field arithmetic together with a proof that it is correct, and that code runs
+in BoringSSL (and so in Chrome) and in the Linux kernel; and OpenSSH's ML-KEM
+is extracted from **libcrux**, a formally verified library. Verified code
+removes a whole class of bugs (carry errors, overflows, wrong reductions) that
+tests catch only by luck.
+
+## 20.5 Where proofs stop
+
+*Level: intermediate.*
+
+A proof says that a *model* has a *property*. Each word is a place to slip.
+
+**The model can be wrong.** The symbolic model has no bits, so it cannot see
+padding oracles, timing leaks or a 512-bit group. A computational proof may
+assume a primitive the implementation does not provide, or a field the
+encoding does not enforce.
+
+**The property can be the wrong one.** TLS 1.3's pre-shared key mode was
+analyzed under the assumption that a PSK is shared by exactly two parties.
+In 2019 Nir Drucker and Shay Gueron described **Selfie**: when a group of
+servers shares one external PSK (a common setup), an attacker can reflect a
+client's own message back to it, so the client believes it is talking to
+another server while it talks to itself. The proofs were correct; the
+deployment did not match their assumption. The fix was to state the
+assumption and to bind identities into PSK use.
+
+**The code is not the model.** The 2015 SMACK study found that many TLS
+libraries accepted messages out of order, letting attackers skip key
+exchange or authentication entirely. The protocol had proofs; the state
+machines in the code did not follow them. Parsers are the same: X.509 and
+ASN.1 decoding bugs ([Chapter 2](02-Certificates-and-PKI.md)) live entirely
+outside any protocol model.
+
+**The world is not the model.** Keys are generated badly, configurations
+leave old options on, and people click through warnings. These are the
+failures of rule 10.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 200" width="640" role="img" aria-label="Five boxes in a row, standard, model, proof, code and deployment, each with a note of what can slip through at that stage; the tools ProVerif, Tamarin, CryptoVerif and EasyCrypt cover model and proof, verified libraries cover code" fill="currentColor" font-size="12">
+<text x="256" y="24" text-anchor="middle" font-size="11" class="acc-fill">ProVerif, Tamarin, CryptoVerif, EasyCrypt</text>
+<line x1="134" y1="32" x2="378" y2="32" stroke="currentColor" class="acc"/>
+<text x="445" y="24" text-anchor="middle" font-size="11" class="acc-fill">HACL*, fiat-crypto, libcrux</text>
+<line x1="386" y1="32" x2="504" y2="32" stroke="currentColor" class="acc"/>
+<rect x="8" y="44" width="118" height="44" rx="6" class="soft" stroke="currentColor"/><text x="67" y="71" text-anchor="middle">standard</text>
+<rect x="134" y="44" width="118" height="44" rx="6" class="soft-acc" stroke="currentColor"/><text x="193" y="71" text-anchor="middle">model</text>
+<rect x="260" y="44" width="118" height="44" rx="6" class="soft-acc" stroke="currentColor"/><text x="319" y="71" text-anchor="middle">proof</text>
+<rect x="386" y="44" width="118" height="44" rx="6" class="soft-acc" stroke="currentColor"/><text x="445" y="71" text-anchor="middle">code</text>
+<rect x="512" y="44" width="118" height="44" rx="6" class="soft" stroke="currentColor"/><text x="571" y="71" text-anchor="middle">deployment</text>
+<text x="67" y="112" text-anchor="middle" font-size="11">slips: prose</text><text x="67" y="128" text-anchor="middle" font-size="11">ambiguity</text>
+<text x="193" y="112" text-anchor="middle" font-size="11">slips: attacker</text><text x="193" y="128" text-anchor="middle" font-size="11">powers left out</text>
+<text x="319" y="112" text-anchor="middle" font-size="11">slips: the property</text><text x="319" y="128" text-anchor="middle" font-size="11">nobody asked for</text>
+<text x="445" y="112" text-anchor="middle" font-size="11">slips: parsers, state</text><text x="445" y="128" text-anchor="middle" font-size="11">machines, timing</text>
+<text x="571" y="112" text-anchor="middle" font-size="11">slips: settings,</text><text x="571" y="128" text-anchor="middle" font-size="11">keys, people</text>
+<text x="67" y="152" text-anchor="middle" font-size="10.5" opacity="0.8">TLS renegotiation</text>
+<text x="193" y="152" text-anchor="middle" font-size="10.5" opacity="0.8">Lowe, 1995</text>
+<text x="319" y="152" text-anchor="middle" font-size="10.5" opacity="0.8">Selfie, 2019</text>
+<text x="445" y="152" text-anchor="middle" font-size="10.5" opacity="0.8">SMACK, 2015</text>
+<text x="571" y="152" text-anchor="middle" font-size="10.5" opacity="0.8">Logjam, 2015</text>
+<text x="320" y="186" text-anchor="middle" font-size="12">A proof covers the shaded middle; attacks live in every gap.</text>
+</svg>
+<figcaption>Figure 20.2. From standard to deployment. Each stage can lose what the one before it promised, and each has a famous example in this book.</figcaption>
+</figure>
+
+None of this makes proofs less valuable. It says where to spend the remaining
+effort: on stating assumptions in the standard itself, on implementations
+generated from or checked against the model, and on removing options so that
+the deployed protocol is the one that was proved.
+
+## 20.6 Post-quantum lessons for protocol design
+
+*Level: intermediate.*
+
+The story of the migration, which systems moved when and to which hybrid,
+belongs to the Post-quantum book's
+[Chapter 18](../post-quantum/18-Hybrids-and-the-Migration.md). What matters
+here is how the new algorithms change the *shape* of protocols. Five lessons
+stand out.
+
+**A KEM is not Diffie-Hellman.** Diffie-Hellman is symmetric and
+non-interactive: if A and B have published public keys, each can compute a
+shared secret with no message at all. Many protocols lean on this. Signal's
+X3DH ([Chapter 16](16-Signal-and-the-Double-Ratchet.md)) mixes three or four
+DH results between long-term and one-time keys; Noise and WireGuard
+([Chapter 8](08-WireGuard-and-Noise.md)) authenticate by DH with static keys.
+A KEM is a one-way operation: only the side holding the decapsulation key can
+recover the secret, and someone must send a ciphertext. Replacing DH with a
+KEM therefore changes message flows, and authentication by static DH must
+become either a signature or a second KEM run in the other direction. Signal's
+PQXDH keeps X3DH and adds one KEM; post-quantum WireGuard designs (the 2021
+PQ-WireGuard paper, and Rosenpass) add KEM exchanges alongside the classical
+handshake; KEMTLS proposes authenticating TLS servers with a KEM instead of a
+signature.
+
+**Everything gets bigger.** An X25519 key share is 32 bytes. ML-KEM-768's
+encapsulation key is 1,184 bytes and its ciphertext 1,088, so TLS's hybrid
+`X25519MLKEM768` sends 1,216 bytes from the client and 1,120 back. ML-DSA-44
+signatures are 2,420 bytes with 1,312-byte public keys, against 64 and 32 for
+Ed25519, and a certificate chain carries several of each. A client hello that
+used to fit in one packet now needs two, and some servers and middleboxes
+turned out to mishandle a hello split across packets. Protocols with hard size
+limits (DNSSEC answers over UDP, IKEv2's first exchange, radio links) need
+fragmentation or new message flows: IKEv2's `IKE_INTERMEDIATE` exchange
+(RFC 9242) exists so that large key exchanges can follow the first, small one.
+
+**Combine, and combine carefully.** Almost every deployment uses a hybrid,
+classical plus post-quantum, so that the result is safe if either holds. The
+combiner must hash both secrets together with enough context (the
+ciphertexts and public keys) that neither component can be swapped. X-Wing
+and the TLS hybrid are worked through in the Post-quantum book.
+
+**Secrecy first, authentication later.** An attacker who records traffic now
+can decrypt it once a quantum computer exists ("harvest now, decrypt later"),
+so key exchange had to move first. Authentication cannot be attacked
+retroactively: a forged signature is only useful while the connection is
+open. That is why key exchange went post-quantum years before certificates.
+
+**Agility is a design requirement, not an option list.** Rule 7 says fewer
+options, and the migration says algorithms must be replaceable. The two are
+reconciled by versioning: a protocol names a whole suite with one identifier,
+negotiates that identifier under transcript binding (rule 2), and removes old
+suites on a schedule. WireGuard, with no negotiation, needs a new version for
+a new algorithm, which is the honest form of the same idea.
+
+## 20.7 Delay-tolerant networking and BPSec
+
+*Level: intermediate.*
+
+Every protocol in Parts I to III assumed a round trip measured in
+milliseconds. Between Earth and Mars the one-way light time is 3 to 22
+minutes, and there is no path at all for days around solar conjunction, or
+whenever an orbiter relaying for a rover is below the horizon. TCP's
+handshake, TLS's two messages each way, an OCSP query, a Kerberos ticket
+request: all assume the other end answers soon. Over a link like this they
+time out, or take an hour to set up a channel that is then idle until the
+next pass.
+
+**Delay-tolerant networking** (DTN) replaces the conversation with the
+letter. Its **Bundle Protocol**, version 7 (RFC 9171, 2022), carries
+**bundles**: self-contained messages with a primary block (source,
+destination, creation time, lifetime) and a payload block, plus optional
+extension blocks. Each node **stores** a bundle until a contact with the next
+node opens, then **forwards** it; a node may take **custody**, promising to
+keep retransmitting it. A bundle from a ground station may wait hours in a
+relay orbiter before the lander comes over the horizon. NASA has used DTN on
+the International Space Station since the mid-2010s, and it is planned as the
+network layer for lunar communications.
+
+Security therefore cannot be a channel set up end to end; it has to travel
+inside the bundle, exactly like OpenPGP mail
+([Chapter 15](15-Email-OpenPGP-and-SMIME.md)) or an age file
+([Chapter 18](18-Encrypting-Files-and-Disks.md)). **BPSec** (RFC 9172) adds
+two kinds of extension block:
+
+- a **Block Integrity Block** (BIB) carries a MAC or signature over one or
+  more target blocks;
+- a **Block Confidentiality Block** (BCB) encrypts its target blocks in
+  place and carries the authentication tag and parameters.
+
+The algorithms are not fixed by BPSec; a **security context** names them. RFC
+9173 defines the two default contexts: BIB-HMAC-SHA2 and BCB-AES-GCM, the
+latter optionally carrying its content key wrapped under a key-encryption key
+with AES key wrap (RFC 3394). Both can add **scope flags** that pull in the
+primary block and block headers, so that a protected payload cannot be cut
+out and pasted into another bundle (rule 1, in DTN form).
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 250" width="640" role="img" aria-label="A bundle travels from an Earth ground station to a relay orbiter, where it waits for the next contact, and then to a lander; below, the bundle's blocks: primary block, block confidentiality block naming the payload as its target, and the encrypted payload" fill="currentColor" font-size="12">
+<rect x="20" y="30" width="140" height="50" rx="6" class="soft" stroke="currentColor"/><text x="90" y="52" text-anchor="middle" font-weight="bold">Earth station</text><text x="90" y="70" text-anchor="middle" font-size="11">ipn:2.1</text>
+<rect x="250" y="30" width="140" height="50" rx="6" class="soft-acc" stroke="currentColor"/><text x="320" y="52" text-anchor="middle" font-weight="bold">relay orbiter</text><text x="320" y="70" text-anchor="middle" font-size="11">stores, then forwards</text>
+<rect x="480" y="30" width="140" height="50" rx="6" class="soft" stroke="currentColor"/><text x="550" y="52" text-anchor="middle" font-weight="bold">lander</text><text x="550" y="70" text-anchor="middle" font-size="11">ipn:1.2</text>
+<line x1="160" y1="55" x2="240" y2="55" stroke="currentColor" stroke-width="1.5"/><polygon points="248,55 236,50 236,60"/>
+<text x="205" y="100" text-anchor="middle" font-size="11">3 to 22 min</text><text x="205" y="114" text-anchor="middle" font-size="11">light time</text>
+<line x1="390" y1="55" x2="470" y2="55" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 3"/><polygon points="478,55 466,50 466,60"/>
+<text x="435" y="100" text-anchor="middle" font-size="11">next contact:</text><text x="435" y="114" text-anchor="middle" font-size="11">maybe hours later</text>
+<rect x="60" y="146" width="150" height="40" rx="4" class="soft" stroke="currentColor"/><text x="135" y="164" text-anchor="middle" font-size="11.5">primary block</text><text x="135" y="179" text-anchor="middle" font-size="10.5">source, dest., time</text>
+<rect x="216" y="146" width="190" height="40" rx="4" class="soft-acc" stroke="currentColor"/><text x="311" y="164" text-anchor="middle" font-size="11.5">BCB, block 2</text><text x="311" y="179" text-anchor="middle" font-size="10.5">target 1 · IV · wrapped key · tag</text>
+<rect x="412" y="146" width="168" height="40" rx="4" class="acc-fill" fill-opacity="0.25" stroke="currentColor"/><text x="496" y="164" text-anchor="middle" font-size="11.5">payload, block 1</text><text x="496" y="179" text-anchor="middle" font-size="10.5">AES-GCM ciphertext</text>
+<text x="320" y="226" text-anchor="middle" font-size="12">Security travels inside the bundle: no handshake, no round trip.</text>
+</svg>
+<figcaption>Figure 20.3. A bundle on its way to Mars, laid out as in RFC 9173's second example. Every hop may hold it for hours; the BCB lets only the destination read the payload, and lets it detect any change.</figcaption>
+</figure>
+
+### Code it: BPSec, checked against RFC 9173
+
+RFC 9173's appendix gives complete examples, down to the bytes of the final
+bundle. The program below builds them from scratch: just enough CBOR (the
+binary encoding all bundle fields use) to write integers, byte strings and
+arrays; the BIB of Example 1, an HMAC-SHA-512 over the integrity-protected
+plaintext (the scope flags, then the payload as a CBOR byte string); and the
+BCB of Example 2, which wraps a 128-bit content key with AES key wrap and
+encrypts the payload with AES-128-GCM, the AAD being only the scope flags.
+GCM is written out: counter mode for the ciphertext, then GHASH, a polynomial
+evaluated in $\mathrm{GF}(2^{128})$, for the tag.
+
+```python
+# BPSec's default security contexts (RFC 9173), checked against the RFC's
+# Appendix A: a BIB with HMAC-SHA-512 and a BCB with AES-GCM and AES key wrap.
+# AES-128 is the same compact textbook version as in Chapters 15 and 18.
+import hashlib, hmac
+def xtime(a): return ((a << 1) ^ 0x1B) & 0xFF if a & 0x80 else a << 1
+SBOX, p, q = [0] * 256, 1, 1
+for _ in range(255):
+    p = (p ^ (p << 1) ^ (0x1B if p & 0x80 else 0)) & 0xFF
+    q ^= q << 1; q ^= q << 2; q ^= q << 4; q &= 0xFF
+    if q & 0x80: q ^= 0x09
+    SBOX[p] = q ^ ((q << 1 | q >> 7) & 0xFF) ^ ((q << 2 | q >> 6) & 0xFF) ^ ((q << 3 | q >> 5) & 0xFF) ^ ((q << 4 | q >> 4) & 0xFF) ^ 0x63
+SBOX[0] = 0x63
+def expand(key):
+    w, rcon = [list(key[i:i + 4]) for i in range(0, 16, 4)], 1
+    while len(w) < 44:
+        t = w[-1][:]
+        if len(w) % 4 == 0:
+            t = [SBOX[b] for b in t[1:] + t[:1]]; t[0] ^= rcon; rcon = xtime(rcon)
+        w.append([a ^ b for a, b in zip(w[-4], t)])
+    return [sum(w[4 * r:4 * r + 4], []) for r in range(11)]
+def mix(c):
+    t = c[0] ^ c[1] ^ c[2] ^ c[3]
+    return [c[i] ^ t ^ xtime(c[i] ^ c[(i + 1) % 4]) for i in range(4)]
+def aes(key, block):                                     # encryption only: GCM and key wrap need no more
+    rk = expand(key)
+    s = [a ^ b for a, b in zip(block, rk[0])]
+    for r in range(1, 11):
+        s = [SBOX[s[(i + 4 * (i % 4)) % 16]] for i in range(16)]
+        if r < 10: s = sum((mix(s[c:c + 4]) for c in range(0, 16, 4)), [])
+        s = [a ^ b for a, b in zip(s, rk[r])]
+    return bytes(s)
+h = bytes.fromhex
+
+# Just enough CBOR (RFC 8949): unsigned integers, byte strings, arrays
+def head(major, n):
+    if n < 24: return bytes([major << 5 | n])
+    for ai, size in ((24, 1), (25, 2), (26, 4)):
+        if n < 256 ** size: return bytes([major << 5 | ai]) + n.to_bytes(size, "big")
+def cbor(x):
+    if isinstance(x, int): return head(0, x)
+    if isinstance(x, bytes): return head(2, len(x)) + x
+    return head(4, len(x)) + b"".join(cbor(i) for i in x)
+
+primary = cbor([7, 0, 0, [2, [1, 2]], [2, [2, 1]], [2, [2, 1]], [0, 40], 1000000])
+payload = b"Ready to generate a 32-byte payload"
+print("primary block matches A.1.1.1:", primary == h("88070000820282010282028202018202820201820018281a000f4240"))
+
+# Example 1: integrity. IPPT = scope flags, then the target's data, both as CBOR
+key = h("1a2b1a2b1a2b1a2b1a2b1a2b1a2b1a2b")
+ippt = cbor(0) + cbor(payload)
+mac = hmac.new(key, ippt, hashlib.sha512).digest()
+asb = cbor([1]) + cbor(1) + cbor(1) + cbor([2, [2, 1]]) + cbor([[1, 7], [3, 0]]) + cbor([[[1, mac]]])
+bib = cbor([11, 2, 0, 0, asb])
+bundle = b"\x9f" + primary + bib + cbor([1, 1, 0, 0, payload]) + b"\xff"   # indefinite-length array
+print("HMAC-SHA-512 matches A.1.3.1:", mac[:8].hex(), mac == h(
+    "3bdc69b3a34a2b5d3a8554368bd1e808f606219d2a10a846eae3886ae4ecc83c"
+    "4ee550fdfb1cc636b904e2f1a73e303dcd4b6ccece003e95e8164dcc89a156e1"))
+final = h("9f88070000820282010282028202018202820201820018281a000f4240850b0200"
+          "005856810101018202820201828201078203008181820158403bdc69b3a34a2b5d3a"
+          "8554368bd1e808f606219d2a10a846eae3886ae4ecc83c4ee550fdfb1cc636b904e2"
+          "f1a73e303dcd4b6ccece003e95e8164dcc89a156e185010100005823526561647920"
+          "746f2067656e657261746520612033322d62797465207061796c6f6164ff")
+print("whole bundle matches A.1.4:", bundle == final, f"({len(bundle)} bytes)")
+
+# Example 2: confidentiality. AES key wrap (RFC 3394) carries the content key
+def wrap(kek, k):
+    a, r = b"\xa6" * 8, [k[i:i + 8] for i in range(0, len(k), 8)]
+    for j in range(6):
+        for i in range(len(r)):
+            b = aes(kek, a + r[i])
+            t = len(r) * j + i + 1
+            a, r[i] = (int.from_bytes(b[:8], "big") ^ t).to_bytes(8, "big"), b[8:]
+    return a + b"".join(r)
+cek, kek, iv = h("71776572747975696f70617364666768"), h("6162636465666768696a6b6c6d6e6f70"), h("5477656c7665313231323132")
+print("AES key wrap matches A.2.3.1:", wrap(kek, cek) == h("69c411276fecddc4780df42c8a2af89296fabf34d7fae700"))
+
+def gmul(x, y):                                          # multiply in GF(2^128), GCM's bit order
+    z, R = 0, 0xE1 << 120
+    for i in range(127, -1, -1):
+        if y >> i & 1: z ^= x
+        x = (x >> 1) ^ R if x & 1 else x >> 1
+    return z
+def gcm(key, iv, pt, aad):
+    H = int.from_bytes(aes(key, bytes(16)), "big")
+    j0 = iv + b"\x00\x00\x00\x01"
+    ct = b""
+    for i in range(0, len(pt), 16):
+        ctr = j0[:12] + (2 + i // 16).to_bytes(4, "big")
+        ct += bytes(a ^ b for a, b in zip(pt[i:i + 16], aes(key, ctr)))
+    pad = lambda b: b + bytes(-len(b) % 16)
+    data = pad(aad) + pad(ct) + (8 * len(aad)).to_bytes(8, "big") + (8 * len(ct)).to_bytes(8, "big")
+    g = 0
+    for i in range(0, len(data), 16): g = gmul(g ^ int.from_bytes(data[i:i + 16], "big"), H)
+    tag = bytes(a ^ b for a, b in zip(g.to_bytes(16, "big"), aes(key, j0)))
+    return ct, tag
+ct, tag = gcm(cek, iv, payload, aad=cbor(0))            # AAD = the scope flags alone
+print("ciphertext matches A.2.3.1:", ct == h("3a09c1e63fe23a7f66a59c7303837241e070b02619fc59c5214a22f08cd70795e73e9a"))
+print("tag matches A.2.3.1:", tag.hex(), tag == h("efa4b5ac0108e3816c5606479801bc04"))
+
+# What the integrity block does and does not protect
+moved = cbor(0) + cbor(payload.replace(b"32", b"33"))
+print("one changed byte in the payload, MAC still valid:",
+      hmac.compare_digest(hmac.new(key, moved, hashlib.sha512).digest(), mac))
+print("the same bundle delivered a second time, MAC still valid:",
+      hmac.compare_digest(hmac.new(key, ippt, hashlib.sha512).digest(), mac))
+```
+
+```text
+primary block matches A.1.1.1: True
+HMAC-SHA-512 matches A.1.3.1: 3bdc69b3a34a2b5d True
+whole bundle matches A.1.4: True (165 bytes)
+AES key wrap matches A.2.3.1: True
+ciphertext matches A.2.3.1: True
+tag matches A.2.3.1: efa4b5ac0108e3816c5606479801bc04 True
+one changed byte in the payload, MAC still valid: False
+the same bundle delivered a second time, MAC still valid: True
+```
+
+Every value matches the RFC, including the 165 bytes of the finished bundle.
+The last two lines are the Break it for this section. A changed byte is
+caught, but the *same* bundle delivered again verifies perfectly: BPSec
+provides integrity and confidentiality, not freshness. Replay protection is
+left to policy and to the application, and on a network built on
+retransmission and custody, duplicates are normal traffic. A rover that
+accepts "drive 10 meters" twice drives 20.
+
+### Fix it
+
+The fixes are the rules again. The command itself must carry a sequence
+number or a validity window, inside the protected payload, and the receiver
+must keep the highest number it has accepted (rule 5). Security policy must
+say which blocks *must* be present, because a relay that strips a BIB leaves
+a valid unprotected bundle behind (rule 2, applied to blocks). Integrity scope
+flags should cover the primary block, so a protected payload cannot be moved
+into a bundle with a different destination or lifetime (rule 1). And every
+key needs a purpose and an expiry, because revocation by round trip is not
+available (rules 4 and 8).
+
+## 20.8 Mars: one design, start to finish
+
+*Level: intermediate.*
+
+Put the book together as one design: how should the settlement in Arcadia
+and mission control on Earth exchange commands, telemetry and personal
+messages?
+
+**Bulk traffic travels as bundles.** Commands and telemetry go as BPv7
+bundles with BPSec. Each bundle carries a payload encrypted with a fresh
+content key, and that key is encapsulated to the recipient with a hybrid KEM
+(X25519 plus ML-KEM-768, as age does in
+[Chapter 18](18-Encrypting-Files-and-Disks.md)), so no session is needed and
+no secret recorded on the long link today can be read by a quantum computer
+later.
+
+**Commands are signed, not only MACed.** A MAC key shared between Earth and a
+lander lets either side forge commands from the other. Commands from Earth are
+signed by mission control's key, which the settlement holds, and each carries
+a sequence number and an expiry time in the signed payload. For keys that must
+last a decade, a hash-based signature (SLH-DSA, or a stateful scheme with
+careful state management) depends only on the security of hash functions.
+
+**Certificates are issued ahead and expire.** With no fast round trip, OCSP
+and live revocation are impossible. Instead, certificates are short-lived and
+issued in batches before they are needed: each key is valid for a few weeks,
+and its replacements were delivered on the previous supply ship or in an
+earlier bundle. A stolen key is useful only until its certificate expires,
+which turns revocation into waiting.
+
+**Personal messages use the Double Ratchet over bundles.** Signal's protocol
+needs no round trip once the first prekey bundle is fetched, which can be
+cached in advance; [Chapter 16](16-Signal-and-the-Double-Ratchet.md) showed
+that a 20-minute delay costs only post-compromise speed.
+
+**Clocks are part of the security.** Expiry times and sequence windows depend
+on clocks that agree to within minutes. The settlement keeps its own clocks
+and checks them against signed time beacons from Earth, adjusted for the
+known light time.
+
+**Nothing negotiates.** Each link uses one versioned suite, chosen before
+launch. A change of algorithms is a new version delivered with the software
+update, never a list of options for an attacker 20 light-minutes away to pick
+from.
+
+## 20.9 Open problems
+
+*Level: advanced.*
+
+Protocols are far from finished. A reader who has come this far is equipped
+to work on any of these.
+
+**Verified from top to bottom.** Proofs of models, proofs of primitives and
+verified code exist separately. Connecting them, so that the deployed binary
+is proved to implement the analyzed protocol with constant-time code, has been
+done for pieces (miTLS, HACL\*, libcrux, verified parsers such as EverParse)
+but not yet for any widely used protocol in full.
+
+**Post-quantum without the cost.** KEM-based authentication, smaller
+signatures, and post-quantum versions of the clever tricks built on
+Diffie-Hellman and pairings (private set intersection, anonymous credentials,
+password-authenticated key exchange, blind signatures) are active research.
+Isogenies promised small keys until SIKE fell in 2022; what replaces them for
+non-interactive key exchange is open.
+
+**Metadata.** End-to-end encryption hides contents; who talks to whom, when
+and how much still leaks. Mixnets and private information retrieval scale
+poorly, and popular messengers still learn much of their users' social graph.
+
+**Usable verification.** Key transparency (logs of every key a server hands
+out, which clients audit) is replacing safety-number comparison in large
+messengers, but its guarantees depend on auditors and gossip that are hard
+to deploy.
+
+**Groups and long delays.** MLS assumes a server that orders commits. A group
+spread over Earth, Mars and ships in transit, with hours of delay and
+partitions lasting weeks, needs decentralized group key agreement that keeps
+forward secrecy and post-compromise security without a central order.
+
+**Protocols for machines that outlive their designers.** A Mars habitat's
+controller may run for thirty years. Designing protocols whose keys,
+algorithms and trust anchors can be replaced safely, remotely and without a
+round trip is part engineering and part research, and no standard yet solves
+it end to end.
+
+## 20.10 Going deeper
+
+*Level: expert.*
+
+**Computational soundness.** Martín Abadi and Phillip Rogaway showed in 2000
+that, for symmetric encryption under strong assumptions (no key cycles, and
+encryption that hides message length), two symbolic messages that look the
+same to a Dolev-Yao attacker are indistinguishable to any efficient attacker.
+Later work extended such soundness results to public-key encryption and
+signatures, but always with restrictions, and for Diffie-Hellman and XOR they
+are still partial. Many practical analyses therefore do both: a symbolic tool
+for the logic, and a computational proof (by hand or with CryptoVerif) for
+the core key exchange.
+
+**Composition.** A protocol proved secure alone may not be secure when run
+beside others with shared keys. Ran Canetti's **universal composability**
+framework (2001) defines security so that it survives composition with any
+other protocol, at the price of strong setup assumptions; key exchange
+proofs in practice use the weaker Bellare-Rogaway style with explicit
+session partnering, and add key separation (rule 4) to keep composition
+safe.
+
+**Equivalence properties.** Secrecy and authentication are trace properties:
+each run either violates them or not. Privacy properties, such as "an
+observer cannot tell whether two sessions involve the same passport", are
+**equivalences** between two versions of a system. ProVerif and Tamarin check
+a stronger, more automatable notion (diff-equivalence); the e-passport result
+in §20.4 relies on such reasoning. Deciding equivalence for an unbounded
+number of sessions is undecidable in general, and the tools' approximations
+are an active area.
+
+**Bounds that matter.** A computational proof gives a bound such as
+$\mathrm{Adv} \le q_s^2/2^{n} + \mathrm{Adv}^{\mathrm{ddh}} + \dots$, with
+$q_s$ the number of sessions. Reading these bounds concretely, as tight
+reductions or loose ones, decides key sizes, and several protocols proved
+"secure" had bounds too loose to say anything at deployed parameters. The
+multi-user setting, where an attacker targets any of billions of keys, is
+where the gap usually appears.
+
+## Check yourself
+
+??? question "1. State rule 2 and name an attack that broke it."
+    Bind the whole transcript: every negotiated choice must be authenticated
+    by both sides afterwards. FREAK and Logjam forced export-grade
+    cryptography because the negotiation was not protected strongly enough.
+
+??? question "2. Why did a Finished MAC not stop Logjam?"
+    The MAC was keyed by the session secret from the negotiated exchange. The
+    attacker broke the weak 512-bit exchange during the handshake, so it knew
+    the MAC key and could forge the MAC over the edited transcript.
+
+??? question "3. What can a Dolev-Yao attacker do, and what can it not do?"
+    It controls the network: it reads, deletes, reorders and injects
+    messages, builds new messages from what it knows, and may be a legitimate
+    user. It cannot break primitives: no decryption without the key, no
+    forged signatures, no hash inversion.
+
+??? question "4. In Lowe's attack, which message lacks what?"
+    Message 2, $\{N_A, N_B\}_{\mathit{pk}(A)}$, does not name its sender B,
+    so A cannot tell B's reply from I's. NSL adds B's name.
+
+??? question "5. Why is the model checker in §20.3 not a proof for NSL?"
+    It explores only three role instances with a fixed set of nonces. An
+    attack needing more sessions would be missed. ProVerif and Tamarin reason
+    about unbounded sessions.
+
+??? question "6. What did the Selfie attack show about proofs?"
+    The TLS 1.3 PSK proofs assumed each PSK is shared by exactly two parties.
+    Deployments that share one PSK among a group of servers break that
+    assumption, and a reflection attack becomes possible.
+
+??? question "7. Why can't a KEM simply replace Diffie-Hellman in X3DH or Noise?"
+    DH lets two parties with published keys compute a shared secret without
+    messages; a KEM needs a ciphertext sent to the holder of the
+    decapsulation key. Static-key authentication by DH must become a
+    signature or an extra KEM exchange, changing message flows.
+
+??? question "8. What does a BCB carry, and what does it protect?"
+    It names its target blocks, the security context and parameters (IV,
+    variant, wrapped key, scope flags), and the results (the authentication
+    tag). It encrypts the targets in place and authenticates them with any
+    data the scope flags add.
+
+??? question "9. A rover accepts a valid BPSec-protected command twice. Why, and what fixes it?"
+    BPSec gives integrity, not freshness; the duplicate is a valid bundle. A
+    sequence number or validity window inside the protected payload, checked
+    against the highest accepted value, fixes it.
+
+??? question "10. Why should Mars certificates be short-lived rather than revocable?"
+    Revocation checks need a fast round trip to a responder, which a 3 to 22
+    minute link cannot give. Short-lived certificates issued in advance make
+    a stolen key useless after a known time without any query.
+
+## What you learned
+
+- Ten rules summarize this book's failures: name the parties, bind the
+  transcript, authenticate before processing, separate keys, prove freshness,
+  fail uniformly, keep few options, plan for compromise, keep the state
+  machine small, and design for real keys and people.
+- A transcript MAC catches a stripped offer, but only a long-term signature
+  (or removing weak options) stops an attacker who breaks the weak option
+  during the handshake.
+- The Dolev-Yao model treats messages as symbols and the attacker as the
+  network. Your model checker found Lowe's attack on Needham-Schroeder in a
+  search of 1,349 states and none on the repair in these sessions.
+- ProVerif, Tamarin, CryptoVerif and EasyCrypt have found real attacks and
+  proved TLS 1.3, Signal, WireGuard and others; verified code (HACL\*,
+  fiat-crypto, libcrux) runs in browsers, kernels and SSH. Proofs stop at the
+  model, the property, the code and the deployment.
+- Post-quantum algorithms change protocols' shape: KEMs are not DH, messages
+  grow, hybrids need careful combiners, and key exchange moves before
+  signatures.
+- DTN carries self-protected bundles; BPSec's BIB and BCB, which you matched
+  byte for byte against RFC 9173, give integrity and confidentiality but not
+  freshness.
+
+## Further reading
+
+- Roger Needham and Michael Schroeder, "Using Encryption for Authentication
+  in Large Networks of Computers", *Communications of the ACM*, 1978.
+- Danny Dolev and Andrew Yao, "On the Security of Public Key Protocols",
+  *IEEE Transactions on Information Theory*, 1983.
+- Gavin Lowe, "Breaking and Fixing the Needham-Schroeder Public-Key Protocol
+  Using FDR", TACAS 1996.
+- Martín Abadi and Roger Needham, "Prudent Engineering Practice for
+  Cryptographic Protocols", *IEEE Transactions on Software Engineering*,
+  1996, the original list of rules.
+- Bruno Blanchet, "Modeling and Verifying Security Protocols with the Applied
+  Pi Calculus and ProVerif", *Foundations and Trends in Privacy and
+  Security*, 2016.
+- Simon Meier, Benedikt Schmidt, Cas Cremers and David Basin, "The TAMARIN
+  Prover for the Symbolic Analysis of Security Protocols", CAV 2013.
+- Manuel Barbosa et al., "SoK: Computer-Aided Cryptography", IEEE S&P 2021.
+- Cas Cremers, Marko Horvat, Jonathan Hoyland, Sam Scott and Thyla van der
+  Merwe, "A Comprehensive Symbolic Analysis of TLS 1.3", CCS 2017.
+- David Basin, Ralf Sasse and Jorge Toro-Pozo, "The EMV Standard: Break, Fix,
+  Verify", IEEE S&P 2021.
+- Nir Drucker and Shay Gueron, "Selfie: Reflections on TLS 1.3 with PSK",
+  *Journal of Cryptology*, 2021.
+- RFC 9171 (Bundle Protocol version 7), RFC 9172 (BPSec) and RFC 9173 (its
+  default security contexts), 2022.
+- The Post-quantum book's
+  [Chapter 18](../post-quantum/18-Hybrids-and-the-Migration.md), for the
+  migration this chapter's §20.6 draws on.

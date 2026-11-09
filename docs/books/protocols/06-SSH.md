@@ -1066,7 +1066,7 @@ not use it across the link. The pieces of SSH that do survive are the
 cryptographic ones: a signed, encrypted **command** that a machine on Mars
 verifies against a key it already trusts and runs, sending back a signed
 result, with no live session. That is the store-and-forward model of
-Chapter 20. Inside the city, SSH works as usual, and
+[Chapter 20](20-Designing-and-Verifying-Protocols.md). Inside the city, SSH works as usual, and
 the city's administrators would use SSH certificates from the city's own CA
 (Chapter 2's offline root), so that a new machine never needs a first-use
 prompt and a lost laptop's certificate simply expires at the end of the day.

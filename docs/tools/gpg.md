@@ -36,7 +36,7 @@ sub   cv25519/2BDDF5872EED82AC 2026-10-30 [E]
 ```
 
 [SC] is certify and sign, [E] encrypt, [A] authenticate. It is a v4 key: EdDSA
-(22) and ECDH (18) on Curve25519, a SHA-1 fingerprint ([GnuPG split](../protocols/OpenPGP.md#versions-and-the-gnupg-split)).
+(22) and ECDH (18) on Curve25519, a SHA-1 fingerprint ([GnuPG split](../books/protocols/15-Email-OpenPGP-and-SMIME.md#1510-in-the-real-world)).
 `--quick-gen-key` expires in 3 years unless told; scripts add `--batch --pinentry-mode
 loopback --passphrase …`. Each key's revocation certificate waits in
 `~/.gnupg/openpgp-revocs.d/` (a `:` blocks stray imports): copy it off the machine.

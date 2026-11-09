@@ -1151,7 +1151,7 @@ constrained", which relaxes some audit requirements.
 **Alternatives that did not win.** SPKI/SDSI (1996-1999, Carl Ellison, Ron
 Rivest, Butler Lampson and others) proposed local names and authorization
 certificates instead of global names. The web of trust (PGP,
-Chapter 15) lets users vouch for each other.
+[Chapter 15](15-Email-OpenPGP-and-SMIME.md)) lets users vouch for each other.
 DANE (RFC 6698, 2012) puts a server's key in DNSSEC-signed DNS records
 ([Chapter 10](10-DNSSEC-and-Private-DNS.md)); it is used for email between
 servers but no browser enforces it. HTTP Public Key Pinning (RFC 7469, 2015)

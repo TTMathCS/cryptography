@@ -52,21 +52,22 @@ sections. Each chapter marks its sections *beginner*, *intermediate* or
 | | [12. Kerberos](12-Kerberos.md) | intermediate |
 | | [13. Passkeys: FIDO2 and WebAuthn](13-Passkeys-FIDO2-and-WebAuthn.md) | beginner to intermediate |
 | | [14. OAuth, OpenID Connect and JSON Web Tokens](14-OAuth-OpenID-Connect-and-JWT.md) | intermediate |
-| **IV. Messages, data and ledgers** | 15. Email: OpenPGP and S/MIME | coming next |
-| | 16. Signal and the double ratchet | |
-| | 17. Group messaging: MLS | |
-| | 18. Encrypting files and disks | |
-| | 19. Ledgers: Bitcoin | |
-| | 20. Designing and verifying protocols | |
+| **IV. Messages, data and ledgers** | [15. Email: OpenPGP and S/MIME](15-Email-OpenPGP-and-SMIME.md) | beginner to intermediate |
+| | [16. Signal and the Double Ratchet](16-Signal-and-the-Double-Ratchet.md) | intermediate |
+| | [17. Group messaging: MLS](17-Group-Messaging-MLS.md) | intermediate to advanced |
+| | [18. Encrypting files and disks](18-Encrypting-Files-and-Disks.md) | beginner to intermediate |
+| | [19. Ledgers: Bitcoin](19-Ledgers-Bitcoin.md) | intermediate |
+| | [20. Designing and verifying protocols](20-Designing-and-Verifying-Protocols.md) | beginner to expert |
 
-Chapters without a link are being written and appear part by part. Until a
-chapter is out, the short page on that protocol under
-[Topics, Protocols](../../protocols/index.md) is the place to look; when the
-chapter appears, the old page forwards to it.
+The [Glossary](Glossary.md) explains the book's terms in a line or two each,
+with the chapter where each is explained in full. The one-page comparison of
+what every protocol runs by default is under
+[Topics, Protocols](../../protocols/index.md).
 
 **Where to start:** new to protocols, read chapters 1 to 3 in order. Running a
 web server: chapters 2, 3 and 5. Running servers, VPNs or a network:
 chapters 6 to 10. Logins, single sign-on and tokens: chapters 11 to 14.
-Interested in attacks: chapter 4, then book 2,
+Messaging, mail, files and blockchains: chapters 15 to 19. Designing a
+protocol of your own: chapter 1, then chapter 20. Interested in attacks: chapter 4, then book 2,
 *Cryptanalysis*. The short tour of the same ground is
 [Chapter 19 of book 1](../../book/19-Protocols.md).

@@ -924,7 +924,7 @@ Ante Derek and John Mitchell proved the 4-way handshake secure in 2005, in a
 model where each key is installed once. KRACK lived in what that model left
 out. Cremers, Kiesl and Medinger's 2020 model includes the state machine,
 retransmissions, key installation and the group key handshake, and showed
-that the patched standard is secure. It is a direct instance of Chapter 20's
+that the patched standard is secure. It is a direct instance of [Chapter 20](20-Designing-and-Verifying-Protocols.md)'s
 theme: the model must include the state that the implementation keeps.
 
 **SAE's security.** Jean Lancrenon and Marjan Škrobot (2015) proved Dragonfly

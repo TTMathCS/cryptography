@@ -116,7 +116,7 @@ problems that earlier chapters have shown:
 *Level: beginner.*
 
 Trevor Perrin, one of the designers of Signal's protocol
-(Chapter 16), published the **Noise
+([Chapter 16](16-Signal-and-the-Double-Ratchet.md)), published the **Noise
 Protocol Framework** in 2015. Noise starts from the observation that most
 Diffie-Hellman key exchanges are built from the same few moves, and that once
 those moves are fixed, a protocol can be described by which keys are sent and

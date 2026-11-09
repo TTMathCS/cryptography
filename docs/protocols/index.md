@@ -3,7 +3,8 @@
 *The same algorithms from the [main table](../index.md), seen from the other
 side: what each popular protocol or tool actually runs.*
 
-Every protocol name opens its own page.
+Every protocol name opens its chapter in the [Protocols book](../books/protocols/index.md),
+which takes each one apart message by message.
 
 ## Standard and implementations
 

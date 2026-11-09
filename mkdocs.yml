@@ -110,6 +110,13 @@ not_in_nav: |
   /protocols/Kerberos.md
   /protocols/FIDO2.md
   /protocols/JWT.md
+  /protocols/OpenPGP.md
+  /protocols/S-MIME.md
+  /protocols/Signal.md
+  /protocols/MLS.md
+  /protocols/age.md
+  /protocols/Disk-Encryption.md
+  /protocols/Bitcoin.md
 
 nav:
   # Five tabs at most, the same on every course site (cntourit, 8 Nov 2026: "messy and confusing", "same format and similar categories"):
@@ -215,13 +222,6 @@ nav:
       - Protocols, formats and tools:
           - Protocols:
               - protocols/index.md
-              - protocols/Signal.md
-              - protocols/MLS.md
-              - protocols/OpenPGP.md
-              - protocols/S-MIME.md
-              - protocols/age.md
-              - protocols/Disk-Encryption.md
-              - protocols/Bitcoin.md
           - Tools:
               - tools/openssl.md
               - tools/ssh-keygen.md
@@ -334,6 +334,14 @@ nav:
               - books/protocols/12-Kerberos.md
               - books/protocols/13-Passkeys-FIDO2-and-WebAuthn.md
               - books/protocols/14-OAuth-OpenID-Connect-and-JWT.md
+          - IV. Messages, data and ledgers:
+              - books/protocols/15-Email-OpenPGP-and-SMIME.md
+              - books/protocols/16-Signal-and-the-Double-Ratchet.md
+              - books/protocols/17-Group-Messaging-MLS.md
+              - books/protocols/18-Encrypting-Files-and-Disks.md
+              - books/protocols/19-Ledgers-Bitcoin.md
+              - books/protocols/20-Designing-and-Verifying-Protocols.md
+          - Glossary: books/protocols/Glossary.md
       - Post-quantum cryptography:
           - Start here: books/post-quantum/index.md
           - I. The threat and the yardsticks:

@@ -693,7 +693,7 @@ Once DNS answers can be trusted, DNS can carry keys.
   partly because many networks and devices could not deliver DNSSEC records
   reliably. Email did: RFC 7672 (2015) uses DANE to tell sending mail servers
   that a receiving server supports TLS and which key it uses, which defeats the
-  STARTTLS stripping attacks of Chapter 15.
+  STARTTLS stripping attacks of [Chapter 15](15-Email-OpenPGP-and-SMIME.md).
   Several large mail providers support it.
 - **SSHFP** records hold SSH host key fingerprints
   ([Chapter 6](06-SSH.md), §6.5).

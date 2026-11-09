@@ -863,7 +863,7 @@ hop, and **Bundle Protocol Security** (BPSec, RFC 9172, 2022) protects each
 bundle with integrity and confidentiality blocks, using keys set up in advance
 rather than negotiated in flight. The city's gateway would use IPsec on its own
 local links, and bundles, with long-lived keys rotated on a schedule, across
-the gap. Chapter 20 returns to
+the gap. [Chapter 20](20-Designing-and-Verifying-Protocols.md) returns to
 designing protocols for delay.
 
 ## 7.11 In the real world

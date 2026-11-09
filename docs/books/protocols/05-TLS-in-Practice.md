@@ -579,7 +579,7 @@ working group in 2024 (named TIPTOP) to study IP and QUIC across interplanetary
 links. A likely design for the city is a split: QUIC and TLS as usual inside
 the city and inside Earth's networks, with **gateways** on each side and the
 long hop carried by the Delay-Tolerant Networking bundle protocol, whose
-security works per message, not per session (Chapter 20).
+security works per message, not per session ([Chapter 20](20-Designing-and-Verifying-Protocols.md)).
 The cryptographic question is then which end-to-end guarantees survive the
 gateways, and the answer, as in any split design, is: only those that are made
 end to end, above the transport, in the message itself.
@@ -602,7 +602,7 @@ end to end, above the transport, in the message itself.
 - **WebRTC encryption.** Every WebRTC call is encrypted with DTLS-SRTP; but
   calls through a server that mixes streams (most group calls) are decrypted
   at that server unless the service adds its own end-to-end layer, as some
-  now do with MLS (Chapter 17).
+  now do with MLS ([Chapter 17](17-Group-Messaging-MLS.md)).
 
 ## 5.11 Going deeper
 

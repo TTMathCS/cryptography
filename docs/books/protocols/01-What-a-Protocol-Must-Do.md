@@ -193,7 +193,7 @@ something slightly weaker.
    password) is stolen tomorrow, the traffic recorded today stays secret.
 6. **Post-compromise security** (or **healing**). If a session's state is stolen
    today, later traffic becomes secret again once the attacker stops watching.
-   Signal's ratchet (Chapter 16) is the
+   Signal's ratchet ([Chapter 16](16-Signal-and-the-Double-Ratchet.md)) is the
    famous example.
 7. **Identity hiding.** A passive listener cannot learn who is talking to whom.
    TLS 1.3 encrypts the server's certificate; Encrypted Client Hello hides the
@@ -531,7 +531,7 @@ Mallory got message 3? False
 Try to find another attack on the fixed version with the same toy: reorder the
 messages, start extra runs, have Mallory start runs as himself. Lowe's machine
 did this exhaustively and found nothing. That kind of search, made fast and
-general, is how protocols are checked today (Chapter 20).
+general, is how protocols are checked today ([Chapter 20](20-Designing-and-Verifying-Protocols.md)).
 
 !!! note "Life story: the Needham-Schroeder public-key protocol"
     **Born:** 1978, Roger Needham and Michael Schroeder at Xerox PARC, in
@@ -746,7 +746,7 @@ There are four families, and they recur through the book.
    key, from configuration or from a first contact it chose to trust, and mixes
    it into the key derivation. SSH's `known_hosts`, WireGuard's configured peer
    keys and Signal's identity keys work this way
-   ([Chapters 6](06-SSH.md), [8](08-WireGuard-and-Noise.md), 16).
+   ([Chapters 6](06-SSH.md), [8](08-WireGuard-and-Noise.md), [16](16-Signal-and-the-Double-Ratchet.md)).
 3. **Pre-shared symmetric keys.** Both sides already share a secret, and MAC
    the exchange with it. TLS resumption, WPA2-Personal and Kerberos tickets work
    this way.
@@ -1109,7 +1109,7 @@ lessons of this chapter say which tools fit.
 - **Forward secrecy wants fresh shares from both sides.** A fresh
   Diffie-Hellman needs one share from each, which is a round trip. Signal's
   answer to the same problem on phones that are offline (prekeys: shares
-  published in advance, used once, Chapter 16)
+  published in advance, used once, [Chapter 16](16-Signal-and-the-Double-Ratchet.md))
   works over light-minutes just as well as over hours of a phone being off.
 - **Zero round-trip modes are tempting and dangerous.** TLS 1.3's 0-RTT data
   ([Chapter 3](03-TLS-1.3-Message-by-Message.md)) can be replayed, because it
@@ -1123,7 +1123,7 @@ lessons of this chapter say which tools fit.
   Space Data Systems (CCSDS) built **Delay-Tolerant Networking** for this, and
   its Bundle Protocol (RFC 9171) has its own security layer, Bundle Protocol
   Security (RFC 9172), which signs and encrypts each bundle on its own rather
-  than relying on a live session. Chapter 20
+  than relying on a live session. [Chapter 20](20-Designing-and-Verifying-Protocols.md)
   looks at it closely.
 
 The general lesson for Earth too: count the round trips. Every protocol in this
