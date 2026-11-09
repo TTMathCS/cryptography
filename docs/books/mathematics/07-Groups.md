@@ -17,16 +17,21 @@ cofactors.*
 
     - the group axioms, with examples from clocks, permutations, matrices and
       curve points, and how to check them by machine;
-    - orders of elements, cyclic groups and generators;
+    - where groups came from, and why every group is a group of permutations;
+    - orders of elements, cyclic groups, and how many generators there are;
     - subgroups, cosets and Lagrange's theorem, with proof;
-    - homomorphisms and isomorphisms, and why "the same group" can be easy in
-      one disguise and hard in another;
-    - the structure of finite abelian groups, and of the units modulo $n$;
+    - homomorphisms, isomorphisms and quotient groups, and why "the same
+      group" can be easy in one disguise and hard in another;
+    - why RSA and ElGamal are homomorphisms, and why that makes them malleable;
+    - the structure of finite abelian groups, Sylow's theorems, and the units
+      modulo an RSA modulus taken apart by hand and by machine;
     - the discrete logarithm, CDH and DDH problems, and when DDH fails;
-    - the generic group model, Shoup's $\sqrt q$ lower bound, and the
-      baby-step giant-step algorithm that meets it;
-    - small-subgroup attacks, cofactors, Curve25519's clamping and prime-order
-      groups built on top of it.
+    - the generic group model, Shoup's $\sqrt q$ lower bound, baby-step
+      giant-step, and Pohlig-Hellman digit by digit;
+    - small-subgroup attacks, safe-prime groups, cofactors, Curve25519's
+      clamping and prime-order groups built on top of it;
+    - group actions, the orbit-stabilizer theorem, and the "hard homogeneous
+      spaces" behind isogeny cryptography.
 
     **You need:** [Chapter 3](03-Modular-Arithmetic.md) (units modulo $n$,
     the CRT), [Chapter 4](04-Powers-and-Primitive-Roots.md) (orders and
@@ -34,7 +39,7 @@ cofactors.*
     (the Legendre symbol).
 
     **Levels:** §7.1 to §7.4 are for beginners, §7.5 to §7.9 are
-    intermediate, §7.10 and §7.11 are expert.
+    intermediate, §7.10 to §7.13 are expert.
 
 ## 7.1 The problem
 
@@ -211,6 +216,51 @@ rearrangement of the group, as in Figure 7.1, and it is the heart of the proof o
 Lagrange's theorem below. Note also $(ab)^{-1} = b^{-1}a^{-1}$: to undo "put on
 socks, then shoes", take off the shoes first.
 
+### Every group is a group of permutations
+
+Fix $a$ and look at the map $\lambda_a(x) = ax$. By cancellation it is
+one-to-one, and it is onto ($a^{-1}y \mapsto y$), so it is a permutation of $G$;
+and $\lambda_a \circ \lambda_b = \lambda_{ab}$, since $a(bx) = (ab)x$.
+
+**Theorem (Cayley, 1854).** Every group $G$ is isomorphic to a group of
+permutations of the set $G$, by $a \mapsto \lambda_a$.
+
+*Proof.* The map respects the operation, as just shown, and it is one-to-one:
+if $\lambda_a = \lambda_b$ then $a = \lambda_a(1) = \lambda_b(1) = b$.
+$\blacksquare$
+
+The row of $a$ in a group table *is* $\lambda_a$ written out. In Figure 7.1 the
+row of 5 on the right reads 5, 1, 11, 7: it swaps 1 with 5 and 7 with 11. So a
+group of order $n$ always sits inside $S_n$, and asking whether a block cipher's
+permutations form a group (§7.9) is asking about a subset of $S_{2^{128}}$.
+
+### Where groups came from
+
+The idea is older than the word. In 1770 and 1771 Joseph-Louis Lagrange studied
+why equations of degree up to 4 can be solved by radicals, by counting how many
+values an expression in the roots takes when the roots are permuted; the count
+always divided the number of permutations, the seed of his theorem. Paolo Ruffini
+(1799) and Niels Henrik Abel (1824) then showed that the general quintic has no
+such formula.
+
+Évariste Galois found the reason. Between 1829 and 1832 he attached to each
+equation the permutations of its roots that preserve every algebraic relation
+among them, called them a *groupe*, and showed that the equation is solvable by
+radicals exactly when this group breaks down through a chain of normal subgroups
+with abelian steps. The Paris Academy turned his memoir down in 1831 as unclear.
+On the night of 29 May 1832 he summarized his results in a letter to Auguste
+Chevalier; he was shot in a duel the next morning and died on 31 May, aged 20.
+Joseph Liouville published his papers in 1846.
+
+Arthur Cayley's 1854 paper "On the theory of groups, as depending on the symbolic
+equation $\theta^n = 1$" defined a group by its operation alone, wrote out the
+first group tables and proved the theorem above. Camille Jordan's *Traité des
+substitutions* (1870) and Ludwig Sylow's theorems (1872, §7.6) followed, and in
+1882 Walther von Dyck and Heinrich Weber gave definitions close to ours.
+Cryptography arrived a century later: Diffie and Hellman (1976) used the
+multiplicative group modulo a prime, and in 1985 Neal Koblitz and Victor Miller
+independently proposed elliptic-curve groups.
+
 ## 7.3 Orders and cyclic groups
 
 *Level: beginner.*
@@ -280,6 +330,69 @@ compute.
 $n/\gcd(n, k)$ divides $m$.) So a cyclic group of order $n$ has exactly
 $\varphi(n)$ generators, the $g^k$ with $\gcd(k, n) = 1$; modulo 13 there are
 $\varphi(12) = 4$ primitive roots, 2, 6, 7 and 11.
+
+### Counting elements of each order
+
+The same formula counts every order, not only the largest.
+
+**Theorem.** In a cyclic group of order $n$, for each divisor $d$ of $n$ there
+are exactly $\varphi(d)$ elements of order $d$, and no element has an order that
+does not divide $n$.
+
+*Proof.* Write the elements as $g^k$, $0 \le k < n$. By the formula above,
+$g^k$ has order $d$ exactly when $\gcd(n, k) = n/d$, that is, when $k = (n/d)j$
+with $0 \le j < d$ and $\gcd(j, d) = 1$. There are $\varphi(d)$ such $j$.
+$\blacksquare$
+
+Since every element has exactly one order, adding up over the divisors gives
+Gauss's identity
+
+$$\sum_{d \mid n} \varphi(d) = n.$$
+
+*By hand*, modulo 13 with $g = 2$. The powers of 2 are 2, 4, 8, 3, 6, 12, 11, 9,
+5, 10, 7, 1 for $k = 1, \dots, 12$. The order of $2^k$ is $12/\gcd(12, k)$:
+
+| order $d$ | $\varphi(d)$ | elements |
+| --- | --- | --- |
+| 1 | 1 | 1 |
+| 2 | 1 | 12 |
+| 3 | 2 | 3, 9 |
+| 4 | 2 | 5, 8 |
+| 6 | 2 | 4, 10 |
+| 12 | 4 | 2, 6, 7, 11 |
+
+and $1 + 1 + 2 + 2 + 2 + 4 = 12$.
+
+**How lucky is a random element?** The chance that a random element of a cyclic
+group of order $n$ generates it is
+
+$$\frac{\varphi(n)}{n} = \prod_{r \mid n} \left(1 - \frac1r\right),$$
+
+over the distinct primes $r$ dividing $n$. For the units modulo a safe prime it
+is just under one half; for $p = 8101$, with $p - 1 = 2^2 \cdot 3^4 \cdot 5^2$, it
+is $\frac12 \cdot \frac23 \cdot \frac45 = \frac{4}{15}$, or 2,160 generators; in a
+group of prime order it is everything but the identity. To test a candidate,
+check $g^{n/r} \ne 1$ for each prime $r \mid n$: a proper divisor of $n$ divides
+some $n/r$.
+
+```python
+# Uses generated() and mul13 from the listing above.
+from collections import Counter
+print(sorted(Counter(len(generated(a, mul13, 1)) for a in range(1, 13)).items()))
+
+def is_generator(g, p, primes):          # primes: the prime factors of p - 1
+    return all(pow(g, (p - 1) // r, p) != 1 for r in primes)
+
+p = 8101                                 # p - 1 = 2^2 * 3^4 * 5^2
+print(sum(is_generator(g, p, (2, 3, 5)) for g in range(1, p)))
+```
+
+It prints the pairs (order, how many) and the number of generators:
+
+```text
+[(1, 1), (2, 1), (3, 2), (4, 2), (6, 2), (12, 4)]
+2160
+```
 
 ## 7.4 Subgroups, cosets and Lagrange's theorem
 
@@ -447,14 +560,113 @@ for each value.) For example, the squaring map on the units modulo an odd prime
 has kernel $\{\pm 1\}$, so its image, the squares, has $(p-1)/2$ elements:
 Chapter 5's count in one line.
 
-**Homomorphisms leak.** A homomorphism from a cryptographic group onto a small
-group computes some property of every element for free. The Legendre symbol is
-the standard example: it maps the units mod $p$ onto $\{\pm 1\}$ and reveals
-whether a discrete logarithm is even. Pohlig-Hellman (Chapter 4) is a systematic
-use of the homomorphisms $x \mapsto x^{(p-1)/r}$ onto the subgroups of small
-prime order $r$. A group of prime order $q$ has no nontrivial homomorphism onto
-any smaller group, since the kernel would be a subgroup of size other than 1 and
-$q$. Once again: prime order is safe.
+<figure class="mars-fig">
+<svg viewBox="0 0 640 230" width="640" role="img" aria-label="The squaring map on the twelve units modulo 13: the elements come in six pairs x and minus x, each pair goes to one square, giving the six squares 1, 4, 9, 3, 12, 10; the pair 1 and 12 is the kernel" fill="currentColor" font-size="14">
+<text x="320" y="20" text-anchor="middle">x ↦ x² on (ℤ/13ℤ)*: twelve elements, six values</text>
+<g stroke="currentColor" stroke-width="1.2" fill="none">
+<rect x="20" y="40" width="90" height="36" rx="6" fill="currentColor" fill-opacity=".12"/>
+<rect x="122" y="40" width="90" height="36" rx="6"/>
+<rect x="224" y="40" width="90" height="36" rx="6"/>
+<rect x="326" y="40" width="90" height="36" rx="6"/>
+<rect x="428" y="40" width="90" height="36" rx="6"/>
+<rect x="530" y="40" width="90" height="36" rx="6"/>
+<path d="M65 76 L65 140"/><path d="M167 76 L167 140"/><path d="M269 76 L269 140"/>
+<path d="M371 76 L371 140"/><path d="M473 76 L473 140"/><path d="M575 76 L575 140"/>
+<circle cx="65" cy="160" r="18" fill="currentColor" fill-opacity=".12"/><circle cx="167" cy="160" r="18"/><circle cx="269" cy="160" r="18"/>
+<circle cx="371" cy="160" r="18"/><circle cx="473" cy="160" r="18"/><circle cx="575" cy="160" r="18"/>
+</g>
+<g text-anchor="middle">
+<text x="65" y="63">1, 12</text><text x="167" y="63">2, 11</text><text x="269" y="63">3, 10</text>
+<text x="371" y="63">4, 9</text><text x="473" y="63">5, 8</text><text x="575" y="63">6, 7</text>
+<text x="65" y="165">1</text><text x="167" y="165">4</text><text x="269" y="165">9</text>
+<text x="371" y="165">3</text><text x="473" y="165">12</text><text x="575" y="165">10</text>
+<text x="65" y="205" font-size="12">kernel {±1}</text>
+<text x="370" y="212" font-size="12" fill-opacity=".7">each box is a coset x·{±1}; the circles are the image, the six squares</text>
+</g>
+</svg>
+<figcaption>Figure 7.3. The first isomorphism theorem for the squaring map modulo 13. The elements sent to the same square form a coset of the kernel {1, 12}, so 12 = 2 · 6: the size of the group is the size of the kernel times the size of the image.</figcaption>
+</figure>
+
+### Normal subgroups and quotient groups
+
+The cosets of a kernel can be multiplied. In Figure 7.3, any element of the box
+{2, 11} times any element of {3, 10} lands in {6, 7}: $2 \cdot 3 = 6$, $2 \cdot
+10 \equiv 7$, $11 \cdot 3 \equiv 7$, $11 \cdot 10 \equiv 6$. So the boxes form a
+group themselves.
+
+In general, if $H$ is a subgroup of an abelian group $G$, the cosets form the
+**quotient group** $G/H$, with $(aH)(bH) = abH$, of order $|G|/|H|$. The rule
+does not depend on the representatives: if $a' = ah$ and $b' = bh'$, then
+$a'b'H = ab(hh')H = abH$. In a non-abelian group this works only when $gH = Hg$
+for all $g$, for a **normal subgroup**; kernels are always normal, and $G/\ker f
+\cong \operatorname{im} f$ is the full first isomorphism theorem. Three quotients
+recur in this book: $\mathbb{Z}/n\mathbb{Z}$ itself, the integers modulo the
+subgroup $n\mathbb{Z}$ (a residue class is a coset $a + n\mathbb{Z}$); the units
+modulo $p$ by the squares, isomorphic to $\{\pm 1\}$ through the Legendre symbol;
+and Curve25519's group by its subgroup of order 8, which Decaf and Ristretto
+(§7.11) encode as a group of prime order.
+
+### Encryption that is a homomorphism
+
+**Textbook RSA** is the map $x \mapsto x^e$ on $(\mathbb{Z}/N\mathbb{Z})^*$, an
+isomorphism of the group to itself with inverse $y \mapsto y^d$. **ElGamal** in
+a group $G = \langle g \rangle$ of prime order $q$, with private
+key $x$ and public key $h = g^x$, sends a message $m \in G$ with fresh
+randomness $k$ as $(g^k, m h^k)$. Read it as a map from the product group $G
+\times \mathbb{Z}/q\mathbb{Z}$ (message, randomness) to $G \times G$:
+
+$$E(m, k) \cdot E(m', k') = (g^{k + k'},\; m m' h^{k + k'}) = E(m m', k + k').$$
+
+With the message in the exponent, $(g^k, g^m h^k)$, the messages add instead.
+That is a feature for voting and mix networks, developed in the *Advanced
+protocols* book, [Chapter 12](../advanced/12-Homomorphic-Encryption.md), and a
+danger everywhere else: anyone can turn a ciphertext into one of a related
+message. This is **malleability**.
+
+```python
+import random
+rng = random.Random(7)
+
+# Textbook RSA: the decryptor refuses c itself, but decrypts c * r^e.
+n, e = 47 * 59, 17
+d = pow(e, -1, 46 * 58 // 2)                # inverse mod lambda(n) = lcm(46, 58) = 1334
+m = 1234
+c = pow(m, e, n)
+r = 2
+answer = pow(c * pow(r, e, n) % n, d, n)    # the "harmless" decryption: m * r
+print(d, answer, answer * pow(r, -1, n) % n)
+
+# Exponential ElGamal in the squares mod 2027 (order 1013): a sealed bid.
+p, q, g = 2027, 1013, 4
+x = rng.randrange(1, q)
+h = pow(g, x, p)                            # the auctioneer's public key
+k = rng.randrange(1, q)
+bid = 350
+c1, c2 = pow(g, k, p), pow(g, bid, p) * pow(h, k, p) % p
+mine = (c1, c2 * g % p)                     # copy the ciphertext and add 1 to the bid
+gm = mine[1] * pow(mine[0], q - x, p) % p   # the auctioneer decrypts: g^m
+print(next(m for m in range(q) if pow(g, m, p) == gm))
+```
+
+It prints:
+
+```text
+157 2468 1234
+351
+```
+
+The decryptor refuses $c$ but decrypts $c \cdot 2^e$, gets $2m = 2468$, and has
+given away 1234 (George Davida's blinding attack, 1982). A rival bidder copies a
+sealed bid of 350, multiplies by $g$, and bids exactly 351 without learning
+either. Neither attack touches the hard problem.
+
+**Fix it.** A homomorphic scheme can never meet IND-CCA2 (book 1's
+[Chapter 17](../../book/17-Defining-Security.md)): the attacker asks for the
+decryption of a transformed challenge. So where malleability is not wanted the
+homomorphism is destroyed on purpose: OAEP padding for RSA, and for
+Diffie-Hellman a KEM followed by authenticated encryption (HPKE, RFC 9180), the
+Fujisaki-Okamoto transform, or Cramer-Shoup (1998). Where it is wanted, each
+ciphertext carries a zero-knowledge proof that it was formed honestly.
 
 ## 7.6 The structure of finite abelian groups
 
@@ -483,6 +695,28 @@ we will use it, mostly through this consequence:
 each prime $r$ dividing $|G|$: the elements whose order is a power of $r$. This
 is exactly the splitting used by Pohlig-Hellman, and exactly the splitting an
 attacker uses in §7.10.
+
+### Sylow's theorems
+
+Write $|G| = r^a m$ with the prime $r$ not dividing $m$. A subgroup of order
+$r^a$ is a **Sylow $r$-subgroup**.
+
+**Theorem (Sylow, 1872).** (1) Sylow $r$-subgroups exist. (2) Any two are
+**conjugate**: $P' = gPg^{-1}$ for some $g$. (3) Their number $n_r$ divides $m$
+and $n_r \equiv 1 \pmod r$.
+
+Part 1 is a partial converse of Lagrange, true for the largest prime powers. It
+gives **Cauchy's theorem** (1845): if $r$ divides $|G|$ there is an element of
+order $r$ (a suitable power of any non-identity element of a Sylow
+$r$-subgroup). Helmut Wielandt's 1959 proof of part 1 lets $G$ act on its subsets
+of size $r^a$ (§7.12). In an abelian group $gPg^{-1} = P$, so the Sylow
+$r$-subgroup is unique, the set of elements of $r$-power order, as above. In
+$S_3$ there are three Sylow 2-subgroups, one per flip.
+
+Part 3 can pin a group down by its order. For order 15, $n_3 \mid 5$ and $n_3
+\equiv 1 \pmod 3$ force $n_3 = 1$, and likewise $n_5 = 1$; both Sylow subgroups
+are normal and the group is $\mathbb{Z}/3 \times \mathbb{Z}/5 \cong
+\mathbb{Z}/15$. Every group of order 15 is cyclic.
 
 ### The units modulo $n$
 
@@ -537,6 +771,159 @@ $p - 1$ and $q - 1$ are even. Their exponent $\lambda(N) =
 its exponent, is as hard as factoring $N$. RSA is a group of *unknown order*;
 Diffie-Hellman uses groups of *known* order. That difference is why RSA can have
 a trapdoor and Diffie-Hellman cannot.
+
+### Worked example: the units modulo an RSA modulus
+
+Take $n = 1333 = 31 \cdot 43$, where $p - 1 = 30 = 2 \cdot 3 \cdot 5$ and $q - 1
+= 42 = 2 \cdot 3 \cdot 7$. By hand:
+
+<div class="mars-steps" markdown>
+1. **CRT.** $(\mathbb{Z}/1333)^* \cong (\mathbb{Z}/31)^* \times (\mathbb{Z}/43)^*
+   \cong \mathbb{Z}/30 \times \mathbb{Z}/42$, with $30 \cdot 42 = 1260$ elements.
+2. **Prime pieces.** $\mathbb{Z}/30 \cong \mathbb{Z}/2 \times \mathbb{Z}/3 \times
+   \mathbb{Z}/5$ and $\mathbb{Z}/42 \cong \mathbb{Z}/2 \times \mathbb{Z}/3 \times
+   \mathbb{Z}/7$.
+3. **Sylow subgroups.** Sorted by prime: $(\mathbb{Z}/2)^2$ (4 elements),
+   $(\mathbb{Z}/3)^2$ (9), $\mathbb{Z}/5$ and $\mathbb{Z}/7$; $4 \cdot 9 \cdot 5
+   \cdot 7 = 1260$.
+4. **Invariant factors.** One piece of each prime gives $210$, the rest $6$: the
+   group is $\mathbb{Z}/6 \times \mathbb{Z}/210$, not cyclic, with exponent
+   $\lambda(1333) = \operatorname{lcm}(30, 42) = 210$.
+5. **The largest order.** An element has order 210 when none of its four Sylow
+   components is the identity: $3 \cdot 8 \cdot 4 \cdot 6 = 576$ elements.
+6. **Square roots of 1.** They form the Sylow 2-subgroup, the pairs $(\pm 1, \pm
+   1)$: besides $\pm 1$ they are $216 \leftrightarrow (-1, 1)$ and $1117
+   \leftrightarrow (1, -1)$.
+</div>
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="The units modulo 1333 split by the CRT into the units modulo 31, cyclic of order 30, and the units modulo 43, cyclic of order 42; these split into pieces of orders 2, 3, 5 and 2, 3, 7; sorted by prime they give the Sylow subgroups of orders 4, 9, 5 and 7, and regrouped they give Z/6 times Z/210, so lambda is 210" fill="currentColor" font-size="14">
+<g stroke="currentColor" stroke-width="1.3" fill="none">
+<rect x="220" y="12" width="200" height="40" rx="6"/>
+<rect x="60" y="82" width="200" height="40" rx="6"/>
+<rect x="380" y="82" width="200" height="40" rx="6"/>
+<path d="M290 52 L170 82"/><path d="M350 52 L470 82"/>
+<rect x="50" y="152" width="56" height="34" rx="5"/><rect x="132" y="152" width="56" height="34" rx="5"/><rect x="214" y="152" width="56" height="34" rx="5"/>
+<rect x="370" y="152" width="56" height="34" rx="5"/><rect x="452" y="152" width="56" height="34" rx="5"/><rect x="534" y="152" width="56" height="34" rx="5"/>
+<path d="M120 122 L78 152"/><path d="M160 122 L160 152"/><path d="M200 122 L242 152"/>
+<path d="M440 122 L398 152"/><path d="M480 122 L480 152"/><path d="M520 122 L562 152"/>
+<rect x="40" y="226" width="270" height="56" rx="6" fill="currentColor" fill-opacity=".08"/>
+<rect x="340" y="226" width="270" height="56" rx="6" fill="currentColor" fill-opacity=".08"/>
+<path d="M175 186 L175 226" stroke-dasharray="4 3"/><path d="M475 186 L475 226" stroke-dasharray="4 3"/>
+</g>
+<g text-anchor="middle">
+<text x="320" y="37">(ℤ/1333ℤ)*, 1260 elements</text>
+<text x="160" y="107">(ℤ/31ℤ)* ≅ ℤ/30</text>
+<text x="480" y="107">(ℤ/43ℤ)* ≅ ℤ/42</text>
+<text x="300" y="72" font-size="12" fill-opacity=".7">CRT</text>
+<text x="78" y="174">ℤ/2</text><text x="160" y="174">ℤ/3</text><text x="242" y="174">ℤ/5</text>
+<text x="398" y="174">ℤ/2</text><text x="480" y="174">ℤ/3</text><text x="562" y="174">ℤ/7</text>
+<text x="175" y="248">sorted by prime (Sylow):</text>
+<text x="175" y="270" font-size="13">(ℤ/2)², (ℤ/3)², ℤ/5, ℤ/7</text>
+<text x="475" y="248">regrouped (invariant factors):</text>
+<text x="475" y="270" font-size="13">ℤ/6 × ℤ/210, so λ(n) = 210</text>
+</g>
+</svg>
+<figcaption>Figure 7.4. The units modulo an RSA modulus, taken apart. The CRT splits the group into the two cyclic groups modulo the primes; each splits into pieces of prime order; the pieces can be sorted by prime (the Sylow subgroups) or regrouped into invariant factors, whose largest is Carmichael's λ(n).</figcaption>
+</figure>
+
+The machine agrees, and lists how many elements have each order:
+
+```python
+# Uses units() and order() from the listing above.
+from collections import Counter
+
+p, q = 31, 43                         # p - 1 = 2*3*5, q - 1 = 2*3*7
+n = p * q
+U = units(n)
+print(len(U), len({(a % p, a % q) for a in U}))      # the CRT pairs are all different
+lam = (p - 1) * (q - 1) // gcd(p - 1, q - 1)
+counts = Counter(order(a, n) for a in U)
+print("lambda", lam, "largest order", max(counts))
+print(sorted(counts.items()))
+
+def power_of(d, r):
+    while d % r == 0:
+        d //= r
+    return d == 1
+
+for r in (2, 3, 5, 7):                # Sylow r-subgroup: orders that are powers of r
+    print("Sylow", r, sum(c for d, c in counts.items() if power_of(d, r)))
+```
+
+It prints:
+
+```text
+1260 1260
+lambda 210 largest order 210
+[(1, 1), (2, 3), (3, 8), (5, 4), (6, 24), (7, 6), (10, 12), (14, 18), (15, 32), (21, 48), (30, 96), (35, 24), (42, 144), (70, 72), (105, 192), (210, 576)]
+Sylow 2 4
+Sylow 3 9
+Sylow 5 5
+Sylow 7 7
+```
+
+Every count can be read off the Sylow pieces: order 14 needs a component of
+order 2 (3 choices) and one of order 7 (6 choices), so 18 elements.
+
+### Why small orders leak
+
+In a group of *known* order, an element whose order $rs$ has a small prime factor
+$r$ gives part of any exponent away: from $y^x$ one computes $(y^x)^s =
+(y^s)^x$, one of only $r$ values, and reads off $x \bmod r$. §7.10 turns this
+homomorphism onto a small group into an attack. RSA hides the order, so that
+projection needs $\lambda(n)$, which is as hard as factoring. What the RSA group
+leaks comes from homomorphisms computable without the order, and from elements
+that look different on the $p$ side and the $q$ side:
+
+- **Square roots of 1 factor $n$.** $216 \equiv -1 \pmod{31}$ and $\equiv 1
+  \pmod{43}$, so $\gcd(215, 1333) = 43$. This is how knowing $d$ gives the
+  factors ([Chapter 19](19-Complexity-and-Reductions.md)), and why square roots
+  modulo $n$ are as hard as factoring ([Chapter 5](05-Square-Roots-Mod-p.md)).
+- **A smooth $p - 1$ factors $n$.** Raising to the power 30 kills all of
+  $(\mathbb{Z}/31)^*$ but not the 7-part of $(\mathbb{Z}/43)^*$ (2 has order 14
+  modulo 43), so $\gcd(2^{30} - 1, 1333) = 31$. This is Pollard's $p - 1$ method
+  (1974), in *Cryptanalysis*, [Chapter 11](../cryptanalysis/11-Factoring.md).
+- **The Jacobi symbol is a public homomorphism** onto $\{\pm 1\}$, computed
+  without the factors (Chapter 5). For odd $e$, $\left(\frac{m^e}{n}\right) =
+  \left(\frac{m}{n}\right)$: a textbook RSA ciphertext shows one bit about its
+  plaintext.
+
+```python
+# Uses n from the listing above.
+roots = [a for a in range(1, n) if a * a % n == 1]
+print(roots, [gcd(a - 1, n) for a in roots])
+print(gcd(pow(2, 30, n) - 1, n))                      # 2^30 is 1 mod 31 but not mod 43
+
+def jacobi(a, m):                                     # Chapter 5: no factors needed
+    a, s = a % m, 1
+    while a:
+        while a % 2 == 0:
+            a //= 2
+            if m % 8 in (3, 5):
+                s = -s
+        a, m = m, a
+        if a % 4 == 3 and m % 4 == 3:
+            s = -s
+        a %= m
+    return s if m == 1 else 0
+
+e = 11                                                # gcd(11, 210) = 1
+print(all(jacobi(pow(m, e, n), n) == jacobi(m, n) for m in range(1, n) if gcd(m, n) == 1))
+```
+
+It prints:
+
+```text
+[1, 216, 1117, 1332] [1333, 43, 31, 1]
+31
+True
+```
+
+A random 1,024-bit prime has a large factor in $p - 1$ with overwhelming
+probability, so the second leak does not happen by accident; Ronald Rivest and
+Robert Silverman argued in 1999 that the old demand for "strong primes" is
+unnecessary.
 
 ## 7.7 The discrete logarithm and Diffie-Hellman problems
 
@@ -712,13 +1099,155 @@ print(q, bsgs(g, pow(g, 777777, p), p, q))
 <text x="290" y="45" text-anchor="middle">giant steps: h · g^(−m), h · g^(−2m), …</text>
 <text x="410" y="178" text-anchor="middle" font-size="12">at most m jumps until one lands among the baby steps: x = im + j</text>
 </svg>
-<figcaption>Figure 7.3. Baby-step giant-step. The table holds the first m powers; the giant steps move back from the unknown x by m at a time and must land in the table within m jumps. Time and memory are both about √q.</figcaption>
+<figcaption>Figure 7.5. Baby-step giant-step. The table holds the first m powers; the giant steps move back from the unknown x by m at a time and must land in the table within m jumps. Time and memory are both about √q.</figcaption>
 </figure>
 
 Both time and memory are about $\sqrt q$. Pollard's rho method (1978) needs the
 same time but almost no memory, and is what attackers actually run; it belongs
 to *Cryptanalysis*, [chapter 12](../cryptanalysis/12-Discrete-Logarithms.md), with the index-calculus methods that beat
 $\sqrt q$ in groups that are not generic.
+
+### Pohlig-Hellman, digit by digit
+
+Pohlig-Hellman, met in [Chapter 4](04-Powers-and-Primitive-Roots.md), is the
+algorithm that shows Shoup's bound for composite orders is tight. In group
+language it has two levels. Let $G = \langle g \rangle$ have order $n = \prod
+r_i^{e_i}$ and $h = g^x$.
+
+**Level 1: the Sylow pieces.** For each $r^e$ exactly dividing $n$, the map
+$\pi(y) = y^{n/r^e}$ is a homomorphism onto the Sylow $r$-subgroup, cyclic of
+order $r^e$ and generated by $g_1 = \pi(g)$. Then $h_1 = \pi(h) = g_1^x$
+depends only on $x \bmod r^e$. Solve there for every $r$ and join with the CRT.
+
+**Level 2: the digits.** Inside the Sylow subgroup there is a chain of subgroups
+of orders $r, r^2, \dots, r^e$, and the bottom one is generated by $\gamma =
+g_1^{r^{e-1}}$, of order $r$. Write $x \bmod r^e = d_0 + d_1 r + \dots +
+d_{e-1} r^{e-1}$ in base $r$. Raising $h_1$ to the power $r^{e-1}$ kills
+everything except the lowest digit:
+
+$$h_1^{r^{e-1}} = g_1^{x r^{e-1}} = \gamma^{d_0},$$
+
+since $g_1^{r^e} = 1$: a logarithm in a group of order $r$. Then strip off what
+is known, $h_1 g_1^{-d_0} = g_1^{d_1 r + \dots}$, and raise to $r^{e-2}$ to get
+$\gamma^{d_1}$, and so on. The total cost is about $\sum_i e_i (\sqrt{r_i} +
+\log_2 n)$ group operations with baby-step giant-step for each digit: a group of
+order $2^{255}$ falls in 255 tiny steps, while a 256-bit prime factor still costs
+about $2^{128}$.
+
+*By hand*, modulo $p = 73$, where $p - 1 = 72 = 2^3 \cdot 3^2$ and $g = 5$ is a
+primitive root. Find $x$ with $5^x \equiv 67$.
+
+<div class="mars-steps" markdown>
+1. **The 2-part.** Project with the power $72/8 = 9$: $g_1 = 5^9 \equiv 10$ (of
+   order 8) and $h_1 = 67^9 \equiv 27$. The bottom generator is $\gamma = 10^4
+   \equiv 72 = -1$.
+2. Digit $d_0$: $27^4 = (27^2)^2 \equiv 72^2 \equiv 1 = \gamma^0$, so $d_0 = 0$.
+3. Digit $d_1$: nothing to strip, so raise 27 to $2^1$: $27^2 = 729 \equiv 72 =
+   \gamma^1$, so $d_1 = 1$.
+4. Digit $d_2$: strip $g_1^{2}$: $10^2 = 100 \equiv 27$, so $27 \cdot 27^{-1} =
+   1 = \gamma^0$ and $d_2 = 0$. Hence $x \equiv 0 + 1 \cdot 2 + 0 \cdot 4 = 2
+   \pmod 8$.
+5. **The 3-part.** Project with the power $72/9 = 8$: $g_1 = 5^8 \equiv 2$ (of
+   order 9, since $2^9 = 512 \equiv 1$) and $h_1 = 67^8 \equiv 32 = 2^5$. The
+   bottom generator is $\gamma = 2^3 = 8$, with powers $1, 8, 64$.
+6. Digit $d_0$: $32^3 = 2^{15} = 2^9 \cdot 2^6 \equiv 64 = \gamma^2$, so $d_0 =
+   2$.
+7. Digit $d_1$: strip $g_1^{2}$: $32 / 4 = 8 = \gamma^1$, so $d_1 = 1$. Hence $x
+   \equiv 2 + 1 \cdot 3 = 5 \pmod 9$.
+8. **CRT.** Among 5, 14, 23, 32, 41, 50 (the numbers $\equiv 5 \pmod 9$), the one
+   $\equiv 2 \pmod 8$ is 50. So $x = 50$, and indeed $5^{50} \equiv 67 \pmod{73}$.
+</div>
+
+Five logarithms in groups of size 2 or 3 replaced one in a group of size 72.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="The Pohlig-Hellman tree for p equal to 60,715,873: the logarithm modulo p minus 1 splits into four Sylow pieces of orders 32, 27, 7 and 10039; the piece of order 32 splits into five binary digits, the piece of order 27 into three ternary digits, the piece of order 7 is one digit and the piece of order 10039 is one baby-step giant-step search" fill="currentColor" font-size="13">
+<g stroke="currentColor" stroke-width="1.3" fill="none">
+<rect x="200" y="12" width="240" height="40" rx="6"/>
+<rect x="20" y="102" width="130" height="40" rx="6"/>
+<rect x="180" y="102" width="130" height="40" rx="6"/>
+<rect x="340" y="102" width="120" height="40" rx="6"/>
+<rect x="490" y="102" width="130" height="40" rx="6" fill="currentColor" fill-opacity=".12"/>
+<path d="M260 52 L85 102"/><path d="M300 52 L245 102"/><path d="M340 52 L400 102"/><path d="M380 52 L555 102"/>
+<rect x="14" y="192" width="22" height="26" rx="3"/><rect x="42" y="192" width="22" height="26" rx="3"/><rect x="70" y="192" width="22" height="26" rx="3"/><rect x="98" y="192" width="22" height="26" rx="3"/><rect x="126" y="192" width="22" height="26" rx="3"/>
+<path d="M85 142 L25 192"/><path d="M85 142 L53 192"/><path d="M85 142 L81 192"/><path d="M85 142 L109 192"/><path d="M85 142 L137 192"/>
+<rect x="198" y="192" width="26" height="26" rx="3"/><rect x="232" y="192" width="26" height="26" rx="3"/><rect x="266" y="192" width="26" height="26" rx="3"/>
+<path d="M245 142 L211 192"/><path d="M245 142 L245 192"/><path d="M245 142 L279 192"/>
+<rect x="386" y="192" width="28" height="26" rx="3"/>
+<path d="M400 142 L400 192"/>
+<rect x="520" y="192" width="70" height="26" rx="3" fill="currentColor" fill-opacity=".12"/>
+<path d="M555 142 L555 192"/>
+</g>
+<g text-anchor="middle">
+<text x="320" y="37">x mod 60,715,872</text>
+<text x="85" y="127">x mod 2⁵ = 22</text>
+<text x="245" y="127">x mod 3³ = 22</text>
+<text x="400" y="127">x mod 7 = 3</text>
+<text x="555" y="127">x mod 10039</text>
+<text x="25" y="210">0</text><text x="53" y="210">1</text><text x="81" y="210">1</text><text x="109" y="210">0</text><text x="137" y="210">1</text>
+<text x="211" y="210">1</text><text x="245" y="210">1</text><text x="279" y="210">2</text>
+<text x="400" y="210">3</text>
+<text x="555" y="210">3895</text>
+<text x="81" y="240" font-size="12" fill-opacity=".7">5 digits, order 2</text>
+<text x="245" y="240" font-size="12" fill-opacity=".7">3 digits, order 3</text>
+<text x="400" y="240" font-size="12" fill-opacity=".7">order 7</text>
+<text x="555" y="240" font-size="12" fill-opacity=".7">≈ 200 steps</text>
+<text x="320" y="288">level 1: project onto the Sylow subgroups · level 2: one base-r digit at a time</text>
+</g>
+</svg>
+<figcaption>Figure 7.6. The Pohlig-Hellman tree for the listing below. The logarithm splits into one piece per Sylow subgroup, and each piece of order rᵉ into e digits, each a logarithm in a group of prime order r. The shaded leaf, the largest prime, sets the cost.</figcaption>
+</figure>
+
+The code runs the tree on a group of order $60{,}715{,}872 = 2^5 \cdot 3^3 \cdot 7
+\cdot 10039$, with baby-step giant-step for every digit.
+
+```python
+# Uses bsgs() from the listing above.
+def ph_prime_power(g, h, p, n, r, e):
+    """x mod r^e from h = g^x, where g has order n: one base-r digit at a time."""
+    g1 = pow(g, n // r**e, p)            # order r^e: project into the Sylow r-subgroup
+    h1 = pow(h, n // r**e, p)
+    gamma = pow(g1, r**(e - 1), p)       # order r: the bottom of the chain
+    x, digits = 0, []
+    for k in range(e):
+        t = pow(h1 * pow(g1, -x, p) % p, r**(e - 1 - k), p)
+        d = bsgs(gamma, t, p, r)         # one logarithm in a group of order r
+        digits.append(d)
+        x += d * r**k
+    print("r=%d digits %s: x mod %d = %d" % (r, digits, r**e, x))
+    return x
+
+def pohlig_hellman(g, h, p, factors):
+    n = p - 1
+    x, M = 0, 1
+    for r, e in factors.items():
+        xr = ph_prime_power(g, h, p, n, r, e)
+        x += M * ((xr - x) * pow(M, -1, r**e) % r**e)   # CRT, one modulus at a time
+        M *= r**e
+    return x
+
+p = 60715873                    # p - 1 = 2^5 * 3^3 * 7 * 10039
+g = 5
+print(all(pow(g, (p - 1) // r, p) != 1 for r in (2, 3, 7, 10039)))   # g generates
+secret = 31415926
+x = pohlig_hellman(g, pow(g, secret, p), p, {2: 5, 3: 3, 7: 1, 10039: 1})
+print(x, x == secret)
+```
+
+The trace:
+
+```text
+True
+r=2 digits [0, 1, 1, 0, 1]: x mod 32 = 22
+r=3 digits [1, 1, 2]: x mod 27 = 22
+r=7 digits [3]: x mod 7 = 3
+r=10039 digits [3895]: x mod 10039 = 3895
+31415926 True
+```
+
+Check: $22 = 2 + 4 + 16$ and $22 = 1 + 3 + 2 \cdot 9$. The searches took about
+240 steps, against about 15,600 for baby-step giant-step on the whole group: a
+group is as strong as its largest prime-order piece and no stronger.
 
 ## 7.9 Where groups hide in symmetric cryptography
 
@@ -826,7 +1355,7 @@ hundreds of bits.
 <text x="320" y="182" text-anchor="middle">CRT: x mod 223,092,870</text>
 <text x="587" y="102" text-anchor="middle" font-size="12">√1019 steps</text>
 </svg>
-<figcaption>Figure 7.4. The small-subgroup attack. By the structure theorem, the group splits into one piece per prime factor of its order. An unchecked server answers questions about each small piece separately, and the CRT joins the answers into most of its secret.</figcaption>
+<figcaption>Figure 7.7. The small-subgroup attack. By the structure theorem, the group splits into one piece per prime factor of its order. An unchecked server answers questions about each small piece separately, and the CRT joins the answers into most of its secret.</figcaption>
 </figure>
 
 **Fix it.** Three defenses, used in combination:
@@ -843,6 +1372,32 @@ In 2017 Luke Valenta, David Adrian, Antonio Sanso and colleagues measured
 Diffie-Hellman on the Internet (NDSS 2017) and found many servers using groups
 from RFC 5114, whose $p - 1$ has small factors, without the validation, and some
 that reused exponents, making them open to exactly this attack.
+
+### Safe-prime groups and cofactors in practice
+
+RFC 7919 (Daniel Kahn Gillmor, 2016) defines the finite-field groups ffdhe2048
+to ffdhe8192 for TLS, and every prime in it is a safe prime $p = 2q + 1$, derived
+from the digits of $e$ so that nobody could have chosen it with a hidden
+weakness. Every element then has order 1, 2, $q$ or $2q$ (§7.3), and validation
+shrinks to checking $1 < Y < p - 1$, which in the RFC's words keeps the peer from
+"forcing the local system into the 2-element subgroup". TLS 1.3 (RFC 8446)
+repeats the check. A $Y$ of order $2q$ still passes, but it can leak at most
+$x \bmod 2$. On a curve of order $h\ell$, the analogue is **cofactor
+Diffie-Hellman**, SP 800-56A's "ECC CDH" primitive: compute $(hx)Y$, so any
+small-order part of $Y$ dies and a small-order $Y$ gives the identity, which is
+rejected. X25519's clamping (§7.11) builds the same $h = 8$ into the secret.
+
+### On Mars: when the key cannot be ephemeral
+
+The third fix is the one an interplanetary link takes away. A handshake between
+Arcadia City and Earth costs a round trip of 6 to 44 minutes, so much traffic is
+one-way: encrypted to the receiver's *long-term* key with a fresh key on the
+sender's side only, as in HPKE (RFC 9180) and every store-and-forward system.
+The receiver's $x$ then meets every incoming $Y$, and if it reveals anything
+that depends on $Y^x$, even "could not decrypt" in an acknowledgement, it is the
+careless server above. The delay barely slows the attacker, whose nine queries go
+out in one batch. Such a receiver needs a prime-order group (or a cleared
+cofactor) and validation of every value, with no exceptions.
 
 ## 7.11 Break it: cofactors
 
@@ -914,56 +1469,264 @@ are specified in RFC 9496 (2023).
     and WireGuard · **Status:** safe for Diffie-Hellman with clamping;
     a recurring trap in more complex protocols; Ristretto hides it
 
+## 7.12 Group actions
+
+*Level: expert.*
+
+So far a group has acted on itself. Often it moves the points of another set:
+permutations rearrange positions, matrices move vectors, rotations turn a cube.
+Diffie-Hellman can be read this way, and so can the isogeny protocols of
+post-quantum cryptography.
+
+An **action** of $G$ on a set $X$ gives a point $g \cdot x \in X$ for each $g \in
+G$, $x \in X$, with $1 \cdot x = x$ and $g \cdot (h \cdot x) = (gh) \cdot x$. Each
+$g$ then permutes $X$, so an action is a homomorphism from $G$ into the
+permutations of $X$; Cayley's theorem is $G$ acting on itself. The **orbit** of
+$x$ is $G \cdot x = \{g \cdot x\}$, everywhere $x$ can go; the **stabilizer**
+$G_x = \{g : g \cdot x = x\}$ is a subgroup. Orbits split $X$ into disjoint
+pieces, as cosets split a group.
+
+**Theorem (orbit-stabilizer).** For finite $G$, $|G| = |G \cdot x| \cdot |G_x|$.
+
+*Proof.* Send the coset $gG_x$ to $g \cdot x$. It does not matter which $g$ is
+picked, since $(gs) \cdot x = g \cdot x$ for $s \in G_x$. The map is onto the
+orbit, and one-to-one: $g \cdot x = g' \cdot x$ gives $g^{-1}g' \in G_x$, so
+$gG_x = g'G_x$. Lagrange counts the cosets as $|G|/|G_x|$. $\blacksquare$
+
+*By hand.* The rotations of a cube act on its 6 faces; every face can reach the
+top, and the rotations keeping the top face on top are the 4 quarter turns about
+the vertical axis (counting the zero turn). So there are $6 \cdot 4 = 24$
+rotations, counted without listing them. $S_3$ on $\{0, 1, 2\}$: orbit 3,
+stabilizer of 0 of size 2, and $3 \cdot 2 = 6$. The units modulo 13 acting on
+$\mathbb{Z}/13$ by multiplication: two orbits, $\{0\}$ with stabilizer of size 12
+and the 12 nonzero residues with trivial stabilizers. Counting orbits the same
+way (Burnside's lemma: the number of orbits is the average number of fixed
+points) proves Sylow's first theorem in Wielandt's proof.
+
+### Diffie-Hellman as an action
+
+Let $X$ be the $q - 1$ generators of a cyclic group of prime order $q$. Then
+$(\mathbb{Z}/q\mathbb{Z})^*$ acts on $X$ by $a \cdot x = x^a$, since $(x^b)^a =
+x^{ab}$. The action is **transitive** (one orbit) and **free** (trivial
+stabilizers), so by orbit-stabilizer $|X| = |G|$. A set with such an action is a
+**principal homogeneous space**. Diffie-Hellman needs nothing more: Alice
+publishes $a \cdot x_0$, Bob $b \cdot x_0$, and since the group is commutative,
+$a \cdot (b \cdot x_0) = (ab) \cdot x_0 = b \cdot (a \cdot x_0)$.
+
+Finding $g$ with $g \cdot x = y$ is the **vectorization** problem (here the
+discrete logarithm); finding $(ab) \cdot x_0$ from $a \cdot x_0$ and $b \cdot
+x_0$ is **parallelization** (here CDH). Jean-Marc Couveignes wrote this down in
+1997, called a free transitive action with both problems hard a **hard
+homogeneous space**, and posted the note in 2006. That year Alexander Rostovtsev
+and Anton Stolbunov proposed an instance with a class group acting on elliptic
+curves by isogenies, and CSIDH (Wouter Castryck, Tanja Lange, Chloe Martindale,
+Lorenz Panny and Joost Renes, 2018) made it fast enough to use.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 250" width="640" role="img" aria-label="Diffie-Hellman as a group action: from x0, Alice's a and Bob's b lead to a·x0 and b·x0; applying the other secret to each reaches the same point (ab)·x0" fill="currentColor" font-size="14">
+<defs><marker id="ga-arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z"/></marker></defs>
+<g stroke="currentColor" stroke-width="1.3" fill="none">
+<rect x="60" y="20" width="140" height="44" rx="6"/>
+<rect x="440" y="20" width="140" height="44" rx="6"/>
+<rect x="60" y="180" width="140" height="44" rx="6"/>
+<rect x="440" y="180" width="140" height="44" rx="6" fill="currentColor" fill-opacity=".12"/>
+<path d="M200 42 L436 42" marker-end="url(#ga-arr)"/>
+<path d="M130 64 L130 176" marker-end="url(#ga-arr)"/>
+<path d="M510 64 L510 176" marker-end="url(#ga-arr)"/>
+<path d="M200 202 L436 202" marker-end="url(#ga-arr)"/>
+</g>
+<g text-anchor="middle">
+<text x="130" y="47">x₀ (public)</text>
+<text x="510" y="47">a · x₀ (Alice)</text>
+<text x="130" y="207">b · x₀ (Bob)</text>
+<text x="510" y="207">(ab) · x₀</text>
+<text x="318" y="34">act by a</text>
+<text x="318" y="194">act by a</text>
+<text x="120" y="125" text-anchor="end">act by b</text>
+<text x="522" y="125" text-anchor="start">act by b</text>
+<text x="320" y="125" font-size="12" fill-opacity=".7">the square closes because ab = ba</text>
+</g>
+</svg>
+<figcaption>Figure 7.8. Diffie-Hellman needs only a commutative group acting freely and transitively on a set: exponentiation gives the classical protocol, a class group acting on curves gives CSIDH.</figcaption>
+</figure>
+
+### A toy CSIDH-like action
+
+The listing lets $\mathbb{Z}/419$ act on 419 "places" named by hash values, so a
+name says nothing about where the place sits. Three step types, named 3, 5 and 7
+after the small primes that label CSIDH's steps, each move a place a fixed
+distance around the hidden cycle. A secret is a vector of exponents from $-3$ to
+3, one per step type; the steps commute.
+
+```python
+import hashlib, random
+from itertools import product
+
+N = 419                                    # the order of the acting group Z/N
+def name(t):                               # the public name of the place at position t
+    return hashlib.sha256(b"place%d" % (t % N)).hexdigest()[:8]
+where = {name(t): t for t in range(N)}     # the hidden positions, used only by step()
+
+STEPS = {3: 112, 5: 287, 7: 31}            # step type l moves a place by STEPS[l]
+def step(l, X, times=1):                   # anyone can take a step; only names are seen
+    return name(where[X] + times * STEPS[l])
+
+def act(secret, X):                        # secret: one exponent per step type
+    for l, e in secret.items():
+        X = step(l, X, e)
+    return X
+
+X0 = name(0)                               # the public starting place
+rng = random.Random(5)
+a = {l: rng.randrange(-3, 4) for l in STEPS}
+b = {l: rng.randrange(-3, 4) for l in STEPS}
+A, B = act(a, X0), act(b, X0)              # the public keys
+print(a, A)
+print(b, B)
+print(act(a, B), act(b, A), act(a, B) == act(b, A))
+
+orbit, todo = {X0}, [X0]                   # the orbit of X0 under all steps
+while todo:
+    X = todo.pop()
+    for l in STEPS:
+        Y = step(l, X)
+        if Y not in orbit:
+            orbit.add(Y)
+            todo.append(Y)
+keys = {act(dict(zip(STEPS, v)), X0) for v in product(range(-3, 4), repeat=3)}
+print(len(orbit), len(keys), 7 ** 3)
+```
+
+It prints:
+
+```text
+{3: 1, 5: -1, 7: 2} 62cf6593
+{3: -1, 5: 3, 7: 2} f9791614
+30f8e90e 30f8e90e True
+419 273 343
+```
+
+Alice and Bob reach the same place, 30f8e90e. The orbit of $X_0$ is all 419
+places, so by orbit-stabilizer the stabilizer is trivial: the action is free and
+transitive. But the $7^3 = 343$ exponent vectors reach only 273 places, because
+different vectors name the same group element. CSIDH-512 has the same issue at
+scale, with $11^{74} \approx 2^{256}$ vectors spread over a class group of about
+that size; the group's structure was first computed in 2019 by Ward Beullens,
+Thorsten Kleinjung and Frederik Vercauteren, for the signature scheme CSI-FiSh.
+
+The toy is honest in one way: the attacker sees only names and takes steps, like
+the generic algorithm of §7.8, and needs about $\sqrt N$ steps. It cheats in
+another: `step()` reads a hidden table. In CSIDH nothing is hidden. A place is a
+supersingular elliptic curve over $\mathbb{F}_p$, its name is one coefficient
+$A$, and a step is an isogeny of small prime degree computed from $A$ alone;
+nobody knows how to find a curve's position on the cycle. *Post-quantum
+cryptography*, [Chapter 16](../post-quantum/16-Isogenies.md), builds the real
+thing.
+
+**Why this matters after Shor.** Shor's algorithm works because $k \mapsto g^k$
+is a homomorphism whose hidden period a quantum computer can find
+([Chapter 20](20-Quantum-Algorithms.md)). An action on a set with no group law
+of its own offers no such homomorphism: recovering the secret becomes a **hidden
+shift** problem, for which Greg Kuperberg's quantum algorithm (2003, published
+2005) is subexponential, not polynomial. That is why CSIDH is a post-quantum
+candidate. How large $p$ must be is still argued over; Chris Peikert, and
+separately Xavier Bonnetain and André Schrottenloher, argued in 2020 that
+CSIDH-512 falls short of the level first claimed for it.
+
+## 7.13 Going deeper
+
+*Level: expert.*
+
+**Beyond Sylow.** Groups of prime-power order are astonishingly many: there are
+49,487,365,422 of order $2^{10}$, over 99 percent of all groups of order up to
+2,000 (Besche, Eick and O'Brien, 2001). Deployed cryptography uses none of
+them; it lives in abelian groups.
+
+**Models of generic computation.** Ueli Maurer's model (2005) replaces Shoup's
+random labels by handles into a black box. The **algebraic group model** of Georg
+Fuchsbauer, Eike Kiltz and Julian Loss (CRYPTO 2018) lets the adversary see the
+representation but makes it explain every element it outputs as a combination of
+those it was given; BLS signatures and the Groth16 proof system have been proved
+secure in it. Alexander Dent showed in 2002 that, as with random oracles, some
+schemes secure in the generic group model are insecure with every real group.
+
+**Groups of unknown order.** Class groups of imaginary quadratic fields
+(Johannes Buchmann and Hugh Williams, 1988) have an order nobody knows and need
+no trusted party to forget $p$ and $q$. They returned in 2019 for verifiable delay
+functions (Benjamin Wesolowski; Krzysztof Pietrzak), where $x^{2^T}$ takes $T$
+sequential squarings because without the order there is no shortcut.
+
+**Non-abelian groups.** Braid-group key exchange (Anshel, Anshel and Goldfeld,
+1999; Ko and coauthors, 2000) rested on the conjugacy search problem, given $x$
+and $gxg^{-1}$ find $g$, and fell to length-based attacks and to linear
+representations. The non-abelian hidden subgroup problem is where the quantum
+story continues: for the dihedral group it is tied to lattice problems (Oded
+Regev, 2004), part of why lattices are believed to resist quantum computers.
+
 ## Check yourself
 
-??? question "1. Is the set $\{1, 2, 3, 4\}$ under multiplication mod 5 a group? Under multiplication mod 6, is $\{1, 2, 3, 4, 5\}$?"
-
-    Mod 5, yes: it is the units modulo a prime. Mod 6, no: $2 \cdot 3 = 6 \equiv 0$
-    is not in the set, and 2 has no inverse.
-
-??? question "2. Find the order of 3 and of 10 in the units modulo 11."
+??? question "1. Find the order of 3 and of 10 in the units modulo 11."
 
     $3^1 = 3$, $3^2 = 9$, $3^3 = 27 \equiv 5$, $3^4 = 15 \equiv 4$, $3^5 = 12
     \equiv 1$: order 5. $10 = -1$, so $10^2 = 1$: order 2.
 
-??? question "3. List all subgroups of $\mathbb{Z}/12\mathbb{Z}$ under addition."
+??? question "2. List all subgroups of $\mathbb{Z}/12\mathbb{Z}$ under addition."
 
     One for each divisor of 12: $\{0\}$, $\{0, 6\}$, $\{0, 4, 8\}$, $\{0, 3, 6,
     9\}$, $\{0, 2, 4, 6, 8, 10\}$ and the whole group.
 
-??? question "4. Use Lagrange's theorem to show that a group of order 35 has no element of order 6."
+??? question "3. A cyclic group has order 100. How many generators does it have, and how many elements of order 4?"
 
-    The order of an element divides 35, and 6 does not divide 35.
+    Generators: $\varphi(100) = 40$. Elements of order 4: $\varphi(4) = 2$, since
+    there is exactly one subgroup of order 4 and it is cyclic.
 
-??? question "5. How many generators does a cyclic group of order 100 have?"
-
-    $\varphi(100) = 40$.
-
-??? question "6. Show that $x \mapsto x^2$ is a homomorphism of an abelian group, and find its kernel in the units mod 15."
+??? question "4. Show that $x \mapsto x^2$ is a homomorphism of an abelian group, and find its kernel in the units mod 15."
 
     $(xy)^2 = x^2y^2$ because the group is abelian. The kernel is the $x$ with
     $x^2 \equiv 1 \pmod{15}$: 1, 4, 11 and 14.
 
-??? question "7. Why does the Legendre symbol not leak anything in the subgroup of squares modulo a safe prime?"
+??? question "5. Write $(\mathbb{Z}/91\mathbb{Z})^*$, with $91 = 7 \cdot 13$, as a product of cyclic groups. What is its exponent, and which square root of 1 factors 91?"
 
-    Every element of that subgroup is a square, so its Legendre symbol is always
-    $+1$: the symbol is constant and carries no information.
+    By the CRT it is $\mathbb{Z}/6 \times \mathbb{Z}/12$ (already in invariant
+    form, since $6 \mid 12$), with $\varphi(91) = 72$ elements and exponent
+    $\lambda(91) = \operatorname{lcm}(6, 12) = 12$. The square roots of 1 are
+    $(\pm 1, \pm 1)$; the one that is $1$ mod 7 and $-1$ mod 13 is 64 ($64 = 9
+    \cdot 7 + 1$ and $64 = 5 \cdot 13 - 1$), and $\gcd(63, 91) = 7$. The other,
+    27, gives $\gcd(26, 91) = 13$.
 
-??? question "8. A group has order $2^{255}$ and a discrete logarithm is wanted. Is it hard?"
+??? question "6. A group has order $2^{255}$ and a discrete logarithm is wanted. Is it hard?"
 
     No. Pohlig-Hellman reduces it to 255 logarithms in a group of order 2, one
     per bit. A prime-power order with a small prime is as weak as smooth order.
 
-??? question "9. With baby-step giant-step on a group of order $2^{80}$, roughly how much memory is needed?"
+??? question "7. A Diffie-Hellman group has order $n = 2^3 \cdot 3 \cdot 10007$. Roughly how many group operations does Pohlig-Hellman need, and what sets the cost?"
 
-    About $2^{40}$ table entries, a trillion; with, say, 16 bytes each, about 18
-    terabytes. That is why attackers prefer Pollard's rho.
+    Three digits of size 2, one of size 3, and one logarithm in the subgroup of
+    order 10007, about $2\sqrt{10007} \approx 200$ steps with baby-step giant-step,
+    plus a handful of exponentiations: a few hundred operations in all. The
+    largest prime factor, 10007, sets the cost; the size of $n$ hardly matters.
 
-??? question "10. Why does clamping (a scalar that is a multiple of 8) stop the small-subgroup attack on Curve25519?"
+??? question "8. You see an exponential ElGamal ciphertext $(c_1, c_2) = (g^k, g^m h^k)$ of a secret bid $m$. Without the key, make a ciphertext of the bid $m + 5$. What stops this in practice?"
+
+    $(c_1, c_2 g^5)$, since $g^m h^k \cdot g^5 = g^{m+5} h^k$. Encryption is a
+    homomorphism, so it is malleable. It is stopped by not using a homomorphic
+    scheme where none is wanted (a KEM with authenticated encryption, OAEP for
+    RSA, Cramer-Shoup) or, where it is wanted, by attaching a zero-knowledge proof
+    that each ciphertext was formed honestly by its sender.
+
+??? question "9. Why does clamping (a scalar that is a multiple of 8) stop the small-subgroup attack on Curve25519?"
 
     The small subgroup has order 8, so a multiple of 8 sends every element of
     it to the identity; the server's answer then carries no information about
     the secret's low bits.
+
+??? question "10. The group $(\mathbb{Z}/q\mathbb{Z})^*$ acts on the $q - 1$ generators of a group of prime order $q$ by $a \cdot x = x^a$. What are the orbit and the stabilizer of a generator $x$, and why does that make Diffie-Hellman work?"
+
+    Every generator is a power of $x$ with exponent prime to $q$, so the orbit is
+    all $q - 1$ generators; $x^a = x$ only when $a = 1$, so the stabilizer is
+    trivial, and $q - 1 = (q - 1) \cdot 1$ as orbit-stabilizer says. The action is
+    free and transitive, and the group is commutative, so $a \cdot (b \cdot x) =
+    b \cdot (a \cdot x)$: both sides of the exchange reach the same point.
 
 ## What you learned
 
@@ -984,7 +1747,17 @@ are specified in RFC 9496 (2023).
 - Generic algorithms need about $\sqrt q$ operations (Shoup); baby-step
   giant-step reaches that bound.
 - Small subgroups leak secrets; cofactors must be cleared or hidden. Prime-order
-  groups and input validation are the cures.
+  groups and input validation are the cures, and RFC 7919's safe-prime groups
+  make the check as short as $1 < Y < p - 1$.
+- Every group is a group of permutations (Cayley, 1854). A cyclic group of
+  order $n$ has $\varphi(d)$ elements of each order $d \mid n$.
+- RSA and ElGamal encryption are homomorphisms, hence malleable.
+- The units modulo $pq$ are $(\mathbb{Z}/p)^* \times (\mathbb{Z}/q)^*$, with
+  exponent $\lambda$; square roots of 1, a smooth $p - 1$ and the Jacobi symbol
+  are what that structure leaks.
+- Pohlig-Hellman solves one base-$r$ digit at a time in each Sylow subgroup.
+- Orbit-stabilizer: $|G| = |\text{orbit}| \cdot |\text{stabilizer}|$.
+  Diffie-Hellman and CSIDH are free transitive actions of commutative groups.
 
 **Next:** [Chapter 8](08-Rings-Fields-and-Polynomials.md), which adds a second
 operation and builds the finite fields used by AES, GCM and every elliptic curve.
@@ -1011,5 +1784,42 @@ operation and builds the finite fields used by AES, GCM and every elliptic curve
   Diffie-Hellman", NDSS 2017.
 - Daniel Bernstein, "Curve25519: New Diffie-Hellman Speed Records", PKC 2006.
 - RFC 9496, The ristretto255 and decaf448 Groups (2023).
+- Arthur Cayley, "On the Theory of Groups, as Depending on the Symbolic Equation
+  θⁿ = 1", *Philosophical Magazine* 7 (1854).
+- Ludwig Sylow, "Théorèmes sur les groupes de substitutions", *Mathematische
+  Annalen* 5 (1872).
+- Helmut Wielandt, "Ein Beweis für die Existenz der Sylowgruppen" (1959).
+- Stephen Pohlig and Martin Hellman, "An Improved Algorithm for Computing
+  Logarithms over GF(p) and Its Cryptographic Significance", *IEEE Transactions
+  on Information Theory* 24 (1978).
+- John Pollard, "Theorems on Factorization and Primality Testing", *Proceedings
+  of the Cambridge Philosophical Society* 76 (1974).
+- Ronald Rivest and Robert Silverman, "Are 'Strong' Primes Needed for RSA?"
+  (1999), IACR ePrint 2001/007.
+- Ronald Cramer and Victor Shoup, "A Practical Public Key Cryptosystem Provably
+  Secure against Adaptive Chosen Ciphertext Attack", CRYPTO 1998.
+- RFC 7919, Negotiated Finite Field Diffie-Hellman Ephemeral Parameters for
+  Transport Layer Security (TLS) (2016); RFC 8446, TLS 1.3 (2018); RFC 9180,
+  Hybrid Public Key Encryption (2022).
+- Jean-Marc Couveignes, "Hard Homogeneous Spaces", IACR ePrint 2006/291 (written
+  1997); Alexander Rostovtsev and Anton Stolbunov, "Public-Key Cryptosystem Based
+  on Isogenies", IACR ePrint 2006/145.
+- Wouter Castryck, Tanja Lange, Chloe Martindale, Lorenz Panny and Joost Renes,
+  "CSIDH: An Efficient Post-Quantum Commutative Group Action", ASIACRYPT 2018.
+- Ward Beullens, Thorsten Kleinjung and Frederik Vercauteren, "CSI-FiSh:
+  Efficient Isogeny Based Signatures through Class Group Computations",
+  ASIACRYPT 2019.
+- Greg Kuperberg, "A Subexponential-Time Quantum Algorithm for the Dihedral
+  Hidden Subgroup Problem", *SIAM Journal on Computing* 35 (2005).
+- Chris Peikert, "He Gives C-Sieves on the CSIDH", EUROCRYPT 2020; Xavier
+  Bonnetain and André Schrottenloher, "Quantum Security Analysis of CSIDH",
+  EUROCRYPT 2020.
+- Georg Fuchsbauer, Eike Kiltz and Julian Loss, "The Algebraic Group Model and
+  Its Applications", CRYPTO 2018.
+- Benjamin Wesolowski, "Efficient Verifiable Delay Functions", EUROCRYPT 2019.
+- In *Post-quantum cryptography*: [Chapter 16](../post-quantum/16-Isogenies.md);
+  in *Advanced protocols and privacy*: [Chapter
+  12](../advanced/12-Homomorphic-Encryption.md); in *Cryptanalysis*: [Chapter
+  12](../cryptanalysis/12-Discrete-Logarithms.md).
 - In *The cryptography book*: [Chapter 12](../../book/12-Diffie-Hellman.md) and
   [Chapter 14](../../book/14-Discrete-Log-Systems.md).
