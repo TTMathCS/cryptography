@@ -20,7 +20,10 @@ to a key so that stealing the token alone gets an attacker nothing.*
     - JWT, JWS, JWE and JWK, checked against RFC 7515's examples;
     - the classic token attacks: `"alg": "none"`, key confusion, psychic
       signatures, and how RFC 8725 prevents them;
-    - bearer tokens, token theft, and sender-constrained tokens with DPoP;
+    - a full ID-token check, with `at_hash` by hand;
+    - bearer tokens, token theft, and sender-constrained tokens with DPoP,
+      checked on RFC 9449's own proofs;
+    - PAR, RAR, token exchange, refresh-token rotation and OAuth 2.1;
     - SAML in brief, and Golden SAML;
     - what a login across a 20-minute light delay needs.
 
@@ -31,8 +34,8 @@ to a key so that stealing the token alone gets an attacker nothing.*
     [13](../../book/13-RSA.md) and [15](../../book/15-Elliptic-Curves.md) of
     book 1.
 
-    **Levels:** §14.1 and §14.2 are for beginners, §14.3 to §14.10 are
-    intermediate, §14.11 is expert.
+    **Levels:** §14.1 and §14.2 are for beginners, §14.3 to §14.13 are
+    intermediate, §14.14 is expert.
 
 ## 14.1 Delegation, not authentication
 
@@ -310,6 +313,106 @@ algorithms and the `jwks_uri`, where its current public keys are published as a
 JWK Set. A client fetches the keys, caches them, and verifies ID tokens
 locally, with no call to the issuer per login. Keys rotate by adding a new key
 with a new `kid` to the set, signing with it, and later removing the old one.
+
+### Discovery, field by field
+
+Discovery lets a client be configured with one string, the issuer URL. The
+client appends `/.well-known/openid-configuration`, fetches the document over
+TLS and reads (OpenID Connect Discovery 1.0, §3):
+
+- `issuer`, which must be exactly the URL the client started from, character
+  for character, and the string every ID token must carry in `iss`, so one
+  provider's document cannot vouch for another's tokens;
+- `authorization_endpoint` and `token_endpoint`, the two addresses of
+  Figure 14.1;
+- `jwks_uri`, the address of the key set;
+- `id_token_signing_alg_values_supported`, which must include `RS256`;
+- `subject_types_supported`: with **pairwise** subjects each client gets a
+  different `sub` for the same person (for example a salted hash of the
+  client's host and the account), so two sites cannot join their records.
+
+All of it is only as good as the TLS connection that fetched it: whoever can
+answer for `login.arcadia.mars` with a valid certificate can publish keys in
+its name, so the provider's trust is the web PKI's
+([Chapter 2](02-Certificates-and-PKI.md)). A client caches the key set and
+refetches it when a token names an unknown `kid`, which is how it learns of a
+rotation, but at most every few minutes: otherwise tokens with random `kid`
+values turn every client into a machine for flooding the provider.
+
+### at_hash and c_hash, by hand
+
+Some flows deliver tokens on the front channel. The **hybrid** flow
+(`response_type=code id_token`) puts the ID token in the redirect next to the
+code, so the client knows who logged in before it
+redeems anything; the old implicit flow (`id_token token`) put the access
+token there too. An attacker who can touch the redirect could then pair a
+genuine, signed ID token with a code or token of their own choosing. OpenID
+Connect closes this by making the signed ID token vouch for its companions:
+the claim `at_hash` is a hash of the access token, and `c_hash` a hash of the
+code. Each is computed the same way: hash the token's ASCII text with the hash
+of the ID token's `alg` (SHA-256 for RS256, ES256 and HS256), keep the left
+half, and base64url it.
+
+Take the access token `jHkWEdUXMU1BwAsC4vtUsZwnNvTIxEl0z9K3vx5KF0Y` from
+OpenID Connect Core's examples, 43 characters. Its SHA-256 is
+
+$$
+\begin{aligned}
+&\texttt{efb42650fb633dfcd6b45d809e92bd45}\\
+&\texttt{6a57ad696b79c75b2d4c890c86fb4ba4}
+\end{aligned}
+$$
+
+and the left half is the first 16 bytes, `ef b4 26 50 fb 63 3d fc d6 b4 5d 80
+9e 92 bd 45`. Base64url takes three bytes at a time and cuts their 24 bits
+into four 6-bit numbers. The first three bytes are
+
+$$
+\begin{aligned}
+\texttt{ef}\,\texttt{b4}\,\texttt{26} &= 11101111\;10110100\;00100110\\
+&\to 111011\;111011\;010000\;100110 = 59,\ 59,\ 16,\ 38 .
+\end{aligned}
+$$
+
+The alphabet runs `A` to `Z` for 0 to 25, `a` to `z` for 26 to 51, the
+digits for 52 to 61, then `-` and `_`. So 59 is `7`, 16 is `Q` and 38 is `m`:
+the hash begins `77Qm`. Sixteen bytes make five full groups of three and one
+byte over, which gives 22 characters once the `==` padding is dropped:
+`77QmUPtjPfzWtF2AnpK9RQ`, the value in the specification. Half a hash is
+plenty here. The attacker does not get to choose both tokens; they hold a
+signed `at_hash` and need some other access token with the same 128 bits,
+a second-preimage search of about $2^{128}$ hashes.
+
+```python
+# at_hash and c_hash (OpenID Connect Core): hash the token's ASCII text with the
+# ID token's hash (SHA-256 for RS256), keep the left half, base64url it.
+# Checked against the examples in OpenID Connect Core's Appendix A.
+import base64, hashlib
+
+def half_hash(value):
+    digest = hashlib.sha256(value.encode("ascii")).digest()
+    return base64.urlsafe_b64encode(digest[:len(digest) // 2]).rstrip(b"=").decode()
+
+access_token = "jHkWEdUXMU1BwAsC4vtUsZwnNvTIxEl0z9K3vx5KF0Y"
+code = "Qcb0Orv1zh30vL1MPRsbm-diHiMwcLyZvn1arpZv-Jxf_11jnpEX3Tgfvk"
+print("SHA-256 of the token:", hashlib.sha256(access_token.encode()).hexdigest())
+print("at_hash:", half_hash(access_token), half_hash(access_token) == "77QmUPtjPfzWtF2AnpK9RQ")
+print("c_hash: ", half_hash(code), half_hash(code) == "LDktKdoQak3Pk0cnXxCltA")
+print("one character changed:", half_hash(access_token[:-1] + "Z"))
+```
+
+It prints:
+
+```text
+SHA-256 of the token: efb42650fb633dfcd6b45d809e92bd456a57ad696b79c75b2d4c890c86fb4ba4
+at_hash: 77QmUPtjPfzWtF2AnpK9RQ True
+c_hash:  LDktKdoQak3Pk0cnXxCltA True
+one character changed: 7Httt23NaMd6AwWtm5gJSw
+```
+
+In the plain code flow `at_hash` is optional: both tokens come from the token
+endpoint on one TLS connection. §14.10 runs the whole ID-token check, `at_hash` included, on a
+signed token.
 
 ## 14.5 JSON Web Tokens: JWS, JWE and JWK
 
@@ -774,7 +877,111 @@ non-exportable) narrows that to the time the malware is running. Refresh
 tokens, the most valuable thing a client holds, should be sender-constrained
 or, for public clients, **rotated**: each use returns a new refresh token and
 invalidates the old, so a stolen copy is detected the moment both copies are
-used.
+used. §14.12 codes rotation and shows its weak spot.
+
+### Code it: the RFC's own proofs
+
+The program above made its own keys, so it only shows that our code agrees
+with itself. RFC 9449 prints real proofs, both ES256 from one client key: one
+sent to a token endpoint (its Figure 2) and one sent to an API with a bound
+access token (Figure 13). The next program checks them against RFC 9449 §4.3,
+leaving out the two checks that need server state (the `jti` cache and the
+server nonce). The proofs are dated July 2019, so the window check runs at
+their own time.
+
+```python
+# Uses es256_verify(), thumbprint() and jwk_app from the listings above.
+# RFC 9449's example DPoP proofs (Figures 2 and 13), checked as section 4.3 says.
+rfc_fig2 = ("eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6IkVDIiwieCI6Imw4dEZyaHgt"
+    "MzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCRnMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFq"
+    "SG10NnY5VERWclUwQ2R2R1JEQSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiItQndDM0VTYzZhY2MybFRjIiwiaHRt"
+    "IjoiUE9TVCIsImh0dSI6Imh0dHBzOi8vc2VydmVyLmV4YW1wbGUuY29tL3Rva2VuIiwiaWF0IjoxNTYyMjYyNjE2fQ."
+    "2-GxA6T8lP4vfrg8v-FdWP0A0zdrj8igiMLvqRMUvwnQg4PtFLbdLXiOSsX0x7NVY-FNyJK70nfbV37xRZT3Lg")
+rfc_fig13 = ("eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6IkVDIiwieCI6Imw4dEZyaHgt"
+    "MzR0VjNoUklDUkRZOXpDa0RscEJoRjQyVVFVZldWQVdCRnMiLCJ5IjoiOVZFNGpmX09rX282NHpiVFRsY3VOSmFq"
+    "SG10NnY5VERWclUwQ2R2R1JEQSIsImNydiI6IlAtMjU2In19.eyJqdGkiOiJlMWozVl9iS2ljOC1MQUVCIiwiaHRt"
+    "IjoiR0VUIiwiaHR1IjoiaHR0cHM6Ly9yZXNvdXJjZS5leGFtcGxlLm9yZy9wcm90ZWN0ZWRyZXNvdXJjZSIsImlh"
+    "dCI6MTU2MjI2MjYxOCwiYXRoIjoiZlVIeU8ycjJaM0RaNTNFc05yV0JiMHhXWG9hTnk1OUlpS0NBcWtzbVFFbyJ9."
+    "2oW9RP35yRqzhrtNP86L-Ey71EOptxRimPPToA1plemAgR6pxHF8y6-yqyVnmcw6Fy1dqd-jfxSYoMxhAJpLjA")
+rfc_token = "Kz~8mXK1EalYznwH-LC-1fBAo.4Ljp~zsPE_NeO.gxU"
+rfc_jkt = "0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I"          # cnf.jkt in RFC 9449 section 6
+
+def check_proof(proof, method, url, now, jkt=None, token=None, window=300):
+    h, c, s = proof.split(".")
+    header, claims = json.loads(unb64u(h)), json.loads(unb64u(c))
+    jwk = header.get("jwk", {})
+    checks = [("typ", header.get("typ") == "dpop+jwt"),
+              ("alg", header.get("alg") == "ES256"),                # asymmetric, never none or HS256
+              ("public key only", "d" not in jwk),
+              ("signature", es256_verify((num(jwk["x"]), num(jwk["y"])), (h + "." + c).encode(), unb64u(s))),
+              ("htm", claims.get("htm") == method),
+              ("htu", claims.get("htu") == url.split("?")[0].split("#")[0]),
+              ("iat", abs(claims.get("iat", 0) - now) <= window)]
+    if token is not None:
+        checks += [("ath", claims.get("ath") == b64u(hashlib.sha256(token.encode()).digest())),
+                   ("cnf.jkt", thumbprint(jwk) == jkt)]
+    failed = [name for name, ok in checks if not ok]
+    return "ok, %d checks" % len(checks) if not failed else "refused: " + ", ".join(failed)
+
+api = "https://resource.example.org/protectedresource"
+print("thumbprint of the proof key:", thumbprint(json.loads(unb64u(rfc_fig2.split(".")[0]))["jwk"]) == rfc_jkt)
+print("ath of the RFC's token:     ", b64u(hashlib.sha256(rfc_token.encode()).digest()))
+print("Figure 2, token request:    ", check_proof(rfc_fig2, "POST", "https://server.example.com/token", 1562262616))
+print("Figure 13, API call:        ", check_proof(rfc_fig13, "GET", api + "?page=2", 1562262618, rfc_jkt, rfc_token))
+print("Figure 13 sent as DELETE:   ", check_proof(rfc_fig13, "DELETE", api, 1562262618, rfc_jkt, rfc_token))
+print("Figure 13, another token:   ", check_proof(rfc_fig13, "GET", api, 1562262618, rfc_jkt, "stolen-token"))
+print("Figure 13, key not bound:   ", check_proof(rfc_fig13, "GET", api, 1562262618, thumbprint(jwk_app), rfc_token))
+print("Figure 13 in November 2026: ", check_proof(rfc_fig13, "GET", api, 1794200400, rfc_jkt, rfc_token))
+```
+
+It prints:
+
+```text
+thumbprint of the proof key: True
+ath of the RFC's token:      fUHyO2r2Z3DZ53EsNrWBb0xWXoaNy59IiKCAqksmQEo
+Figure 2, token request:     ok, 7 checks
+Figure 13, API call:         ok, 9 checks
+Figure 13 sent as DELETE:    refused: htm
+Figure 13, another token:    refused: ath
+Figure 13, key not bound:    refused: cnf.jkt
+Figure 13 in November 2026:  refused: iat
+```
+
+The thumbprint is the `jkt` of the RFC's example token, and the `ath` is the
+one inside Figure 13's proof. Figure 2's token request has no `ath`, since no
+access token exists yet; that request is where the binding is made. The
+authorization server computes the thumbprint of the proof's key and writes it
+into the access token as `cnf.jkt`, and for a public client binds the refresh
+token to the same key. The API call passed with `?page=2` because RFC 9449
+compares the URL without query or fragment, which servers and proxies rewrite
+too freely for exact matching; a proof is good for any query on its path
+within its window, one more reason the window is short.
+
+### Server nonces
+
+Malware that runs on the device for one minute can have the client sign
+proofs dated an hour ahead and use them after it is removed. RFC 9449 §8 and
+§9 let a server stop this with its own nonce: it refuses a proof without one,
+with the error `use_dpop_nonce` and a header such as
+`DPoP-Nonce: eyJ7S_zG.eyJH0-Z.HX4w-7v` (the RFC's example), and the client
+retries with that value in a `nonce` claim. Proofs can then be made only after
+the server has spoken, so they cannot be stockpiled, and client clocks no
+longer matter. The server sends the next nonce with each response, so the
+extra round trip is paid once.
+
+### Mutual TLS, by comparison
+
+RFC 8705 binds a token to a TLS client certificate instead of a JWK. The
+confirmation claim is `cnf` with the member `x5t#S256`, the base64url SHA-256
+of the certificate's DER bytes, and the resource server compares it with the
+hash of the certificate the client presented on this TLS connection. The
+certificate may be self-signed, and there is no proof per request: the TLS
+handshake already proved possession of the key (the client's
+CertificateVerify, [Chapter 3](03-TLS-1.3-Message-by-Message.md)). Its trouble is architecture. TLS usually ends at a load
+balancer in front of the API, which must then forward the certificate in a
+header the API trusts; and browsers and phones make client certificates
+awkward. Between servers, and in open banking, mutual TLS is common. For browsers and apps, DPoP works at the
+application layer, through proxies, at the cost of one signature per request.
 
 ## 14.8 SAML in brief
 
@@ -869,7 +1076,549 @@ authenticators, a larger replay cache in exchange for no extra round trip.
 <figcaption>Figure 14.4. Federation across the gap. Keys are exchanged ahead of time; each login stays on its own planet.</figcaption>
 </figure>
 
-## 14.10 In the real world
+### What the newer pieces cost across the gap
+
+The later sections add pieces designed, like the code flow, for round trips
+of a fraction of a second. Each has a price across the gap.
+
+- **Server nonces** (§14.7) need the server to speak first. A Mars client
+  whose first call to Earth is refused for want of a nonce learns that 6 to
+  44 minutes later. An Earth service that wants nonces from Mars clients
+  issues them with a lifetime of hours and attaches the next one to every
+  response, which still stops proofs being stockpiled for days.
+- **Pushed authorization requests** (§14.11) add a back-channel round trip
+  before the consent screen: milliseconds to the city's provider, another
+  light round trip to an Earth one, so the city does not push across the gap.
+- **Token exchange** (§14.11) fits well. A resident's Mars token is exchanged
+  at the city's own authorization server for a token whose audience is the
+  Earth service, narrowed to one scope, signed by a key the Earth service
+  already holds. Nothing crosses to Earth until the request itself.
+- **Refresh-token rotation** (§14.12) assumes the real client comes back
+  soon. Around solar conjunction, roughly every 26 months, the link is down
+  for about two weeks, and a stolen refresh token could be rotated on Earth
+  all that time unnoticed. The city binds refresh tokens for Earth services to
+  a DPoP key instead, with an absolute lifetime that outlasts a conjunction.
+
+## 14.10 Checking an ID token, step by step
+
+*Level: intermediate.*
+
+§14.4 listed the claims and §14.6 showed what happens when a token chooses its
+own algorithm. A client library that accepts an ID token does all of it, in
+one function, on every login. This section writes that function, following
+OpenID Connect Core §3.1.3.7, and breaks each check in turn.
+
+### The setup
+
+From the issuer string `https://login.arcadia.mars`, discovery (§14.4) gives
+the library app the endpoints and a key set with one RSA key, `kid`
+`rsa-2026`, for `RS256`. The app sends the browser to `/authorize` with
+`scope=openid`, a PKCE challenge, a `state` and a fresh `nonce`, keeps the
+`state`, the `nonce` and the PKCE verifier in the user's session, redeems the
+code, and receives an access token and an ID token. It then runs these checks, and uses nothing from the
+token until all have passed:
+
+<div class="mars-steps" markdown>
+1. If the token has five parts it is a JWE: decrypt it first with the
+   client's own key. Most ID tokens are signed only and have three.
+2. Find the key: look up `kid` in the cached key set. If it is not there,
+   fetch the set again once; if it is still not there, refuse.
+3. The `alg` in the header must be the algorithm of that key, and one the
+   provider lists. The header never chooses (§14.6).
+4. Verify the signature over the first two parts as sent.
+5. `iss` equals the issuer from discovery, as an exact string.
+6. `aud` contains this client's `client_id`. If it names more than one
+   audience, `azp` must be this client's `client_id`.
+7. `exp` is in the future and `iat` is not, each allowing a small clock skew.
+8. `nonce` equals the value kept for this login attempt, which is then
+   deleted so it can never match again.
+9. If `at_hash` or `c_hash` is present, it matches the token or code that
+   came with the ID token.
+10. If the request set `max_age`, `auth_time` is recent enough; if it asked for
+    an `acr`, the value is acceptable.
+11. Only now: the user is the pair (`iss`, `sub`).
+</div>
+
+OpenID Connect Core lists the issuer and audience checks before the signature.
+The order does not change the result as long as every check runs and nothing
+from the claims is acted on before the signature has passed; most libraries
+verify the signature first, as here. The specification also lets a client
+that received the ID token straight from the token endpoint over TLS skip
+the signature, since TLS has already authenticated the issuer. Libraries
+check it anyway, because ID tokens are often handed on to other parts of a
+system that never saw that TLS connection.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="The ID token check as ten steps in two rows, from key lookup to the identity (iss, sub), each with the attack it stops" fill="currentColor" font-size="12.5">
+<g stroke="currentColor" fill="none">
+<rect x="10" y="30" width="112" height="44" rx="6"/><rect x="134" y="30" width="112" height="44" rx="6"/>
+<rect x="258" y="30" width="112" height="44" rx="6"/><rect x="382" y="30" width="112" height="44" rx="6"/>
+<rect x="506" y="30" width="112" height="44" rx="6"/>
+<rect x="10" y="150" width="112" height="44" rx="6"/><rect x="134" y="150" width="112" height="44" rx="6"/>
+<rect x="258" y="150" width="112" height="44" rx="6"/><rect x="382" y="150" width="112" height="44" rx="6"/>
+</g>
+<rect x="506" y="150" width="112" height="44" rx="6" fill-opacity="0.15" stroke="currentColor"/>
+<path d="M122 52h10M246 52h10M370 52h10M494 52h10M122 172h10M246 172h10M370 172h10M494 172h10M618 52h12v76H66v18" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="66,149 61,139 71,139"/>
+<text x="66" y="50" text-anchor="middle">key by kid</text>
+<text x="66" y="66" text-anchor="middle" font-size="11">from the JWK Set</text>
+<text x="190" y="50" text-anchor="middle">alg = key's alg</text>
+<text x="190" y="66" text-anchor="middle" font-size="11">verifier chooses</text>
+<text x="314" y="50" text-anchor="middle">signature</text>
+<text x="314" y="66" text-anchor="middle" font-size="11">over header.claims</text>
+<text x="438" y="50" text-anchor="middle">iss</text>
+<text x="438" y="66" text-anchor="middle" font-size="11">exact string</text>
+<text x="562" y="50" text-anchor="middle">aud, azp</text>
+<text x="562" y="66" text-anchor="middle" font-size="11">this client</text>
+<text x="66" y="170" text-anchor="middle">exp, iat</text>
+<text x="66" y="186" text-anchor="middle" font-size="11">± 60 s skew</text>
+<text x="190" y="170" text-anchor="middle">nonce</text>
+<text x="190" y="186" text-anchor="middle" font-size="11">this attempt, once</text>
+<text x="314" y="170" text-anchor="middle">at_hash, c_hash</text>
+<text x="314" y="186" text-anchor="middle" font-size="11">companions match</text>
+<text x="438" y="170" text-anchor="middle">auth_time</text>
+<text x="438" y="186" text-anchor="middle" font-size="11">within max_age</text>
+<text x="562" y="170" text-anchor="middle" font-weight="bold">user =</text>
+<text x="562" y="186" text-anchor="middle" font-size="11" font-weight="bold">(iss, sub)</text>
+<g font-size="11" fill-opacity="0.7" text-anchor="middle">
+<text x="66" y="92">stops: unknown keys</text><text x="190" y="92">stops: alg none,</text>
+<text x="190" y="105">key confusion</text><text x="314" y="92">stops: edited claims</text>
+<text x="438" y="92">stops: another</text><text x="438" y="105">provider's token</text>
+<text x="562" y="92">stops: a token for</text><text x="562" y="105">another app</text>
+<text x="66" y="212">stops: stale tokens</text><text x="190" y="212">stops: replayed</text>
+<text x="190" y="225">ID tokens</text><text x="314" y="212">stops: swapped</text>
+<text x="314" y="225">token or code</text><text x="438" y="212">stops: an hours-old</text>
+<text x="438" y="225">login at a bank</text>
+</g>
+<rect x="10" y="246" width="608" height="44" rx="6" fill-opacity="0.08" stroke="currentColor"/>
+<text x="314" y="265" text-anchor="middle">Any failure refuses the whole token. Never the email address as identity:</text>
+<text x="314" y="282" text-anchor="middle">it is a profile attribute that some providers let users set (nOAuth, 2023).</text>
+</svg>
+<figcaption>Figure 14.5. Checking an ID token. Each box is one line of the function below, and each guards against one attack.</figcaption>
+</figure>
+
+### Code it: one function, eleven tokens
+
+The provider signs with RFC 7515's RSA key from §14.5. The program builds a
+good token and ten bad ones, each wrong in one way, and checks them all. The
+access token `SlAV32hkKG` is OpenID Connect Core's example string.
+
+```python
+# Uses make(), rs256_sign() and rs256_verify() from the listings above.
+# An ID token checked as OpenID Connect Core section 3.1.3.7 says.
+discovery = {"issuer": "https://login.arcadia.mars",
+             "jwks_uri": "https://login.arcadia.mars/jwks.json",
+             "id_token_signing_alg_values_supported": ["RS256"]}
+jwks = {"keys": [{"kty": "RSA", "kid": "rsa-2026", "use": "sig", "alg": "RS256",
+                  "n": b64u(rsa["n"].to_bytes(256, "big")), "e": "AQAB"}]}
+
+def half_hash(value):
+    return b64u(hashlib.sha256(value.encode()).digest()[:16])
+
+def check_id_token(id_token, client_id, nonce, now, access_token=None, max_age=None, skew=60):
+    h, c, s = id_token.split(".")
+    header, claims = json.loads(unb64u(h)), json.loads(unb64u(c))
+    key = next((k for k in jwks["keys"] if k["kid"] == header.get("kid")), None)
+    if key is None: return "refused: unknown kid " + str(header.get("kid"))
+    if header.get("alg") != key["alg"] or key["alg"] not in discovery["id_token_signing_alg_values_supported"]:
+        return "refused: alg"
+    if not rs256_verify({"n": num(key["n"]), "e": num(key["e"])}, (h + "." + c).encode(), unb64u(s)):
+        return "refused: signature"
+    if claims.get("iss") != discovery["issuer"]: return "refused: iss " + str(claims.get("iss"))
+    aud = claims.get("aud") if isinstance(claims.get("aud"), list) else [claims.get("aud")]
+    if client_id not in aud: return "refused: aud " + str(aud)
+    if len(aud) > 1 and claims.get("azp") != client_id: return "refused: azp " + str(claims.get("azp"))
+    if now > claims["exp"] + skew: return "refused: expired"
+    if claims["iat"] > now + skew: return "refused: issued in the future"
+    if claims.get("nonce") != nonce: return "refused: nonce"
+    if access_token and "at_hash" in claims and claims["at_hash"] != half_hash(access_token):
+        return "refused: at_hash"
+    if max_age is not None and now - claims["auth_time"] > max_age + skew:
+        return "refused: login too old, send the user back with prompt=login"
+    return "accepted: (%s, %s)" % (claims["iss"], claims["sub"])
+
+now, nonce, at = 1_794_200_400, "n-0S6_WzA2Mj", "SlAV32hkKG"
+base = {"iss": "https://login.arcadia.mars", "sub": "248289761001", "aud": "library-app",
+        "exp": now + 300, "iat": now, "auth_time": now - 10, "nonce": nonce, "at_hash": half_hash(at)}
+def issue(kid="rsa-2026", **changes):
+    return make({"alg": "RS256", "kid": kid, "typ": "JWT"}, dict(base, **changes), lambda m: rs256_sign(rsa, m))
+
+good = issue()
+h, c, s = good.split(".")
+edited = h + "." + b64u(json.dumps(dict(base, sub="1")).encode()) + "." + s   # claims changed after signing
+tests = [("good token", good, {}),
+         ("claims edited", edited, {}),
+         ("issuer with a slash", issue(iss="https://login.arcadia.mars/"), {}),
+         ("for another app", issue(aud="clinic-app"), {}),
+         ("two audiences", issue(aud=["library-app", "clinic-app"], azp="clinic-app"), {}),
+         ("old login's nonce", issue(nonce="n-earlier-login"), {}),
+         ("access token swapped", good, {"access_token": "another-token"}),
+         ("ten minutes later", good, {"now": now + 600}),
+         ("issued 2 h ahead", issue(iat=now + 7200), {}),
+         ("bank, max_age 300", issue(auth_time=now - 3600), {"max_age": 300}),
+         ("unknown kid", issue(kid="rsa-2025"), {})]
+for name, token, extra in tests:
+    args = dict({"now": now, "access_token": at}, **extra)
+    print("%-21s %s" % (name, check_id_token(token, "library-app", nonce, **args)))
+```
+
+It prints:
+
+```text
+good token            accepted: (https://login.arcadia.mars, 248289761001)
+claims edited         refused: signature
+issuer with a slash   refused: iss https://login.arcadia.mars/
+for another app       refused: aud ['clinic-app']
+two audiences         refused: azp clinic-app
+old login's nonce     refused: nonce
+access token swapped  refused: at_hash
+ten minutes later     refused: expired
+issued 2 h ahead      refused: issued in the future
+bank, max_age 300     refused: login too old, send the user back with prompt=login
+unknown kid           refused: unknown kid rsa-2025
+```
+
+### What each refusal guards
+
+**The signature.** The edited token keeps its header and signature but carries
+a different `sub`; the signature covers the encoded claims byte for byte.
+
+**The issuer, as a string.** `https://login.arcadia.mars/` with a trailing
+slash is a different issuer. The comparison is exact on purpose: a library that
+normalizes URLs or accepts prefixes will one day accept a string an attacker
+controls. Clients of several providers need it most, against the mix-up
+attack (§14.14).
+
+**The audience and `azp`.** The provider issues ID tokens about one person to
+every app she uses. If the library accepted a token made for the clinic app,
+the clinic app, or anyone who stole from it, could log in to the library as
+her: the mistake of §14.1 again. With several audiences, `azp` (authorized
+party) names the client the token was issued to.
+
+**The nonce.** An ID token copied from an earlier login and pushed into a
+fresh session carries the old attempt's nonce, and since each nonce is random,
+kept in the user's session and deleted after use, it never matches. RFC 9700
+lets a confidential OpenID Connect client use the nonce instead of
+PKCE against code injection, with extra care; a public client must use PKCE,
+because a thief holding a public client's code can call the token endpoint
+directly, and no nonce check on the client's side is ever reached.
+
+**auth_time and max_age.** A bank that sends `max_age=300` asks the provider to
+log the user in again if their session is older than five minutes. A provider
+may ignore that, so the client checks `auth_time` itself, and on failure sends
+a new request with `prompt=login`.
+
+**An unknown key.** After one refresh of the key set, a `kid` that is still
+unknown is refused. The key set must also be this issuer's own: the tokens
+Storm-0558 forged (§14.7) were signed with a real Microsoft key that enterprise
+services should never have accepted for their issuer.
+
+### Break it: identity from the wrong claim
+
+The check ends with "the user is (`iss`, `sub`)", and many login bugs come
+from ignoring that line. In June 2023 the security company Descope published
+**nOAuth**. Microsoft's Azure AD (now Entra ID) let the owner of any tenant set
+a user's email attribute to any address, without proving the domain, and put
+it in the `email` claim. Applications behind a "Log in with Microsoft" button
+that found accounts by email rather than by subject could be entered as
+anyone: the attacker set their own email to the victim's and signed in. Descope reported it to Microsoft in April 2023.
+Microsoft called the pattern "an insecure anti-pattern", added a claim that
+says whether an email's domain has been verified, and gave applications a way
+to keep unverified addresses out of their tokens. Every signature was valid;
+the flaw was which claim the application took as the identity. An email
+address is a profile attribute that can change hands or be set by the user. A
+site that links accounts by email must check `email_verified` and trust it
+only from a provider that controls the domain.
+
+A second mix-up to avoid: **an ID token is not an access token.** Its audience
+is the client, not an API, and clients log and pass ID tokens around freely;
+an API that accepts them turns every copy into a key. JWT access
+tokens (RFC 9068) carry `"typ": "at+jwt"` in the header so that an API can
+refuse anything else; the update to the JWT best practices (§14.14) calls the
+general problem **cross-JWT confusion**.
+
+## 14.11 Beyond the basic flow: PAR, RAR and token exchange
+
+*Level: intermediate.*
+
+Open banking and other large deployments met three problems the code flow
+leaves open: the request itself travels through the browser; a
+scope such as `payments` is too coarse for "pay 45 credits to the greenhouse";
+and a service in the middle of a chain must call another for the user.
+
+### Pushed authorization requests
+
+The authorization request (scope, `redirect_uri`, PKCE challenge) is a URL
+that passes through the browser, where an extension or malware can read and
+change it, and nothing proves the client wrote it. The first fix was to sign
+it. **JWT-secured authorization requests** (JAR,
+RFC 9101, August 2021) put the parameters in a JWT, the **request object**,
+signed by the client, so the server can tell that nobody altered them. It
+still rides in the browser, visible and often too long for proxies.
+
+**Pushed authorization requests** (PAR, RFC 9126, September 2021) take it
+out of the browser altogether (Figure 14.6). The client posts the parameters to the
+server's PAR endpoint, authenticating as at the token endpoint, and receives a
+reference:
+
+```
+POST /par   (client authentication, then the usual parameters)
+  response_type=code&client_id=library-app&redirect_uri=...&scope=openid loans
+  &code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256
+
+HTTP/1.1 201 Created
+{"request_uri": "urn:ietf:params:oauth:request_uri:6esc_11ACC5bwc014ltc14eY22c",
+ "expires_in": 60}
+```
+
+The redirect carries only `client_id` and `request_uri`, a reference that
+lives briefly (60 seconds in the RFC's example) and works once, for that client
+only. The server knows the request is the client's, unaltered, and nothing
+sensitive sits in browser history or logs, for the cost of one back-channel
+round trip. The FAPI 2.0 security profile, written for open banking, requires
+PAR.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 270" width="640" role="img" aria-label="Pushed authorization request: the client posts the full request to the authorization server on the back channel and gets a short-lived request_uri; the browser carries only client_id and request_uri to the authorize endpoint" fill="currentColor" font-size="12.5">
+<g stroke="currentColor" fill="none">
+<rect x="20" y="16" width="120" height="36" rx="6"/><rect x="260" y="16" width="120" height="36" rx="6"/>
+<rect x="480" y="16" width="140" height="36" rx="6" fill="currentColor" fill-opacity="0.12"/>
+</g>
+<text x="80" y="39" text-anchor="middle">browser</text>
+<text x="320" y="39" text-anchor="middle">client app</text>
+<text x="550" y="39" text-anchor="middle">authorization server</text>
+<g stroke="currentColor" stroke-dasharray="4 4" stroke-opacity="0.5">
+<line x1="80" y1="52" x2="80" y2="214"/><line x1="320" y1="52" x2="320" y2="214"/><line x1="550" y1="52" x2="550" y2="214"/>
+</g>
+<path d="M320 80H544M550 118H326M320 152H86M80 190H544" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="547,80 535,75 535,85"/><polygon points="323,118 335,113 335,123"/>
+<polygon points="83,152 95,147 95,157"/><polygon points="547,190 535,185 535,195"/>
+<text x="435" y="73" text-anchor="middle">1 POST /par: all parameters + client auth</text>
+<text x="435" y="111" text-anchor="middle">2 request_uri, expires_in 60</text>
+<text x="200" y="145" text-anchor="middle">3 redirect: client_id, request_uri</text>
+<text x="312" y="183" text-anchor="middle">4 GET /authorize?client_id=…&amp;request_uri=urn:…:6esc_11ACC5…</text>
+<rect x="20" y="226" width="600" height="36" rx="6" fill-opacity="0.08" stroke="currentColor"/>
+<text x="320" y="249" text-anchor="middle">The browser never sees scope, redirect URI or challenge; the server knows who sent them.</text>
+</svg>
+<figcaption>Figure 14.6. A pushed authorization request. Steps 1 and 2 are the back channel; the front channel carries only a one-time reference.</figcaption>
+</figure>
+
+### Rich authorization requests
+
+A scope is a string, and a string such as `payments` grants every payment.
+**Rich authorization requests** (RAR, RFC 9396, May 2023) add a parameter,
+`authorization_details`, a JSON array of objects, each with a `type` and the
+fields that type defines. A payment for the greenhouse:
+
+```
+"authorization_details": [{
+   "type": "payment_initiation",
+   "locations": ["https://bank.arcadia.mars/payments"],
+   "instructedAmount": {"currency": "ACR", "amount": "45.00"},
+   "creditorName": "Greenhouse 3 cooperative"}]
+```
+
+The consent screen shows exactly this, the token carries it, and the bank's
+API pays 45.00 to that creditor and nothing else. The cryptography is
+unchanged, but the signature now covers what was approved, not only who
+approved it. Such objects are large and must not be altered, so they are
+usually pushed with PAR.
+
+### Token exchange
+
+The library app calls the catalog API with Alice's token, and the catalog must
+call the loans service for her. Forwarding her token defeats the audience
+check: any service that receives a token could replay it anywhere. Calling
+with the catalog's own credentials loses whose loan it is, and makes the loans
+service trust the catalog for everything, the confused-deputy setting.
+
+**Token exchange** (RFC 8693, January 2020) adds a third. The catalog goes to
+the authorization server's token endpoint with a new grant type:
+
+```
+POST /token
+  grant_type=urn:ietf:params:oauth:grant-type:token-exchange
+  &subject_token=<Alice's access token>
+  &subject_token_type=urn:ietf:params:oauth:token-type:access_token
+  &actor_token=<the catalog's own token>
+  &actor_token_type=urn:ietf:params:oauth:token-type:access_token
+  &audience=https://loans.arcadia.mars&scope=loans.request
+```
+
+The server checks its policy (may the catalog act for Alice towards the loans
+service?) and issues a new token (Figure 14.7): audience the loans service,
+one scope, subject Alice, and an `act` (actor) claim naming the catalog. A longer chain nests `act` inside `act`,
+newest actor outermost. RFC 8693 says a service decides access from the
+top-level claims and the current actor only; the nested actors are a history
+for the audit log. Without `act`, the new token simply says "Alice": RFC 8693
+calls that impersonation, as opposed to delegation, and it hides the
+middleman from the logs.
+
+Kerberos met the same problem years earlier and solved it in the same place: constrained delegation lets the KDC, not the front-end service, decide
+which services a ticket may be passed on to
+([Chapter 12](12-Kerberos.md)). In both, the policy
+lives at the server that issues credentials, and each hop gets a narrower
+one.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 250" width="640" role="img" aria-label="Token exchange: Alice's app calls the catalog with a token whose audience is the catalog; the catalog exchanges it at the authorization server for a token whose audience is the loans service, with an act claim naming the catalog; the loans service accepts only that" fill="currentColor" font-size="12.5">
+<g stroke="currentColor" fill="none">
+<rect x="10" y="20" width="120" height="44" rx="6"/><rect x="255" y="20" width="130" height="44" rx="6"/>
+<rect x="510" y="20" width="120" height="44" rx="6"/>
+<rect x="245" y="176" width="150" height="44" rx="6" fill="currentColor" fill-opacity="0.12"/>
+</g>
+<text x="70" y="47" text-anchor="middle">Alice's app</text>
+<text x="320" y="47" text-anchor="middle">catalog API</text>
+<text x="570" y="47" text-anchor="middle">loans API</text>
+<text x="320" y="196" text-anchor="middle">authorization server</text>
+<text x="320" y="211" text-anchor="middle" font-size="11">policy: who may act for whom</text>
+<path d="M130 42H251M385 42H506M300 64V172M340 176V68" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="253,42 241,37 241,47"/><polygon points="508,42 496,37 496,47"/>
+<polygon points="300,174 295,162 305,162"/><polygon points="340,66 335,78 345,78"/>
+<text x="10" y="92" font-size="11.5">token 1</text>
+<text x="10" y="108" font-size="11.5">sub: alice</text>
+<text x="10" y="124" font-size="11.5">aud: catalog</text>
+<text x="10" y="140" font-size="11.5">scope: catalog</text>
+<text x="292" y="124" text-anchor="end" font-size="11.5">exchange token 1</text>
+<text x="348" y="124" font-size="11.5">token 2</text>
+<text x="480" y="92" font-size="11.5">token 2</text>
+<text x="480" y="108" font-size="11.5">sub: alice</text>
+<text x="480" y="124" font-size="11.5">aud: loans</text>
+<text x="480" y="140" font-size="11.5">scope: loans.request</text>
+<text x="480" y="156" font-size="11.5" font-weight="bold">act: {sub: catalog}</text>
+<text x="320" y="240" text-anchor="middle" font-size="11.5" fill-opacity="0.7">Each hop gets a new token with a narrower audience and scope; token 1 never reaches the loans API.</text>
+</svg>
+<figcaption>Figure 14.7. Token exchange (RFC 8693). The loans service sees who the user is and who is acting for her.</figcaption>
+</figure>
+
+## 14.12 Refresh tokens and OAuth 2.1
+
+*Level: intermediate.*
+
+Access tokens live minutes to an hour; the refresh token, which lives for
+days or months and gets new ones without the user, is the most valuable thing
+a client holds. For public clients, which have no secret, RFC 9700 offers two
+protections: bind it to a key (DPoP or mutual TLS, §14.7), or **rotate** it.
+
+### Rotation, coded
+
+With rotation, every refresh returns a new refresh token and retires the old
+one. The server remembers which tokens belong to the same grant, a **family**.
+If a retired token is ever presented again, two parties hold copies, and the
+server cannot tell which is the thief, so it revokes the whole family. RFC 9700
+§4.14.2 describes exactly this.
+
+```python
+# Refresh-token rotation with reuse detection (RFC 9700 section 4.14.2):
+# each refresh retires the token and issues a new one; a retired token used
+# again revokes the whole family, whoever presents it.
+import secrets
+
+class TokenEndpoint:
+    def __init__(self):
+        self.tokens, self.revoked = {}, set()          # token -> family; revoked families
+    def login(self, user):
+        return self._issue(user + "/" + secrets.token_hex(4))
+    def _issue(self, family):
+        rt = secrets.token_urlsafe(16)
+        self.tokens[rt] = {"family": family, "used": False}
+        return rt
+    def refresh(self, rt):
+        t = self.tokens.get(rt)
+        if t is None: return None, "refused: unknown token"
+        if t["family"] in self.revoked: return None, "refused: family revoked, log in again"
+        if t["used"]:
+            self.revoked.add(t["family"])
+            return None, "refused: reuse detected, family revoked"
+        t["used"] = True
+        return self._issue(t["family"]), "ok: new access token and new refresh token"
+
+AS = TokenEndpoint()
+print("Story 1: the app refreshes first")
+rt1 = AS.login("alice"); stolen = rt1                      # malware copies the refresh token
+rt2, msg = AS.refresh(rt1); print("  app,   rt1:", msg)
+_, msg = AS.refresh(stolen); print("  thief, rt1:", msg)
+_, msg = AS.refresh(rt2); print("  app,   rt2:", msg)
+
+print("Story 2: the thief refreshes first")
+rt1 = AS.login("alice"); stolen = rt1
+t2, msg = AS.refresh(stolen); print("  thief, rt1:", msg)
+t3, msg = AS.refresh(t2); print("  thief, rt2:", msg)
+_, msg = AS.refresh(rt1); print("  app,   rt1:", msg)
+_, msg = AS.refresh(t3); print("  thief, rt3:", msg)
+```
+
+It prints:
+
+```text
+Story 1: the app refreshes first
+  app,   rt1: ok: new access token and new refresh token
+  thief, rt1: refused: reuse detected, family revoked
+  app,   rt2: refused: family revoked, log in again
+Story 2: the thief refreshes first
+  thief, rt1: ok: new access token and new refresh token
+  thief, rt2: ok: new access token and new refresh token
+  app,   rt1: refused: reuse detected, family revoked
+  thief, rt3: refused: family revoked, log in again
+```
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 220" width="640" role="img" aria-label="Refresh token rotation timeline: the thief copies rt1 and refreshes twice, getting rt2 and rt3; when the real app presents rt1 the server sees a retired token used again and revokes the whole family, so rt3 stops working" fill="currentColor" font-size="12.5">
+<text x="16" y="56">thief</text>
+<text x="16" y="146">app</text>
+<g stroke="currentColor" stroke-opacity="0.5"><line x1="70" y1="52" x2="620" y2="52"/><line x1="70" y1="142" x2="620" y2="142"/></g>
+<g stroke="currentColor" fill="none">
+<circle cx="110" cy="142" r="7"/><circle cx="210" cy="52" r="7"/><circle cx="310" cy="52" r="7"/>
+<circle cx="430" cy="142" r="7"/><circle cx="560" cy="52" r="7"/>
+</g>
+<circle cx="430" cy="142" r="4"/>
+<line x1="110" y1="135" x2="205" y2="58" stroke="currentColor" stroke-dasharray="4 3"/>
+<text x="110" y="168" text-anchor="middle" font-size="11.5">login: rt1</text>
+<text x="132" y="96" font-size="11" fill-opacity="0.7">copied</text>
+<text x="210" y="36" text-anchor="middle" font-size="11.5">rt1 → rt2</text>
+<text x="310" y="36" text-anchor="middle" font-size="11.5">rt2 → rt3</text>
+<text x="430" y="168" text-anchor="middle" font-size="11.5" font-weight="bold">rt1 again: reuse!</text>
+<text x="430" y="184" text-anchor="middle" font-size="11.5">family revoked</text>
+<text x="560" y="36" text-anchor="middle" font-size="11.5">rt3 refused</text>
+<rect x="210" y="70" width="350" height="22" fill-opacity="0.12"/>
+<text x="385" y="86" text-anchor="middle" font-size="11.5">the thief's window: until the app next refreshes</text>
+<text x="320" y="212" text-anchor="middle" font-size="11.5" fill-opacity="0.7">Whoever uses a copy second triggers the alarm; the server cannot tell who is the thief, so both lose.</text>
+</svg>
+<figcaption>Figure 14.8. Refresh-token rotation, story 2 of the program. Detection waits for the real app to come back.</figcaption>
+</figure>
+
+In both stories the second use of a copy ends the family, and in the second
+the thief had working tokens until then. That is rotation's weak spot: it
+detects theft only when the real client next refreshes, so against an app
+opened once a month a thief has a month, up to the family's absolute lifetime.
+It also misfires: if a refresh response is lost and the app retries with the
+old token, the user is logged out, so servers allow a short grace period,
+which reopens a small window. A refresh token bound to a DPoP key has neither
+problem. Confidential clients have a simpler protection: a refresh token
+stolen from them is useless without the client's own credentials.
+
+### OAuth 2.1, as of November 2026
+
+OAuth 2.1 is a consolidation, not a new protocol: one document that would
+replace RFC 6749 and RFC 6750 and fold in PKCE and the security BCP. As of
+November 2026 it is still an Internet-Draft (`draft-ietf-oauth-v2-1`, revision
+17, 31 October 2026). Its list of differences from OAuth 2.0 reads like this
+chapter's advice:
+
+- PKCE is required, and its `plain` method is gone;
+- redirect URIs are compared by exact string match;
+- the implicit grant and the password grant are omitted;
+- bearer tokens may not be sent in URL query strings;
+- public clients' refresh tokens must be sender-constrained or rotated;
+- the token request no longer repeats the `redirect_uri`.
+
+Browser-based applications have their own Best Current Practice, RFC 10017
+(BCP 212, August 2026), *OAuth 2.0 for Browser-Based Applications*. Its core
+worry is malicious JavaScript, which can steal any token the page can read,
+and it describes a backend that holds the tokens and gives the browser only a
+session cookie (the checklist in §14.13).
+
+## 14.13 In the real world
 
 *Level: intermediate.*
 
@@ -916,7 +1665,10 @@ Where the pieces are standardized:
 | Mutual TLS tokens, DPoP | RFC 8705 (2020), RFC 9449 (2023) |
 | Security Best Current Practice | RFC 9700 (2025) |
 | OpenID Connect Core and Discovery | OpenID Foundation (2014) |
-| OAuth 2.1 | IETF draft |
+| PAR, JAR, RAR | RFC 9126, RFC 9101 (2021), RFC 9396 (2023) |
+| Token exchange | RFC 8693 (2020) |
+| Browser-based applications | RFC 10017 (2026) |
+| OAuth 2.1 | IETF draft, revision 17 (October 2026) |
 
 A checklist for an application, condensed from RFC 9700:
 
@@ -932,7 +1684,47 @@ A checklist for an application, condensed from RFC 9700:
   page scripts where the architecture allows (a backend that holds tokens and
   gives the browser only a session cookie).
 
-## 14.11 Going deeper
+### Incidents since 2023
+
+OAuth's cryptography has held; recent incidents are about where tokens and
+grants live, and who can reach them.
+
+- **Okta's support system, October 2023.** An attacker used a stolen service
+  account to read files that customers had uploaded to Okta's support system
+  between 28 September and 17 October 2023, for 134 customers. Some were HTTP
+  archive (HAR) files, browser recordings made for troubleshooting, holding
+  live session tokens, which the attacker used to hijack sessions at five
+  customers, among them Cloudflare, 1Password and BeyondTrust. A session
+  token in a debug file is a bearer token like any other.
+- **Midnight Blizzard at Microsoft, January 2024.** The Russian group Microsoft
+  calls Midnight Blizzard guessed the password of a legacy test account
+  without multifactor authentication, found an old test OAuth application
+  with elevated access to the corporate tenant, and used it to grant new
+  applications Exchange Online's `full_access_as_app` role, which reads any
+  mailbox. Nothing was forged. An
+  OAuth application with a powerful role is a standing credential and needs
+  the review a privileged account gets.
+- **Entra ID actor tokens, CVE-2025-55241, 2025.** Dirk-jan Mollema found that
+  undocumented "actor tokens", which Microsoft services used to call each
+  other for users, could be obtained in the attacker's own tenant and
+  presented to the legacy Azure AD Graph API for any other tenant, which did
+  not check where the token came from: impersonation of any user, global
+  administrators included, in any tenant, with little logging. Microsoft fixed it in July 2025, soon after
+  his report, published the CVE in September, rated it 10.0 on the CVSS scale, and reported no sign of
+  exploitation. It is the issuer and audience check of §14.10, missing in one
+  service.
+- **Salesloft Drift, August 2025.** Attackers that Google's threat intelligence
+  team tracks as UNC6395 stole the OAuth access and refresh tokens that the
+  Drift chat application held for its customers' Salesforce integrations, and
+  between 8 and 18 August 2025 used them to export data from many Salesforce
+  instances, searching it for further secrets.
+  Salesloft and Salesforce revoked every Drift token on 20 August. One
+  integration's token store was a key to many customers' data: the
+  same lesson as the Heroku and Travis CI theft of 2022 (§14.7), three years
+  on. Sender-constrained tokens and narrow scopes limit what such a theft is
+  worth.
+
+## 14.14 Going deeper
 
 *Level: expert.*
 
@@ -965,6 +1757,13 @@ holder can reveal only some claims (age over 18, not the birth date) and the
 verifier can still check the signature. It is the first step toward the
 anonymous credentials of the Advanced protocols book.
 
+**The JWT best practices, revised.** `draft-ietf-oauth-rfc8725bis`, waiting
+in the RFC Editor's queue as of November 2026, keeps RFC 8725's rules and adds
+attacks found since: a verifier that takes a successful JWE decryption for a
+valid signature, huge PBES2 iteration counts that burn CPU, decompression
+bombs, and **cross-JWT confusion**, a token minted for one purpose accepted for
+another, which explicit `typ` values and audience checks prevent.
+
 **Post-quantum tokens.** Every signature in this chapter falls to a quantum
 computer. RFC 9964 (2026) defines ML-DSA for JOSE, with a new key type `AKP`.
 Size is the obstacle once again: an ML-DSA-44 signature is 2,420 bytes, 3,227
@@ -988,20 +1787,21 @@ covers the migration.
     A short-lived, one-time code is exchanged for tokens on a direct TLS
     connection (back channel), so the tokens never appear in the browser.
 
-??? question "3. What attack does the `state` parameter prevent?"
-    Cross-site request forgery on the redirect: an attacker making the victim's
-    browser complete the attacker's own authorization, linking the victim's
-    session to the attacker's account.
-
-??? question "4. How does PKCE stop a stolen authorization code from being used?"
+??? question "3. How does PKCE stop a stolen authorization code from being used?"
     The token request must include the code verifier whose SHA-256 hash was
     sent as the challenge. The attacker saw at most the challenge and cannot
     invert the hash.
 
-??? question "5. Which ID token claims must a client check, and why `aud` in particular?"
+??? question "4. Which ID token claims must a client check, and why `aud` in particular?"
     `iss`, `aud`, `exp` (and `iat`), `nonce` and the signature. `aud` makes
     sure the token was issued to this client, not to some other app that could
     replay it.
+
+??? question "5. What is `at_hash`, and why is half of a SHA-256 hash enough?"
+    It is base64url of the left half of the SHA-256 hash of the access token's
+    text, signed inside the ID token, so the access token delivered beside it
+    cannot be swapped (`c_hash` does the same for a code). An attacker must find another token with the
+    same 128 bits, a second-preimage search of about $2^{128}$ work.
 
 ??? question "6. Explain the RS256-to-HS256 key confusion attack."
     The attacker changes `alg` to HS256 and computes an HMAC with the server's
@@ -1014,16 +1814,17 @@ covers the migration.
     sent. XML Signature's need for canonicalization and element references is
     what made signature wrapping attacks on SAML possible.
 
-??? question "8. What did CVE-2022-21449 allow, and which check prevents it?"
-    Java 15 to 18 accepted ECDSA signatures with r = s = 0 for any message and
-    key, so any ES256 token could be forged. Checking 0 < r < n and 0 < s < n
-    prevents it.
-
-??? question "9. How does DPoP make a stolen access token useless?"
+??? question "8. How does DPoP make a stolen access token useless?"
     The token contains the thumbprint of the client's public key; each request
     needs a fresh proof signed by the matching private key, naming the method,
     URL, time, a unique ID and the token's hash. A thief without the key cannot
     produce one.
+
+??? question "9. How does refresh-token rotation detect theft, and what is its weak spot?"
+    Each refresh retires the old token and issues a new one in the same
+    family; a retired token used again means two copies exist, and the server
+    revokes the family. Detection waits for the real client's next refresh,
+    so a thief has until then; binding the token to a DPoP key avoids that.
 
 ??? question "10. Why can't Mars residents use an Earth authorization server for ordinary logins?"
     The code flow needs browser redirects to the authorization server and back,
@@ -1050,6 +1851,12 @@ covers the migration.
 - SAML's XML signatures fell to wrapping attacks; Golden SAML is key theft.
 - Across planets: federate, verify locally, keep tokens short-lived, and ask
   for consent asynchronously.
+- An ID token is checked in one function, key to `auth_time`; the identity is
+  (`iss`, `sub`), never the email (nOAuth, 2023). You computed an `at_hash` by
+  hand and verified RFC 9449's own DPoP proofs.
+- PAR takes the request off the front channel, RAR says what was approved,
+  token exchange narrows each hop; rotation catches a stolen refresh token
+  only when the real client returns. OAuth 2.1 is still a draft.
 
 ## Further reading
 
@@ -1071,3 +1878,17 @@ covers the migration.
 - Cyber Safety Review Board, *Review of the Summer 2023 Microsoft Exchange
   Online Intrusion*, April 2024.
 - Eran Hammer, "OAuth 2.0 and the Road to Hell", 2012.
+- RFC 9126 (PAR) and RFC 9101 (JAR), 2021; RFC 9396 (RAR), 2023; RFC 8693
+  (token exchange), 2020; RFC 9068 (JWT access tokens), 2021; RFC 10017,
+  *OAuth 2.0 for Browser-Based Applications*, 2026.
+- OpenID Foundation, *OpenID Connect Discovery 1.0*, 2014.
+- IETF, `draft-ietf-oauth-v2-1` (OAuth 2.1), revision 17, October 2026, and
+  `draft-ietf-oauth-rfc8725bis` (JWT BCP update), 2026.
+- Descope, "nOAuth: How Microsoft OAuth Misconfiguration Can Lead to Full
+  Account Takeover", June 2023.
+- Microsoft, "Midnight Blizzard: Guidance for responders on nation-state
+  attack", January 2024.
+- Dirk-jan Mollema, write-up of the Entra ID actor-token flaw
+  (CVE-2025-55241), September 2025.
+- Google Threat Intelligence Group, advisory on UNC6395 and the Salesloft
+  Drift token theft, August 2025.
