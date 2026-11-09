@@ -286,6 +286,8 @@ by one insider, would be a disaster.
     wallet seeds, Vault unseal keys, and the base of threshold cryptography · **Status:** current; secure
     against any amount of computing, quantum included
 
+*The full story: Advanced protocols and privacy, [chapter 2](../books/advanced/02-Secret-Sharing.md).*
+
 ## 23.3 Threshold signatures
 
 *Level: intermediate.* **The problem.** Secret sharing protects a key at rest,
@@ -427,6 +429,8 @@ binding factor that defeats them; the IETF published it as RFC 9591 in 2024.
     Komlo and Ian Goldberg · **Purpose:** sign with key shares, never rebuilding the key · **Helped:**
     cryptocurrency custody, validator keys, certificate authority keys · **Status:** current; RFC 9591 (2024).
     Threshold ECDSA is in use too, but has had serious bugs (TSSHOCK, BitForge)
+
+*The full story: Advanced protocols and privacy, [chapter 4](../books/advanced/04-Threshold-Cryptography.md).*
 
 ## 23.4 Commitments
 
@@ -575,6 +579,8 @@ became the way Confidential Transactions and Monero hide amounts.
     later, without either side cheating · **Helped:** fair coin flips and auctions, confidential amounts in
     Monero, the first move of every zero-knowledge proof · **Status:** current; Pedersen's binding falls to a
     quantum computer, hash commitments do not
+
+*The full story: Advanced protocols and privacy, [chapter 3](../books/advanced/03-Commitments.md).*
 
 ## 23.5 Zero-knowledge proofs
 
@@ -750,6 +756,8 @@ SNARKs.
     **Purpose:** convince without revealing why · **Helped:** Schnorr signatures, password-free logins,
     Zcash, zk-rollups, anonymous credentials · **Status:** current and growing fast; pairing-based SNARKs fall
     to quantum computers, hash-based STARKs are believed not to
+
+*The full story: Advanced protocols and privacy, [chapter 5](../books/advanced/05-Zero-Knowledge-Proofs.md), [chapter 6](../books/advanced/06-Sigma-Protocols-and-Fiat-Shamir.md), [chapter 7](../books/advanced/07-SNARKs.md) and [chapter 8](../books/advanced/08-STARKs-Bulletproofs-and-Recursion.md).*
 
 ## 23.6 Multi-party computation
 
@@ -945,6 +953,8 @@ auction on it. Yao received the Turing Award in 2000.
     auction, private statistics, threshold wallets, private set intersection · **Status:** current; ISO/IEC
     4922 standardizes parts of it
 
+*The full story: Advanced protocols and privacy, [chapter 9](../books/advanced/09-Oblivious-Transfer-and-Garbled-Circuits.md) and [chapter 10](../books/advanced/10-Multi-Party-Computation-in-Practice.md).*
+
 ## 23.7 Oblivious PRFs
 
 *Level: advanced.* **The problem.** Your browser wants to check whether your
@@ -1050,6 +1060,8 @@ checks use the same blind-evaluate-unblind step. Full details:
     password breach checks, Privacy Pass, WhatsApp's encrypted backups · **Status:** current; RFC 9497 (2023)
     and RFC 9807 (OPAQUE)
 
+*The full story: Advanced protocols and privacy, [chapter 11](../books/advanced/11-Private-Set-Intersection-OPRFs-and-PIR.md).*
+
 ## 23.8 Verifiable random functions
 
 *Level: advanced.* **The problem.** A blockchain must pick the next block's
@@ -1099,6 +1111,8 @@ inputs. Full details: [VRF reference](../11-advanced/VRF.md).
     **Born:** 1999, Silvio Micali, Michael Rabin and Salil Vadhan · **Purpose:** randomness that only
     the key holder can compute, anyone can check, and nobody can choose · **Helped:** Algorand (founded by
     Micali in 2017), Cardano, key transparency · **Status:** current; RFC 9381 (2023)
+
+*The full story: Advanced protocols and privacy, [chapter 4](../books/advanced/04-Threshold-Cryptography.md).*
 
 ## 23.9 Homomorphic encryption
 
@@ -1269,6 +1283,8 @@ received a MacArthur Fellowship in 2014.
     compute anything on encrypted data · **Helped:** Apple's Live Caller ID Lookup and Enhanced Visual Search,
     Microsoft Edge's Password Monitor, private machine learning · **Status:** current and improving; still
     thousands to millions of times slower than computing on plaintext
+
+*The full story: Advanced protocols and privacy, [chapter 12](../books/advanced/12-Homomorphic-Encryption.md).*
 
 ## 23.10 Break it
 

@@ -6,6 +6,8 @@ anything at all became possible in 2009 and is still slow.*
 
 **Status and standards:** see [Advanced primitives](../algorithms/table.md#11-advanced-primitives) in the main table.
 
+*The full story: Advanced protocols and privacy, [chapter 12](../books/advanced/12-Homomorphic-Encryption.md).*
+
 ## What it is
 
 Rivest, Adleman and Dertouzos asked in 1978 for "privacy homomorphisms":

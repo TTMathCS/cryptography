@@ -6,6 +6,8 @@ use it to pick leaders, and key directories use it to hide usernames.*
 
 **Status and standards:** see [Advanced primitives](../algorithms/table.md#11-advanced-primitives) in the main table.
 
+*The full story: Advanced protocols and privacy, [chapter 4](../books/advanced/04-Threshold-Cryptography.md).*
+
 ## What it is
 
 A pseudorandom function $F(k, x)$ looks random to anyone without the key

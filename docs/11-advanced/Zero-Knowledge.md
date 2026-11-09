@@ -6,6 +6,8 @@ check whole batches of transactions.*
 
 **Status and standards:** see [Advanced primitives](../algorithms/table.md#11-advanced-primitives) in the main table.
 
+*The full story: Advanced protocols and privacy, [chapter 5](../books/advanced/05-Zero-Knowledge-Proofs.md), [chapter 6](../books/advanced/06-Sigma-Protocols-and-Fiat-Shamir.md), [chapter 7](../books/advanced/07-SNARKs.md) and [chapter 8](../books/advanced/08-STARKs-Bulletproofs-and-Recursion.md).*
+
 ## What it is
 
 Goldwasser, Micali and Rackoff defined zero-knowledge proofs in 1985. A

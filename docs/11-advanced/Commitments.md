@@ -6,6 +6,8 @@ scheme sits inside many zero-knowledge proofs and private payments.*
 
 **Status and standards:** see [Advanced primitives](../algorithms/table.md#11-advanced-primitives) in the main table.
 
+*The full story: Advanced protocols and privacy, [chapter 3](../books/advanced/03-Commitments.md).*
+
 ## What it is
 
 To **commit** to a value $m$, pick a random $r$ and publish $C$. To **open**,

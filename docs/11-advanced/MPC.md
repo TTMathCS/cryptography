@@ -6,6 +6,8 @@ rounds of messages between them.*
 
 **Status and standards:** see [Advanced primitives](../algorithms/table.md#11-advanced-primitives) in the main table.
 
+*The full story: Advanced protocols and privacy, [chapter 9](../books/advanced/09-Oblivious-Transfer-and-Garbled-Circuits.md) and [chapter 10](../books/advanced/10-Multi-Party-Computation-in-Practice.md).*
+
 ## What it is
 
 Andrew Yao posed the millionaires' problem in 1982: two millionaires want

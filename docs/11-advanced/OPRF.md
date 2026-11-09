@@ -6,6 +6,8 @@ and password breach checks.*
 
 **Status and standards:** see [Advanced primitives](../algorithms/table.md#11-advanced-primitives) in the main table.
 
+*The full story: Advanced protocols and privacy, [chapter 11](../books/advanced/11-Private-Set-Intersection-OPRFs-and-PIR.md).*
+
 ## What it is
 
 A pseudorandom function $F(k, x)$ looks random to anyone without the key

@@ -5,6 +5,8 @@ comes one ordinary signature under one public key.*
 
 **Status and standards:** see [Advanced primitives](../algorithms/table.md#11-advanced-primitives) in the main table.
 
+*The full story: Advanced protocols and privacy, [chapter 4](../books/advanced/04-Threshold-Cryptography.md).*
+
 ## What it is
 
 [Secret sharing](Secret-Sharing.md) protects a key at rest, but the key
