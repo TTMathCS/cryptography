@@ -23,7 +23,8 @@ web built so that the next failure is caught.*
     - how domain validation and ACME work, and how they can be fooled;
     - why revocation mostly failed, and what replaced it: short lifetimes,
       CRLite and CRLSets;
-    - Certificate Transparency, and what a public log changes;
+    - Certificate Transparency, and how inclusion and consistency proofs are
+      checked, by hand and in code;
     - how a city on Mars could run its own trusted authority while cut off
       from Earth for weeks.
 
@@ -598,6 +599,88 @@ be given its own CA without being given the power to impersonate the whole
 web. And the **tampered** leaf fails on the signature, because the signature
 covers every byte of the to-be-signed part, names included.
 
+### Name constraints, worked by hand
+
+The validator above treats a name constraint as one suffix. The real
+extension (RFC 5280, section 4.2.1.10) has two lists, **permitted** and
+**excluded** subtrees, each entry with a name type: DNS name, IP address,
+email address, directory name or URI. Three rules decide every case:
+
+1. A name is checked only against constraints of its own type. A DNS
+   constraint says nothing about IP addresses.
+2. If an excluded subtree of that type matches, the name is refused, whatever
+   the permitted list says.
+3. If the permitted list has at least one entry of that type, the name must
+   match one of them. If it has none of that type, every name of that type is
+   allowed.
+
+Rule 3 is the trap. A CA given only the permitted DNS subtree
+`arcadia.mars` can still sign for the IP address `8.8.8.8`, because no IP
+constraint exists to stop it. So the Baseline Requirements say a "technically
+constrained" CA must constrain both DNS names and IP addresses; one meant to
+issue for no IP addresses must exclude them all: an excluded entry of eight
+zero bytes (0.0.0.0/0) and one of thirty-two (::/0).
+
+What "matches" means depends on the type. For a DNS name, RFC 5280 says a
+name matches if it "can be constructed by simply adding zero or more labels
+to the left-hand side" of the constraint. So `arcadia.mars` matches
+`arcadia.mars` and `www.arcadia.mars`, but not `evilarcadia.mars`, which only
+shares letters with it. Case is ignored. For an IP address the constraint is
+an address and a mask, eight bytes for IPv4: 10.20.0.0/16 is
+`0a 14 00 00 ff ff 00 00`. An address matches if the address AND the mask
+equals the constraint's address.
+
+Now give the city's intermediate two permitted subtrees, DNS `arcadia.mars`
+and IP 10.20.0.0/16, and two excluded ones, DNS `vault.arcadia.mars` and IP
+::/0, and ask it to sign the seven names of Figure 2.3. `www.arcadia.mars`
+adds one label: allowed. `vault.arcadia.mars` matches an excluded subtree, so
+the permitted list is never consulted: refused. `evilarcadia.mars` is not
+`arcadia.mars` with labels added, since `evilarcadia` is not a label of its
+own: refused. 10.20.7.9 AND 255.255.0.0 is 10.20.0.0: allowed; 10.21.0.1
+gives 10.21.0.0: refused. And 2001:db8::1 falls inside ::/0: refused.
+
+A leaf with several names is refused if any one of them is: a certificate
+for `www.arcadia.mars` and `bank.earth` fails as a whole. The check also runs
+on every CA certificate below the constrained one, so a sub-CA cannot widen
+what its parent was given. The same CA made with OpenSSL 3.0, with three
+leaves signed under it, agrees:
+
+```text
+$ openssl verify -CAfile city-ca.pem www.pem evil.pem vault.pem
+CN = evilarcadia.mars
+error 47 at 0 depth lookup: permitted subtree violation
+error evil.pem: verification failed
+CN = vault.arcadia.mars
+error 48 at 0 depth lookup: excluded subtree violation
+error vault.pem: verification failed
+www.pem: OK
+```
+
+One gap remains: RFC 5280 applies DNS constraints to the subjectAltName, so
+a client that took a host name from the subject's common name would never
+check it. Major browsers no longer read the common name; OpenSSL, which still
+does when a certificate has no DNS name in its SAN, applies the constraints to
+it too.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 318" width="640" role="img" aria-label="A name-constrained intermediate CA and seven names checked against it: three allowed, four refused, with the reason for each" fill="currentColor" font-size="14">
+<rect x="140" y="10" width="360" height="86" rx="8" fill-opacity=".08" stroke="currentColor"/>
+<g text-anchor="middle"><text x="320" y="34" font-weight="bold">Arcadia City CA: nameConstraints</text><text x="320" y="58">permitted: arcadia.mars · 10.20.0.0/16</text><text x="320" y="82">excluded: vault.arcadia.mars · ::/0</text></g>
+<line x1="320" y1="96" x2="320" y2="114" stroke="currentColor" stroke-width="1.5"/><polygon points="320,120 315,108 325,108"/>
+<g font-weight="bold"><text x="30" y="142">name in the leaf</text><text x="250" y="142">result</text><text x="350" y="142">why</text></g>
+<line x1="20" y1="150" x2="620" y2="150" stroke="currentColor"/>
+<g fill-opacity=".08"><rect x="20" y="154" width="600" height="22"/><rect x="20" y="178" width="600" height="22"/><rect x="20" y="250" width="600" height="22"/></g>
+<text x="30" y="170">www.arcadia.mars</text><text x="250" y="170">allowed</text><text x="350" y="170">one label added on the left</text>
+<text x="30" y="194">ARCADIA.MARS</text><text x="250" y="194">allowed</text><text x="350" y="194">case is ignored</text>
+<text x="30" y="218">vault.arcadia.mars</text><text x="250" y="218" font-weight="bold">refused</text><text x="350" y="218">excluded subtree wins</text>
+<text x="30" y="242">evilarcadia.mars</text><text x="250" y="242" font-weight="bold">refused</text><text x="350" y="242">not a whole label</text>
+<text x="30" y="266">10.20.7.9</text><text x="250" y="266">allowed</text><text x="350" y="266">AND mask = 10.20.0.0</text>
+<text x="30" y="290">10.21.0.1</text><text x="250" y="290" font-weight="bold">refused</text><text x="350" y="290">AND mask = 10.21.0.0</text>
+<text x="30" y="314">2001:db8::1</text><text x="250" y="314" font-weight="bold">refused</text><text x="350" y="314">all of IPv6 is excluded</text>
+</svg>
+<figcaption>Figure 2.3. A constrained intermediate and the names below it. The client, not the CA, enforces the constraint, so a valid signature on a refused name does the attacker no good.</figcaption>
+</figure>
+
 ## 2.4 Who the authorities are, and who watches them
 
 *Level: intermediate.*
@@ -685,7 +768,7 @@ failures and slow responses, from late 2024.
 <polygon points="320,186 315,174 325,174"/>
 <text x="330" y="176" font-size="12.5">every certificate logged</text>
 </svg>
-<figcaption>Figure 2.3. Who governs web PKI. The browsers' root programs hold the real power: they decide, alone, which authorities a billion users trust.</figcaption>
+<figcaption>Figure 2.4. Who governs web PKI. The browsers' root programs hold the real power: they decide, alone, which authorities a billion users trust.</figcaption>
 </figure>
 
 !!! note "Life story: DigiNotar"
@@ -706,6 +789,33 @@ failures and slow responses, from late 2024.
     two stages in 2018 (Chrome 66 and 70) and by Mozilla, after years of
     misissuance found from 2015 on · **Replaced by:** DigiCert, which bought
     the business in 2017 and reissued the certificates
+
+### How a root program pulls the plug
+
+A browser can stop trusting a CA in three ways. The bluntest is to remove
+the root, as every browser did with DigiNotar: every certificate under it
+fails at once, and every site that used the CA breaks the same day. That
+suits a breached CA, not a sloppy one.
+
+The second is to keep the root but refuse certificates issued after a
+cutoff, as Chrome's Symantec stages did. But the issue date, `notBefore`, is
+written by the CA itself, and a CA under sentence could backdate new
+certificates. That is not hypothetical: WoSign had backdated certificates to
+slip past the SHA-1 deadline.
+
+The third, used since 2024, keys the cutoff to the certificate's **earliest
+SCT**, which an independent CT log (§2.8) signs when it first sees the
+certificate, so the CA cannot backdate it. Chrome stopped trusting Entrust
+certificates whose earliest SCT was dated after 11 November 2024 (the first
+announcement said 31 October), and Mozilla after 30 November 2024. In May 2025
+Chrome announced the same treatment for Chunghwa Telecom and Netlock, for
+certificates with an earliest SCT after 31 July 2025, starting with Chrome 139.
+
+Older certificates keep working until they expire, so nothing breaks on
+the day; sites move to another CA as they renew. With
+398-day certificates that tail lasted over a year; with 47-day certificates
+(§2.6) it will last seven weeks. The transparency logs supply a timestamp the
+CA cannot forge, and short lifetimes turn it into a quick, clean exit.
 
 ## 2.5 Proving you own a name: domain validation and ACME
 
@@ -810,6 +920,44 @@ mandatory for every public CA from March 2025. DNS records called **CAA**
 (RFC 8659) let a domain owner say which CAs may issue for it at all; CAs must
 check them.
 
+### Multi-perspective validation, by the numbers
+
+The Baseline Requirements (section 3.2.2.9) phased the rule in:
+
+| From | Remote perspectives, at least | If they do not agree |
+| --- | --- | --- |
+| 15 March 2025 | 2 | the CA may still issue |
+| 15 September 2025 | 2 | the CA must not issue |
+| 15 March 2026 | 3, in the regions of 2 different Internet registries | must not issue |
+| 15 June 2026 | 4, same rule | must not issue |
+| 15 December 2026 | 5, same rule | must not issue |
+
+"Agree" is exact. Each remote perspective repeats the primary's checks, the
+challenge and the CAA lookup, without sharing its DNS cache. With 2 to 5
+remote perspectives one may fail to corroborate; with 6 or more, two may. The
+regions are those of the five Regional Internet Registries.
+
+Take a CA with five remote perspectives under the December 2026 rule. An
+attacker must make the primary and at least four of the five remote
+perspectives reach the attacker's server. A hijack that announces the
+victim's prefix at the same length as the real one wins only where routers
+prefer the attacker's route, typically one region; it fools one or two
+vantage points and the CA refuses. A hijack of a *more specific* prefix spreads everywhere and is not
+stopped this way; that is the job of route origin validation (RFC 6811).
+
+Domain owners can narrow things further. RFC 8657 (2019) gave CAA two
+parameters: `accounturi`, which binds issuance to one ACME account, and
+`validationmethods`, which limits the challenge types. The record
+
+```text
+arcadia.example.  CAA 0 issue "letsencrypt.org; accounturi=https://acme-v02.api.letsencrypt.org/acme/acct/123456; validationmethods=dns-01"
+```
+
+says: only Let's Encrypt, only that account, only dns-01. A hijack of the
+web server's routes is useless, and so is control proved through any other
+account. With DNSSEC ([Chapter 10](10-DNSSEC-and-Private-DNS.md)) the record
+itself cannot be forged on its way to the CA.
+
 !!! note "Life story: Let's Encrypt and ACME"
     **Born:** 2013, the Internet Security Research Group (founded by people
     from Mozilla, the EFF and the University of Michigan); first certificate
@@ -846,6 +994,45 @@ certificate can be used. Shorter lives also force automation, and automated
 renewal is what lets the whole web change an algorithm or a CA quickly when
 it must. A system where certificates are renewed by hand once a year cannot
 replace a broken CA in less than a year.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 248" width="640" role="img" aria-label="Bar chart of the maximum lifetime of a public TLS certificate: about 1,826 days in 2012, 1,186 in 2015, 825 in 2018, 398 in 2020, 200 in 2026, 100 in 2027 and 47 in 2029" fill="currentColor" font-size="14">
+<g text-anchor="end" font-weight="bold"><text x="70" y="30">2012</text><text x="70" y="62">2015</text><text x="70" y="94">2018</text><text x="70" y="126">2020</text><text x="70" y="158">2026</text><text x="70" y="190">2027</text><text x="70" y="222">2029</text></g>
+<rect x="84" y="16" width="440" height="20" fill-opacity=".3"/><rect x="84" y="48" width="286" height="20" fill-opacity=".3"/><rect x="84" y="80" width="199" height="20" fill-opacity=".3"/><rect x="84" y="112" width="96" height="20" fill-opacity=".3"/><rect x="84" y="144" width="48" height="20" fill-opacity=".55"/><rect x="84" y="176" width="24" height="20" fill-opacity=".55"/><rect x="84" y="208" width="11" height="20" fill-opacity=".55"/>
+<text x="532" y="31">60 months</text><text x="378" y="63">39 months</text><text x="291" y="95">825 days</text><text x="188" y="127">398 days</text><text x="140" y="159">200 days (15 March)</text><text x="116" y="191">100 days (15 March)</text><text x="103" y="223">47 days (15 March); domain checks reused 10 days</text>
+<line x1="84" y1="10" x2="84" y2="236" stroke="currentColor" stroke-width="1.2"/>
+</svg>
+<figcaption>Figure 2.5. The longest a public TLS certificate may live, to scale. The darker bars are ballot SC-081's steps.</figcaption>
+</figure>
+
+### What 47 days changes
+
+Start with the arithmetic. ACME clients usually renew when two thirds of a
+certificate's life has passed, keeping the last third as margin. At 398 days
+that is one renewal a year; at 90 days, six; at 47 days, one about every 31
+days, twelve a year. And since a domain check may be reused for only 10 days,
+nearly every renewal repeats the challenge from every perspective. No one
+does that by hand.
+
+At the short end, the Baseline Requirements define a **short-lived
+certificate**: at most 7 days (604,800 seconds) for those issued from
+15 March 2026, 10 days before. A CA need not support revocation for these.
+The reason is arithmetic again: a CRL may promise its next update up to 10
+days ahead, so a client can take 10 days to learn of a revocation, and a
+7-day certificate has expired by then. Let's Encrypt's 6-day certificates
+(160 hours) are of this kind.
+
+Automation also changes what an emergency looks like. A CA that finds a bug
+in its domain checks has 24 hours to revoke every affected certificate; in
+July 2024 DigiCert had to revoke about 83,000 within a day over one flawed
+validation method. **ACME Renewal Information** (ARI, RFC 9773, 2025) lets a
+CA publish a suggested renewal window for each certificate; a client that
+polls it renews early when asked, and a mass revocation becomes a scheduled
+mass renewal.
+
+For a server on Mars that depends on an Earth CA, the margin is the number to
+watch: a 47-day certificate renewed at day 31 leaves 16 days, about the length
+of a solar conjunction. §2.9 takes this up.
 
 ## 2.7 Revocation, and why it mostly failed
 
@@ -991,7 +1178,7 @@ Transparency to know them all.
 <text x="320" y="219" text-anchor="middle">level 4 ... until empty</text>
 <text x="20" y="245" font-size="12.5">query: walk down; the first level that says "no" decides (odd level: valid, even: revoked)</text>
 </svg>
-<figcaption>Figure 2.4. CRLite's cascade. Each level stores only the mistakes of the level above, so the sizes fall quickly and the answers are exact.</figcaption>
+<figcaption>Figure 2.6. CRLite's cascade. Each level stores only the mistakes of the level above, so the sizes fall quickly and the answers are exact.</figcaption>
 </figure>
 
 !!! note "Life story: online revocation (OCSP)"
@@ -1042,6 +1229,240 @@ changed the CAs' behavior. The Symantec investigation of 2015 to 2017 was
 largely built from CT data; researchers now routinely find certificates that
 break the BRs by scanning the logs, and root programs act on what they find.
 
+### An inclusion proof by hand
+
+[Chapter 16 of book 1](../../book/16-PKI-and-Key-Establishment.md) builds a
+log's Merkle tree and recomputes its root recursively. Here we check proofs
+the way RFC 9162 tells an auditor to, with two counters, on real hashes. Take
+a log of six entries, the first six RFC 6962 test entries (the empty string,
+then the bytes `00`, `10`, `2021`, `3031`, `40414243`). A leaf is hashed as
+$h_i = \mathrm{SHA256}(\texttt{00} \,\|\, d_i)$ and an inner node as
+$\mathrm{SHA256}(\texttt{01} \,\|\, \text{left} \,\|\, \text{right})$. A tree
+of $n$ entries splits at the largest power of two below $n$, so six splits as
+four and two. Figure 2.7 shows the tree with the first eight hex digits of
+every hash, as the program further down prints them.
+
+An auditor holds the log's signed tree head (size 6, root `76e67dad`) and a
+certificate with an SCT; the certificate is entry 2. The inclusion proof is
+three hashes, $h_3$, $h_{01}$, $h_{45}$: the siblings on the way up. The
+verifier needs no picture of the tree. It keeps `fn`, the index, and `sn`,
+the last index, and shifts both right one bit per level. If `fn` is odd, the
+node is a right child and the proof hash goes on the left. If `fn` equals
+`sn`, the node is last on its level with no sibling, and the verifier climbs
+without hashing. Otherwise the node is a left child.
+
+| Step | `fn` | `sn` | Proof hash | Rule | Running hash $r$ |
+| --- | --- | --- | --- | --- | --- |
+| start | 2 (010) | 5 (101) | | | $h_2$ = `0298d122` |
+| 1 | 2 (010) | 5 (101) | $h_3$ | even, not last: left child | $H(r \,\|\, h_3)$ = `5f083f0a` |
+| 2 | 1 (001) | 2 (010) | $h_{01}$ | odd: right child | $H(h_{01} \,\|\, r)$ = `d37ee418` |
+| 3 | 0 (000) | 1 (001) | $h_{45}$ | even, not last: left child | $H(r \,\|\, h_{45})$ = `76e67dad` |
+| end | 0 | 0 | | `sn` is 0 and $r$ is the root | included |
+
+The last check, that `sn` reached 0, is easy to forget: it shows the proof
+had exactly the steps a tree of this size needs, not those of another size.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 330" width="640" role="img" aria-label="Merkle tree of six log entries with hash prefixes; the inclusion proof for entry 2 is h3, h01 and h45, shaded; the auditor recomputes h2, h23, h0123 and the root; the first three entries form the older tree of size 3" fill="currentColor" font-size="13">
+<g stroke="currentColor" stroke-width="1.2">
+<line x1="340" y1="58" x2="195" y2="92"/><line x1="340" y1="58" x2="485" y2="162"/><line x1="195" y1="128" x2="105" y2="162"/><line x1="195" y1="128" x2="285" y2="162"/><line x1="105" y1="198" x2="60" y2="232"/><line x1="105" y1="198" x2="150" y2="232"/><line x1="285" y1="198" x2="240" y2="232"/><line x1="285" y1="198" x2="330" y2="232"/><line x1="485" y1="198" x2="440" y2="232"/><line x1="485" y1="198" x2="530" y2="232"/>
+</g>
+<g stroke="currentColor" fill="none" stroke-width="2.6">
+<rect x="300" y="22" width="80" height="36" rx="6"/><rect x="155" y="92" width="80" height="36" rx="6"/><rect x="245" y="162" width="80" height="36" rx="6"/><rect x="200" y="232" width="80" height="36" rx="6"/>
+</g>
+<g stroke="currentColor" fill-opacity=".25">
+<rect x="65" y="162" width="80" height="36" rx="6"/><rect x="445" y="162" width="80" height="36" rx="6"/><rect x="290" y="232" width="80" height="36" rx="6"/>
+</g>
+<g stroke="currentColor" fill="none">
+<rect x="20" y="232" width="80" height="36" rx="6"/><rect x="110" y="232" width="80" height="36" rx="6"/><rect x="400" y="232" width="80" height="36" rx="6"/><rect x="490" y="232" width="80" height="36" rx="6"/>
+</g>
+<g text-anchor="middle">
+<text x="340" y="38" font-weight="bold">root</text><text x="195" y="108" font-weight="bold">h0123</text><text x="105" y="178">h01</text><text x="285" y="178" font-weight="bold">h23</text><text x="485" y="178">h45</text><text x="60" y="248">h0</text><text x="150" y="248">h1</text><text x="240" y="248" font-weight="bold">h2</text><text x="330" y="248">h3</text><text x="440" y="248">h4</text><text x="530" y="248">h5</text>
+</g><g text-anchor="middle" font-size="11">
+<text x="340" y="53">76e67dad</text><text x="195" y="123">d37ee418</text><text x="105" y="193">fac54203</text><text x="285" y="193">5f083f0a</text><text x="485" y="193">0ebc5d34</text><text x="60" y="263">6e340b9c</text><text x="150" y="263">96a296d2</text><text x="240" y="263">0298d122</text><text x="330" y="263">07506a85</text><text x="440" y="263">bc1a0643</text><text x="530" y="263">4271a26b</text>
+</g>
+<rect x="14" y="226" width="270" height="48" rx="8" fill="none" stroke="currentColor" stroke-dasharray="5 4"/>
+<text x="20" y="296">dashed: the old tree of size 3, root H(h01, h2) = aeb6bcfe</text>
+<text x="20" y="320">shaded: proof for entry 2 · thick: recomputed by the auditor</text>
+</svg>
+<figcaption>Figure 2.7. The six-entry log of the worked example. Three shaded hashes prove entry 2; the same tree, with the dashed older tree inside it, is used for the consistency proof.</figcaption>
+</figure>
+
+### Consistency by hand
+
+Later the auditor has two signed tree heads from the log: size 3, root
+`aeb6bcfe`, and size 6, root `76e67dad`. Does the second extend the first?
+Since 3 is not a power of two, the old root appears nowhere in the new tree. The log instead sends hashes from which both roots can be
+rebuilt with shared parts: $h_2$, $h_3$, $h_{01}$, $h_{45}$. The verifier
+runs two hashes at once, $f$ for the old root and $s$ for the new, both
+starting from the first proof hash, with `fn` = 3 - 1 = 2 and `sn` = 6 - 1 = 5:
+
+| Step | `fn` | `sn` | Hash | Rule | $f$ (old) | $s$ (new) |
+| --- | --- | --- | --- | --- | --- | --- |
+| start | 2 | 5 | $h_2$ | both start here | `0298d122` | `0298d122` |
+| 1 | 2 | 5 | $h_3$ | even, not last: only the new tree has this sibling | unchanged | $H(s \,\|\, h_3)$ = `5f083f0a` |
+| 2 | 1 | 2 | $h_{01}$ | odd: a left sibling in both trees | $H(h_{01} \,\|\, f)$ = `aeb6bcfe` | $H(h_{01} \,\|\, s)$ = `d37ee418` |
+| 3 | 0 | 1 | $h_{45}$ | even, not last: new tree only | unchanged | $H(s \,\|\, h_{45})$ = `76e67dad` |
+
+$f$ ends equal to the old signed root and $s$ to the new one, both built
+from the same $h_2$ and $h_{01}$, so every entry the old head committed to is
+in the new tree unchanged. Had the log rewritten entry 1, $h_{01}$ would
+differ and $f$ would not match the old head: the log would have signed two
+contradictory statements, the proof of misbehavior a monitor wants. (When the old size
+is a power of two, its root is a node of the new tree, and the verifier puts
+it in front of the proof.)
+
+### Code it: the proofs a monitor checks
+
+The program checks both proofs above with the RFC 9162 verifiers, then
+every proof for trees of up to eight entries.
+
+```python
+# Certificate Transparency proofs as RFC 9162 defines them: prove that an entry
+# is in a log, and that a newer tree extends an older one without changes.
+import hashlib
+
+def H(b): return hashlib.sha256(b).digest()
+def leaf_hash(d): return H(b"\x00" + d)
+def node_hash(l, r): return H(b"\x01" + l + r)
+
+def split(n):                          # largest power of two smaller than n
+    k = 1
+    while k * 2 < n:
+        k *= 2
+    return k
+
+def mth(D):                            # Merkle tree hash of a list of entries
+    if len(D) == 1:
+        return leaf_hash(D[0])
+    k = split(len(D))
+    return node_hash(mth(D[:k]), mth(D[k:]))
+
+def path(m, D):                        # the log's inclusion proof for entry m
+    if len(D) == 1:
+        return []
+    k = split(len(D))
+    if m < k:
+        return path(m, D[:k]) + [mth(D[k:])]
+    return path(m - k, D[k:]) + [mth(D[:k])]
+
+def subproof(m, D, b):                 # the log's consistency proof, recursively
+    if m == len(D):
+        return [] if b else [mth(D)]
+    k = split(len(D))
+    if m <= k:
+        return subproof(m, D[:k], b) + [mth(D[k:])]
+    return subproof(m - k, D[k:], False) + [mth(D[:k])]
+
+def verify_inclusion(index, size, h, proof, root):       # RFC 9162, 2.1.3.2
+    if index >= size:
+        return False
+    fn, sn, r = index, size - 1, h
+    for p in proof:
+        if sn == 0:
+            return False
+        if fn & 1 or fn == sn:
+            r = node_hash(p, r)
+            while fn and not fn & 1:
+                fn, sn = fn >> 1, sn >> 1
+        else:
+            r = node_hash(r, p)
+        fn, sn = fn >> 1, sn >> 1
+    return sn == 0 and r == root
+
+def verify_consistency(first, second, h1, h2, proof):    # RFC 9162, 2.1.4.2
+    if not proof:
+        return False
+    if first & (first - 1) == 0:       # a power of two: the old root is a node
+        proof = [h1] + proof
+    fn, sn = first - 1, second - 1
+    while fn & 1:
+        fn, sn = fn >> 1, sn >> 1
+    fr = sr = proof[0]
+    for c in proof[1:]:
+        if sn == 0:
+            return False
+        if fn & 1 or fn == sn:
+            fr, sr = node_hash(c, fr), node_hash(c, sr)
+            while fn and not fn & 1:
+                fn, sn = fn >> 1, sn >> 1
+        else:
+            sr = node_hash(sr, c)
+        fn, sn = fn >> 1, sn >> 1
+    return fr == h1 and sr == h2 and sn == 0
+
+short = lambda h: h.hex()[:8]
+D = [bytes.fromhex(x) for x in ("", "00", "10", "2021", "3031", "40414243",
+     "5051525354555657", "606162636465666768696a6b6c6d6e6f")]  # RFC 6962 test entries
+old, new = D[:3], D[:6]
+print("leaves:", [short(leaf_hash(d)) for d in new])
+print("root of 3:", short(mth(old)), " root of 6:", short(mth(new)), " root of 8:", short(mth(D)))
+
+proof = path(2, new)
+print("inclusion proof for entry 2:", [short(p) for p in proof])
+print("  verifies:", verify_inclusion(2, 6, leaf_hash(D[2]), proof, mth(new)))
+print("  wrong entry:", verify_inclusion(2, 6, leaf_hash(b"forged"), proof, mth(new)))
+
+cproof = subproof(3, new, True)
+print("consistency proof 3 -> 6:", [short(c) for c in cproof])
+print("  verifies:", verify_consistency(3, 6, mth(old), mth(new), cproof))
+rewritten = [D[0], b"rewritten", D[2]]                   # a log that changed entry 1
+print("  rewritten history:", verify_consistency(3, 6, mth(rewritten), mth(new), cproof))
+
+ok_inc = all(verify_inclusion(m, n, leaf_hash(D[m]), path(m, D[:n]), mth(D[:n]))
+             for n in range(1, 9) for m in range(n))
+ok_con = all(verify_consistency(m, n, mth(D[:m]), mth(D[:n]), subproof(m, D[:n], True))
+             for n in range(2, 9) for m in range(1, n))
+print("all 36 inclusion and 28 consistency proofs for sizes up to 8:", ok_inc and ok_con)
+```
+
+It prints:
+
+```text
+leaves: ['6e340b9c', '96a296d2', '0298d122', '07506a85', 'bc1a0643', '4271a26b']
+root of 3: aeb6bcfe  root of 6: 76e67dad  root of 8: 5dc9da79
+inclusion proof for entry 2: ['07506a85', 'fac54203', '0ebc5d34']
+  verifies: True
+  wrong entry: False
+consistency proof 3 -> 6: ['0298d122', '07506a85', 'fac54203', '0ebc5d34']
+  verifies: True
+  rewritten history: False
+all 36 inclusion and 28 consistency proofs for sizes up to 8: True
+```
+
+The roots of 3, 6 and 8 entries (`aeb6bcfe`, `76e67dad`, `5dc9da79`) are the
+reference values other CT implementations test against. A proof for a log of
+$n$ entries has at most $\lceil \log_2 n \rceil$ hashes, one more for
+consistency: for a log of four billion certificates, 32 hashes or about a
+kilobyte.
+
+### Tiled logs: the Static CT API
+
+RFC 6962 logs are web services that compute every proof on request, from a
+database, which makes them expensive to run. In March 2024 Let's Encrypt
+introduced **Sunlight**, a log written with Filippo Valsorda whose interface
+became the C2SP **static-ct-api** specification. A tiled log serves its whole
+tree as plain files:
+
+- **tiles**, each holding 256 consecutive hashes from one band of eight tree
+  levels (8 KB), and data tiles holding 256 entries;
+- a **checkpoint**, the signed tree head, in a short signed text format.
+
+A full tile never changes, so any web cache can keep it forever. Clients
+fetch tiles and run the proof algorithms above themselves. For a log of $2^{40}$ entries an inclusion proof needs
+about five tiles, forty levels at eight per tile. Since a static log cannot be asked
+"where is this certificate?", its SCTs carry a `leaf_index` extension, the
+entry's 40-bit position, so the right tile can be fetched directly. Entries are added in batches every second or so, and
+Chrome requires a static log to include a certificate within one minute,
+against 24 hours for an RFC 6962 log.
+
+As of November 2026: Chrome has accepted static-ct-api logs since 2025
+(Chrome 134), at first only next to one SCT from an RFC 6962 log, a condition
+later dropped; Apple's policy is reported to still want one RFC 6962 SCT.
+Let's Encrypt made its RFC 6962 logs read-only on 30 November 2025 and
+scheduled their shutdown for 28 February 2026. The hashes of the worked
+example are the same in a tiled log; only the serving changed.
+
 ## 2.9 A city authority on Mars
 
 *Level: intermediate.*
@@ -1085,6 +1506,24 @@ checks happen eventually and that a log cannot take back what it signed.
 drifted, or been set back by an attacker, accepts expired certificates. The
 city's time service needs the same protection as its PKI.
 
+### The rules follow the trust
+
+Cross-signing has a cost that is easy to miss. A certificate that chains to
+a publicly trusted Earth root is publicly trusted, on whatever planet, and
+the Baseline Requirements and the browsers' policies come with it: at most
+47 days of life from 2029, domain checks reused for at most 10 days and
+corroborated from five remote perspectives on Earth's Internet, and SCTs from
+logs the browsers recognize, all on Earth. Each rule assumes a CA a few
+milliseconds from Earth. One SCT costs a 6- to 44-minute round trip, or
+waits out conjunction.
+
+So the work splits. The cross-signed path serves the few public names that
+visitors' devices must reach, issued under Earth's rules and renewed in a
+batch before each conjunction, with the margin of §2.6 in mind. Everything
+inside the city, doors, badges, sensors, internal services, chains to the
+city's own root, which only city devices trust and which can follow the
+city's own rules: hour-long badges, local logs, local perspectives.
+
 ## 2.10 In the real world
 
 *Level: intermediate.*
@@ -1108,14 +1547,132 @@ city's time service needs the same protection as its PKI.
   millions of certificates assembled from random parts of real ones, and found
   validation differences in every library they tested, some of them security
   holes (for example, a library accepting a version 1 certificate as a CA).
-- **Expired roots** (2020, 2021). When old roots or cross-signs expired
-  (Sectigo's AddTrust root in May 2020, Let's Encrypt's DST Root CA X3 in
-  September 2021), clients that could not build an alternative path broke,
-  from payment terminals to smart TVs. Path building is not optional.
+- **Expired roots** (2020, 2021). When old roots expired (Sectigo's
+  AddTrust root in May 2020, DST Root CA X3 in September 2021), clients that
+  could not build another path broke, from payment terminals to smart TVs.
 - **Interception boxes.** Corporate firewalls and antivirus products that
   intercept TLS install their own root on users' machines and re-sign every
   site. A 2017 study by Zakir Durumeric and colleagues found that most such
   products weakened the connections they intercepted, many severely.
+
+### A path-building story: 30 September 2021
+
+The "expired roots" item above shows why §2.3 calls the server's chain a
+hint. In 2021 Let's Encrypt's leaves were signed by an intermediate, R3, and
+R3 by ISRG Root X1. ISRG Root X1 existed as two certificates with the same
+name and key: the self-signed root, in every modern trust store, and a
+**cross-certificate** signed by IdenTrust's older DST Root CA X3.
+From May 2021 Let's Encrypt's default chain was leaf, R3, cross-signed X1, so
+that Android phones older than version 7.1.1, which lacked ISRG Root X1, could
+still reach DST Root CA X3. Then DST Root CA X3 expired, at 14:01:15 UTC on
+30 September 2021. The cross-certificate itself stayed valid until
+30 September 2024, three years past its own issuer. That trick worked only
+because Android does not check the expiry of a trust anchor, which RFC 5280
+allows: a trust anchor is a name and a key, and its certificate's dates are
+local policy.
+
+On 1 October a client holding both roots had two paths (Figure 2.8), and
+any builder that searches finds the short one. OpenSSL 1.0.2 did not search:
+by default it followed the server's certificates as far as they went, reached
+the expired DST Root CA X3 in its store, and failed, without noticing that
+ISRG Root X1 was in its store too. The fix was to remove DST Root CA X3 or
+set `trusted_first`, which looks in the store first. OpenSSL 1.1.0 and later were not
+affected. Devices whose stores held only the expired root had no path at all.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 330" width="640" role="img" aria-label="Two paths from a Let's Encrypt leaf in October 2021: through R3 to the self-signed ISRG Root X1 in the store, or through R3 to the cross-signed ISRG Root X1 and on to the expired DST Root CA X3" fill="currentColor" font-size="13.5">
+<defs><marker id="pb-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
+<rect x="360" y="12" width="260" height="54" rx="8" fill="currentColor" fill-opacity=".08" stroke="currentColor" stroke-dasharray="5 4"/>
+<text x="490" y="34" text-anchor="middle" font-weight="bold">DST Root CA X3 (old stores)</text>
+<text x="490" y="54" text-anchor="middle">expired 30 September 2021</text>
+<rect x="20" y="100" width="260" height="54" rx="8" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="2"/>
+<text x="150" y="122" text-anchor="middle" font-weight="bold">ISRG Root X1, self-signed</text>
+<text x="150" y="142" text-anchor="middle">in the store, valid to 2035</text>
+<rect x="360" y="100" width="260" height="54" rx="8" fill="none" stroke="currentColor"/>
+<text x="490" y="122" text-anchor="middle" font-weight="bold">ISRG Root X1, cross-signed</text>
+<text x="490" y="142" text-anchor="middle">sent by the server, valid to 2024</text>
+<line x1="280" y1="127" x2="360" y2="127" stroke="currentColor" stroke-dasharray="3 3"/>
+<g text-anchor="middle" font-size="12"><text x="320" y="92">same name,</text><text x="320" y="174">same key</text></g>
+<rect x="190" y="194" width="260" height="44" rx="8" fill="none" stroke="currentColor"/>
+<text x="320" y="221" text-anchor="middle" font-weight="bold">R3 (sent by the server)</text>
+<rect x="190" y="272" width="260" height="44" rx="8" fill="none" stroke="currentColor"/>
+<text x="320" y="299" text-anchor="middle" font-weight="bold">leaf: www.example.org</text>
+<line x1="320" y1="272" x2="320" y2="241" stroke="currentColor" stroke-width="1.5" marker-end="url(#pb-arrow)"/>
+<line x1="280" y1="194" x2="180" y2="157" stroke="currentColor" stroke-width="2.4" marker-end="url(#pb-arrow)"/>
+<line x1="360" y1="194" x2="460" y2="157" stroke="currentColor" stroke-width="1.5" marker-end="url(#pb-arrow)"/>
+<line x1="490" y1="100" x2="490" y2="69" stroke="currentColor" stroke-width="1.5" marker-end="url(#pb-arrow)"/>
+<g font-size="12.5"><text x="20" y="200">short path: works</text><text x="465" y="200">long path: dead end</text><text x="465" y="218">(unless the anchor's</text><text x="465" y="236">dates are ignored)</text></g>
+</svg>
+<figcaption>Figure 2.8. One leaf, two paths, 1 October 2021. Arrows point from a certificate to its issuer. A builder that backtracks takes the short path; OpenSSL 1.0.2 followed the server's chain into the expired root and stopped.</figcaption>
+</figure>
+
+### Code it: a path builder that backtracks
+
+The five certificates carry their real dates (the leaf's are made up);
+several kinds of client meet the chain servers sent.
+
+```python
+# Path building on 1 October 2021: one server chain, several ways to search.
+# Signatures are taken as checked; this program is about the search.
+CERTS = {   # subject, issuer, notBefore, notAfter
+    "leaf":     ("www.example.org", "R3", "2021-09-01", "2021-11-30"),
+    "R3":       ("R3", "ISRG Root X1", "2020-09-04", "2025-09-15"),
+    "X1-cross": ("ISRG Root X1", "DST Root CA X3", "2021-01-20", "2024-09-30"),
+    "X1-self":  ("ISRG Root X1", "ISRG Root X1", "2015-06-04", "2035-06-04"),
+    "DST":      ("DST Root CA X3", "DST Root CA X3", "2000-09-30", "2021-09-30"),
+}
+SENT = ["leaf", "R3", "X1-cross"]                 # the default chain from May 2021
+
+def valid(c, today):
+    return CERTS[c][2] <= today <= CERTS[c][3]
+
+def build(store, today, trusted_first=False, backtrack=True, anchor_dates=True):
+    def extend(path):
+        issuer = CERTS[path[-1]][1]
+        anchors = [a for a in store if CERTS[a][0] == issuer]
+        others = [c for c in SENT if CERTS[c][0] == issuer and c not in path]
+        tries = anchors + others if trusted_first else others + anchors
+        if not backtrack:
+            tries = tries[:1]                    # take the first candidate and commit
+        for c in tries:
+            if c in store:
+                if valid(c, today) or not anchor_dates:
+                    return path + [c]
+            elif valid(c, today):
+                found = extend(path + [c])
+                if found:
+                    return found
+        return None
+    found = extend(["leaf"])
+    return " -> ".join(found) if found else "FAILS"
+
+new_store, old_store = ["X1-self", "DST"], ["DST"]
+day = "2021-10-01"
+print("OpenSSL 1.0.2, default:      ", build(new_store, day, backtrack=False))
+print("OpenSSL 1.0.2, trusted_first:", build(new_store, day, trusted_first=True, backtrack=False))
+print("a builder that backtracks:   ", build(new_store, day))
+print("old device, old store:       ", build(old_store, day))
+print("Android 7, old store:        ", build(old_store, day, anchor_dates=False))
+print("Android 7, 1 October 2024:   ", build(old_store, "2024-10-01", anchor_dates=False))
+```
+
+It prints:
+
+```text
+OpenSSL 1.0.2, default:       FAILS
+OpenSSL 1.0.2, trusted_first: leaf -> R3 -> X1-self
+a builder that backtracks:    leaf -> R3 -> X1-self
+old device, old store:        FAILS
+Android 7, old store:         leaf -> R3 -> X1-cross -> DST
+Android 7, 1 October 2024:    FAILS
+```
+
+The first two lines differ only in search order; the third shows that
+order stops mattering once the builder can back out of a dead end. The last
+two are the Android story. Let's Encrypt stopped sending the long chain by default in
+February 2024 and stopped offering it at all on 6 June 2024. The lessons are
+the ones RFC 4158 wrote down in 2005: treat the server's chain as a set of
+hints, search with backtracking, and expect several valid paths.
 
 ## 2.11 Going deeper
 
@@ -1133,7 +1690,10 @@ inclusion proof of a few hundred bytes instead of a signature, with the trust
 in tree heads shipped to browsers ahead of time. Chrome's planned
 quantum-resistant root store is to accept only such CAs. KEMTLS (Peter Schwabe,
 Douglas Stebila and Thom Wiggers, 2020) goes further and replaces the
-handshake signature with a KEM. Book 5 follows this story.
+handshake signature with a KEM. Book 5 follows this story; its
+[§18.9](../post-quantum/18-Hybrids-and-the-Migration.md#189-merkle-tree-certificates)
+works through Merkle Tree Certificates, whose proofs are the inclusion proofs
+of §2.8.
 
 **Formal X.509.** Much of the trouble in this chapter comes from parsing and
 validation code. Projects to fix it include formally verified ASN.1 parsers
@@ -1146,7 +1706,12 @@ rewritten in memory-safe or carefully restricted code in the 2020s.
 supported by every client, so CAs could not rely on them; constrained
 intermediates for organizations were rare. Support is now near universal in
 browsers, and the BRs treat a properly constrained intermediate as "technically
-constrained", which relaxes some audit requirements.
+constrained", which relaxes some audit requirements. Root programs also impose
+constraints the certificates do not carry: Firefox's NSS library hard-codes a
+constraint that limits the French government's IGC/A root to `.fr` and the
+top-level domains of French overseas territories, added after an
+intermediate under it was found issuing certificates for Google's domains in
+December 2013.
 
 **Alternatives that did not win.** SPKI/SDSI (1996-1999, Carl Ellison, Ron
 Rivest, Butler Lampson and others) proposed local names and authorization
@@ -1168,23 +1733,28 @@ remains the main alternative ([Chapter 6](06-SSH.md)).
     the to-be-signed part; the client trusts the issuer because of a chain to
     a root in its trust store.
 
-??? question "2. Why is the root certificate not sent by the server, and why is its self-signature never checked?"
+??? question "2. A CA is constrained to the DNS subtree `arcadia.mars` and nothing else. Can it issue for `shop.arcadia.mars`, `evilarcadia.mars` and the address 10.0.0.1?"
 
-    Trust has to come from the client's own store, not from the network: a
-    root sent by the server would prove nothing. The self-signature only shows
-    that someone holds the root's key, which anyone who made the certificate
-    does; the root's trustworthiness comes from being in the store.
+    `shop.arcadia.mars`, yes: it is `arcadia.mars` with a label added.
+    `evilarcadia.mars`, no: matching works on whole labels. 10.0.0.1, yes:
+    the CA has no IP constraint, and a name type with no permitted entry is
+    unconstrained. The fix is an IP constraint too, or excluded entries for
+    0.0.0.0/0 and ::/0, as the Baseline Requirements demand of a technically
+    constrained CA.
 
 ??? question "3. An intermediate has `pathLenConstraint` 0. What may it sign?"
 
     Only end-entity (leaf) certificates. A CA certificate signed by it would
     make the path have one CA below it, exceeding the limit.
 
-??? question "4. Your company's CA is name-constrained to `example.com`. It issues a valid certificate for `bank.com`. What happens?"
+??? question "4. On 1 October 2021, why did OpenSSL 1.0.2 reject Let's Encrypt sites that browsers accepted, although ISRG Root X1 was in its store?"
 
-    Clients reject it during path validation: the leaf's name falls outside
-    the permitted subtree collected from the constrained CA. The signature is
-    valid; the constraint is enforced by the client.
+    Servers sent leaf, R3 and the ISRG Root X1 certificate cross-signed by
+    DST Root CA X3. OpenSSL 1.0.2 followed that chain first, reached DST Root
+    CA X3, found it expired the day before, and did not back up to try the
+    self-signed ISRG Root X1 in its store. Browsers' builders search and found
+    the short path. Setting `trusted_first`, removing the expired root or
+    upgrading fixed it.
 
 ??? question "5. Why does the ACME key authorization include a hash of the account key, not just the token?"
 
@@ -1220,12 +1790,14 @@ remains the main alternative ([Chapter 6](06-SSH.md)).
     certificate is useful. Short lives also force automated renewal, which
     lets the ecosystem replace algorithms or CAs quickly.
 
-??? question "10. The 2008 rogue CA attack needed a predictable serial number. Why?"
+??? question "10. A log signed a tree head of size 3, then one of size 6, and sends the consistency proof h2, h3, h01, h45. Which hashes rebuild the old root, and how is a rewritten entry 1 caught?"
 
-    The colliding certificate request had to match, byte for byte, the
-    certificate the CA would produce, including the serial number and
-    validity dates, because the chosen-prefix collision was computed in
-    advance. Random serial numbers make the signed bytes unpredictable.
+    The old root is $H(h_{01}, h_2)$; the new root is
+    $H(H(h_{01}, H(h_2, h_3)), h_{45})$. Both are built from the same $h_2$
+    and $h_{01}$. If the log rewrote entry 1, $h_{01}$ would change, so the
+    proof could not rebuild both signed roots at once; whichever way the log
+    answers, it is left holding two signed heads that contradict each other,
+    which anyone can show to a root program.
 
 ## What you learned
 
@@ -1235,6 +1807,9 @@ remains the main alternative ([Chapter 6](06-SSH.md)).
 - Clients build a path to a trusted root and validate it top down: signatures,
   dates, CA flags, path lengths, name constraints, then the host name and key
   usage at the leaf. Skipping any of these has been exploited.
+- Name constraints work per name type and on whole DNS labels; a type left
+  unconstrained is wide open. Path building must search and back up, as the
+  expiry of DST Root CA X3 on 30 September 2021 showed.
 - Root programs decide which CAs a browser trusts; the CA/Browser Forum's
   Baseline Requirements set the rules. DigiNotar, Symantec and others were
   removed when they failed.
@@ -1243,7 +1818,10 @@ remains the main alternative ([Chapter 6](06-SSH.md)).
 - Online revocation failed; shorter lifetimes (47 days by 2029) and
   browser-pushed summaries such as CRLite replaced it.
 - Certificate Transparency makes every public certificate visible in
-  append-only logs, so misissuance is found.
+  append-only logs, so misissuance is found. An inclusion proof of about
+  $\log_2 n$ hashes, checked with two counters, shows an entry is in a log; a
+  consistency proof shows a log only grew. Tiled logs serve the same tree as
+  static files, and SCT dates let browsers distrust a CA cleanly.
 
 **Next:** [Chapter 3](03-TLS-1.3-Message-by-Message.md), where the certificate
 is sent, checked and used to sign a TLS 1.3 handshake.
@@ -1254,13 +1832,23 @@ is sent, checked and used to sign a TLS 1.3 handshake.
   thesis, MIT (1978).
 - ITU-T Recommendation X.509 (first edition 1988); RFC 5280, the Internet X.509
   profile (2008); RFC 6125 on checking names (2011); RFC 4158 on path building.
-- CA/Browser Forum, Baseline Requirements for TLS server certificates (current
-  version), including ballot SC-081 (2025).
+- CA/Browser Forum, Baseline Requirements for TLS server certificates
+  (version 2.3.1, October 2026), including ballots SC-067 (2024,
+  multi-perspective corroboration) and SC-081 (2025, lifetimes).
 - RFC 8555, ACME (2019); RFC 8737, tls-alpn-01; RFC 7638, JWK thumbprints;
-  RFC 8659, CAA.
+  RFC 8659, CAA; RFC 8657, CAA account and method binding (2019); RFC 9773,
+  ACME Renewal Information (2025).
 - RFC 6960, OCSP; RFC 6066 (stapling); RFC 7633 (Must-Staple).
-- RFC 6962 and RFC 9162, Certificate Transparency (2013, 2021); Ben Laurie,
-  "Certificate Transparency", *Communications of the ACM* 57(10) (2014).
+- RFC 6962 and RFC 9162, Certificate Transparency (2013, 2021; section 2.1
+  of RFC 9162 gives the proof algorithms); Ben Laurie, "Certificate
+  Transparency", *Communications of the ACM* 57(10) (2014); C2SP, the
+  static-ct-api specification, and Let's Encrypt, "Introducing Sunlight"
+  (2024).
+- OpenSSL, "Old Let's Encrypt root certificate expiration and OpenSSL 1.0.2"
+  (September 2021); Let's Encrypt, "DST Root CA X3 expiration (September
+  2021)".
+- Google Security Blog, "Sustaining digital certificate security" (June 2024
+  on Entrust; May 2025 on Chunghwa Telecom and Netlock).
 - Fox-IT, *DigiNotar Certificate Authority breach: "Operation Black Tulip"*
   (2011).
 - Alexander Sotirov, Marc Stevens and others, "MD5 considered harmful today:
