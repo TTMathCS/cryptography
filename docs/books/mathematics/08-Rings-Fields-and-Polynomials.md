@@ -19,13 +19,22 @@ root in $\mathrm{GF}(2^{128})$.*
     - what rings and fields are, with integers, residues, polynomials and
       matrices as examples;
     - division with remainder and Euclid's algorithm for polynomials;
-    - irreducible polynomials, how to find and count them, and Rabin's test;
+    - irreducible polynomials, how to find and count them, and the tests of
+      Rabin and Ben-Or;
     - how to build $\mathrm{GF}(p^n)$ from an irreducible polynomial, and why
       every finite field has prime-power size;
     - why the nonzero elements of a finite field form a cyclic group;
     - $\mathrm{GF}(2^8)$ as AES uses it: xtime, multiplication, inverses and
       the S-box;
     - the Frobenius map and subfields;
+    - towers of fields, norms and fast inversion, as in pairing libraries and
+      compact AES hardware;
+    - Eisenstein's criterion, and why $x^n + 1$ is irreducible over the
+      rationals exactly when $n$ is a power of 2, yet factors modulo every prime;
+    - reduction polynomials: why trinomials and pentanomials, Swan's theorem,
+      and the NIST binary fields;
+    - fast and constant-time multiplication in $\mathrm{GF}(2^{128})$:
+      Karatsuba, carry-less instructions and GCM's one-bit shift;
     - $\mathrm{GF}(2^{128})$ as GCM uses it, with its bit-reflected
       convention, and the forbidden attack on nonce reuse.
 
@@ -33,8 +42,8 @@ root in $\mathrm{GF}(2^{128})$.*
     and Euclid's algorithm) and [Chapter 7](07-Groups.md) (groups, orders,
     Lagrange's theorem).
 
-    **Levels:** §8.1 to §8.4 are for beginners, §8.5 to §8.9 are
-    intermediate, §8.10 and §8.11 are expert.
+    **Levels:** §8.1 to §8.4 are for beginners, §8.5 to §8.13 are
+    intermediate, §8.14 to §8.16 are expert.
 
 ## 8.1 The problem
 
@@ -342,10 +351,10 @@ print([count_irreducible(2, n) for n in range(1, 9)], count_irreducible(2, 128))
 The main term is $p^n / n$. So a random monic polynomial of degree $n$ is
 irreducible with probability about $1/n$, the polynomial version of the prime
 number theorem (about one integer in $\ln x$ near $x$ is prime). There are about
-$2^{121}$ irreducible polynomials of degree 128 over $\mathbb{F}_2$; No trinomial of degree
+$2^{121}$ irreducible polynomials of degree 128 over $\mathbb{F}_2$. No trinomial of degree
 128 is irreducible over $\mathbb{F}_2$, so GCM uses a pentanomial whose middle
 terms all have low degree, which makes reduction cheap: $x^{128} + x^7 + x^2 + x
-+ 1$.
++ 1$ (§8.12 explains the choice).
 
 ## 8.5 Building $\mathrm{GF}(p^n)$
 
@@ -525,7 +534,7 @@ $\{57\} \cdot \{13\} = \{fe\}$, and the xtime chain $\{57\} \to \{ae\} \to \{47\
 
 The nonzero bytes form a cyclic group of order 255, so $a^{255} = 1$ and $a^{-1} =
 a^{254}$ for $a \ne 0$. (Extended Euclid on polynomials is faster, and real
-implementations avoid both, as §8.10 explains.)
+implementations avoid both, as §8.13 and §8.14 explain.)
 
 ```python
 def gpow(a, e):
@@ -742,6 +751,71 @@ The test confirms the AES and GCM polynomials, rejects $\mathtt{11F}$, and finds
 all 30 irreducible octics again. To *find* an irreducible polynomial of a given
 degree, try random ones; about one in $n$ succeeds.
 
+### Ben-Or's test, and Gauss's count checked
+
+Rabin's test always does $n$ squarings, though most polynomials have a small
+factor. Michael Ben-Or (1981) looks for that small factor first. For $i = 1, 2, \dots, \lfloor n/2 \rfloor$, compute
+
+$$g_i = \gcd\left(m,\; x^{p^i} - x\right).$$
+
+By the theorem above, $x^{p^i} - x$ is the product of every monic irreducible of
+degree dividing $i$, so $g_i \ne 1$ exactly when $m$ has an irreducible factor of
+degree dividing $i$. If $g_1 = \dots = g_{i-1} = 1$ and $g_i \ne 1$, the smallest
+factor of $m$ has degree exactly $i$. If every $g_i$ up to $n/2$ is 1, then $m$
+has no factor of degree at most $n/2$, and a reducible polynomial of degree $n$
+always has one, so $m$ is irreducible.
+
+**By hand.** Take $m = x^4 + x^2 + 1$ over $\mathbb{F}_2$, the square of $x^2 + x
++ 1$ (§8.4). First $x^2 - x = x^2 + x = x(x + 1)$, and $m$ has no root, so $g_1 = 1$.
+Next $x^4 \equiv x^2 + 1$, so $x^4 - x \equiv x^2 + x + 1$, and $g_2 = x^2 + x +
+1$: the test stops at $i = 2$ and names the factor's degree. For $x^4 + x + 1$ the
+second step gives $x^4 + x \equiv 1$, so both gcds are 1 and it is irreducible.
+
+The code reuses the listing above, counts irreducibles by brute force, and
+compares with Gauss's formula in its first form, $\sum_{d \mid n} d\,N(d) = 2^n$,
+solved for $N(n)$ one degree at a time:
+
+```python
+# Uses p2mulmod, p2gcd and rabin_irreducible from the listing above.
+from collections import Counter
+
+def ben_or(m):
+    """0 if m is irreducible over F_2, else the degree of its smallest irreducible factor."""
+    n, x = m.bit_length() - 1, 2                    # x stands for x^(2^i) mod m, from i = 0
+    for i in range(1, n // 2 + 1):
+        x = p2mulmod(x, x, m)
+        if p2gcd(m, x ^ 2) != 1:                    # gcd(m, x^(2^i) - x)
+            return i
+    return 0
+
+def gauss_count(n):
+    """N(n) from the identity: the sum of d * N(d) over d dividing n is 2^n."""
+    return (2 ** n - sum(d * gauss_count(d) for d in range(1, n) if n % d == 0)) // n
+
+found = [sum(ben_or(m) == 0 for m in range(2 ** n, 2 ** (n + 1))) for n in range(1, 15)]
+print(found)
+print(found == [gauss_count(n) for n in range(1, 15)])
+print(all((ben_or(m) == 0) == rabin_irreducible(m) for m in range(4, 2 ** 13)))
+print(sorted(Counter(ben_or(m) for m in range(2 ** 12, 2 ** 13)).items()))
+```
+
+It prints:
+
+```text
+[2, 1, 2, 3, 6, 9, 18, 30, 56, 99, 186, 335, 630, 1161]
+True
+True
+[(0, 335), (1, 3072), (2, 256), (3, 180), (4, 100), (5, 108), (6, 45)]
+```
+
+Ben-Or and Rabin give the same verdict on every polynomial of degree 2 to 12, and
+the counts for degrees 1 to 14 match Gauss. For degree 13, a prime, the formula is
+just $(2^{13} - 2)/13 = 630$: the roots of $x^{2^{13}} - x$ other than 0 and 1 fall
+into groups of 13 conjugates, one group per irreducible polynomial. The last line shows why Ben-Or wins in practice. Of the 4,096
+polynomials of degree 12, 3,072 (three quarters, those with 0 or 1 as a root) are
+rejected after a single squaring, 256 after two, and only the 335 irreducible ones
+need all six rounds. Rabin's test spends twelve squarings on every one of them.
+
 ## 8.9 $\mathrm{GF}(2^{128})$: the field inside GCM
 
 *Level: intermediate.*
@@ -825,7 +899,746 @@ vectors catches it.
 <figcaption>Figure 8.4. Two conventions for the same idea. In AES the most significant bit of a byte is the top coefficient; in GCM the first bit of the block is the constant term. The mathematics is identical; the bit order is reversed, and implementations must follow each standard's choice exactly.</figcaption>
 </figure>
 
-## 8.10 In the real world
+## 8.10 Towers of fields
+
+*Level: intermediate.*
+
+Pairing-based signatures (Chapter 13) need arithmetic in $\mathbb{F}_{p^{12}}$,
+where $p$ is a prime of 381 bits. §8.5 says: compute modulo an irreducible
+polynomial of degree 12. Real libraries instead build $\mathbb{F}_{p^{12}}$ in
+three short steps, each by a polynomial with two terms: a **tower of fields**.
+
+### Extending an extension
+
+Nothing in §8.5 needed the base field to be $\mathbb{F}_p$. If $K$ is any finite
+field with $q$ elements and $f$ is irreducible of degree $k$ over $K$, then
+$K[y]/(f)$ is a field with $q^k$ elements, by the same proof. By §8.8 the result
+is the same field however it was built; only the names of the elements differ.
+
+Degrees multiply up a tower. If $L \supset K \supset F$, a basis of $L$ over $K$
+times a basis of $K$ over $F$ is a basis of $L$ over $F$ (the **tower law**), so
+$[L : F] = [L : K]\,[K : F]$: here $2 \cdot 3 \cdot 2 = 12$.
+
+### By hand: $\mathbb{F}_{49}$ over $\mathbb{F}_7$
+
+Since $7 \equiv
+3 \pmod 4$, $-1$ is not a square mod 7 (the squares are 1, 2 and 4; Chapter 5), so
+$i^2 + 1$ is irreducible and $\mathbb{F}_{49} = \mathbb{F}_7[i]/(i^2 + 1)$. Its
+elements are $a + bi$ with $a, b \in \mathbb{F}_7$, multiplied as complex numbers.
+
+**Frobenius is conjugation.** By the freshman's dream (§8.8), $(a + bi)^7 = a^7 +
+b^7 i^7 = a + b\,i^7$, and $i^7 = i^4 \cdot i^3 = -i$. So $(a + bi)^7 = a - bi$. For
+example $(2 + 3i)^7 = 2 - 3i = 2 + 4i$, and the elements fixed by Frobenius are those with $b = 0$: the
+base field, as §8.8 promised.
+
+**Inversion through the norm.** The **norm** of $u = a + bi$ is $N(u) = u \cdot
+\bar u = a^2 + b^2$. It is fixed by Frobenius (it equals $u \cdot u^7 = u^8$, and
+$u^{8 \cdot 7} = u^{56} = u^{8}$ since $u^{48} = 1$), so it lies in $\mathbb{F}_7$.
+Then
+
+$$u^{-1} = \frac{\bar u}{N(u)},$$
+
+one inversion in the small field and two multiplications. For $u = 2 + 3i$: $N(u)
+= 4 + 9 = 13 \equiv 6$, and $6^{-1} = 6$ (since $36 = 35 + 1$), so $u^{-1} = 6(2 -
+3i) = 12 - 18i \equiv 5 + 3i$. Check: $(2 + 3i)(5 + 3i) = 10 + 6i + 15i + 9i^2 =
+1 + 21i \equiv 1$.
+
+```python
+# F_49 = F_7[i]/(i^2 + 1): pairs (a, b) stand for a + b i, with i^2 = -1.
+p = 7
+
+def f2mul(u, v):
+    return ((u[0] * v[0] - u[1] * v[1]) % p, (u[0] * v[1] + u[1] * v[0]) % p)
+
+def f2pow(u, e):
+    r = (1, 0)
+    while e:
+        if e & 1:
+            r = f2mul(r, u)
+        u, e = f2mul(u, u), e >> 1
+    return r
+
+def conj(u):
+    return (u[0], -u[1] % p)
+
+def f2inv(u):
+    n = (u[0] * u[0] + u[1] * u[1]) % p            # the norm u * conj(u), an element of F_7
+    t = pow(n, -1, p)                               # one inversion in the base field
+    return (u[0] * t % p, -u[1] * t % p)
+
+F49 = [(a, b) for a in range(p) for b in range(p)]
+print(all(f2pow(u, p) == conj(u) for u in F49))                 # Frobenius = conjugation
+print([u for u in F49 if f2pow(u, p) == u] == [(a, 0) for a in range(p)])
+print(f2inv((2, 3)), f2mul((2, 3), f2inv((2, 3))))
+```
+
+It prints:
+
+```text
+True
+True
+(5, 3) (1, 0)
+```
+
+Frobenius is conjugation on all 49 elements, it fixes exactly the seven elements of
+$\mathbb{F}_7$, and the norm formula inverts $2 + 3i$ to $5 + 3i$.
+
+### The Galois group and the general norm
+
+In $\mathrm{GF}(p^n)$ the powers of Frobenius $\phi, \phi^2, \dots, \phi^n =
+\mathrm{id}$ are $n$ different automorphisms, and they are all the automorphisms
+that fix $\mathbb{F}_p$: they form the **Galois group**, cyclic of order $n$ and
+generated by $\phi$. The product of the **conjugates** $u, u^p, \dots,
+u^{p^{n-1}}$ is the norm and their sum the **trace**; both are fixed by $\phi$, so
+both lie in $\mathbb{F}_p$.
+
+The inversion trick generalizes:
+
+$$u^{-1} = \frac{u^{p} \cdot u^{p^2} \cdots u^{p^{n-1}}}{N(u)}.$$
+
+In a tower, Frobenius is cheap: a sign change in $\mathbb{F}_{p^2}$, and higher up
+a multiplication of each coordinate by a precomputed constant. Toshiya Itoh and Shigeo Tsujii (1988)
+used this for $\mathrm{GF}(2^m)$, and pairing libraries use it to invert in
+$\mathbb{F}_{p^{12}}$ with one inversion in $\mathbb{F}_p$.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="Two towers of fields: GF(2) to GF(256) in three quadratic steps, and F_p to F_p^12 in steps of 2, 3 and 2 as in BLS12-381" fill="currentColor" font-size="13">
+<text x="160" y="20" text-anchor="middle">binary tower (compact AES S-box)</text>
+<text x="480" y="20" text-anchor="middle">pairing tower (BLS12-381)</text>
+<g stroke="currentColor" stroke-width="1.3" fill="none">
+<rect x="70" y="35" width="180" height="36" rx="6" class="acc"/>
+<rect x="70" y="105" width="180" height="36" rx="6"/>
+<rect x="70" y="175" width="180" height="36" rx="6"/>
+<rect x="70" y="245" width="180" height="36" rx="6"/>
+<rect x="390" y="35" width="180" height="36" rx="6" class="acc"/>
+<rect x="390" y="105" width="180" height="36" rx="6"/>
+<rect x="390" y="175" width="180" height="36" rx="6"/>
+<rect x="390" y="245" width="180" height="36" rx="6"/>
+<path d="M160 243 L160 213 M160 173 L160 143 M160 103 L160 73"/>
+<path d="M480 243 L480 213 M480 173 L480 143 M480 103 L480 73"/>
+</g>
+<g text-anchor="middle">
+<text x="160" y="58" class="acc-fill">GF(256) = GF(2⁸)</text>
+<text x="160" y="128">GF(16)</text>
+<text x="160" y="198">GF(4)</text>
+<text x="160" y="268">GF(2)</text>
+<text x="480" y="58" class="acc-fill">F_p¹²</text>
+<text x="480" y="128">F_p⁶</text>
+<text x="480" y="198">F_p²</text>
+<text x="480" y="268">F_p, p of 381 bits</text>
+</g>
+<g font-size="12">
+<text x="168" y="233">× 2: ω² = ω + 1</text>
+<text x="168" y="163">× 2: y² = y + ω</text>
+<text x="168" y="93">× 2: z² = z + λ</text>
+<text x="488" y="233">× 2: u² = −1</text>
+<text x="488" y="163">× 3: v³ = u + 1</text>
+<text x="488" y="93">× 2: w² = v</text>
+</g>
+</svg>
+<figcaption>Figure 8.5. Two towers. Each floor is the one below extended by a short irreducible polynomial, and the degrees multiply. On the left, GF(256) as a quadratic over GF(16), over GF(4), over GF(2), with λ some element of GF(16) that makes the top quadratic irreducible: the shape of compact hardware S-boxes. On the right, the tower that BLS12-381 libraries use for pairings.</figcaption>
+</figure>
+
+### The two towers in use
+
+**AES in hardware.** §8.8 found that the 17th powers in $\mathrm{GF}(256)$ form
+the subfield $\mathrm{GF}(16)$. That is the norm: $u^{17} = u \cdot u^{16}$ is $u$
+times its conjugate over $\mathrm{GF}(16)$. So an inverse in $\mathrm{GF}(256)$
+costs one in $\mathrm{GF}(16)$, which costs one in $\mathrm{GF}(4)$, where $u^{-1}
+= u^2$. Bytes move into the tower basis and back by $8 \times 8$ bit matrices,
+merged with the S-box's affine map. Akashi Satoh and colleagues (2001) and David
+Canright (2005) built small hardware S-boxes this way.
+
+**Pairings.** The BLS12-381 curve, used in Ethereum's proof-of-stake signatures and
+in Zcash, builds
+$\mathbb{F}_{p^2} = \mathbb{F}_p[u]/(u^2 + 1)$ (fine because $p \equiv 3 \pmod
+4$), then $\mathbb{F}_{p^6} = \mathbb{F}_{p^2}[v]/(v^3 - (u + 1))$, then
+$\mathbb{F}_{p^{12}} = \mathbb{F}_{p^6}[w]/(w^2 - v)$. The element $u + 1$ is
+chosen to be neither a square nor a cube in $\mathbb{F}_{p^2}$, which makes the
+cubic and the top quadratic irreducible (BN254 uses $9 + u$). Multiplying in $\mathbb{F}_{p^2}$
+takes three multiplications in $\mathbb{F}_p$ instead of four, by the Karatsuba
+trick of §8.13, and the savings compound up the tower.
+
+## 8.11 Over the rationals: Eisenstein and $x^n + 1$
+
+*Level: intermediate.*
+
+ML-KEM and ML-DSA compute in $\mathbb{Z}_q[x]/(x^{256} + 1)$, and Falcon in
+$\mathbb{Z}_q[x]/(x^{512} + 1)$ or $(x^{1024} + 1)$. The degree is always a power
+of 2. Part of the reason is the fast transform of Chapter 15, but there is a
+reason underneath it: for $n$ a power of 2, $x^n + 1$ is irreducible over the
+rationals, so $\mathbb{Q}[x]/(x^n + 1)$ is a field (a *number field*), and the
+security proofs of Ring-LWE and Module-LWE are statements about lattices in that
+field (*The cryptography book*, [chapter 21](../../book/21-Lattice-Cryptography.md),
+shows the schemes themselves). For other $n$ the polynomial falls apart. Chapter 15 identifies $x^n +
+1$ as a cyclotomic polynomial and cites Dedekind's theorem that those are
+irreducible; this section gives a direct proof that uses only the arithmetic of this chapter, and then shows the same
+polynomial breaking up modulo every prime.
+
+### Gauss's lemma and Eisenstein's criterion
+
+Over $\mathbb{Q}$ there is no finite list of polynomials to test, so irreducibility
+needs a different kind of argument. Two classical facts supply it.
+
+**Gauss's lemma.** If a monic polynomial with integer coefficients factors over
+$\mathbb{Q}$, it factors into monic polynomials with integer coefficients. (The key
+step is that $\mathbb{F}_\ell[x]$ has no zero divisors, §8.3.)
+
+**Eisenstein's criterion** (Theodor Schönemann 1846, Gotthold Eisenstein 1850).
+Let $f = x^n + a_{n-1}x^{n-1} + \dots + a_0$ have integer coefficients, and let
+$\ell$ be a prime that divides every $a_i$ but whose square does not divide $a_0$.
+Then $f$ is irreducible over $\mathbb{Q}$.
+
+*Proof.* Suppose $f = gh$ with $g, h$ monic integer polynomials of positive degree
+(Gauss's lemma). Reduce everything modulo $\ell$: since $\ell$ divides all the
+lower coefficients, $\bar f = x^n$ in $\mathbb{F}_\ell[x]$. Factorization in
+$\mathbb{F}_\ell[x]$ is unique (§8.4), and $x$ is irreducible, so $\bar g = x^r$
+and $\bar h = x^s$ with $r, s \ge 1$ (reducing a monic polynomial keeps its degree).
+So the constant terms of $g$ and $h$ are both multiples of $\ell$, and their
+product $a_0$ is a multiple of $\ell^2$, a contradiction. $\blacksquare$
+
+### $x^n + 1$ for $n$ a power of 2
+
+**Theorem.** If $n = 2^k$, then $x^n + 1$ is irreducible over $\mathbb{Q}$.
+
+*Proof.* A polynomial $f(x)$ factors exactly when $f(x + 1)$ does (substitute back
+$x - 1$), so it is enough to show that $(x + 1)^n + 1$ is irreducible. Modulo 2,
+the freshman's dream (§8.8) applied $k$ times gives $(x + 1)^{2^k} \equiv x^{2^k} +
+1$, so every binomial coefficient $\binom{n}{j}$ with $0 < j < n$ is even. The
+constant term is $1 + 1 = 2$, divisible by 2 but not by 4. Eisenstein at $\ell = 2$
+applies. $\blacksquare$
+
+**By hand,** $n = 4$: $(x + 1)^4 + 1 = x^4 + 4x^3 + 6x^2 + 4x + 2$. The lower
+coefficients 4, 6, 4, 2 are even and 2 is not a multiple of 4, so $x^4 + 1$ is
+irreducible over $\mathbb{Q}$.
+
+**Every other $n$ fails.** Write $n = 2^a m$ with $m$ odd and $m > 1$, and put $y =
+x^{2^a}$. Since $m$ is odd, $y = -1$ is a root of $y^m + 1$, so
+
+$$x^n + 1 = y^m + 1 = (y + 1)(y^{m-1} - y^{m-2} + \dots - y + 1).$$
+
+For example $x^3 + 1 = (x + 1)(x^2 - x + 1)$ and $x^{768} + 1 = (x^{256} + 1)(x^{512} - x^{256} + 1)$, the obstacle to a
+"degree 768" ring that *Post-quantum cryptography*,
+[chapter 7](../post-quantum/07-Rings-Modules-and-the-NTT.md), describes; ML-KEM gets its in-between sizes from modules of $k = 2, 3, 4$
+degree-256 rings instead.
+
+### The same polynomial modulo primes
+
+Irreducible over $\mathbb{Q}$ does not mean irreducible modulo $q$. In fact:
+
+**Theorem.** $x^4 + 1$ is reducible modulo every prime.
+
+*First proof, by structure.* Modulo 2 it is $(x + 1)^4$. For odd $p$, its roots are
+the elements of order 8 (they satisfy $x^4 = -1$, so $x^8 = 1$ but $x^4 \ne 1$).
+Since $p^2 - 1 = (p - 1)(p + 1)$ is a product of two consecutive even numbers, 8
+divides it, and the cyclic group $\mathbb{F}_{p^2}^*$ (§8.6) has elements of order 8.
+So all four roots lie in $\mathbb{F}_{p^2}$, and every irreducible factor has degree
+at most 2.
+
+*Second proof, by hand.* Among $-1$, $2$ and $-2$, at least one is a square mod
+$p$, because the product of two non-squares is a square (Chapter 5). Then
+
+$$x^4 + 1 = (x^2 + c)(x^2 - c) \text{ if } c^2 = -1, \quad (x^2 + sx + 1)(x^2 - sx
++ 1) \text{ if } s^2 = 2, \quad (x^2 + tx - 1)(x^2 - tx - 1) \text{ if } t^2 = -2.$$
+
+Modulo 3, $-2 \equiv 1 = 1^2$, so $x^4 + 1 = (x^2 + x + 2)(x^2 + 2x + 2)$; expand it
+to check: $x^4 + 3x^3 + 6x^2 + 6x + 4 \equiv x^4 + 1$.
+
+```python
+# x^n + 1 over the rationals (Eisenstein at 2) and modulo primes (x^4 + 1 always factors).
+from math import comb
+
+def eisenstein_at_2(n):
+    """Does (x + 1)^n + 1 satisfy Eisenstein's criterion at the prime 2?"""
+    c = [comb(n, j) for j in range(n + 1)]      # coefficients, constant term first
+    c[0] += 1
+    return all(v % 2 == 0 for v in c[:-1]) and c[0] % 4 != 0
+
+print([n for n in range(1, 100) if eisenstein_at_2(n)])
+
+def mul_quadratics(f, g, q):                    # (x^2 + f1 x + f0)(x^2 + g1 x + g0) mod q
+    (f0, f1), (g0, g1) = f, g
+    return [f0 * g0 % q, (f0 * g1 + f1 * g0) % q, (f0 + g0 + f1 * g1) % q, (f1 + g1) % q, 1]
+
+def split_x4_plus_1(q):
+    """x^4 + 1 = (x^2 + s x + t)(x^2 - s x + t) or (x^2 + c)(x^2 - c), from a square root mod q."""
+    for a, shape in ((q - 1, "-1"), (2, "2"), (q - 2, "-2")):
+        s = next((y for y in range(q) if y * y % q == a), None)
+        if s is not None:
+            f, g = {"-1": ((s, 0), (q - s, 0)), "2": ((1, s), (1, q - s)),
+                    "-2": ((q - 1, s), (q - 1, q - s))}[shape]
+            return shape, f, g, mul_quadratics(f, g, q) == [1, 0, 0, 0, 1]
+
+primes = [q for q in range(3, 1000) if all(q % d for d in range(2, int(q ** 0.5) + 1))]
+print(all(split_x4_plus_1(q)[3] for q in primes), len(primes))
+def show2(f):
+    mid = "" if f[1] == 0 else " + x" if f[1] == 1 else " + %dx" % f[1]
+    return "x^2" + mid + (" + %d" % f[0] if f[0] else "")
+
+for q in (3, 5, 7, 17):
+    a, f, g, ok = split_x4_plus_1(q)
+    print(q, "square root of", a, ":", "(%s)(%s)" % (show2(f), show2(g)))
+```
+
+It prints:
+
+```text
+[1, 2, 4, 8, 16, 32, 64]
+True 167
+3 square root of -2 : (x^2 + x + 2)(x^2 + 2x + 2)
+5 square root of -1 : (x^2 + 2)(x^2 + 3)
+7 square root of 2 : (x^2 + 3x + 1)(x^2 + 4x + 1)
+17 square root of -1 : (x^2 + 4)(x^2 + 13)
+```
+
+Eisenstein at 2 works for $(x + 1)^n + 1$ exactly when $n$ is a power of 2 (for any
+other $n$ some binomial coefficient is odd, by Lucas's theorem), and the explicit
+splitting works for all 167 odd primes below 1,000.
+
+In general, for $n$ a power of 2 and $q$ an odd prime, every irreducible factor of
+$x^n + 1$ modulo $q$ has degree equal to the order of $q$ modulo $2n$, which is at
+most $n/2$ because $(\mathbb{Z}/2n\mathbb{Z})^*$ is not cyclic for $2n \ge 8$
+(Chapter 4). For the lattice standards:
+$3329 \equiv 257 \pmod{512}$ and $257^2 \equiv 1$, so modulo ML-KEM's $q$ the
+polynomial $x^{256} + 1$ splits into 128 quadratics; $8380417 \equiv 1 \pmod{512}$,
+so modulo ML-DSA's $q$ it splits into 256 linear factors. Those splittings are the
+number-theoretic transform, which [Chapter 15](15-Learning-with-Errors.md) builds
+and *Post-quantum cryptography*,
+[chapter 7](../post-quantum/07-Rings-Modules-and-the-NTT.md), runs at full size. Lattice cryptography uses both facts at once: a field over
+$\mathbb{Q}$, a product of small fields modulo $q$.
+
+## 8.12 Reduction polynomials: trinomials and pentanomials
+
+*Level: intermediate.*
+
+Any of the $2^{121}$ or so irreducible polynomials of degree 128 builds
+$\mathrm{GF}(2^{128})$ (§8.4, §8.8), but they are not equally fast. Every
+multiplication ends by cutting a product of degree up to $2n - 2$ back below $n$,
+and the cost of that depends on the shape of the modulus.
+
+### Reduction by folding
+
+Write the modulus as $m = x^n + r(x)$, with $r$ of degree $d < n$. Modulo $m$,
+$x^n \equiv r$. Split a product $c$ into its high and low halves, $c = h \cdot x^n +
+l$ with $\deg l < n$; then
+
+$$c \equiv h \cdot r + l \pmod m.$$
+
+That is one **fold**. The high half is multiplied by $r$, not by anything large, and
+if $r$ has $t$ terms, $h \cdot r$ is just $t$ shifted copies of $h$, exclusive-ored
+together. One fold lowers the degree from $\deg c$ to at most $\deg c - (n - d)$, so
+starting from degree $2n - 2$ it takes
+
+$$\left\lceil \frac{n - 1}{n - d} \right\rceil$$
+
+folds to finish. When $d$ is below about $n/2$ that is two: one big fold and one
+small one for the few bits that spill over. Figure 8.6 shows it for GCM's
+polynomial, where $r = x^7 + x^2 + x + 1$: four shifted copies of the high half,
+then a second fold of at most six bits.
+
+So the modulus should have **few terms** (each term of $r$ is one more shift and
+exclusive-or per fold, or one more row of gates in hardware) and **low middle
+terms**, so that two folds suffice.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 280" width="640" role="img" aria-label="Folding reduction: the high half h of a 255-bit product is added to the low half four times, shifted by 0, 1, 2 and 7 bits, and a few overflow bits fold once more" fill="currentColor" font-size="13">
+<g stroke="currentColor" stroke-width="1.3" fill="none">
+<rect x="60" y="30" width="270" height="30"/>
+<rect x="330" y="30" width="280" height="30" class="acc"/>
+<rect x="330" y="95" width="280" height="24" class="acc"/>
+<rect x="332" y="125" width="278" height="24"/>
+<rect x="326" y="155" width="278" height="24"/>
+<rect x="320" y="185" width="278" height="24"/>
+<rect x="298" y="215" width="278" height="24"/>
+<path d="M60 248 L610 248" stroke-dasharray="4 3"/>
+<path d="M330 22 L330 270" stroke-dasharray="2 3"/>
+</g>
+<rect x="298" y="215" width="32" height="24" fill-opacity=".25"/>
+<rect x="320" y="185" width="10" height="24" fill-opacity=".25"/>
+<g text-anchor="middle">
+<text x="195" y="50">h: bits 128 to 254</text>
+<text x="470" y="50" class="acc-fill">l: bits 0 to 127</text>
+<text x="470" y="112">l</text>
+<text x="470" y="142">h · 1</text>
+<text x="465" y="172">h · x</text>
+<text x="459" y="202">h · x²</text>
+<text x="437" y="232">h · x⁷</text>
+<text x="470" y="268" class="acc-fill">sum = c mod m, after one more small fold</text>
+</g>
+<g font-size="12">
+<text x="20" y="85">x¹²⁸ ≡ x⁷ + x² + x + 1, so h·x¹²⁸ ≡ h·(x⁷ + x² + x + 1):</text>
+<text x="60" y="232" text-anchor="start">overflow, up to 6 bits:</text>
+<text x="60" y="246" text-anchor="start" fill-opacity=".7">fold it again</text>
+</g>
+</svg>
+<figcaption>Figure 8.6. Reducing a product modulo x¹²⁸ + x⁷ + x² + x + 1. The high half is added back four times, shifted by 0, 1, 2 and 7 places, one copy per term of x⁷ + x² + x + 1. Only the shaded bits that spill past position 127 need a second, tiny fold. Shifts are drawn larger than scale.</figcaption>
+</figure>
+
+### By hand: AES's product $\{57\} \cdot \{83\}$
+
+FIPS 197's example multiplies $\{57\} = x^6 + x^4 + x^2 + x + 1$ by $\{83\} = x^7 +
+x + 1$. The carry-less product is
+
+$$c = x^{13} + x^{11} + x^9 + x^8 + x^6 + x^5 + x^4 + x^3 + 1 = \mathtt{2B79}.$$
+
+With $m = x^8 + x^4 + x^3 + x + 1$, $r = x^4 + x^3 + x + 1 = \mathtt{1B}$.
+
+1. Split: $h = x^5 + x^3 + x + 1$ ($\mathtt{2B}$), $l = x^6 + x^5 + x^4 + x^3 + 1$
+   ($\mathtt{79}$).
+2. First fold: $h \cdot r = (x^5 + x^3 + x + 1)(x^4 + x^3 + x + 1)$. The four
+   shifted copies are $x^9 + x^8 + x^6 + x^5$, $x^7 + x^6 + x^4 + x^3$, $x^5 + x^4 +
+   x^2 + x$ and $x^4 + x^3 + x + 1$; pairs cancel, leaving $x^9 + x^8 + x^7 + x^4 +
+   x^2 + 1$ ($\mathtt{395}$). It still reaches $x^9$.
+3. Second fold: its high part is $x + 1$, and $(x + 1) \cdot r = x^5 + x^3 + x^2 + 1$
+   ($\mathtt{2D}$). Its low part is $x^7 + x^4 + x^2 + 1$ ($\mathtt{95}$).
+4. Add up the low pieces: $\mathtt{79} \oplus \mathtt{95} \oplus \mathtt{2D} =
+   \mathtt{C1}$, that is $x^7 + x^6 + 1$.
+
+Two folds, and the answer $\{c1\}$ agrees with §8.7's shift-and-add.
+
+### Why not a trinomial, and why five terms
+
+The cheapest possible modulus would be a **trinomial** $x^n + x^k + 1$: two copies
+per fold. A polynomial with an even number of terms is useless, since it vanishes
+at $x = 1$ and so has the factor $x + 1$. So after three terms the next choice is
+five, a **pentanomial**.
+
+For degree 128 there is no choice. Richard Swan proved in 1962 that over
+$\mathbb{F}_2$ a trinomial $x^n + x^k + 1$ with $n$ a multiple of 8 has an even
+number of irreducible factors, so it is never irreducible. (The proof uses Stickelberger's theorem on
+discriminants.) Degrees 8 and 128 both fall
+under it, which is why AES and GCM both use pentanomials. Among pentanomials,
+$x^{128} + x^7 + x^2 + x + 1$ is the one whose middle terms are lowest: no
+irreducible pentanomial of degree 128 has all its middle exponents below 7, and
+with top middle exponent 7 this is the only one. AES's $x^8 + x^4 + x^3 + x + 1$
+is likewise the first irreducible octic pentanomial in that order.
+
+Binary elliptic curves needed fields of other sizes. FIPS 186-2 (2000) fixed five,
+with a trinomial wherever one exists and otherwise a pentanomial with low middle
+terms:
+
+| Degree | Reduction polynomial | Terms |
+| --- | --- | --- |
+| 163 | $x^{163} + x^7 + x^6 + x^3 + 1$ | 5 |
+| 233 | $x^{233} + x^{74} + 1$ | 3 |
+| 283 | $x^{283} + x^{12} + x^7 + x^5 + 1$ | 5 |
+| 409 | $x^{409} + x^{87} + 1$ | 3 |
+| 571 | $x^{571} + x^{10} + x^5 + x^2 + 1$ | 5 |
+
+The degrees are all prime, so these fields have no subfields except
+$\mathrm{GF}(2)$ (§8.8). That later mattered: Weil descent attacks (Gaudry,
+Hess and Smart, 2002) weaken some curves when $n$ is composite. NIST's curve guidance SP 800-186 (2023)
+still lists the binary curves from degree 233 up but marks them deprecated, and
+new systems use prime-field curves.
+
+### Code it
+
+The listing checks the claims of this section: the hand example, the table
+(irreducible, two folds each), Swan's theorem up to degree 64, and high middle
+terms. The irreducibility test is Ben-Or's (§8.8).
+
+```python
+# Polynomials over F_2 as integers (bit i = coefficient of x^i); m = x^n + r with r of low degree.
+import random
+
+def clmul(a, b):
+    """Carry-less product: polynomial multiplication over F_2, shift and exclusive-or."""
+    out = 0
+    while b:
+        if b & 1:
+            out ^= a
+        a, b = a << 1, b >> 1
+    return out
+
+def fold_reduce(c, n, r):
+    """Reduce c modulo x^n + r by replacing x^n with r. Returns (remainder, number of folds)."""
+    folds = 0
+    while c >> n:
+        c = (c & ((1 << n) - 1)) ^ clmul(c >> n, r)
+        folds += 1
+    return c, folds
+
+def gcd2(a, b):
+    while b:
+        while a and a.bit_length() >= b.bit_length():
+            a ^= b << (a.bit_length() - b.bit_length())
+        a, b = b, a
+    return a
+
+def irreducible(n, r):
+    """Ben-Or's test for x^n + r, with squaring done by clmul and fold_reduce."""
+    m, x = (1 << n) | r, 2
+    for _ in range(n // 2):
+        x = fold_reduce(clmul(x, x), n, r)[0]
+        if gcd2(m, x ^ 2) != 1:
+            return False
+    return True
+
+def poly(*exps):
+    return sum(1 << e for e in exps)
+
+c = clmul(0x57, 0x83)
+res, folds = fold_reduce(c, 8, 0x1B)
+print(hex(c), hex(res), folds)
+
+LOW = {8: poly(4, 3, 1, 0), 128: poly(7, 2, 1, 0), 163: poly(7, 6, 3, 0), 233: poly(74, 0),
+       283: poly(12, 7, 5, 0), 409: poly(87, 0), 571: poly(10, 5, 2, 0)}
+rng = random.Random(12)
+for n, r in LOW.items():
+    folds = max(fold_reduce(clmul(rng.getrandbits(n), rng.getrandbits(n)), n, r)[1] for _ in range(100))
+    print(n, bin(r).count("1") + 1, irreducible(n, r), folds)
+
+no_tri = [n for n in range(2, 65) if not any(irreducible(n, poly(k, 0)) for k in range(1, n))]
+print(no_tri)
+print(all(n in no_tri for n in range(8, 65, 8)))
+POLYVAL = poly(127, 126, 121, 0)                   # GCM's polynomial read backwards
+print(irreducible(128, POLYVAL), fold_reduce(clmul(rng.getrandbits(128), rng.getrandbits(128)), 128, POLYVAL)[1])
+```
+
+It prints:
+
+```text
+0x2b79 0xc1 2
+8 5 True 2
+128 5 True 2
+163 5 True 2
+233 3 True 2
+283 5 True 2
+409 3 True 2
+571 5 True 2
+[8, 13, 16, 19, 24, 26, 27, 32, 37, 38, 40, 43, 45, 48, 50, 51, 53, 56, 59, 61, 64]
+True
+True 126
+```
+
+Up to degree 64, the degrees with no irreducible trinomial include every
+multiple of 8, as Swan proved. The last line is POLYVAL's polynomial from
+AES-GCM-SIV (RFC 8452), $x^{128} + x^{127} + x^{126} + x^{121} + 1$: GCM's with
+the exponents reversed (the *reciprocal* polynomial, irreducible whenever the
+original is). Its middle terms are as high as possible, and folding from the top
+takes 126 steps. So RFC 8452 does not ask for the
+plain product: it defines POLYVAL's multiplication as $a \cdot b \cdot x^{-128}$,
+a Montgomery-style product (Chapter 3's idea, carried over to $\mathbb{F}_2[x]$)
+that is reduced from the low end, where the reciprocal polynomial is cheap again. 
+
+## 8.13 Multiplying in $\mathrm{GF}(2^{128})$ fast and in constant time
+
+*Level: intermediate.*
+
+GHASH does one multiplication in $\mathrm{GF}(2^{128})$ for every 16 bytes it
+authenticates (*The cryptography book*,
+[chapter 8](../../book/08-Modes-of-Operation.md), shows GCM): about 80 million per second for 10 gigabits per second of
+traffic. The SP 800-38D loop of §8.9 takes 128 steps, each with a branch on a
+secret bit: too slow and too leaky to ship. Real code uses carry-less products of
+64-bit pieces, combined by Karatsuba's trick and reduced by folding (§8.12).
+
+### Schoolbook on 64-bit words
+
+A processor multiplies 64-bit words. Split each 128-bit element into halves,
+$a = a_1 X + a_0$ and $b = b_1 X + b_0$ with $X = x^{64}$. Then
+
+$$ab = a_1 b_1 X^2 + (a_1 b_0 + a_0 b_1) X + a_0 b_0,$$
+
+four $64 \times 64$ products: schoolbook multiplication, except that nothing
+carries. A **carry-less multiplication** of two words is polynomial multiplication
+with coefficients mod 2.
+
+### Karatsuba
+
+In 1960 Anatoly Karatsuba, a student at Moscow State University, found that three products are
+enough (published with Yuri Ofman in 1962). Compute
+
+$$\mathrm{hi} = a_1 b_1, \qquad \mathrm{lo} = a_0 b_0, \qquad M = (a_1 + a_0)(b_1 +
+b_0),$$
+
+and get the middle term as $M - \mathrm{hi} - \mathrm{lo} = a_1 b_0 + a_0 b_1$.
+Over $\mathbb{F}_2$ the trick is even cleaner than for integers: the minus signs
+are exclusive-ors, and $a_1 + a_0$ still fits in 64 bits, because adding without
+carries never makes a number longer. Applied recursively, Karatsuba multiplies
+$n$-bit polynomials in about $n^{\log_2 3} \approx n^{1.585}$ word operations
+instead of $n^2$.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="Karatsuba: three 64-bit carry-less products hi, lo and M give the 255-bit product, with M xor hi xor lo added in the middle" fill="currentColor" font-size="13">
+<g stroke="currentColor" stroke-width="1.3" fill="none">
+<rect x="60" y="25" width="120" height="30"/><rect x="180" y="25" width="120" height="30"/>
+<rect x="340" y="25" width="120" height="30"/><rect x="460" y="25" width="120" height="30"/>
+<rect x="40" y="100" width="170" height="40" rx="6"/>
+<rect x="235" y="100" width="170" height="40" rx="6" class="acc"/>
+<rect x="430" y="100" width="170" height="40" rx="6"/>
+<rect x="80" y="190" width="240" height="26"/>
+<rect x="320" y="190" width="240" height="26"/>
+<rect x="200" y="222" width="240" height="26" class="acc"/>
+<rect x="80" y="262" width="480" height="26"/>
+<path d="M120 57 L125 98 M400 57 L135 98"/>
+<path d="M520 57 L515 98 M240 57 L505 98"/>
+<path d="M240 57 L300 98 M520 57 L340 98" class="acc"/>
+<path d="M125 142 L200 188 M515 142 L440 188 M320 142 L320 220" class="acc"/>
+</g>
+<g text-anchor="middle">
+<text x="120" y="45">a₁</text><text x="240" y="45">a₀</text>
+<text x="400" y="45">b₁</text><text x="520" y="45">b₀</text>
+<text x="125" y="125">hi = a₁·b₁</text>
+<text x="320" y="125" class="acc-fill">M = (a₁⊕a₀)(b₁⊕b₀)</text>
+<text x="515" y="125">lo = a₀·b₀</text>
+<text x="200" y="208">hi (bits 128 to 254)</text>
+<text x="440" y="208">lo (bits 0 to 126)</text>
+<text x="320" y="240" class="acc-fill">mid = M ⊕ hi ⊕ lo, at bit 64</text>
+<text x="320" y="280">a · b, 255 bits, then fold (Figure 8.6)</text>
+</g>
+<text x="20" y="175" font-size="12" fill-opacity=".7">3 products of 64 × 64 bits instead of 4</text>
+</svg>
+<figcaption>Figure 8.7. Karatsuba's split for a 128-bit carry-less product. Three word products replace four; the middle term costs only exclusive-ors. In characteristic 2 the sums a₁ ⊕ a₀ and b₁ ⊕ b₀ stay 64 bits wide, so no extra carry bit appears as it does for integers.</figcaption>
+</figure>
+
+**By hand, in miniature.** Take 4-bit polynomials split into 2-bit halves: $a =
+\mathtt{1011} = x^3 + x + 1$ and $b = \mathtt{1101} = x^3 + x^2 + 1$, with $X =
+x^2$. Then $a_1 = \mathtt{10} = x$, $a_0 = \mathtt{11} = x + 1$, $b_1 = \mathtt{11}
+= x + 1$, $b_0 = \mathtt{01} = 1$.
+
+1. $\mathrm{hi} = x(x + 1) = x^2 + x = \mathtt{110}$.
+2. $\mathrm{lo} = (x + 1) \cdot 1 = \mathtt{011}$.
+3. $M = (a_1 + a_0)(b_1 + b_0) = 1 \cdot x = \mathtt{010}$.
+4. $\mathrm{mid} = M \oplus \mathrm{hi} \oplus \mathrm{lo} = \mathtt{010} \oplus
+   \mathtt{110} \oplus \mathtt{011} = \mathtt{111}$.
+5. $ab = \mathrm{hi} \cdot x^4 + \mathrm{mid} \cdot x^2 + \mathrm{lo} =
+   \mathtt{1100000} \oplus \mathtt{0011100} \oplus \mathtt{0000011} =
+   \mathtt{1111111}$.
+
+Schoolbook agrees: $(x^3 + x + 1)(x^3 + x^2 + 1) = x^6 + x^5 + x^4 + 3x^3 + x^2 + x
++ 1$, and $3 \equiv 1$, so every coefficient is 1.
+
+### The bit order, and the one-bit shift
+
+GCM numbers its bits backwards (§8.9). The simple fix is to reverse both operands,
+multiply, and reverse the result. The fast one notices that reversal and
+multiplication almost commute. Multiply $a$ and $b$ each read backwards, and you get
+$ab$ read backwards over its 255 bits: as a 256-bit number, the reversed product
+shifted right by one place. So an implementation can multiply
+GCM's blocks exactly as they come, shift the 256-bit result left by one bit, and
+then reduce "from the other end". Shay Gueron and Michael Kounavis worked this out
+for Intel's instruction (white paper, revision 2.0, 2010), and nearly every fast
+GHASH has that one-bit shift in it.
+
+The code wraps the natural-order multiplication in reversals and checks it against
+McGrew and Viega's test case 2 (§8.9's values) and the full GHASH of test case 3,
+then checks Karatsuba and the one-bit shift on random inputs.
+
+```python
+# Uses clmul and fold_reduce from the listing above.
+import random
+M64 = (1 << 64) - 1
+
+def karatsuba128(a, b):
+    """128 x 128-bit carry-less product from three 64 x 64-bit ones."""
+    a1, a0, b1, b0 = a >> 64, a & M64, b >> 64, b & M64
+    hi, lo = clmul(a1, b1), clmul(a0, b0)
+    mid = clmul(a1 ^ a0, b1 ^ b0) ^ hi ^ lo
+    return (hi << 128) ^ (mid << 64) ^ lo
+
+def rev(v, bits=128):
+    return int(format(v, "0%db" % bits)[::-1], 2)
+
+def gf128_mul(a, b):
+    """Natural order (bit i = coefficient of x^i), reduced by x^128 + x^7 + x^2 + x + 1."""
+    return fold_reduce(karatsuba128(a, b), 128, 0x87)[0]
+
+def ghash_mul(X, Y):
+    """GCM's bit-reflected order: reverse both blocks, multiply, reverse back."""
+    return rev(gf128_mul(rev(X), rev(Y)))
+
+def ghash(H, data, len_a, len_c):
+    Y = 0
+    for i in range(0, len(data), 16):
+        Y = ghash_mul(Y ^ int.from_bytes(data[i:i + 16], "big"), H)
+    return ghash_mul(Y ^ (len_a << 64 | len_c), H)
+
+# McGrew-Viega test case 2: all-zero key, one zero block of plaintext.
+H2, C2 = 0x66e94bd4ef8a2c3b884cfa59ca342b2e, 0x0388dace60b6a392f328c2b971b2fe78
+print(hex(ghash_mul(C2, H2)))
+print(hex(ghash(H2, C2.to_bytes(16, "big"), 0, 128)))
+# Test case 3: key feffe992..., four blocks of ciphertext, no associated data.
+H3 = 0xb83b533708bf535d0aa6e52980d53b78
+C3 = bytes.fromhex("42831ec2217774244b7221b784d0d49ce3aa212f2c02a4e035c17e2329aca12e"
+                   "21d514b25466931c7d8f6a5aac84aa051ba30b396a0aac973d58e091473f5985")
+print(hex(ghash(H3, C3, 0, 512)))
+rng = random.Random(13)
+pairs = [(rng.getrandbits(128), rng.getrandbits(128)) for _ in range(300)]
+print(all(karatsuba128(a, b) == clmul(a, b) for a, b in pairs))
+# Multiplying the reflected blocks directly gives the reflected product, one bit short.
+print(all(clmul(a, b) << 1 == rev(clmul(rev(a), rev(b)), 256) for a, b in pairs))
+```
+
+It prints:
+
+```text
+0x5e2ec746917062882c85b0685353deb7
+0xf38cbb1ad69223dcc3457ae5b6b0f885
+0x7f1b32b81b820d02614f8895ac1d4eac
+True
+True
+```
+
+The first two lines repeat §8.9's values from an independent algorithm, and the
+third is the GHASH printed in the GCM specification for test case 3.
+
+### In hardware: carry-less multiply instructions
+
+Intel added **PCLMULQDQ** with its Westmere processors in 2010. It computes one carry-less $64 \times 64 \to 128$-bit product;
+an immediate operand picks which 64-bit halves to multiply. A GHASH
+multiplication becomes three or four PCLMULQDQs plus the fold of §8.12, which can
+itself use two more. ARMv8 has
+the same operation as PMULL and PMULL2, and the RISC-V bit-manipulation extension
+Zbc (ratified 2021) has clmul, clmulh and clmulr, where the last returns the
+reversed-order product bits that GCM wants.
+
+Fast code also **aggregates**: four Horner steps expand to $(Y + X_1)H^4 + X_2 H^3
++ X_3 H^2 + X_4 H$, so with $H^2, H^3, H^4$ stored, four products share one
+reduction and run in parallel.
+
+### Constant time without the instruction
+
+Code that must run without PCLMULQDQ (small microcontrollers, old processors) should
+still never branch on secret bits or index tables by them (§8.14 tells why, and
+*The cryptography book*, [chapter 18](../../book/18-Side-Channels.md), shows the
+attacks). The
+standard trick turns each "if bit is set, add" into arithmetic with a mask: in
+two's complement, $-1$ is all ones and $-0$ is all zeros, so `a & -bit` is $a$ or
+0 without a branch. Here is the AES field's multiplication written that way, with
+a fixed eight rounds:
+
+```python
+# Uses clmul and fold_reduce from the listings above.
+def xtime_ct(a):
+    return ((a << 1) ^ (0x1B & -(a >> 7))) & 0xFF      # -(top bit) is 0 or all ones
+
+def gmul_ct(a, b):
+    r = 0
+    for i in range(8):                                  # always eight rounds
+        r ^= a & -((b >> i) & 1)                        # add a when bit i of b is set
+        a = xtime_ct(a)
+    return r
+
+print(hex(gmul_ct(0x57, 0x83)), hex(gmul_ct(0x53, 0xCA)))
+print(all(gmul_ct(a, b) == fold_reduce(clmul(a, b), 8, 0x1B)[0] for a in range(256) for b in range(256)))
+```
+
+It prints:
+
+```text
+0xc1 0x1
+True
+```
+
+It agrees with the fold-based product on all 65,536 pairs. Python makes no timing
+promises; the point is the shape, which carries over line for line to C (checking
+the compiled result is the subject of *Cryptographic engineering*,
+[chapter 5](../engineering/05-Constant-Time-Programming.md)). For GHASH without
+PCLMULQDQ, the faster table-free options are bitslicing (Käsper and Schwabe, 2009)
+or ordinary integer multiplications with the bits spaced apart so carries cannot
+collide, as BearSSL does.
+
+## 8.14 In the real world
 
 *Level: expert.*
 
@@ -840,17 +1653,17 @@ AES-NI and the carry-less multiplication instruction PCLMULQDQ (from 2010), and
 ARM's equivalents, compute the S-box and $\mathrm{GF}(2^{128})$ products directly
 in a few cycles, with no tables. A "carry-less" multiplication is exactly
 polynomial multiplication over $\mathbb{F}_2$: the schoolbook product with
-exclusive-or instead of addition.
+exclusive-or instead of addition (§8.13 builds GHASH from it).
 
 **Other fields in use.** The NIST curves and Curve25519 work in prime fields
 $\mathbb{F}_p$ with $p$ of special form ($2^{255} - 19$ makes reduction cheap).
 Pairing-based cryptography (Chapter 13) needs extension fields such as
-$\mathbb{F}_{p^{12}}$, built as towers. Binary-field elliptic curves over
+$\mathbb{F}_{p^{12}}$, built as towers (§8.10). Binary-field elliptic curves over
 $\mathrm{GF}(2^{163})$ or $\mathrm{GF}(2^{283})$ were standardized in the 2000s
 and have since fallen out of favor. Lattice cryptography (Chapter 15) works in
 the ring $\mathbb{Z}_q[x]/(x^{256} + 1)$, which is not a field.
 
-## 8.11 Break it: the forbidden attack on GCM
+## 8.15 Break it: the forbidden attack on GCM
 
 *Level: expert.*
 
@@ -876,7 +1689,9 @@ $$T_1 \oplus T_2 = (C_1 \oplus C_2) H^2, \qquad H = \sqrt{(T_1 \oplus T_2)/(C_1
 and the square root is the inverse Frobenius map, $\sqrt y = y^{2^{127}}$ (§8.8):
 
 ```python
+# Uses ghash_mul from §8.13; the bit-serial gcm_mul of §8.9 gives the same products.
 import random
+gcm_mul, L = ghash_mul, 128     # L is the length block: len(A) = 0, len(C) = 128 bits
 # The "forbidden attack" on GCM with a repeated nonce (one-block messages, no AAD).
 rng = random.Random(8)
 H, S = rng.getrandbits(128), rng.getrandbits(128)   # secret: H = E_K(0), S = E_K(J0)
@@ -928,6 +1743,46 @@ guaranteed unique, use a nonce-misuse-resistant mode such as AES-GCM-SIV (RFC
 8452, 2019), whose tag also depends on the whole message through a field
 polynomial (POLYVAL, GHASH with the bit order reversed back).
 
+**On Mars.** Arcadia City's link to Earth has a one-way delay of 3 to 22 minutes,
+so agreeing a fresh GCM key takes a round trip of 6 to 44 minutes, and a relay
+cannot stop to ask whenever it reboots. Keys live long and nonces come from counters,
+so the counter is security-critical: a relay that loses it in a power failure and
+restarts from zero repeats nonces, and §8.15's attack applies. The fix: store the
+next counter value *before* using it, and skip ahead after any restart. Random 96-bit nonces avoid the stored counter but are
+limited: SP 800-38D caps a key used that way at $2^{32}$ messages. Where neither can be
+guaranteed, AES-GCM-SIV fails gracefully: a repeated nonce reveals only that the
+same message was sent twice.
+
+## 8.16 Going deeper
+
+*Level: expert.*
+
+**Normal bases.** A basis of $\mathrm{GF}(2^n)$ of the form $\beta, \beta^2,
+\beta^4, \dots, \beta^{2^{n-1}}$ (the conjugates of one element) is a **normal
+basis**. In it, squaring is a cyclic rotation of the coordinates, free in hardware;
+James Massey and Jim Omura built a multiplier on it in the 1980s, and ANSI X9.62
+and IEEE 1363 allowed binary curves in "Gaussian normal bases".
+
+**Factoring polynomials.** Elwyn Berlekamp (1967) reduced factoring to linear
+algebra (the kernel of $\phi - \mathrm{id}$, Chapter 9), and David Cantor and Hans
+Zassenhaus (1981) gave the randomized method behind §8.15's root-finding: the gcds
+of Ben-Or's test, then random gcds to split equal degrees. Kedlaya and Umans
+(2008) brought the cost close to $n^{1.5}$ coefficient operations. Finding an irreducible
+polynomial of degree $n$ over $\mathbb{F}_p$ *deterministically* in polynomial time
+is still open in general; it is known under the generalized Riemann hypothesis,
+and for small $p$ (Victor Shoup, 1990).
+
+**Discrete logarithms in small characteristic.** The cyclic group of §8.6 made
+$\mathrm{GF}(2^n)^*$ look like a good home for Diffie-Hellman. Antoine Joux (2013)
+and Razvan Barbulescu, Pierrick Gaudry, Joux and Emmanuel Thomé (2014) found
+quasi-polynomial discrete logarithm algorithms in small characteristic, built on
+this chapter's subfields, Frobenius and $x^{q} - x$. Prime fields and elliptic curves are not affected; see *Cryptanalysis*,
+[chapter 12](../cryptanalysis/12-Discrete-Logarithms.md).
+
+**Further.** Lidl and Niederreiter cover the finite fields of this chapter in full;
+Lawrence Washington's *Introduction to Cyclotomic Fields* covers the number fields
+of §8.11.
+
 ## Check yourself
 
 ??? question "1. Is $\mathbb{Z}/9\mathbb{Z}$ a field? Is $\mathrm{GF}(9)$? What is the difference?"
@@ -960,30 +1815,37 @@ polynomial (POLYVAL, GHASH with the bit order reversed back).
     exclusive-or with $\mathtt{1B}$: $\mathtt{0E} \oplus \mathtt{1B} =
     \mathtt{15}$. So $\{02\} \cdot \{87\} = \{15\}$.
 
-??? question "6. Why is there no field with 6 elements?"
-
-    A finite field has prime characteristic $p$ and is a vector space over
-    $\mathbb{F}_p$, so its size is a power of $p$. 6 is not a prime power.
-
-??? question "7. In $\mathrm{GF}(2^8)$, what are the possible orders of nonzero elements?"
+??? question "6. In $\mathrm{GF}(2^8)$, what are the possible orders of nonzero elements?"
 
     The divisors of 255 = 3 · 5 · 17: 1, 3, 5, 15, 17, 51, 85, 255.
 
-??? question "8. Which subfields does $\mathrm{GF}(2^{128})$ have?"
+??? question "7. Which subfields does $\mathrm{GF}(2^{128})$ have?"
 
     One of size $2^d$ for each $d$ dividing 128: $d = 1, 2, 4, 8, 16, 32, 64,
     128$. In particular $\mathrm{GF}(2^8)$ sits inside it.
 
-??? question "9. In GCM, why does a repeated nonce reveal $H$ but a fresh nonce does not?"
+??? question "8. In $\mathrm{GF}(2^{233})$ built from $x^{233} + x^{74} + 1$, reduce $x^{300}$. How many folds did it take?"
+
+    $x^{300} = x^{67} \cdot x^{233}$ and $x^{233} \equiv x^{74} + 1$, so $x^{300}
+    \equiv x^{67}(x^{74} + 1) = x^{141} + x^{67}$. Its degree is below 233, so
+    one fold was enough.
+
+??? question "9. Why is $x^6 + 1$ reducible over $\mathbb{Q}$ while $x^8 + 1$ is not? Does $x^8 + 1$ stay irreducible modulo 17?"
+
+    With $y = x^2$, $x^6 + 1 = y^3 + 1 = (y + 1)(y^2 - y + 1) = (x^2 + 1)(x^4 -
+    x^2 + 1)$. For $x^8 + 1$, $(x + 1)^8 + 1 = x^8 + 8x^7 + 28x^6 + 56x^5 +
+    70x^4 + 56x^3 + 28x^2 + 8x + 2$: every lower coefficient is even and 2 is not
+    a multiple of 4, so Eisenstein at 2 proves it irreducible. Modulo 17 it
+    splits completely: $\mathbb{F}_{17}^*$ is cyclic of order 16, so it has
+    $\varphi(16) = 8$ elements of order 16, and those are exactly the 8 roots of
+    $x^8 + 1$.
+
+??? question "10. In GCM, why does a repeated nonce reveal $H$ but a fresh nonce does not?"
 
     The tag is GHASH plus the mask $\mathrm{AES}_K(J_0)$. With a fresh nonce each
     tag has a new, unknown mask, which hides GHASH completely. With a repeated
     nonce the same mask appears twice and cancels, leaving a known polynomial in
     $H$ whose roots can be found.
-
-??? question "10. Show that squaring is additive in characteristic 2."
-
-    $(a + b)^2 = a^2 + 2ab + b^2 = a^2 + b^2$ because $2ab = ab + ab = 0$.
 
 ## What you learned
 
@@ -1002,6 +1864,17 @@ polynomial (POLYVAL, GHASH with the bit order reversed back).
 - The Frobenius map $a \mapsto a^p$ is a field automorphism; subfields of
   $\mathrm{GF}(p^n)$ correspond to divisors of $n$; square roots in
   $\mathrm{GF}(2^n)$ are free.
+- Ben-Or's test finds the smallest factor first; both tests reproduce Gauss's
+  count.
+- Towers build fields in steps; the norm reduces inversion to the base field
+  (BLS12-381's $\mathbb{F}_{p^{12}}$, compact AES S-boxes).
+- $x^n + 1$ is irreducible over $\mathbb{Q}$ exactly when $n$ is a power of 2
+  (Eisenstein), yet for $n \ge 4$ it factors modulo every prime.
+- Good reduction polynomials have few terms and low middle exponents (two
+  folds); Swan's theorem rules out trinomials when 8 divides $n$.
+- Karatsuba needs three 64-bit carry-less products, PCLMULQDQ (2010) does them in
+  hardware, GCM's bit order costs a one-bit shift, and masks replace secret
+  branches.
 - GCM's GHASH evaluates a polynomial at the secret $H$ in $\mathrm{GF}(2^{128})$,
   in a bit-reflected convention. A repeated nonce reveals $H$ (the forbidden
   attack).
@@ -1030,5 +1903,39 @@ solving systems, breaking linear ciphers, and the matrices inside AES.
   "Nonce-Disrespecting Adversaries: Practical Forgery Attacks on GCM in TLS",
   USENIX WOOT 2016.
 - RFC 8452, AES-GCM-SIV: Nonce Misuse-Resistant Authenticated Encryption (2019).
-- In *The cryptography book*: [Chapter 7](../../book/07-AES.md) and
-  [Chapter 8](../../book/08-Modes-of-Operation.md).
+- Michael Ben-Or, "Probabilistic Algorithms in Finite Fields", 22nd IEEE
+  Symposium on Foundations of Computer Science (FOCS 1981).
+- Richard G. Swan, "Factorization of Polynomials over Finite Fields", *Pacific
+  Journal of Mathematics* 12 (1962).
+- Anatoly Karatsuba and Yuri Ofman, "Multiplication of Multidigit Numbers on
+  Automata", *Doklady Akademii Nauk SSSR* 145 (1962).
+- Toshiya Itoh and Shigeo Tsujii, "A Fast Algorithm for Computing Multiplicative
+  Inverses in GF($2^m$) Using Normal Bases", *Information and Computation* 78
+  (1988).
+- Akashi Satoh, Sumio Morioka, Kohji Takano and Seiji Munetoh, "A Compact
+  Rijndael Hardware Architecture with S-Box Optimization", ASIACRYPT 2001.
+- Shay Gueron and Michael Kounavis, "Intel Carry-Less Multiplication Instruction
+  and its Usage for Computing the GCM Mode", Intel white paper, revision 2.0
+  (2010).
+- Emilia Käsper and Peter Schwabe, "Faster and Timing-Attack Resistant AES-GCM",
+  CHES 2009.
+- FIPS 186-2, *Digital Signature Standard* (NIST, 2000), appendix 6 (the binary
+  fields); SP 800-186, *Recommendations for Discrete Logarithm-based
+  Cryptography: Elliptic Curve Domain Parameters* (NIST, 2023).
+- Pierrick Gaudry, Florian Hess and Nigel Smart, "Constructive and Destructive
+  Facets of Weil Descent on Elliptic Curves", *Journal of Cryptology* 15 (2002).
+- Elwyn Berlekamp, "Factoring Polynomials over Finite Fields", *Bell System
+  Technical Journal* 46 (1967); David Cantor and Hans Zassenhaus, "A New
+  Algorithm for Factoring Polynomials over Finite Fields", *Mathematics of
+  Computation* 36 (1981).
+- Razvan Barbulescu, Pierrick Gaudry, Antoine Joux and Emmanuel Thomé, "A
+  Heuristic Quasi-Polynomial Algorithm for Discrete Logarithm in Finite Fields of
+  Small Characteristic", EUROCRYPT 2014.
+- Lawrence Washington, *Introduction to Cyclotomic Fields*, 2nd edition
+  (Springer, 1997).
+- In *Post-quantum cryptography*: [chapter 7](../post-quantum/07-Rings-Modules-and-the-NTT.md),
+  rings, modules and the NTT.
+- In *The cryptography book*: [Chapter 7](../../book/07-AES.md),
+  [Chapter 8](../../book/08-Modes-of-Operation.md),
+  [Chapter 18](../../book/18-Side-Channels.md) and
+  [Chapter 21](../../book/21-Lattice-Cryptography.md).
