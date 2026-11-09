@@ -9,8 +9,10 @@ key, a password exchange that leaked through its timing. This chapter takes
 them in order. You will forge a WEP frame without the key, check a real WPA2
 handshake recorded from hostapd and crack its passphrase offline, see why a
 replayed handshake message breaks encryption, run WPA3's SAE exchange on P-256,
-and then use its timing to cut a dictionary down to a single word. Then the
-enterprise side, open networks, and what to configure today.*
+and then use its timing to cut a dictionary down to a single word, before
+matching the standard's own SAE and hash-to-element test vectors. Then the
+enterprise side, open networks, attacks on how frames are queued and named,
+and what to configure today.*
 
 !!! abstract "In this chapter"
     **You will learn:**
@@ -20,11 +22,15 @@ enterprise side, open networks, and what to configure today.*
       computing a real one;
     - why a WPA2-Personal handshake, or even one message, lets anyone test
       passwords offline;
-    - KRACK: how a replayed handshake message forces nonce reuse;
-    - WPA3-Personal's SAE (Dragonfly), and the Dragonblood side channels;
+    - KRACK: how a replayed handshake message forces nonce reuse, told
+      message by message;
+    - WPA3-Personal's SAE (Dragonfly), by hand in a group of 11 elements and
+      in code on P-256, and the Dragonblood side channels;
+    - hash-to-element, coded and checked against IEEE 802.11's Annex J;
     - WPA2- and WPA3-Enterprise with 802.1X and EAP, and their weak points;
-    - open networks with OWE, protected management frames, and newer attacks
-      on frame handling and group keys.
+    - open networks with OWE, coded; protected management frames; and newer
+      attacks on frame handling, power-save queues, network names and group
+      keys.
 
     **You need:** [Chapter 1](01-What-a-Protocol-Must-Do.md) (password
     protocols, offline guessing) and [Chapter 2](02-Certificates-and-PKI.md) for
@@ -32,8 +38,8 @@ enterprise side, open networks, and what to configure today.*
     PBKDF2 from [Chapter 11](../../book/11-Passwords-and-Key-Derivation.md) and
     elliptic curves from [Chapter 15](../../book/15-Elliptic-Curves.md).
 
-    **Levels:** §9.1 to §9.4 are for beginners, §9.5 to §9.13 are
-    intermediate, §9.14 is expert.
+    **Levels:** §9.1 to §9.4 are for beginners, §9.5 to §9.14 are
+    intermediate, §9.15 is expert.
 
 ## 9.1 The problem
 
@@ -96,7 +102,7 @@ key exchange. Each generation was driven by a public attack on the one before.
 <text x="108" y="297" class="acc-fill">Dragonblood: side channels and downgrade in WPA3</text>
 <text x="78" y="327" text-anchor="end" font-weight="bold">2020</text>
 <circle cx="92" cy="322" r="3.5"/>
-<text x="108" y="327">WPA3 3.0: hash-to-element, SAE-PK, transition disable</text>
+<text x="108" y="327">802.11-2020 adds hash-to-element; WPA3 3.0: SAE-PK</text>
 <text x="78" y="357" text-anchor="end" font-weight="bold" class="acc-fill">2021</text>
 <circle cx="92" cy="352" r="4.5" class="acc-fill"/>
 <text x="108" y="357" class="acc-fill">FragAttacks: frame aggregation and fragmentation</text>
@@ -242,7 +248,7 @@ traffic.
 
   Every device with the passphrase has
   the same PMK. In **WPA2-Enterprise** it comes from an EAP login to a server
-  (§9.9) and is different for each user and session.
+  (§9.10) and is different for each user and session.
 - The **pairwise transient key** (PTK) is derived fresh at every connection
   from the PMK, both MAC addresses and two random nonces. It splits into the
   **KCK** (to authenticate handshake messages), the **KEK** (to encrypt keys
@@ -251,7 +257,7 @@ traffic.
   The access point chooses it and sends it to each device under its KEK. Every
   device on the network has the same GTK.
 - The **integrity group temporal key** (IGTK) authenticates broadcast
-  management frames when protected management frames are on (§9.10).
+  management frames when protected management frames are on (§9.11).
 
 <figure class="mars-fig">
 <svg viewBox="0 0 640 330" width="640" role="img" aria-label="Wi-Fi key hierarchy: the PMK from a passphrase, SAE or EAP; the PTK from the PMK, addresses and nonces, split into KCK, KEK and TK; the GTK and IGTK sent by the access point under the KEK" fill="currentColor" font-size="13.5">
@@ -354,6 +360,70 @@ from the PMK and values sent in the clear, so anyone who records a handshake
 and later learns the passphrase can decrypt the whole session. Every device on
 a WPA2-Personal network can therefore decrypt every other device's traffic, if
 it saw the other device's handshake.
+
+### What is inside an EAPOL-Key frame
+
+All four messages share one frame layout. Flags in a **key information** field
+say which message this is; an eight-byte **key replay counter** follows, which
+the AP increases with every message it sends and the device echoes, accepting
+only values higher than any it has seen; then the 32-byte **nonce**, the
+group key's starting packet number, the 16-byte **MIC** (computed with the
+field zeroed) and a **key data** field with the RSN element and, in message
+3, the wrapped GTK.
+
+Two things follow. A retransmitted message 3 carries a *new*, higher replay
+counter, so a device that checks counters correctly still accepts it, and has
+to; this is the door KRACK walks through (§9.6). And nothing in message 1 is
+authenticated, since the PTK does not yet exist: an attacker can send a forged
+message 1 with any ANonce, and a device will answer with a valid message 2.
+We will use that in §9.8.
+
+### The PTK by hand
+
+The PRF that turns the PMK into a PTK is HMAC-SHA-1 in a counter loop. For the
+run in §9.5, the authenticator's address `02:00:00:00:00:00` is smaller than
+the device's `02:00:00:00:02:00`, and the ANonce (starting `47 74`) is smaller
+than the SNonce (starting `d3 4e`), so the data string is simply
+$AA \,\|\, SPA \,\|\, N_A \,\|\, N_S$: $6 + 6 + 32 + 32 = 76$ bytes. Each HMAC
+input is the 22-byte label "Pairwise key expansion", one zero byte, the 76
+data bytes and a one-byte counter, 100 bytes in all. Each HMAC-SHA-1 output is
+20 bytes and the CCMP PTK needs $16 + 16 + 16 = 48$ (KCK, KEK, TK), so the
+counter runs 0, 1, 2 and the last 12 of the 60 bytes are dropped. Sorting by
+value, not by role, lets both sides build the same string.
+
+The standard prints test vectors for this PRF and the passphrase mapping,
+first in 802.11i's Annex H, today in 802.11's Annex J:
+
+```python
+# The 802.11 PRF and the passphrase-to-PSK mapping, checked against the
+# test vectors printed in the standard (802.11i Annex H, now 802.11 Annex J).
+import hashlib, hmac
+def prf(key, label, data, bits):
+    out = b""
+    for i in range((bits + 159) // 160):            # one HMAC-SHA-1 block = 160 bits
+        out += hmac.new(key, label + b"\0" + data + bytes([i]), hashlib.sha1).digest()
+    return out[:bits // 8]
+
+print(prf(bytes([0x0b] * 20), b"prefix", b"Hi There", 192).hex())
+print(prf(b"Jefe", b"prefix", b"what do ya want for nothing?", 192).hex())
+for phrase, ssid in (("password", "IEEE"), ("ThisIsAPassword", "ThisIsASSID")):
+    psk = hashlib.pbkdf2_hmac("sha1", phrase.encode(), ssid.encode(), 4096, 32)
+    print(f"{phrase:16} {ssid:12} {psk.hex()[:32]}...")
+```
+
+It prints:
+
+```text
+bcd4c650b30b9684951829e0d75f9d54b862175ed9f00606
+51f4de5b33f249adf81aeb713a3c20f4fe631446fabdfa58
+password         IEEE         f42c6fc52df0ebef9ebb4b90b38a5f90...
+ThisIsAPassword  ThisIsASSID  0dc0d6eb90555ed6419756b9a15ec3e3...
+```
+
+The first two lines match the start of the standard's first two PRF test
+cases, whose keys and messages are borrowed from RFC 2202's HMAC tests; the
+last two are its passphrase vectors. hostapd runs the same checks in its
+module tests.
 
 ## 9.5 Code it: a real WPA2 handshake, and cracking it
 
@@ -533,8 +603,115 @@ much worse: the second installation installed an **all-zero key**, because the
 key had been wiped from memory after the first installation, so the attacker
 could decrypt everything.
 
-The fix was in implementations, not in the protocol's messages: never reinstall
-a key that is already in use, and never reset a packet number. Cas Cremers,
+### The attack, message by message
+
+The attacker must sit between the two parties without breaking any MIC.
+Vanhoef and Piessens used a **channel-based man in the middle**, which they
+had published in 2014: clone the real AP, MAC address and all, on another
+channel, and lure the device there with forged channel switch announcements.
+The attacker then relays every frame unchanged; it cannot read or forge
+anything, but it decides what is delivered and when.
+
+<div class="mars-steps" markdown>
+
+1. Messages 1, 2 and 3 are forwarded as normal. The device installs the PTK and
+   sends message 4.
+2. The attacker **drops message 4**. The AP, still waiting, will time out.
+3. The device sends data under packet numbers 1, 2, 3, ...; the attacker
+   records them.
+4. The AP **retransmits message 3** with a fresh replay counter. The device
+   accepts it, as the standard requires, and **reinstalls the same PTK**,
+   resetting its packet number to 1 (and its receive replay window).
+5. Its next frames reuse packet numbers 1, 2, 3, ... under the same TK, so
+   each pair with the same number shares a keystream.
+6. The attacker forwards the second message 4, the AP completes the
+   handshake, and nothing looks wrong.
+
+</div>
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 400" width="640" role="img" aria-label="KRACK message flow. The attacker sits between the device and the access point on a cloned channel. Messages 1 to 3 pass. The device installs the key and sends message 4, which the attacker drops. The device sends data with packet numbers 1 and 2. The access point retransmits message 3, the attacker forwards it, the device reinstalls the key and resets the packet number, and the next data frame again uses packet number 1." fill="currentColor" font-size="13">
+<text x="80" y="20" text-anchor="middle" font-weight="bold">device</text>
+<text x="320" y="20" text-anchor="middle" font-weight="bold">attacker (cloned AP)</text>
+<text x="560" y="20" text-anchor="middle" font-weight="bold">access point</text>
+<line x1="80" y1="30" x2="80" y2="390" stroke="currentColor"/>
+<line x1="320" y1="30" x2="320" y2="390" stroke="currentColor" stroke-dasharray="4 3"/>
+<line x1="560" y1="30" x2="560" y2="390" stroke="currentColor"/>
+<line x1="556" y1="55" x2="84" y2="55" stroke="currentColor"/>
+<polygon points="80,55 92,50 92,60"/>
+<text x="440" y="49" text-anchor="middle" font-size="12">msg 1, 2, 3 forwarded</text>
+<line x1="84" y1="68" x2="556" y2="68" stroke="currentColor" stroke-opacity=".5"/>
+<rect x="10" y="80" width="140" height="24" rx="4" fill-opacity=".12" stroke="currentColor"/>
+<text x="80" y="97" text-anchor="middle" font-size="12">install PTK, PN = 1</text>
+<line x1="80" y1="128" x2="312" y2="128" stroke="currentColor" stroke-width="1.5"/>
+<text x="200" y="121" text-anchor="middle" font-size="12">msg 4</text>
+<text x="330" y="133" font-size="13" font-weight="bold">dropped</text>
+<line x1="80" y1="165" x2="316" y2="165" stroke="currentColor"/>
+<polygon points="320,165 308,160 308,170"/>
+<text x="200" y="158" text-anchor="middle" font-size="12">data, PN 1 and 2 (recorded)</text>
+<line x1="556" y1="205" x2="84" y2="205" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="80,205 92,200 92,210"/>
+<text x="440" y="198" text-anchor="middle" font-size="12">msg 3 again (new replay counter)</text>
+<text x="200" y="198" text-anchor="middle" font-size="12">forwarded</text>
+<rect x="10" y="218" width="150" height="40" rx="4" fill-opacity=".25" stroke="currentColor"/>
+<text x="85" y="235" text-anchor="middle" font-size="12" font-weight="bold">reinstall same PTK</text>
+<text x="85" y="251" text-anchor="middle" font-size="12" font-weight="bold">PN back to 1</text>
+<line x1="80" y1="285" x2="316" y2="285" stroke="currentColor"/>
+<polygon points="320,285 308,280 308,290"/>
+<text x="200" y="278" text-anchor="middle" font-size="12">data, PN 1 again</text>
+<text x="330" y="290" font-size="12">same keystream as the first PN 1</text>
+<line x1="80" y1="330" x2="556" y2="330" stroke="currentColor"/>
+<polygon points="560,330 548,325 548,335"/>
+<text x="320" y="323" text-anchor="middle" font-size="12">msg 4 forwarded now: AP installs PTK, nothing looks wrong</text>
+<text x="320" y="370" text-anchor="middle" font-size="12.5" fill-opacity=".7">the attacker never learns the key; it only chooses when frames arrive</text>
+</svg>
+<figcaption>Figure 9.4. KRACK against the 4-way handshake. Holding back message 4 makes the AP resend message 3, and the device's second key installation resets the packet number that the CCMP nonce is built from.</figcaption>
+</figure>
+
+What the reused nonces give the attacker depends on the cipher. Under CCMP,
+the keystream reuse lets it decrypt frames whose partner frame has a known or
+guessable plaintext, and the reset receive window lets it replay old frames.
+Under TKIP it could also recover the Michael key and forge frames in one
+direction; under GCMP, nonce reuse leaks GCM's authentication key (Chapter
+4), allowing forgery both ways. Windows and iOS did not accept a retransmitted
+message 3, so the 4-way variant missed them; the group key variant did not.
+
+The same pattern appeared in every handshake that installs a key, and the
+disclosure on 16 October 2017 came with ten CVE numbers, covering the 4-way and
+group key handshakes, 802.11r fast transition (where the AP is the victim),
+the PeerKey and TDLS handshakes, and waking from WNM sleep mode. In "Release
+the Kraken" (CCS 2018) the same authors bypassed the standard's first
+countermeasure for the integrity group key and found reinstallations in newer
+handshakes such as FILS; the standard was corrected again.
+
+### Fix it: install once
+
+The fix was in implementations: never reinstall a key in use, never reset a
+packet number.
+
+```python
+# Fix it: the 2017 patch. Uses Client, keystream, xor and tk from the listing above.
+class PatchedClient(Client):
+    def install_key(self, tk):
+        if getattr(self, "tk", None) == tk:   # already in use: answer msg 3, do not reinstall
+            return
+        self.tk, self.pn = tk, 1
+c = PatchedClient()
+c.install_key(tk)
+g1 = c.send(b"GET /habitat/login HTTP/1.1  Host: hab")
+c.install_key(tk)                             # the replayed message 3 changes nothing
+g2 = c.send(b"user=jim&pass=red-dust-2026&action=login")
+print("packet numbers after the fix:", g1[0], "then", g2[0])
+```
+
+It prints:
+
+```text
+packet numbers after the fix: 1 then 2
+```
+
+The hostapd and wpa_supplicant patches of October 2017 did this, and also
+refused to install an all-zero key. Cas Cremers,
 Benjamin Kiesl and Niklas Medinger later (USENIX Security 2020) modeled the
 handshake *with* its state machine and key installation in Tamarin, and showed
 that the patched standard is secure, closing the gap the 2005 proof had left.
@@ -612,8 +789,82 @@ points authenticate each other.
 <text x="320" y="254" text-anchor="middle">4-way handshake with the new PMK</text>
 <text x="320" y="285" text-anchor="middle" font-size="12.5">a recording contains no value that tests a password guess</text>
 </svg>
-<figcaption>Figure 9.4. SAE. The commit messages can cross in flight; neither side has to go first.</figcaption>
+<figcaption>Figure 9.5. SAE. The commit messages can cross in flight; neither side has to go first.</figcaption>
 </figure>
+
+### SAE by hand, in a group of eleven
+
+Dragonfly works in any group where discrete logarithms are hard, and RFC 7664
+defines it for both elliptic curves and multiplicative groups modulo a prime.
+The second kind is small enough to run on paper. Take the prime $p = 23$. The
+nonzero squares modulo 23 are
+
+$$
+\{1, 2, 3, 4, 6, 8, 9, 12, 13, 16, 18\},
+$$
+
+eleven elements that form a group of prime order $q = 11$ under
+multiplication. "Scalar times point" becomes a power, "point plus point" a
+product, a point's inverse an inverse modulo 23; scalars live modulo 11.
+
+Suppose the password hashes to $\mathit{PWE} = 4$. The device picks
+$\mathit{rand}_A = 5$ and $\mathit{mask}_A = 3$; the access point picks
+$\mathit{rand}_B = 7$ and $\mathit{mask}_B = 6$.
+
+<div class="mars-steps" markdown>
+
+1. **Device's commit.** $\mathit{scalar}_A = 5 + 3 = 8$. For the element,
+   $4^3 = 64 = 2\cdot 23 + 18$, so $4^3 \equiv 18$, and the inverse of 18
+   is 9, because $18 \cdot 9 = 162 = 7 \cdot 23 + 1$. The device sends
+   $(8, 9)$.
+2. **AP's commit.** $\mathit{scalar}_B = 7 + 6 = 13 \equiv 2 \pmod{11}$. Then
+   $4^6 = (4^3)^2 \equiv 18^2 = 324 = 14 \cdot 23 + 2$, so $4^6 \equiv 2$,
+   whose inverse is 12 ($2 \cdot 12 = 24 \equiv 1$). The AP sends $(2, 12)$.
+3. **Device's secret.** $\mathit{PWE}^{\mathit{scalar}_B} \cdot
+   \mathit{element}_B = 4^2 \cdot 12 = 192 = 8 \cdot 23 + 8 \equiv 8$, and
+   that is $4^7$, the AP's $\mathit{PWE}^{\mathit{rand}_B}$, with the mask
+   cancelled. Raised to $\mathit{rand}_A = 5$: $8^2 \equiv 18$,
+   $8^4 \equiv 18^2 \equiv 2$, $8^5 \equiv 16$. So $K = 16$.
+4. **AP's secret.** $4^8 \cdot 9$: $4^8 = 4^6 \cdot 4^2 \equiv 2 \cdot 16 =
+   32 \equiv 9$, times 9 is $81 \equiv 12$, which is $4^5$. Raised to
+   $\mathit{rand}_B = 7$: $12^2 = 144 \equiv 6$, $12^4 \equiv 36 \equiv 13$,
+   $12^7 = 12^4 \cdot 12^2 \cdot 12 \equiv 13 \cdot 6 \cdot 12 = 936 =
+   40 \cdot 23 + 16$. So $K = 16$ again, which is $4^{35} = 4^{35 \bmod 11} =
+   4^2$.
+5. **A wrong password.** An attacker posing as the AP who guessed a password
+   with $\mathit{PWE}' = 2$ sends, with the same random numbers, $(2, 9)$,
+   since $2^6 = 64 \equiv 18$ and $18^{-1} = 9$. The device computes
+   $(4^2 \cdot 9)^5 = 6^5 \equiv 2$, the attacker computes
+   $(2^8 \cdot 9)^7 \equiv 4^7 \equiv 8$. The two values differ, so the
+   confirm messages will not match.
+
+</div>
+
+The device's commit $(8, 9)$ fits every candidate $\mathit{PWE}'$ equally
+well, since some $\mathit{mask}$ always gives $\mathit{PWE}'^{-\mathit{mask}} =
+9$. Only the confirm, which needs $K$, separates right from wrong: one test per
+live attempt. In a group of 11 the attacker could try every logarithm; in
+P-256 it cannot.
+
+```python
+# SAE by hand in the group of squares mod 23 (order 11): the worked example.
+p, q, PWE = 23, 11, 4
+def commit(pwe, rand, mask): return (rand + mask) % q, pow(pow(pwe, mask, p), -1, p)
+def secret(pwe, rand, peer): return pow(pow(pwe, peer[0], p) * peer[1] % p, rand, p)
+A, B = commit(PWE, 5, 3), commit(PWE, 7, 6)
+print("device sends", A, " AP sends", B)
+print("K at device:", secret(PWE, 5, B), " K at AP:", secret(PWE, 7, A))
+W = commit(2, 7, 6)                                   # attacker guessed PWE' = 2
+print("wrong guess: device gets", secret(PWE, 5, W), " attacker gets", secret(2, 7, A))
+```
+
+It prints:
+
+```text
+device sends (8, 9)  AP sends (2, 12)
+K at device: 16  K at AP: 16
+wrong guess: device gets 2  attacker gets 8
+```
 
 ### Code it: SAE on P-256
 
@@ -711,6 +962,34 @@ access point, once per guess, where it can be noticed and rate-limited. And
 since $K$ comes from fresh random values, learning the password later does not
 decrypt recorded sessions: SAE gives forward secrecy.
 
+### What crosses the air, and what each side must check
+
+SAE runs in 802.11 **Authentication** frames before association (algorithm
+number 3; open system is 0), sequence 1 for a commit, 2 for a confirm. A group
+19 commit carries the two-byte group number, the 32-byte scalar and the 64-byte
+element: 98 bytes, plus optional fields. A confirm carries a two-byte
+**send-confirm** counter and an HMAC-SHA-256 under the KCK over the counter,
+both scalars and both elements.
+
+The receiving side must check more than the confirm:
+
+- **The scalar** must satisfy $1 < \mathit{scalar} < r$, the group order.
+- **The element** must be a point on the curve. Accepting a point on another
+  curve hands the peer an invalid-curve attack that leaks $\mathit{rand}$
+  piece by piece ([Mathematics, §12.10](../mathematics/12-Elliptic-Curve-Group.md#1210-break-it-the-invalid-curve-attack)).
+- **Reflection.** A commit equal to the device's own is an echo; reject it.
+- **Clogging.** Commits are costly to process, so under load the AP answers
+  with an **anti-clogging token** bound to the sender's MAC address, to be
+  echoed, much like WireGuard's cookie
+  ([§8.7](08-WireGuard-and-Noise.md#87-silence-cookies-and-denial-of-service)). An
+  attacker in radio range can receive frames at any address it invents, so
+  the token limits floods only partly.
+
+A small state machine with retransmission timers handles lost frames, and the
+send-confirm counter keeps a retransmitted confirm from looking like a replay.
+Both sides derive a PMKID from the scalars, so a device that reconnects can
+offer the cached PMK and skip SAE.
+
 ## 9.8 Dragonblood: SAE's side channels
 
 *Level: intermediate.*
@@ -764,20 +1043,304 @@ Ten timing observations, each from one spoofed connection attempt, cut 3,001
 candidates to one. With a real dictionary of millions of words, a few dozen
 measurements suffice.
 
+### How much one measurement tells, by hand
+
+On P-256 the KDF output is almost never above $p$, so each round succeeds
+when its candidate $x$ gives a square, which happens for about half of all
+values. The counter at which the loop first succeeds is therefore 1 with
+probability $\tfrac12$, 2 with probability $\tfrac14$, $k$ with probability
+$2^{-k}$. A wrong password survives one measurement only if its own counter
+for that MAC address happens to equal the observed one. Averaged over what
+the attacker might observe, the fraction of wrong passwords that survive is
+
+$$
+\sum_{k \ge 1} 2^{-k} \cdot 2^{-k} = \sum_{k \ge 1} 4^{-k} = \frac{1}{3}.
+$$
+
+Each spoofed address keeps about a third of the dictionary: 3,001 candidates
+should fall to about $3{,}001 / 3^{10} \approx 0.05$ wrong ones after ten
+measurements, which is what the program found. A dictionary of $10^7$ words
+needs about $\log_3 10^7 \approx 15$ clean measurements, every
+eight-character lowercase password ($26^8 \approx 2 \times 10^{11}$) about
+24. Noisy timing means repeating each measurement, not more addresses.
+
+### Timing, cache and downgrade
+
+With the multiplicative groups 22 to 24 and the Brainpool curves, whose primes
+are not close to a power of two, many KDF outputs exceed $p$ and are rejected,
+and the rejections showed in response time over the air. With P-256 the timing
+was flat, so the authors used a **cache attack**: software on the victim's
+machine (another app on a phone) watched the loop's code paths with
+Flush+Reload and learned whether the first round succeeded. The same flaws
+appeared in EAP-pwd, the Dragonfly-based Enterprise method. In 2020 Daniel De Almeida Braga,
+Pierre-Alain Fouque and Mohamed Sabt ("Dragonblood is still leaking") found
+that patched implementations, including Intel's iwd and FreeRADIUS, still
+leaked through the cache.
+
+Dragonblood also showed two **downgrades**, which have nothing to do with
+side channels:
+
+- **Transition mode.** An AP in WPA3 transition mode offers WPA2-PSK and SAE
+  under one name. An attacker sets up a fake AP with the same name offering
+  only WPA2, and a WPA3-capable device connects with WPA2. As §9.4 noted, the
+  attacker needs no password for message 2: it sends message 1 with any
+  ANonce and gets back a valid message 2 to crack offline. The device would
+  notice the mismatch at message 3, too late. The fix is the **transition
+  disable** indication of WPA3 version 3.0 (December 2020): a device that has
+  used SAE on a network that sends it refuses WPA2 there from then on.
+- **Group downgrade.** An attacker forged rejections of the device's proposed
+  SAE groups until it fell back to the weakest one both supported. H2E binds
+  the list of rejected groups, carried in the commit, into the keyseed, so a
+  forged rejection makes the confirms fail.
+
+Finally, the expensive hunting-and-pecking loop made a cheap **denial of
+service**: a modest stream of forged commits from invented MAC addresses could
+keep an AP's processor saturated, and the anti-clogging token did not stop an
+attacker who could receive the tokens.
+
 The fixes came in layers. Implementations had already been told to run all 40
 iterations regardless (the `rounds=40` in the program above), but some had not,
-or leaked through memory access patterns. WPA3 version 3.0 (2020) added
-**hash-to-element** (H2E), which maps the password to a point with a
-constant-time function (the simplified SWU map of RFC 9380), and made it
-mandatory on the 6 GHz band. Dragonblood also showed a **downgrade**: in
-"transition mode", where an access point accepts both WPA2 and WPA3 so old
-devices can still join, an attacker could set up a fake WPA2-only access point
-with the same name, and a WPA3-capable device would connect to it with WPA2 and
-hand over a crackable handshake. The answer is a **transition disable**
-indication: once a device has seen WPA3 on a network, it refuses WPA2 for that
-network from then on.
+or leaked through memory access patterns. hostapd moved to a loop that is free
+of secret-dependent branches and memory access. The lasting fix was a new
+method with no loop at all, the subject of the next section.
 
-## 9.9 Enterprise: 802.1X and EAP
+## 9.9 Hash-to-element: SAE without the loop
+
+*Level: intermediate.*
+
+Hunting and pecking leaked because the work depended on the password and the
+attacker could vary the input by choosing a MAC address. **Hash-to-element**
+(H2E), added in IEEE 802.11-2020 and required by the Wi-Fi Alliance after
+Dragonblood, splits the password element into two steps.
+
+<div class="mars-steps" markdown>
+
+1. **Once per network**, each side turns the SSID, the password and an
+   optional password identifier into a fixed point $\mathit{PT}$, the
+   **password token**:
+
+   $$
+   \begin{aligned}
+   \mathit{seed} &= \mathrm{HKDF\text{-}Extract}(\text{SSID},\ \text{password} \,\|\, \text{identifier}),\\
+   u_1 &= \mathrm{HKDF\text{-}Expand}(\mathit{seed},\ \texttt{"SAE Hash to Element u1 P1"},\ 48) \bmod p,\\
+   u_2 &= \mathrm{HKDF\text{-}Expand}(\mathit{seed},\ \texttt{"SAE Hash to Element u2 P2"},\ 48) \bmod p,\\
+   \mathit{PT} &= \mathrm{SSWU}(u_1) + \mathrm{SSWU}(u_2).
+   \end{aligned}
+   $$
+
+   SSWU is the simplified Shallue-van de Woestijne-Ulas map of RFC 9380, which
+   takes any field element to a curve point in a fixed sequence of field
+   operations: no loop, no early exit, no rejection.
+2. **Once per connection**, the two MAC addresses pick a public multiplier:
+
+   $$
+   \begin{aligned}
+   h &= \mathrm{HMAC\text{-}SHA256}(0^{32},\ \max(\mathit{MAC}_A, \mathit{MAC}_B) \,\|\, \min(\mathit{MAC}_A, \mathit{MAC}_B)),\\
+   \mathit{val} &= h \bmod (r - 1) + 1,\\
+   \mathit{PWE} &= \mathit{val} \cdot \mathit{PT}.
+   \end{aligned}
+   $$
+
+</div>
+
+Step 1 holds everything that touches the password and never sees a MAC
+address, so a thousand spoofed addresses give a thousand observations of the
+*same* computation, which runs the same steps for every password. Step 2
+depends on the password only through the fixed point $\mathit{PT}$ and is one scalar multiplication, which constant-time code does
+for every Diffie-Hellman. The SSID now enters the derivation, which matters
+in §9.12. The 48 bytes per field element, 16 more than $p$ needs, keep the bias
+of reducing modulo $p$ below $2^{-128}$. Why the map always lands on the curve,
+and why two mapped points are added, is algebra the mathematics book works
+through in [§12.11](../mathematics/12-Elliptic-Curve-Group.md#1211-hashing-to-a-curve)
+and its subsection on [the simplified SWU map](../mathematics/12-Elliptic-Curve-Group.md#the-simplified-swu-map);
+here we only use it.
+
+It also saves work: an AP computes $\mathit{PT}$ once at start-up, and each new
+device costs one multiplication instead of 40 rounds of hashing and square
+roots, which blunts the denial of service of §9.8.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 360" width="640" role="img" aria-label="Two ways to make SAE's password element. Left, hunting and pecking: the password and both MAC addresses go into a loop that hashes with a counter and tests whether the result is on the curve; the counter at which it succeeds depends on the password and the addresses, which the attacker controls, so the loop's timing leaks. Right, hash-to-element: the SSID and password go once through HKDF and two SSWU maps to a fixed point PT, with no loop; then the MAC addresses give a public multiplier val, and PWE is val times PT." fill="currentColor" font-size="13">
+<text x="160" y="22" text-anchor="middle" font-weight="bold">hunting and pecking (2015 to 2020)</text>
+<text x="480" y="22" text-anchor="middle" font-weight="bold">hash-to-element (802.11-2020)</text>
+<line x1="320" y1="10" x2="320" y2="350" stroke="currentColor" stroke-opacity=".4"/>
+<rect x="40" y="40" width="240" height="34" rx="5" fill="none" stroke="currentColor"/>
+<text x="160" y="62" text-anchor="middle">password + both MAC addresses</text>
+<line x1="160" y1="74" x2="160" y2="96" stroke="currentColor"/>
+<rect x="40" y="96" width="240" height="96" rx="5" fill-opacity=".14" stroke="currentColor"/>
+<text x="160" y="118" text-anchor="middle">counter = 1, 2, 3, ...</text>
+<text x="160" y="140" text-anchor="middle">x = KDF(HMAC(MACs, pw || counter))</text>
+<text x="160" y="162" text-anchor="middle">x³ − 3x + b a square?</text>
+<text x="160" y="182" text-anchor="middle" font-size="12">no: next counter · yes: keep x</text>
+<path d="M280 150 C 305 150, 305 110, 282 110" fill="none" stroke="currentColor"/>
+<polygon points="281,110 291,105 291,115"/>
+<line x1="160" y1="192" x2="160" y2="216" stroke="currentColor"/>
+<rect x="40" y="216" width="240" height="34" rx="5" fill="none" stroke="currentColor"/>
+<text x="160" y="238" text-anchor="middle">PWE = (x, y)</text>
+<text x="160" y="280" text-anchor="middle" font-size="12.5" font-weight="bold">success round depends on password</text>
+<text x="160" y="298" text-anchor="middle" font-size="12.5" font-weight="bold">and on MACs the attacker chooses</text>
+<text x="160" y="322" text-anchor="middle" font-size="12" fill-opacity=".7">time or cache trace leaks it (§9.8)</text>
+<rect x="360" y="40" width="240" height="34" rx="5" fill="none" stroke="currentColor"/>
+<text x="480" y="62" text-anchor="middle">SSID + password (+ identifier)</text>
+<line x1="480" y1="74" x2="480" y2="96" stroke="currentColor"/>
+<rect x="360" y="96" width="240" height="60" rx="5" fill-opacity=".14" stroke="currentColor"/>
+<text x="480" y="118" text-anchor="middle">HKDF → u1, u2</text>
+<text x="480" y="142" text-anchor="middle">PT = SSWU(u1) + SSWU(u2)</text>
+<text x="480" y="174" text-anchor="middle" font-size="12">once per network, same steps for every input</text>
+<line x1="480" y1="182" x2="480" y2="216" stroke="currentColor"/>
+<rect x="360" y="216" width="240" height="34" rx="5" fill="none" stroke="currentColor"/>
+<text x="480" y="238" text-anchor="middle">PWE = val · PT</text>
+<text x="600" y="206" text-anchor="end" font-size="12">val = H(MACs), public</text>
+<text x="480" y="280" text-anchor="middle" font-size="12.5" font-weight="bold">MACs never meet the password;</text>
+<text x="480" y="298" text-anchor="middle" font-size="12.5" font-weight="bold">no loop, nothing to time</text>
+<text x="480" y="322" text-anchor="middle" font-size="12" fill-opacity=".7">required on 6 GHz and for WPA3 certification</text>
+</svg>
+<figcaption>Figure 9.6. Two ways to the password element. Hunting and pecking mixes the password with attacker-chosen addresses inside a loop of variable length; hash-to-element makes a fixed point from the password once, with no loop, and lets the addresses touch only a public multiplier.</figcaption>
+</figure>
+
+### Code it: SAE byte for byte, against the standard
+
+The SAE of §9.7 simplified the encodings. This program follows IEEE
+802.11-2020 exactly for group 19: hunting and pecking with the standard's KDF,
+the 98-byte commit, the keyseed, the KDF that yields KCK and PMK, and the
+PMKID. Annex J.10 fixes the MAC addresses, the password `mekmitasdigoat`, the
+local $\mathit{rand}$ and $\mathit{mask}$ and the peer's commit; hostapd
+checks itself against the same numbers.
+
+```python
+# SAE as IEEE 802.11-2020 specifies it (group 19, P-256, hunting and pecking),
+# checked against the standard's own test vector (Annex J.10).
+# Uses add(), mul(), p and b from the P-256 listing in §9.7.
+import hashlib, hmac
+r = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
+def i2b(x): return x.to_bytes(32, "big")
+def H(key, msg): return hmac.new(key, msg, hashlib.sha256).digest()
+def kdf(key, label, context, bits):        # KDF-Hash-Length of 802.11, with SHA-256
+    out, i = b"", 1
+    while len(out) * 8 < bits:
+        out += H(key, i.to_bytes(2, "little") + label + context + bits.to_bytes(2, "little"))
+        i += 1
+    return out[:bits // 8]
+
+def pwe_hunt_and_peck(password, mac1, mac2, k=40):
+    macs = max(mac1, mac2) + min(mac1, mac2)
+    x = save = None
+    for counter in range(1, k + 1):                 # always all k rounds
+        seed = H(macs, password + bytes([counter]))
+        val = int.from_bytes(kdf(seed, b"SAE Hunting and Pecking", i2b(p), 256), "big")
+        if val < p and pow((val**3 - 3 * val + b) % p, (p - 1) // 2, p) == 1 and x is None:
+            x, save = val, seed
+    y = pow((x**3 - 3 * x + b) % p, (p + 1) // 4, p)
+    return (x, y) if y % 2 == save[-1] % 2 else (x, p - y)
+
+def commit(pwe, rand, mask):
+    E = mul(mask, pwe)
+    return (rand + mask) % r, (E[0], -E[1] % p)     # scalar, element = -(mask * PWE)
+
+def keys(pwe, rand, my_scalar, peer_scalar, peer_element):
+    K = mul(rand, add(mul(peer_scalar, pwe), peer_element))
+    keyseed = H(bytes(32), i2b(K[0]))
+    ctx = i2b((my_scalar + peer_scalar) % r)
+    kck_pmk = kdf(keyseed, b"SAE KCK and PMK", ctx, 512)
+    return kck_pmk[:32], kck_pmk[32:], ctx[:16]     # KCK, PMK, PMKID
+
+# IEEE 802.11-2020 Annex J.10
+a1, a2 = bytes.fromhex("4d3f2fffe387"), bytes.fromhex("a5d8aa958e3c")
+rand = int("992465fd3daa3c60aa6565b7f62a2a7f2e12dd12f198faf4fbed89d7ff1ace94", 16)
+mask = int("9507a90f777a044d6a0830b91ea3d5dd70bece44e1acffb86983b5e1bf9fb322", 16)
+peer = bytes.fromhex("1300591b96f3397fb945100848e7b550543b6720d88337ee93fc49fd6df7e08b52"
+                     "23e71b9bb048d3873f20556953a96c91536fd8ee6ca9b4a68a148b056a909be03e"
+                     "83ae208f60f8ef5537858074db06687032399862999b511e0a1552a5fea317c2")
+peer_scalar = int.from_bytes(peer[2:34], "big")
+peer_element = (int.from_bytes(peer[34:66], "big"), int.from_bytes(peer[66:98], "big"))
+
+pwe = pwe_hunt_and_peck(b"mekmitasdigoat", a1, a2)
+scalar, element = commit(pwe, rand, mask)
+msg = (19).to_bytes(2, "little") + i2b(scalar) + i2b(element[0]) + i2b(element[1])
+print("commit:", msg[:16].hex(), "...", msg[-6:].hex(), len(msg), "bytes")
+kck, pmk, pmkid = keys(pwe, rand, scalar, peer_scalar, peer_element)
+print("KCK  ", kck.hex())
+print("PMK  ", pmk.hex())
+print("PMKID", pmkid.hex())
+```
+
+It prints:
+
+```text
+commit: 13002e2c0f0db52440ad146d967114ce ... 72621325dbe1 98 bytes
+KCK   1e733f6d9bd53256287304338831b09a39406d121017073a5c30db36f36cb81a
+PMK   4e4dfab1a2dd8ac1a91790f953faaa452ae5c6873ab75b63605ba663f8a7fe59
+PMKID 8747a600eea3f9f22475df58ca1e5498
+```
+
+The commit, KCK, PMK and PMKID are those of Annex J.10, byte for byte. Three
+details each change every output if missed: the group number is little-endian
+(`13 00`), so are the KDF's counter and length fields, and the low bit of the
+successful round's seed picks the sign of $y$. The PMKID is just the first 16
+bytes of the scalar sum, which an eavesdropper also sees.
+
+Now hash-to-element. The same Annex gives the PT and PWE for the SSID
+`byteme`, the same password, the password identifier `psk4internet`, and a
+second pair of MAC addresses:
+
+```python
+# Uses add(), mul(), H(), i2b(), p, r and b from the listing above.
+# Hash-to-element (802.11-2020 12.4.4.2.3): the password becomes a point PT with
+# the simplified SWU map of RFC 9380, once per network; no loop, no early exit.
+def is_square(v): return pow(v, (p - 1) // 2, p) in (0, 1)
+def sswu(u, A=p - 3, Z=p - 10):                     # P-256: A = -3, Z = -10
+    t = (Z * Z * u**4 + Z * u * u) % p
+    x1 = (-b * pow(A, -1, p) * (1 + pow(t, -1, p))) % p if t else b * pow(Z * A, -1, p) % p
+    gx1 = (x1**3 + A * x1 + b) % p
+    x2 = Z * u * u * x1 % p
+    x = x1 if is_square(gx1) else x2                # one of the two always works
+    y = pow((x**3 + A * x + b) % p, (p + 1) // 4, p)
+    return (x, y) if y % 2 == u % 2 else (x, p - y)
+
+def hkdf_expand(prk, info, n):
+    out, t, i = b"", b"", 1
+    while len(out) < n:
+        t = H(prk, t + info + bytes([i])); out += t; i += 1
+    return out[:n]
+def password_token(ssid, password, identifier=b""):
+    seed = H(ssid, password + identifier)           # HKDF-Extract(salt = SSID)
+    u1 = int.from_bytes(hkdf_expand(seed, b"SAE Hash to Element u1 P1", 48), "big") % p
+    u2 = int.from_bytes(hkdf_expand(seed, b"SAE Hash to Element u2 P2", 48), "big") % p
+    return add(sswu(u1), sswu(u2))
+def pwe_from_pt(pt, mac1, mac2):                    # per connection: one multiplication
+    val = int.from_bytes(H(bytes(32), max(mac1, mac2) + min(mac1, mac2)), "big")
+    return mul(val % (r - 1) + 1, pt)
+
+pt = password_token(b"byteme", b"mekmitasdigoat", b"psk4internet")
+pwe = pwe_from_pt(pt, bytes.fromhex("00095b66ec1e"), bytes.fromhex("000b6bd90246"))
+print("PT  x", i2b(pt[0]).hex())
+print("PWE x", i2b(pwe[0]).hex())
+print("PWE y", i2b(pwe[1]).hex())
+```
+
+It prints:
+
+```text
+PT  x b6e38c98750c684b5d17c3d8c9a4100b39931279187ca6cced5f37ef46ddfa97
+PWE x c93049b9e64000f848201649e999f2b5c22dea69b5632c9df4d633b8aa1f6c1e
+PWE y 73634e94b53d82e7383a8d258199d9dc1a5ee8269d060382ccbf33e614ff59a0
+```
+
+The PWE matches the standard's vector. 802.11 only had to choose the HKDF
+labels, the 48-byte length and $Z = -10$, the same constant as RFC 9380's
+P-256 suite. (Python's `pow` and `if` are not constant time; what matters is
+that the algorithm has no data-dependent loop.) The rest of SAE is unchanged
+except the keyseed, whose HMAC key becomes the list of rejected groups, if
+any: the fix for the group downgrade of §9.8.
+
+**Deployment.** An AP announces H2E in its beacons (the RSN extension
+element), and one that accepts only H2E adds an "SAE H2E only" selector;
+hostapd's `sae_pwe` setting is 0 for hunting and pecking, 1 for H2E only, 2
+for both. On 6 GHz only H2E is allowed. **Password identifiers** let one
+network hold several passwords, each named in the clear in the commit; the
+AP keeps one $\mathit{PT}$ per identifier.
+
+## 9.10 Enterprise: 802.1X and EAP
 
 *Level: intermediate.*
 
@@ -813,7 +1376,56 @@ modern operating systems do when the network is set up with a profile.
 WPA3-Enterprise also has a **192-bit mode** for governments, which fixes the
 suite to GCMP-256, HMAC-SHA-384, P-384 and EAP-TLS with matching certificates.
 
-## 9.10 Open networks and management frames
+### One EAP-TLS login, step by step
+
+The device speaks EAP to the access point inside EAPOL frames; the access
+point relays it to the RADIUS server inside RADIUS packets and never sees the
+credentials.
+
+<div class="mars-steps" markdown>
+
+1. The device gives an **outer identity** such as
+   `anonymous@arcadia.example`; only the realm is needed, to route the request.
+2. A full TLS handshake (Chapter 3) runs inside EAP messages, in fragments.
+   The device checks the server's chain against the CA and server name it was
+   configured with, then sends its own certificate and proves it holds the key.
+3. Both sides export keying material from the TLS session: with TLS 1.3 (RFC
+   9190), 128 bytes from the exporter labeled `EXPORTER_EAP_TLS_Key_Material`,
+   whose first 64 bytes are the **master session key** (MSK).
+4. The server's RADIUS **Access-Accept** carries the MSK to the AP in two
+   attributes, hidden with an MD5-based scheme keyed by the RADIUS shared
+   secret.
+5. Both take the first 256 bits of the MSK as the PMK and run the 4-way
+   handshake of §9.4.
+
+</div>
+
+The PMK thus crosses the wired network under a shared secret that is often
+short and rarely changed, so many networks now carry RADIUS inside TLS
+(**RadSec**, RFC 6614).
+
+### Blast-RADIUS (2024)
+
+RADIUS dates from 1991, and over UDP it authenticates a response with an ad
+hoc construction, the MD5 of the response, the request's random authenticator
+and the shared secret. In July 2024 Sharon Goldberg, Miro Haller, Nadia
+Heninger, Mike Milano, Dan Shumow, Marc Stevens and Adam Suhl published
+**Blast-RADIUS** (CVE-2024-3596, USENIX Security 2024). An attacker on the
+path between the access server and the RADIUS server computes an MD5
+chosen-prefix collision between an Access-Reject and an Access-Accept, hides
+the collision blocks in an attribute the server echoes back, and turns a
+rejection into an acceptance without learning the secret. The collision must
+be found while the client waits; the proof of concept took 3 to 6 minutes on
+a modest cluster, beyond common timeouts but not all. The fix is to require
+the **Message-Authenticator** attribute, an HMAC-MD5 over the whole packet,
+on every packet, and in the longer run to move RADIUS into TLS.
+
+Enterprise Wi-Fi was spared only because RFC 3579 already required
+Message-Authenticator on every packet carrying EAP; the protocol that delivers
+its keys still relied on raw MD5 in 2024, twenty years after Xiaoyun Wang's
+collisions.
+
+## 9.11 Open networks and management frames
 
 *Level: intermediate.*
 
@@ -825,6 +1437,108 @@ each device gets its own PMK. It stops passive eavesdropping; it cannot stop an
 attacker who runs a fake access point with the same name, since nothing is
 authenticated. A transition mode lets old devices keep joining the same network
 unencrypted.
+
+### How OWE runs
+
+OWE adds no new messages. After the usual open-system authentication, the
+device puts a Diffie-Hellman Parameter element into its **association
+request**: a two-byte little-endian group number (19, P-256, is mandatory) and
+its public key, for a NIST curve in "compact" form, the $x$ coordinate alone.
+The AP answers with its own key in the **association response**, and each
+side derives, following RFC 8110,
+
+$$
+\begin{aligned}
+z &= x\text{-coordinate of } \mathrm{DH}(\text{own private key},\ \text{peer public key}),\\
+\mathit{prk} &= \mathrm{HKDF\text{-}Extract}(C \,\|\, A \,\|\, \mathit{group},\ z),\\
+\mathrm{PMK} &= \mathrm{HKDF\text{-}Expand}(\mathit{prk},\ \texttt{"OWE Key Generation"},\ 32),\\
+\mathrm{PMKID} &= \text{first 16 bytes of } \mathrm{SHA\text{-}256}(C \,\|\, A),
+\end{aligned}
+$$
+
+where $C$ and $A$ are the two public keys as sent. The 4-way handshake then
+runs with that PMK, with PMF required. The compact form costs nothing: $x$
+fits two points, $(x, \pm y)$, and either one times a private key has the
+same $x$ coordinate, which is all that $z$ uses.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 300" width="640" role="img" aria-label="OWE. The device sends open authentication, then an association request carrying its Diffie-Hellman public key C. The access point answers with an association response carrying its public key A. Both compute the PMK from the shared secret and both public keys, then run the 4-way handshake. A passive listener sees C and A but cannot compute the PMK; an active fake access point can run its own exchange because nothing is authenticated." fill="currentColor" font-size="13">
+<text x="100" y="22" text-anchor="middle" font-weight="bold">device</text>
+<text x="540" y="22" text-anchor="middle" font-weight="bold">access point</text>
+<line x1="100" y1="32" x2="100" y2="250" stroke="currentColor"/>
+<line x1="540" y1="32" x2="540" y2="250" stroke="currentColor"/>
+<line x1="100" y1="60" x2="536" y2="60" stroke="currentColor" stroke-opacity=".6"/>
+<polygon points="540,60 528,55 528,65"/>
+<text x="320" y="53" text-anchor="middle" font-size="12">open-system authentication (no secret)</text>
+<line x1="100" y1="100" x2="536" y2="100" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="540,100 528,95 528,105"/>
+<text x="320" y="93" text-anchor="middle">association request + DH element: group 19, C</text>
+<line x1="540" y1="140" x2="104" y2="140" stroke="currentColor" stroke-width="1.5"/>
+<polygon points="100,140 112,135 112,145"/>
+<text x="320" y="133" text-anchor="middle">association response + DH element: group 19, A</text>
+<rect x="130" y="155" width="380" height="26" rx="4" fill-opacity=".14" stroke="currentColor"/>
+<text x="320" y="173" text-anchor="middle" font-size="12.5">both: z = DH, PMK = HKDF(C | A | group, z)</text>
+<line x1="100" y1="210" x2="536" y2="210" stroke="currentColor" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="320" y="202" text-anchor="middle">4-way handshake with this PMK, PMF on</text>
+<text x="320" y="272" text-anchor="middle" font-size="12.5">a listener sees C and A only: passive sniffing stops</text>
+<text x="320" y="291" text-anchor="middle" font-size="12.5" fill-opacity=".7">a fake AP runs its own exchange: active attacks do not</text>
+</svg>
+<figcaption>Figure 9.7. Opportunistic Wireless Encryption. The Diffie-Hellman keys ride in the association frames the device sends anyway; nothing in the exchange says who the access point is.</figcaption>
+</figure>
+
+### Code it: OWE on P-256
+
+The program reuses the P-256 arithmetic and HKDF from §9.9, runs the exchange
+for a café laptop and the café's AP, and then lets an evil twin with the same
+SSID do the same.
+
+```python
+# Uses add(), mul(), H(), hkdf_expand(), i2b(), p and b from the listings above.
+# OWE (RFC 8110): plain ECDH in the association frames, then a PMK from HKDF.
+import hashlib
+G = (0x6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296,
+     0x4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5)
+def lift(xb):                                       # "compact" key: x only; either y works
+    x = int.from_bytes(xb, "big")
+    return (x, pow((x**3 - 3 * x + b) % p, (p + 1) // 4, p))
+def owe_pmk(my_secret, C, A):                       # C: client's key, A: AP's key, as sent
+    peer = A if i2b(mul(my_secret, G)[0]) == C else C
+    z = i2b(mul(my_secret, lift(peer))[0])
+    prk = H(C + A + (19).to_bytes(2, "little"), z)  # HKDF-Extract(C | A | group, z)
+    return hkdf_expand(prk, b"OWE Key Generation", 32)
+
+x_c = int.from_bytes(hashlib.sha256(b"cafe laptop").digest(), "big")
+x_a = int.from_bytes(hashlib.sha256(b"cafe access point").digest(), "big")
+C, A = i2b(mul(x_c, G)[0]), i2b(mul(x_a, G)[0])    # in association request / response
+print("client PMK", owe_pmk(x_c, C, A).hex()[:32])
+print("AP PMK    ", owe_pmk(x_a, C, A).hex()[:32])
+print("PMKID     ", hashlib.sha256(C + A).digest()[:16].hex())
+x_m = int.from_bytes(hashlib.sha256(b"evil twin").digest(), "big")
+M = i2b(mul(x_m, G)[0])                             # a fake AP with the same name
+print("client and evil twin agree:", owe_pmk(x_c, C, M) == owe_pmk(x_m, C, M))
+```
+
+It prints:
+
+```text
+client PMK 5c9d3b778f1c74ad42827320d629d646
+AP PMK     5c9d3b778f1c74ad42827320d629d646
+PMKID      f2af94fcde2c284e82f9b0baba15b3cd
+client and evil twin agree: True
+```
+
+The last line is the whole limit of OWE: with no secret, the evil twin
+completes its own exchange and the device has an encrypted link to the
+attacker. It is still a real gain. Passive recording, which needs only a
+laptop in the corner, now gets nothing; an active attacker must transmit, can
+be detected, and must stay in the path all session. And each device has its
+own PMK, unlike a WPA2-Personal café whose password is on the wall (the case
+SAE-PK, §9.15, was designed for).
+
+**OWE transition mode** runs two networks: an open one with the advertised
+name, whose beacons point to a hidden OWE network. Devices that know OWE
+follow the pointer; old ones stay open. An attacker who strips the pointer
+pushes a device onto the open network, no worse than before OWE.
 
 **Captive portals**, the sign-in pages of hotels and airports, are not Wi-Fi
 security at all; they control who may use the network after joining, usually by
@@ -841,7 +1555,29 @@ management frames** (PMF, 802.11w, 2009) encrypt unicast management frames
 under the TK and authenticate broadcast ones with **BIP** under the IGTK. PMF
 was optional in WPA2 and is mandatory in WPA3.
 
-## 9.11 Frames and groups: FragAttacks and AirSnitch
+### What PMF protects, and what it cannot
+
+**BIP** (broadcast integrity protocol) appends to each broadcast management
+frame a six-byte packet number and a MAC, originally AES-CMAC-128 truncated to
+8 bytes; receivers drop frames whose packet number does not increase.
+
+Protection creates its own problem: a device that rebooted has lost its keys
+and cannot send a protected frame, while an attacker could send an unprotected
+association request in a live device's name to tear down its session. The
+**SA Query** procedure resolves both. When the AP receives an unprotected
+association request for a device that already has keys, it sends that device
+a protected SA Query and tells the requester to come back later. A live
+device answers, proving the request forged; a rebooted one cannot, and after
+the timeout its new association is accepted.
+
+PMF cannot protect frames sent before keys exist (beacons, probes,
+authentication, association), stop **radio jamming**, or stop a device from
+being lured to a fake AP. IEEE 802.11-2020 added **beacon protection**, a MIC
+under a beacon integrity group key, so an associated device can spot a forged
+beacon that tries to change its network's settings; Wi-Fi 7 certification
+requires it.
+
+## 9.12 Frames, queues and names: FragAttacks to AirSnitch
 
 *Level: intermediate.*
 
@@ -857,6 +1593,50 @@ packets into a WPA2 or WPA3 network. Implementations were patched, and the
 standard gained an option, "signaling and payload protected" aggregation, that
 authenticates the flag.
 
+The three design flaws, disclosed on 11 May 2021 after nine months of
+coordinated fixes, each came from a field or a buffer the cryptography did not
+cover:
+
+- **Aggregation** (CVE-2020-24588). The "is aggregated" bit, which says a frame
+  packs several A-MSDU subframes, is not covered by CCMP's MIC. The attacker
+  makes the victim fetch a packet whose payload it controls, sets the bit on
+  the encrypted frame, and the victim parses the attacker's bytes as
+  subframes, for example a router advertisement naming a malicious DNS server.
+- **Mixed keys** (CVE-2020-24587). Nothing required all fragments of one packet
+  to be encrypted under the same key, so fragments from before and after a
+  rekey could be spliced together to exfiltrate data.
+- **Fragment cache** (CVE-2020-24586). Receivers kept incomplete fragments
+  across a reconnection, so on a network whose users do not trust each other
+  an attacker could leave a fragment to be joined to a victim's.
+
+Implementation bugs, such as accepting plaintext fragments on a protected
+network, were often easier to exploit than the design flaws.
+
+**Power-save queues.** A device that sleeps sets a power management bit in a
+frame header, and the AP buffers frames for it. Domien Schepers, Aanjhan
+Ranganathan and Mathy Vanhoef ("Framing frames", USENIX Security 2023) noted
+that the bit is not authenticated and the standard said nothing about the
+security context of buffered frames. An attacker spoofs a frame that puts the
+victim to sleep, then forces a disconnection in its name; the AP drops the
+victim's keys but keeps the queue, and many APs then sent the queued frames in
+plaintext, under the group key or under an all-zero key. Their **MacStealer**
+tool turned this against client isolation: an insider reconnects with the
+victim's MAC address and receives frames meant for the victim, such as the
+reply to a request it had just sent.
+
+**Network names.** In WPA2-Personal the SSID salts PBKDF2, so a wrong name
+gives a wrong PMK. Nothing else ties the name to the keys: not hunting and
+pecking, not OWE, not Enterprise logins. Héloïse Gollier and Mathy Vanhoef's
+**SSID confusion** attack (CVE-2023-52424, WiSec 2024) uses this. Where two
+networks share credentials, say "Habitat" and an older, weaker
+"Habitat-legacy", an attacker relays the second under the first's name on
+another channel; the device authenticates, because the credentials match,
+and shows "Habitat". Some VPN clients switch off on networks they trust by
+name. Hash-to-element puts the SSID into $\mathit{PT}$ (§9.9) and resists;
+for the rest, the authors proposed authenticating the SSID in the handshake,
+and meanwhile networks should not share passwords, or in Enterprise RADIUS
+server names, across SSIDs.
+
 **Group keys.** Every device on a network holds the same GTK, so any of them can
 forge broadcast frames that look as if they came from the access point. Many
 networks rely on **client isolation** to stop users attacking each other, and
@@ -865,17 +1645,18 @@ it on many access points, using the shared group key and the way traffic is
 forwarded between clients. WPA3 and PMF alone do not prevent it; isolation must
 be enforced properly in the access point.
 
-The lesson of both is that a channel is only as secure as everything the
-receiver does with a frame after the MIC checks.
+The lesson of all four is that a channel is only as secure as everything the
+receiver does with a frame after the MIC checks, and everything the
+cryptography leaves out: a header bit, a queue, a name.
 
-## 9.12 Mars: radio in a city of domes
+## 9.13 Mars: radio in a city of domes
 
 *Level: intermediate.*
 
 Arcadia City is a place where almost everything is wireless: suits, rovers,
 sensors in every wall, residents' tablets. None of it crosses the gap to Earth
 directly, so Wi-Fi faces the same short-range threats it faces on Earth, with
-two differences.
+three differences.
 
 First, **outside is not empty**. Rovers and suits outside the domes talk to
 the city by radio across open plains with no walls in the way, so their links
@@ -891,7 +1672,24 @@ FragAttacks lessons apply with extra force: the city would put such devices on
 their own network segment, and never trust a frame from the air more than the
 protocol has proved.
 
-## 9.13 In the real world
+Third, **nothing in a login may wait for Earth**. An eduroam login can cross an
+ocean to a home university and back in a fraction of a second; from Arcadia
+City the round trip takes 6 to 44 minutes, and none at all during solar
+conjunction. EAP needs several round trips and access points give up after
+seconds, so the RADIUS servers, the CA for suits and rovers, and its
+revocation list must live in the city. A visitor with Earth credentials would
+get a local credential on arrival, perhaps pre-signed by the home institution
+and carried on the ship.
+
+The rest follows from this chapter: EAP-TLS with pinned server certificates,
+and RADIUS over TLS, since a Blast-RADIUS attacker needs only a cable in a
+maintenance shaft; WPA3-Personal with hash-to-element for sensor networks too
+small for certificates, with $\mathit{PT}$ computed once per sensor and a
+different password per SSID, so SSID confusion has nothing to confuse; OWE for
+the public plaza network. A lost suit's certificate is revoked at its next
+login, with no message to Earth.
+
+## 9.14 In the real world
 
 *Level: intermediate.*
 
@@ -915,7 +1713,7 @@ protocol has proved.
   reported `key_mgmt=SAE`, `pairwise_cipher=CCMP`, `sae_group=19` and `pmf=1`
   for the WPA3 client.
 
-## 9.14 Going deeper
+## 9.15 Going deeper
 
 *Level: expert.*
 
@@ -957,52 +1755,58 @@ far more serious with GCMP, which allowed forgery, than with CCMP.
     corrected without the key; and it has no key at all, so anyone who knows a
     plaintext can compute it. A MAC needs a secret key and must not be linear.
 
-??? question "2. Why did WEP's 24-bit IV lead to keystream reuse so quickly?"
-    With $2^{24}$ values and random or reset-to-zero choices, a repeat is
-    expected after about $\sqrt{2^{24}} = 4{,}096$ frames (the birthday bound).
-    The same IV with the same key gives the same RC4 keystream.
-
-??? question "3. What are the PMK, PTK and GTK, and which are unique to one device?"
+??? question "2. What are the PMK, PTK and GTK, and which are unique to one device?"
     PMK: the long-term secret (from the passphrase, SAE or EAP); unique per
     device only with SAE or Enterprise. PTK: per connection, from the PMK,
     addresses and nonces; unique. GTK: the group key for broadcast, shared by
     all devices on the network.
 
-??? question "4. Why can a WPA2-Personal passphrase be guessed offline from one handshake?"
+??? question "3. Why can a WPA2-Personal passphrase be guessed offline from one handshake, and what does the PMKID variant save the attacker?"
     The PMK depends only on the passphrase and SSID, the nonces and addresses
-    are sent in the clear, and message 2's MIC is a function of all of them. Each
-    guess can be checked against the MIC without contacting the network.
+    are in the clear, and message 2's MIC depends on all of them, so each guess
+    is checked against the MIC offline. The PMKID depends only on the PMK and
+    the addresses, so the attacker needs just the AP, not a client.
 
-??? question "5. What does a PMKID attack need, compared with the MIC attack?"
-    Only the access point: the attacker begins to associate, receives message 1
-    with a PMKID, and cracks it offline. No client has to connect.
+??? question "4. In KRACK, why does the device accept the replayed message 3, and why does reinstalling the key break CCMP?"
+    The retransmission carries a higher replay counter, so it passes the
+    freshness check, and the standard said to answer it. Installing a key
+    resets its packet number, part of the CCMP nonce, so new frames reuse
+    nonces, and counter-mode keystream, under the same key.
 
-??? question "6. In KRACK, why does reinstalling the same key break CCMP?"
-    Installing a key resets its packet number, which is part of the nonce. The
-    device then encrypts new frames with nonces already used under that key,
-    reusing counter-mode keystream.
-
-??? question "7. Why does an SAE recording not help a password guesser?"
+??? question "5. Why does an SAE recording not help a password guesser?"
     To test a guess, the attacker would need $\mathit{rand}$ or
     $\mathit{mask}$, which are protected by the elliptic curve discrete
     logarithm problem; the transcript has no value that is a function of the
     password alone. Each guess requires a live run of the protocol.
 
-??? question "8. What did Dragonblood's timing attack measure, and how was it fixed?"
-    The number of hunting-and-pecking iterations needed to find the password
-    element, which depends on the password and MAC addresses; spoofing many MAC
-    addresses filters a dictionary. Fixes: always run all iterations in constant
-    time, and the hash-to-element method (H2E), mandatory on 6 GHz.
+??? question "6. In the group of squares modulo 23 with $\mathit{PWE} = 4$, a device picks $\mathit{rand} = 2$ and $\mathit{mask} = 3$. What commit does it send?"
+    $\mathit{scalar} = 2 + 3 = 5$ (modulo 11). $4^3 = 64 \equiv 18$, and the
+    inverse of 18 modulo 23 is 9, so $\mathit{element} = 9$. It sends
+    $(5, 9)$: the same element as in §9.7, since the mask is the same.
 
-??? question "9. What is the main risk in PEAP with MS-CHAPv2, and what prevents it?"
-    Devices that accept any server certificate connect to a fake access point
-    and RADIUS server, which captures MS-CHAPv2 exchanges that can be cracked
-    (one DES key). Pinning the server's CA and name on every device prevents it.
+??? question "7. What did Dragonblood's timing attack measure, and why does each measurement keep about a third of a dictionary?"
+    The round at which hunting and pecking found the password element, which
+    depends on the password and the attacker's chosen MAC address. The round
+    is $k$ with probability $2^{-k}$, so a wrong password matches with
+    probability $\sum_k 4^{-k} = 1/3$ on average.
 
-??? question "10. What do protected management frames protect against, and what does OWE not protect against?"
-    PMF stops forged deauthentication and other management frames. OWE stops
-    passive eavesdropping on open networks but not a fake access point with the
-    same name, because nothing is authenticated.
+??? question "8. Hash-to-element computes $\mathit{PT}$ from the SSID and password, then $\mathit{PWE} = \mathit{val} \cdot \mathit{PT}$ from the MAC addresses. Why does this stop Dragonblood's timing attack?"
+    Computing $\mathit{PT}$, the only step that involves the password, does
+    not involve the MAC addresses, so spoofing yields no new observations, and
+    the SWU map has no loop. The per-connection step is one constant-time
+    scalar multiplication of a fixed point.
+
+??? question "9. In WPA3 transition mode, how does a fake WPA2-only access point get a crackable value without knowing the password, and what stops it?"
+    It sends an unauthenticated message 1 with any ANonce and receives
+    message 2 with its MIC, which can be cracked offline; the device would
+    notice only at message 3. Transition disable makes a device that has used
+    WPA3 on a network refuse WPA2 there afterwards.
+
+??? question "10. Name one way a fake access point defeats PEAP with MS-CHAPv2, and why OWE cannot stop a fake access point at all."
+    A device that accepts any server certificate hands its MS-CHAPv2 exchange,
+    worth one DES key, to the fake AP's RADIUS server; pinning the CA and
+    server name prevents it. OWE's Diffie-Hellman is unauthenticated, so a
+    fake AP simply completes its own exchange.
 
 ## What you learned
 
@@ -1016,10 +1820,17 @@ far more serious with GCMP, which allowed forgery, than with CCMP.
 - WPA3's SAE is a PAKE: a recording gives nothing to guess against, each guess
   costs a live exchange, and sessions are forward secret; Dragonblood showed
   that its implementation must be constant-time, and H2E made that easy.
-- Enterprise Wi-Fi gives each user a PMK through EAP, and depends on devices
-  checking the server's certificate.
-- OWE encrypts open networks; PMF protects management frames; frame handling
-  and shared group keys remain attack surfaces.
+- Hash-to-element turns the password into a fixed point with the simplified
+  SWU map, once per network, and lets the MAC addresses touch only a public
+  multiplier; SAE run this way matches the standard's Annex J.10 vectors.
+- Enterprise Wi-Fi gives each user a PMK through EAP and depends on devices
+  checking the server's certificate; EAP's Message-Authenticator spared it
+  from Blast-RADIUS.
+- OWE's unauthenticated Diffie-Hellman stops passive recording, not an evil
+  twin; PMF protects management frames; aggregation, fragment caches,
+  power-save queues, network names and group keys remain attack surfaces.
+- A habitat network authenticates locally: no login can wait 6 to 44 minutes
+  for Earth.
 
 **Next:** [Chapter 10](10-DNSSEC-and-Private-DNS.md), securing the system that
 turns names into addresses.
@@ -1054,3 +1865,21 @@ turns names into addresses.
 - Jens Steube, "New attack on WPA/WPA2 using PMKID", hashcat forum (August
   2018).
 - The AirSnitch paper (NDSS 2026), papers.mathyvanhoef.com.
+- IEEE Std 802.11-2020, §12.4 (SAE and hash-to-element) and Annex J.10 (SAE
+  test vectors, also in hostapd's module tests).
+- RFC 3579 (RADIUS support for EAP, 2003), RFC 6614 (RADIUS over TLS, 2012).
+- Mathy Vanhoef and Frank Piessens, "Advanced Wi-Fi attacks using commodity
+  hardware" (ACSAC 2014), the channel-based man in the middle.
+- Mathy Vanhoef and Frank Piessens, "Release the Kraken: new KRACKs in the
+  802.11 standard" (CCS 2018).
+- Daniel De Almeida Braga, Pierre-Alain Fouque and Mohamed Sabt, "Dragonblood
+  is still leaking: practical cache-based side-channel in the wild" (ACSAC
+  2020).
+- Domien Schepers, Aanjhan Ranganathan and Mathy Vanhoef, "Framing frames:
+  bypassing Wi-Fi encryption by manipulating transmit queues" (USENIX Security
+  2023).
+- Héloïse Gollier and Mathy Vanhoef, the SSID confusion paper (ACM WiSec
+  2024), papers.mathyvanhoef.com/wisec2024.pdf.
+- Sharon Goldberg, Miro Haller, Nadia Heninger, Mike Milano, Dan Shumow, Marc
+  Stevens and Adam Suhl, "RADIUS/UDP considered harmful" (USENIX Security
+  2024), the Blast-RADIUS paper.
