@@ -15,7 +15,7 @@ The German army's field cipher of 1918, designed by Fritz Nebel. A square turns 
 See [Chapter 11](11-Radio-War-and-the-One-Time-Pad.md#114-adfgvx-and-the-man-who-broke-it-in-a-week).
 
 **Aeneas Tacticus**
-Greek writer, born about 400 BC (a guess from his command in 367 BC), who wrote a manual of defense for a city under siege about 350 BC. Its chapter 31 lists some twenty ways to get a message through, and it is the first book on the subject.
+Greek writer, born about 400 BC (a guess from his command in 367 BC), who wrote a manual of defense for a city under siege about 350 BC. Its chapter 31 lists close to twenty ways to get a message through, and it is the first book on the subject.
 See [Chapter 3](03-Greece-and-Rome.md#33-aeneas-tacticus-the-first-book-on-the-subject).
 
 **AES (Advanced Encryption Standard)**

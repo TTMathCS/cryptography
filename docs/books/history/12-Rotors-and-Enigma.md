@@ -240,7 +240,7 @@ The military machine was not the commercial one. Two changes defined it:
 
 The army's machine, called the **Enigma I**, was the one the Poles first met. The wiring inside its rotors was not the wiring of the commercial machine; it was a secret, and it was the one thing the Poles would have to discover.
 
-The German forces used Enigma in many versions, down to divisional headquarters in the army (smaller units used hand ciphers) and aboard every ship and U-boat. How many were built is uncertain; estimates run from about 40,000 to well over 100,000. The Germans trusted it, because the numbers were large (§12.4) and because they did not imagine that a mathematician could take the plugboard out of the problem. That trust lasted to the end of the war: German investigations kept putting their losses down to spies, bad luck and radar, and never concluded that the machine was read.
+The German forces used Enigma in many versions, down to divisional headquarters in the army (smaller units used hand ciphers) and aboard every ship and U-boat. How many were built is uncertain; estimates run from about 35,000 to about 100,000. The Germans trusted it, because the numbers were large (§12.4) and because they did not imagine that a mathematician could take the plugboard out of the problem. That trust lasted to the end of the war: German investigations kept putting their losses down to spies, bad luck and radar, and never concluded that the machine was read.
 
 !!! note "Life story: the army Enigma I"
     **Born:** the military machine from about 1928, with the plugboard added about 1930 · **Purpose:** an easy-to-use machine for the army's field and staff traffic, with a key that changed every day · **Helped:** carried the German army's and air force's radio traffic from the early 1930s to 1945 · **Status:** read by Poland from 1933 to 1939, then by Britain and its allies to the end of the war; used until Germany's defeat in 1945
@@ -475,7 +475,7 @@ So in 1929 the Bureau tried something new. With the help of the mathematics prof
 - **Jerzy Różycki**, born in 1909 in what is now Ukraine, studied mathematics at Poznań and was the youngest of the three.
 - **Henryk Zygalski**, born in 1908 in Poznań, also studied mathematics there.
 
-By the usual account they worked from 1930 for the Bureau's branch in Poznań on German ciphers. In September 1932 Rejewski was brought to Warsaw and given Enigma to work on, alone at first by his own later account; Różycki and Zygalski joined the work soon after. The Bureau's chief was Major Gwido Langer, and its German section was run by Ciężki. A small radio firm in Warsaw, AVA, whose directors Antoni Palluth and Edward Fokczyński had worked for the Bureau, built the machines the mathematicians designed.
+By the usual account they worked from 1930 for the Bureau's branch in Poznań on German ciphers. The Poznań branch closed in the summer of 1932, and in September the three men moved to the Bureau in Warsaw. Rejewski was given Enigma to work on, alone at first by his own later account; Różycki and Zygalski joined the work soon after. The Bureau's chief was Major Gwido Langer, and its German section was run by Ciężki. A small radio firm in Warsaw, AVA, whose directors Antoni Palluth and Edward Fokczyński had worked for the Bureau, built the machines the mathematicians designed.
 
 !!! note "Life story: the Polish Cipher Bureau (Biuro Szyfrów)"
     **Born:** 1919, in the Polish General Staff's intelligence department, out of the war with Soviet Russia; the Poznań course was in 1929 · **Purpose:** read the signals of Poland's neighbors · **Helped:** read German army Enigma from 1933 to 1939 with a team that never numbered more than a few dozen people, and gave Britain and France the method in July 1939 · **Status:** evacuated in September 1939; its people worked on in France and Britain (§12.11)
@@ -757,7 +757,7 @@ The Germans kept raising the price, and Poland kept paying until it could not. F
 <text x="330" y="240" font-size="13">the Bureau</text>
 <line x1="8" y1="260" x2="632" y2="260" stroke="currentColor" stroke-width="0.5" opacity="0.5"/>
 <text x="14" y="276" font-size="13" font-weight="bold">Early 1939</text>
-<text x="14" y="294" font-size="13">Seven to ten plug cables (was five to eight)</text>
+<text x="14" y="294" font-size="13">Up to ten plug cables (was five to eight)</text>
 <text x="330" y="278" font-size="13">The bomba's unplugged-letter test fails more</text>
 <text x="330" y="294" font-size="13">often</text>
 <line x1="8" y1="314" x2="632" y2="314" stroke="currentColor" stroke-width="0.5" opacity="0.5"/>
@@ -771,7 +771,7 @@ The Germans kept raising the price, and Poland kept paying until it could not. F
 </figure>
 
 
-On 2 November 1937 the army changed the reflector. Rejewski recovered the new reflector's wiring from the traffic, and the catalog was rebuilt. On 15 September 1938 came the change that ended the catalog: each operator now picked his own ground setting, and a day no longer had one set of products $AD$, $BE$, $CF$. The Bureau answered within weeks with two methods built on the *females* of §12.8, indicators where the same letter stands at places one and four (or two and five, or three and six). A female means the product has a fixed point at that rotor position, and whether a position can have one depends on the rotors, not on the plugs.
+On 2 November 1937 (some sources say the 1st) the army changed the reflector. Rejewski recovered the new reflector's wiring from the traffic, and the catalog was rebuilt. On 15 September 1938 came the change that ended the catalog: each operator now picked his own ground setting, and a day no longer had one set of products $AD$, $BE$, $CF$. The Bureau answered within weeks with two methods built on the *females* of §12.8, indicators where the same letter stands at places one and four (or two and five, or three and six). A female means the product has a fixed point at that rotor position, and whether a position can have one depends on the rotors, not on the plugs.
 
 **Zygalski's sheets**, devised by Henryk Zygalski, were perforated cards, a 26-by-26 grid for each rotor order and each position of the left-hand rotor, with a hole wherever a female could occur. Stack a day's sheets, each shifted by the clear ground setting of one message, and light shows through only at settings that fit every female. **The bomba** (plural *bomby*), designed by Rejewski in October 1938 and built by AVA, joined six Enigma doubles in pairs, and ran through all 17,576 positions of one rotor order in about two hours, stopping where the females lined up. Six were made, one for each order, by November 1938. (Nobody is sure where the name came from; one story says the round ice-cream dessert, another the ticking of the device.) It assumed that the female letter was not on a plug cable, which was true often enough with five to eight cables.
 
@@ -784,7 +784,7 @@ On 2 November 1937 the army changed the reflector. Rejewski recovered the new re
 !!! note "Life story: Henryk Zygalski"
     **Born:** 1908, Poznań; died 1978, in Hampshire · **Purpose:** the perforated sheets of 1938 · **Helped:** kept the break alive through the autumn of 1938, and in France in 1939 and 1940 · **Status:** reached Britain in 1943, taught mathematics after the war, and died in 1978, two years before Rejewski's own account of the method appeared
 
-Then the arithmetic turned. On 15 December 1938 the army issued two more rotors. The machine still held three, but chosen from five: $5 \times 4 \times 3 = 60$ orders, not 6. The Poles worked out the wiring of the two new rotors in a few weeks (by some accounts with fresh key lists from Schmidt), but the number of sheets needed rose tenfold and the number of bomby to sixty. In January 1939 the army began using seven to ten plug cables, and the bomba's assumption about unplugged females failed more often. The Bureau had neither the money nor the people. A method that had kept pace for six years was now behind, and in the spring of 1939, with war near, Poland's General Staff decided, by the usual account, to give everything away.
+Then the arithmetic turned. On 15 December 1938 the army issued two more rotors. The machine still held three, but chosen from five: $5 \times 4 \times 3 = 60$ orders, not 6. The Poles worked out the wiring of the two new rotors in a few weeks (by some accounts with fresh key lists from Schmidt), but the number of sheets needed rose tenfold and the number of bomby to sixty. By January 1939 the army was using up to ten plug cables, and the bomba's assumption about unplugged females failed more often. The Bureau had neither the money nor the people. A method that had kept pace for six years was now behind, and in the spring of 1939, with war near, Poland's General Staff decided, by the usual account, to give everything away.
 
 
 ## 12.10 Pyry, July 1939
@@ -798,7 +798,7 @@ The French sent Bertrand and a cipher officer, Captain Henri Braquenié. Britain
 The Poles promised each ally a replica Enigma and the drawings of the sheets and the bomba. By the usual account a replica reached London by diplomatic bag in August 1939 and was met at Victoria station by officers of the Secret Intelligence Service. Within five weeks Germany had invaded.
 
 !!! note "Life story: the Pyry meeting, 25 and 26 July 1939"
-    **Born:** a decision of the Polish General Staff in the spring of 1939 · **Purpose:** hand the Polish break of Enigma to Britain and France before Poland could no longer use it · **Helped:** gave Bletchley Park the wiring, the method and a replica machine weeks before the war; the British made their own sheets and read their first wartime Enigma messages on 6 January 1940 · **Status:** the Polish methods ended in May 1940 when the doubled key was dropped, but the mathematics lived on in the British bombe (chapter 13)
+    **Born:** a decision of the Polish General Staff in the spring of 1939 · **Purpose:** hand the Polish break of Enigma to Britain and France before Poland could no longer use it · **Helped:** gave Bletchley Park the wiring, the method and a replica machine weeks before the war; the British made their own sheets and read their first wartime Enigma messages in January 1940 · **Status:** the Polish methods ended in May 1940 when the doubled key was dropped, but the mathematics lived on in the British bombe (chapter 13)
 
 Why give it all away? The Bureau had run out of room (§12.9). It could not build sixty bomby, and it knew that in a war it might not survive. Britain and France had factories, money and radio networks; Poland had an idea that would be wasted if it fell with Warsaw.
 

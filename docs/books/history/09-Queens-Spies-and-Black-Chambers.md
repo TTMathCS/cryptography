@@ -97,7 +97,7 @@ link, a letter that read like a note about merchandise.
 <text x="88" y="105">Rossignol reads the letter from Réalmont</text>
 <text x="58" y="131" text-anchor="end" font-weight="bold">1691</text>
 <circle cx="72" cy="126" r="3.5" fill="currentColor"/>
-<text x="88" y="131">Louvois writes the “Bulonde” letter in the Great Cipher</text>
+<text x="88" y="131">The “Bulonde” letter is written in the Great Cipher</text>
 <text x="58" y="157" text-anchor="end" font-weight="bold">1716</text>
 <circle cx="72" cy="152" r="3.5" fill="currentColor"/>
 <text x="88" y="157">Edward Willes becomes England's Decipherer</text>
@@ -167,7 +167,7 @@ long game was a letter-box.
 The letter-box was built in late 1585 and early 1586. Mary had been cut off from the world by Paulet. Her letters from
 France, where her friends Thomas Morgan and Charles Paget kept her cause alive, were not getting through. Into this
 silence came a young man called Gilbert Gifford, born about 1560 into a Staffordshire Catholic family and trained as a
-priest at the English college at Rheims. He landed at Rye in December 1585, was stopped, and by the end of that month was
+priest at the English college at Rheims. He was stopped on landing at Rye late in 1585 and was soon
 working for Walsingham. He offered Mary's friends in Paris a route into Chartley, and they believed him.
 
 The route was a brewer who delivered beer to the house. A watertight case, a hollow made for the purpose, was slid
@@ -488,7 +488,7 @@ ciphered ones had gone, no one knew.
 
 In early 2023 a team of three, George Lasry (an Israeli computer scientist), Norbert Biermann (a German researcher) and
 Satoshi Tomokiyo (a Japanese researcher), announced that they had found and read 57 of them. The letters were in the
-Bibliothèque nationale de France, catalogued as Italian documents of the early 1500s, and so had lain unread for more than
+Bibliothèque nationale de France, filed by mistake among Italian papers, and so had lain unread for more than
 four hundred years. They date from 1578 to 1584, the long years of captivity under the Shrewsburys, before the Chartley
 trap. They are in French, in a cipher that, as the team describes it, is homophonic: several signs for each of the
 commoner letters, with a nomenclator of signs for words and names. The team recovered it, as they reported in a paper in
@@ -534,7 +534,9 @@ in France. He sat in the parliament of Brittany at Rennes, served as a *maître 
 and in his spare hours worked out a way of writing algebra with letters for the known and unknown quantities, the notation
 that every school pupil now uses. His book *In artem analyticem isagoge* appeared in 1591. In the same years, from 1589,
 he read the Spanish letters that French couriers and soldiers intercepted, and he read them, as far as we can
-tell, without a key. The decipherment dated 15 March 1590 is the one usually cited.
+tell, without a key. The best-attested case is a letter from Juan de Moreo, Philip's agent in France, to the king,
+dated 28 October 1589, which fell into French hands. Viète sent Henri IV the completed solution on 15 March 1590, though
+he had sent parts of it earlier.
 
 How Viète did it is not recorded. He left no account of his method, and what we have comes from writers a generation or more
 later. Spanish ciphers of the time had several hundred signs and were of the same family as Mary's, so the method must have
@@ -653,10 +655,11 @@ that could be a short frequent word in a letter of the period, tried "les ennemi
 phrase, and found that it fitted a repeated run. From there the syllables followed, a few at a time, and he found the
 traps by seeing numbers that made nonsense unless crossed out. 
 
-The reward was a set of letters from the heart of Louis XIV's government. One, written in 1691 by the minister of war,
-the marquis de Louvois, ordered the arrest of General Vivien de Bulonde, who had abandoned the siege of Cuneo, and said
+The reward was a set of letters from the heart of Louis XIV's government. One, a dispatch of 1691 to General Catinat from
+the court (accounts name the minister of war, the marquis de Louvois, or the king as its author), ordered the arrest of General Vivien de Bulonde, who had abandoned the siege of Cuneo, and said
 he was to be held at Pignerol and allowed on the ramparts of the fortress, with a pair of code groups, 330 and 309, that
-appear nowhere else. Bazeries read the two groups as the syllables of *masque* ("mask") and decided that Bulonde was the
+appear nowhere else. Bazeries read them as *masque* ("mask"), though one account has 330 alone as the word and 309 as a
+full stop, and decided that Bulonde was the
 famous prisoner in the iron mask. The theory had a short life. The reading of the groups is a guess, Bulonde was
 released and went on living, and the dates do not fit the prisoner who died in the Bastille in 1703. The identity of the
 man in the iron mask is still argued, but Bulonde is out of it.
@@ -801,7 +804,7 @@ The end came from a small thing. In 1844 the Italian exile Giuseppe Mazzini, who
 letters were being opened. His friends, it was said, laid small traps in the folds to see (accounts differ on whether it
 was a hair or a seed), and the traps showed that the letters had been tampered with. The Home Secretary, Sir James Graham,
 had signed the warrant and the news had gone to Austria, which was hostile to Mazzini's cause. In the same summer, a
-small band of Mazzini's supporters, the Bandiera brothers, landed in Calabria and were caught and shot. The affair came
+small band of Mazzini's supporters, the Bandiera brothers, landed in Calabria and were caught and shot; many at the time believed the leaked letters had helped bring this about. The affair came
 before the House of Commons in June 1844, public opinion turned, and a committee inquired. The Secret Department was
 wound up, and the next standing office of the kind in Britain was Room 40, in 1914.
 
@@ -1008,14 +1011,14 @@ What did it produce? As usually told, Culper reports in 1780 warned Washington t
 to attack the French army and fleet that had just landed at Newport, Rhode Island, and Washington's move toward New York
 discouraged them. Townsend learned from his acquaintance with British officers, at the coffee house and in the
 newspaper office, which regiments were moving and when. Townsend kept his role secret all his life. He died, unmarried,
-in 1838, and the Culper Junior of the letters was not tied to him until 1930, when the historian Morton Pennypacker
+in 1838, and the Culper Junior of the letters was not tied to him until about 1930 (some accounts say 1939, the year of his book), when the historian Morton Pennypacker
 matched the handwriting of the letters to Townsend's own.
 
 !!! note "Life story: the Culper Ring (1778 to 1783)"
     **Born:** 1778, Setauket and New York, organized by Major Benjamin Tallmadge for George Washington · **Purpose:**
     to bring Washington reliable news of the British in New York · **Helped:** reports on British troop movements and
     plans, including (as usually told) the plan to strike the French at Newport in 1780 · **Retired:** the war ended in
-    1783; Townsend's role was not known until 1930
+    1783; Townsend's role was not known until about 1930
 
 **Two women, and what the sources say.** A story every account of the ring tells is that Anna Smith Strong (1740 to 1812),
 a Setauket neighbor of Woodhull, signaled to Caleb Brewster by hanging a black petticoat on her clothesline when he
@@ -1235,7 +1238,7 @@ the 1580s letters in the BnF say in detail. Whether Peggy Shippen began the Arno
 
 ??? question "7. What did Bazeries decide the Great Cipher's numbers stood for, and what was wrong with his Bulonde reading?"
 
-    Mostly syllables. He read the pair 330 and 309 in a 1691 letter as *masque* and concluded that General Bulonde was
+    Mostly syllables. He read the groups 330 and 309 in a 1691 letter as *masque* (on one account, 330 alone) and concluded that General Bulonde was
     the man in the iron mask; that is a guess, Bulonde was released, and the dates do not fit.
 
 ??? question "8. Name the three jobs of a black chamber and the two times in Vienna's morning."

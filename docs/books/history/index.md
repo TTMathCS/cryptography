@@ -139,7 +139,7 @@ belongs to and a link to the chapter that tells the story.
 | 1918 | Europe | Georges Painvin breaks Germany's [ADFGVX](11-Radio-War-and-the-One-Time-Pad.md) field cipher | A decoded order points to where the next German attack will fall |
 | 1918 | Americas | Choctaw soldiers become the first [code talkers](11-Radio-War-and-the-One-Time-Pad.md) | A language the enemy doesn't know, on the field telephone |
 | 1920 | Americas | William Friedman's [index of coincidence](11-Radio-War-and-the-One-Time-Pad.md) | Statistics find a keyword's length with no guessing |
-| 1924 | Japan | A Polish officer teaches Japan's army and navy [codebreaking](14-The-Rest-of-the-War.md) | The start of Japan's codebreaking services |
+| c. 1923 | Japan | A Polish officer teaches Japanese officers [codebreaking](14-The-Rest-of-the-War.md) | The start of Japan's codebreaking services |
 | 1932 | Europe | Marian Rejewski [reconstructs the wiring](12-Rotors-and-Enigma.md) of the military Enigma | Mathematics enters codebreaking |
 | 1938–1939 | Europe | The Poles build the *bomba*, then [share everything](12-Rotors-and-Enigma.md) with Britain and France | Five weeks before the war, the Allies learn how Enigma can be broken |
 | 1938–1940 | China | Herbert Yardley works on Japanese army codes in [Chongqing](14-The-Rest-of-the-War.md) | China builds its own codebreaking bureau |
