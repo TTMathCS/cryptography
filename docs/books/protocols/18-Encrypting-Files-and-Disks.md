@@ -12,9 +12,11 @@ guards it, not from the ciphertext. This chapter covers both jobs. For
 files, you will decrypt a real `age` file and write the format yourself,
 chunked AEAD and all. For disks, you will code XTS and match IEEE 1619's
 test vector, then use it to show what disk encryption does not protect:
-snapshots, rollbacks and flipped bits. Then the keys: LUKS's key check and
-anti-forensic splitter on a real header, BitLocker's recovery password,
-TPMs, cold boots and evil maids.*
+snapshots, rollbacks and flipped bits, and code Adiantum, the wide-block
+mode built for cheap phones. Then the keys: LUKS's key check and
+anti-forensic splitter, BitLocker's recovery password, Apple's and
+Android's key hierarchies, a TPM policy computed byte by byte, cold boots
+and evil maids.*
 
 !!! abstract "In this chapter"
     **You will learn:**
@@ -26,8 +28,14 @@ TPMs, cold boots and evil maids.*
     - why disks need length-preserving, tweakable encryption, and how XTS
       works, coded and checked against IEEE 1619;
     - what XTS leaks and allows: snapshots, rollback, malleability;
-    - wide-block modes (Adiantum, HCTR2) and authenticated storage;
+    - age's post-quantum recipient (2025);
+    - wide-block modes and authenticated storage; Adiantum, coded and
+      checked against a published test vector;
     - how LUKS, BitLocker and FileVault store and unlock the volume key;
+    - the key hierarchies of Apple's FileVault and Android's file-based
+      encryption;
+    - how a TPM policy binds a disk key to PCRs, what breaks it, and how a
+      signed policy survives a firmware update;
     - TPMs, secure enclaves and their attacks; cold boot and evil maid;
     - what is different about data at rest on Mars.
 
@@ -36,10 +44,13 @@ TPMs, cold boots and evil maids.*
     (HPKE and ChaCha20-Poly1305); block ciphers, modes of operation and
     password hashing from Chapters [6](../../book/06-Block-Ciphers.md),
     [8](../../book/08-Modes-of-Operation.md) and
-    [11](../../book/11-Passwords-and-Key-Derivation.md) of book 1.
+    [11](../../book/11-Passwords-and-Key-Derivation.md) of book 1. PCRs and
+    measured boot are introduced in the Engineering book's
+    [chapter 11](../engineering/11-Hardware-for-Keys.md), which §18.8 builds
+    on.
 
-    **Levels:** §18.1 and §18.2 are for beginners, §18.3 to §18.10 are
-    intermediate, §18.11 is expert.
+    **Levels:** §18.1 and §18.2 are for beginners, §18.3 to §18.11 are
+    intermediate, §18.12 is expert.
 
 ## 18.1 Two different jobs
 
@@ -307,14 +318,55 @@ the header MAC at work. Changing Bob's stanza does not stop Alice from
 unwrapping the file key, but the header she then checks is not the one the
 sender MAC'd.
 
+### The post-quantum recipient (2025)
+
+An X25519 stanza has a weakness that matters more for files than for
+messages: **harvest now, decrypt later**. Shor's algorithm on a large
+quantum computer would recover the file key from the stanza's ephemeral
+key, and a backup may sit in storage for twenty years.
+
+age v1.3.0, released on 27 December 2025, the sixth anniversary of the
+first beta, added a native hybrid recipient (`age-keygen -pq`). The
+identity is still 32 random bytes; the recipient is an ML-KEM-768
+encapsulation key of 1,184 bytes plus a 32-byte X25519 key, so an
+`age1pq1…` string is about 2,000 characters long. The stanza, shortened:
+
+```text
+-> mlkem768x25519 U7E10Aon27j1oDrH7fP3B++SPROSnDVvQpBemzOM+Zcs…   (1,120 bytes)
+c/k+TjhBA6Je1DF8rxZhe2Jm8CN0zbkV9rre6nA8g98                       (sealed file key)
+```
+
+The wrapping is HPKE (RFC 9180) in base mode with the MLKEM768-X25519
+hybrid KEM (also known as X-Wing), HKDF-SHA-256 and ChaCha20-Poly1305, info
+string `age-encryption.org/mlkem768x25519`. The argument is the 1,120-byte
+encapsulation (a 1,088-byte ML-KEM ciphertext and a 32-byte X25519 share);
+the body is the sealed file key, and a reader must check that it is
+exactly 32 bytes, against **partitioning oracle** attacks (Julia Len, Paul
+Grubbs and Thomas Ristenpart, 2021), whose crafted multi-key ciphertexts
+are long. The hybrid
+holds while either half holds ([Post-quantum chapter
+8](../post-quantum/08-ML-KEM.md) covers ML-KEM).
+
+Nothing else changed: the version line, header MAC and payload are as
+before, so moving an archive to post-quantum recipients means re-wrapping a
+16-byte file key, not re-encrypting data. One rule is new: the age tool
+will not mix post-quantum and classic recipients in one file, since a
+quantum attacker would simply open the X25519 stanza, the same reasoning
+that keeps an `scrypt` stanza alone. `age-plugin-pq` brings the type to
+older versions, and the release also added P-256 "tagged" recipients for
+hardware tokens. [Post-quantum chapter
+18](../post-quantum/18-Hybrids-and-the-Migration.md) follows the same
+migration across other protocols.
+
 !!! note "Life story: age"
     **Born:** 2019, designed by Filippo Valsorda and Ben Cartwright-Cox;
     version 1.0.0 of the Go tool in 2021 · **Purpose:** simple, modern file
     encryption with small keys, explicitly without OpenPGP's options,
     keyrings, web of trust and signatures · **Grew by:** new stanza types
     only, never new algorithms for old ones: SSH keys, hardware-key plugins
-    (YubiKey, Apple's Secure Enclave, TPM), and in 2025 a post-quantum
-    recipient using HPKE with ML-KEM-768 plus X25519 · **Status:** widely
+    (YubiKey, Apple's Secure Enclave, TPM), and in December 2025 (v1.3.0) a
+    native post-quantum recipient, HPKE with ML-KEM-768 plus X25519 ·
+    **Status:** widely
     used for secrets in software deployments (SOPS, passage) and backups;
     the format has not changed in an incompatible way since 2019
 
@@ -441,7 +493,8 @@ T·α = 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00   shift: byte 0 doubles,
 
 ### Code it: XTS-AES
 
-The program reuses compact AES-128 from Chapter 15, writes XTS, and checks
+The program reuses compact AES from Chapter 15 (extended to 256-bit keys,
+which §18.5 needs), writes XTS, and checks
 IEEE 1619's test vector 2 (key 1 = 11…11, key 2 = 22…22, sector number
 0x3333333333, plaintext 44…44). Then it plays attacker against an encrypted
 habitat configuration file.
@@ -449,7 +502,7 @@ habitat configuration file.
 ```python
 # XTS-AES (IEEE 1619, NIST SP 800-38E), the mode under BitLocker, FileVault and
 # LUKS: each 16-byte block is encrypted with a tweak made from the sector number.
-# AES-128 first, the same compact textbook version as in Chapter 15.
+# AES first, the compact textbook version of Chapter 15, here for 128- and 256-bit keys.
 def xtime(a): return ((a << 1) ^ 0x1B) & 0xFF if a & 0x80 else a << 1
 SBOX, INV = [0] * 256, [0] * 256
 p = q = 1
@@ -461,14 +514,17 @@ for _ in range(255):
 SBOX[0] = 0x63
 for i, s in enumerate(SBOX): INV[s] = i
 
-def expand(key):
-    w, rcon = [list(key[i:i + 4]) for i in range(0, 16, 4)], 1
-    while len(w) < 44:
+def expand(key):                                       # 11 round keys, or 15 for AES-256
+    nk = len(key) // 4
+    w, rcon = [list(key[i:i + 4]) for i in range(0, len(key), 4)], 1
+    while len(w) < 4 * (nk + 7):
         t = w[-1][:]
-        if len(w) % 4 == 0:
+        if len(w) % nk == 0:
             t = [SBOX[b] for b in t[1:] + t[:1]]; t[0] ^= rcon; rcon = xtime(rcon)
-        w.append([a ^ b for a, b in zip(w[-4], t)])
-    return [sum(w[4 * r:4 * r + 4], []) for r in range(11)]
+        elif nk == 8 and len(w) % nk == 4:
+            t = [SBOX[b] for b in t]
+        w.append([a ^ b for a, b in zip(w[-nk], t)])
+    return [sum(w[4 * r:4 * r + 4], []) for r in range(nk + 7)]
 def mix(c, inverse=False):
     if inverse:
         u, v = xtime(xtime(c[0] ^ c[2])), xtime(xtime(c[1] ^ c[3]))
@@ -476,15 +532,16 @@ def mix(c, inverse=False):
     t = c[0] ^ c[1] ^ c[2] ^ c[3]
     return [c[i] ^ t ^ xtime(c[i] ^ c[(i + 1) % 4]) for i in range(4)]
 def aes(rk, block, decrypt=False):
-    s = [a ^ b for a, b in zip(block, rk[10 if decrypt else 0])]
-    for r in (range(9, -1, -1) if decrypt else range(1, 11)):
+    n = len(rk) - 1                                    # 10 rounds, or 14
+    s = [a ^ b for a, b in zip(block, rk[n if decrypt else 0])]
+    for r in (range(n - 1, -1, -1) if decrypt else range(1, n + 1)):
         if decrypt:
             s = [INV[s[(i + 12 * (i % 4)) % 16]] for i in range(16)]
             s = [a ^ b for a, b in zip(s, rk[r])]
             if r: s = sum((mix(s[c:c + 4], True) for c in range(0, 16, 4)), [])
         else:
             s = [SBOX[s[(i + 4 * (i % 4)) % 16]] for i in range(16)]
-            if r < 10: s = sum((mix(s[c:c + 4]) for c in range(0, 16, 4)), [])
+            if r < n: s = sum((mix(s[c:c + 4]) for c in range(0, 16, 4)), [])
             s = [a ^ b for a, b in zip(s, rk[r])]
     return bytes(s)
 xor = lambda a, b: bytes(x ^ y for x, y in zip(a, b))
@@ -572,8 +629,9 @@ There are two directions, and both cost something.
   snapshots reveal only "this sector changed" and targeted garbling becomes
   impossible. Google's **Adiantum** (Paul Crowley and Eric Biggers, 2018)
   does this with XChaCha12, one AES call and a fast hash, and was built for
-  cheap Android phones without AES instructions; **HCTR2** (2021) is the
-  AES-based equivalent that Linux uses for encrypted file names.
+  cheap Android phones without AES instructions (it is coded below);
+  **HCTR2** (2021) is the AES-based equivalent that Linux uses for
+  encrypted file names.
 - **Authenticated storage.** Store a nonce and a tag per block somewhere
   else. Linux's dm-integrity can sit under dm-crypt to give AEAD per sector,
   at a cost in space and speed; ZFS's native encryption stores each block's
@@ -584,6 +642,269 @@ There are two directions, and both cost something.
 
 Rollback of the whole disk to an earlier image is beyond any of these: it
 needs a monotonic counter in hardware the attacker cannot reset.
+
+### Narrow blocks and wide blocks
+
+XTS is a **narrow-block** mode: it scrambles 16 bytes at a time, while
+the disk writes 4,096-byte sectors. A **wide-block** mode makes the sector
+the block, so any input change changes every output bit with probability
+one half. The trade:
+
+- **Snapshots:** narrow shows which 16-byte blocks changed, wide only
+  which sectors.
+- **Aim:** narrow lets an attacker garble 16 chosen bytes and keep the
+  rest, as CrashXTS did; wide garbles the whole sector. Neither *detects*
+  the change.
+- **Cost:** narrow is one pass, ideal for the AES engines in SSD
+  controllers; wide needs two, since no output bit is known until every
+  input bit is read.
+
+XTS survives because the usual threat is a laptop stolen once, and
+because AES-XTS is in silicon everywhere. Wide-block modes appear where
+there is no AES hardware (Adiantum) or where data is short and patterned,
+like file names: under Linux's default AES-CBC with ciphertext stealing,
+two names in a directory that share 16 leading bytes share a ciphertext
+block. **HCTR2** (Paul Crowley,
+Nathan Huckleberry and Eric Biggers, 2021), built from AES in a counter
+mode called XCTR and the POLYVAL hash of AES-GCM-SIV, fixes that; it is in
+Linux 6.0 (2022), and Android 14 prefers it for file names where supported.
+
+### Adiantum: hash, encrypt, hash
+
+The problem Adiantum solved was a billion cheap phones. Android 6.0 (2015)
+required new devices to encrypt their storage, except devices whose AES ran
+slower than 50 MiB/s. Entry-level phones of the late 2010s, many running
+Android Go on ARM Cortex-A7 cores without the ARMv8 Cryptography
+Extensions, fell under that exemption and shipped unencrypted: the people
+least able to replace a lost phone had the least protection. Paul
+Crowley and Eric Biggers of Google designed **Adiantum** for them (paper
+2018; announced February 2019; in Linux 5.0 and Android 9). On a Cortex-A7
+it decrypts 4,096-byte sectors at 10.6 cycles per byte, more than five
+times faster than AES-256-XTS. Since Android 10 every new device must
+encrypt, and Adiantum is how the slow ones do it.
+
+The construction is the **HBSH** pattern (hash, block cipher, stream cipher,
+hash) of Figure 18.3. Split the sector into $P_L$, everything but the last
+16 bytes, and $P_R$, the last 16 bytes. With $\boxplus$ and $\boxminus$
+meaning addition and subtraction of 16-byte little-endian numbers modulo
+$2^{128}$, and $T$ the 32-byte tweak:
+
+$$
+\begin{aligned}
+P_M &= P_R \boxplus H(T, P_L)\\
+C_M &= \mathrm{AES\text{-}256}_{K_E}(P_M)\\
+C_L &= P_L \oplus \mathrm{XChaCha12}_{K_S}(\text{nonce } C_M \,\|\, 1)\\
+C_R &= C_M \boxminus H(T, C_L)
+\end{aligned}
+$$
+
+and the ciphertext is $C_L \,\|\, C_R$, as long as the input. The hash is
+$H(T, L) = \mathrm{Poly1305}_{K_T}(|L| \,\|\, T) \boxplus
+\mathrm{NHPoly1305}_{K_N}(L)$, "Poly1305" meaning only its polynomial
+modulo $2^{130} - 5$, without the final mask. Decryption runs the picture
+upward.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 380" width="640" role="img" aria-label="Adiantum's hash, block cipher, stream cipher, hash structure. The left part of the sector is hashed with the tweak and added to the right 16 bytes; the sum is encrypted with one AES-256 call; the result is the nonce of an XChaCha12 keystream that encrypts the left part; the hash of the encrypted left part is subtracted from the AES output to give the right 16 bytes of ciphertext." fill="currentColor" font-size="13">
+<g stroke="currentColor">
+<rect x="40" y="20" width="320" height="32" rx="5" fill-opacity=".12"/>
+<rect x="460" y="20" width="120" height="32" rx="5" fill-opacity=".12"/>
+<line x1="200" y1="52" x2="200" y2="205"/>
+<line x1="520" y1="52" x2="520" y2="77"/>
+<line x1="200" y1="88" x2="258" y2="88"/>
+<rect x="260" y="72" width="150" height="32" rx="5" fill="none"/>
+<line x1="410" y1="88" x2="506" y2="88"/>
+<circle cx="520" cy="88" r="11" fill="none"/>
+<line x1="520" y1="99" x2="520" y2="134"/>
+<rect x="455" y="138" width="130" height="34" rx="5" fill-opacity=".25"/>
+<line x1="520" y1="172" x2="520" y2="262"/>
+<line x1="520" y1="220" x2="432" y2="220"/>
+<rect x="250" y="204" width="178" height="32" rx="5" fill-opacity=".12"/>
+<line x1="250" y1="220" x2="214" y2="220"/>
+<circle cx="200" cy="220" r="11" fill="none"/>
+<line x1="200" y1="231" x2="200" y2="330"/>
+<line x1="200" y1="283" x2="258" y2="283"/>
+<rect x="260" y="267" width="150" height="32" rx="5" fill="none"/>
+<line x1="410" y1="283" x2="506" y2="283"/>
+<circle cx="520" cy="283" r="11" fill="none"/>
+<line x1="520" y1="294" x2="520" y2="330"/>
+<rect x="40" y="332" width="320" height="32" rx="5" fill-opacity=".35"/>
+<rect x="460" y="332" width="120" height="32" rx="5" fill-opacity=".35"/>
+</g>
+<polygon points="509,88 498,83 498,93"/>
+<polygon points="520,137 515,126 525,126"/>
+<polygon points="429,220 440,215 440,225"/>
+<polygon points="211,220 222,215 222,225"/>
+<polygon points="509,283 498,278 498,288"/>
+<g text-anchor="middle">
+<text x="200" y="41">P_L: all but the last 16 bytes</text>
+<text x="520" y="41">P_R (16 bytes)</text>
+<text x="335" y="93">H(T, P_L)</text>
+<text x="520" y="93">+</text>
+<text x="520" y="160">AES-256</text>
+<text x="339" y="225">XChaCha12(C_M ‖ 1)</text>
+<text x="200" y="225">⊕</text>
+<text x="335" y="288">H(T, C_L)</text>
+<text x="520" y="288">−</text>
+<text x="200" y="353">C_L</text>
+<text x="520" y="353">C_R</text>
+</g>
+<text x="545" y="93" font-size="11.5">mod 2¹²⁸</text>
+<text x="530" y="122" font-size="12">P_M</text>
+<text x="530" y="192" font-size="12">C_M</text>
+</svg>
+<figcaption>Figure 18.3. Adiantum's HBSH structure. One AES call on 16 bytes; the rest of the sector is a stream cipher whose nonce depends on every input bit, through the hash.</figcaption>
+</figure>
+
+Why is this wide-block? A flipped bit of $P_L$ changes $H(T, P_L)$, so
+$P_M$, so AES gives an unrelated $C_M$, a new nonce, a new keystream and a
+new $C_L$; $C_R$ depends on both. The proof needs the hash to be
+**ε-almost-Δ-universal**: for two different inputs, the chance over the key
+that their hashes differ by any given $\delta$ is a tiny $\epsilon$. Then
+different sectors almost never give AES the same $P_M$, and the stream
+cipher never reuses a nonce. Crowley and Biggers prove Adiantum a tweakable
+strong pseudorandom permutation if XChaCha12 and AES-256 are secure, with a
+birthday-style loss negligible at any number of sectors a phone will
+write.
+
+Speed comes from where the work goes. AES, slow in software, touches 16
+bytes per sector. XChaCha12 (12 rounds instead of 20; the best published
+attacks reach 7) does the bulk with additions, rotations and XORs. The
+hash does the rest, and NH, from the UMAC message authentication code
+(John Black, Shai Halevi, Hugo Krawczyk, Ted Krovetz and Phillip Rogaway,
+CRYPTO 1999), costs half a 32-bit multiplication per byte. The 32-byte
+tweak has room for a file's 16-byte nonce and an 8-byte block number, so
+Linux's fscrypt can let all files under one master key share one Adiantum
+key (`DIRECT_KEY`).
+
+### A worked example by hand: one step of NH
+
+NH reads 16 bytes of message as four 32-bit words $m_0, m_1, m_2, m_3$
+and adds key words to them, modulo $2^{32}$, before multiplying:
+
+$$
+s \mathrel{+}= (m_0 + k_0)(m_2 + k_2) + (m_1 + k_1)(m_3 + k_3),
+$$
+
+with the products taken as full 64-bit numbers and the sum kept modulo
+$2^{64}$. Take $m = (1, 2, 3, 4)$ and key words $k = (10, 20, 30, 40)$:
+
+```text
+(1 + 10) × (3 + 30)  =  11 × 33  =   363
+(2 + 20) × (4 + 40)  =  22 × 44  =   968
+                         sum     = 1,331
+```
+
+The additions wrap: if $m_0 = 2^{32} - 5$, then $m_0 + k_0 = 5$. For each
+next 16 bytes the key slides along by four words. Adiantum runs four such
+sums side by side, each with the key shifted by another four words, and
+keeps the four 64-bit results: 32 bytes per 1,024-byte chunk. For one sum,
+two different chunks collide for at most a $2^{-32}$ fraction of keys; the
+four shifted sums bring that to about $2^{-128}$. Poly1305's polynomial
+then combines the chunk outputs. Hence NH's 1,072 bytes of key: 1,024 for a
+chunk, plus 48 for the three shifts.
+
+### Code it: Adiantum
+
+The program takes AES from the XTS listing, now with a 256-bit key, builds
+XChaCha12, NH, Poly1305's polynomial and the HBSH structure, checks the
+31-byte test vector from Google's reference code (lengths need not be
+multiples of 16), and compares XTS and Adiantum on a 4,096-byte habitat
+sector.
+
+```python
+# Uses expand(), aes(), xor() and xts() from the XTS listing above.
+# Adiantum (Crowley and Biggers, 2018): XChaCha12, AES-256, NH and Poly1305.
+import struct
+M32, M128 = 2**32 - 1, 2**128
+
+def chacha_rounds(s, n):
+    def rotl(v, c): return ((v << c) & M32) | (v >> (32 - c))
+    for _ in range(n // 2):
+        for a, b, c, d in [(0, 4, 8, 12), (1, 5, 9, 13), (2, 6, 10, 14), (3, 7, 11, 15),
+                           (0, 5, 10, 15), (1, 6, 11, 12), (2, 7, 8, 13), (3, 4, 9, 14)]:
+            s[a] = (s[a] + s[b]) & M32; s[d] = rotl(s[d] ^ s[a], 16)
+            s[c] = (s[c] + s[d]) & M32; s[b] = rotl(s[b] ^ s[c], 12)
+            s[a] = (s[a] + s[b]) & M32; s[d] = rotl(s[d] ^ s[a], 8)
+            s[c] = (s[c] + s[d]) & M32; s[b] = rotl(s[b] ^ s[c], 7)
+    return s
+SIGMA = [0x61707865, 0x3320646e, 0x79622d32, 0x6b206574]
+def xchacha12(key, nonce, n):                      # 32-byte key, 24-byte nonce, n bytes
+    s = SIGMA + list(struct.unpack("<8I", key) + struct.unpack("<4I", nonce[:16]))
+    s = chacha_rounds(s, 12)
+    sub, out = s[:4] + s[12:], b""                 # HChaCha12 makes a subkey
+    for ctr in range((n + 63) // 64):
+        init = SIGMA + sub + [ctr, 0] + list(struct.unpack("<2I", nonce[16:]))
+        s = chacha_rounds(init[:], 12)
+        out += struct.pack("<16I", *[(x + y) & M32 for x, y in zip(s, init)])
+    return out[:n]
+
+def poly(r, data):                                 # Poly1305's polynomial, no final "+ s"
+    r, h = int.from_bytes(r, "little") & 0x0ffffffc0ffffffc0ffffffc0fffffff, 0
+    for i in range(0, len(data), 16):
+        h = (h + int.from_bytes(data[i:i + 16], "little") + M128) * r % (2**130 - 5)
+    return h % M128
+def nh(k, chunk):                                  # 4 passes, 16-byte units, 64-bit sums
+    sums = [0, 0, 0, 0]
+    for u in range(len(chunk) // 16):
+        m = struct.unpack_from("<4I", chunk, 16 * u)
+        for p in range(4):
+            k0, k1, k2, k3 = k[4 * u + 4 * p: 4 * u + 4 * p + 4]
+            sums[p] += ((m[0] + k0) & M32) * ((m[2] + k2) & M32)
+            sums[p] += ((m[1] + k1) & M32) * ((m[3] + k3) & M32)
+    return b"".join((x % 2**64).to_bytes(8, "little") for x in sums)
+def hash_tl(keys, tweak, left):                    # H(T, L) = Poly1305(len, T) + NHPoly1305(L)
+    _, kt, kp, kn = keys
+    head = (8 * len(left)).to_bytes(16, "little") + tweak
+    left += bytes(-len(left) % 16)
+    nhs = b"".join(nh(kn, left[i:i + 1024]) for i in range(0, len(left), 1024))
+    return (poly(kt, head) + poly(kp, nhs)) % M128
+
+def subkeys(K):                                    # 1,136 bytes of XChaCha12 keystream
+    d = xchacha12(K, b"\x01" + bytes(23), 1136)
+    return expand(d[:32]), d[32:48], d[48:64], struct.unpack("<268I", d[64:])
+def adiantum(K, tweak, x, decrypt=False):
+    keys, L, R = subkeys(K), x[:-16], x[-16:]
+    M = ((int.from_bytes(R, "little") + hash_tl(keys, tweak, L)) % M128).to_bytes(16, "little")
+    C = aes(keys[0], M, True) if decrypt else aes(keys[0], M)    # the one AES call
+    CM = M if decrypt else C                       # the stream's nonce is the ciphertext side
+    L2 = xor(L, xchacha12(K, CM + b"\x01" + bytes(7), len(L)))
+    return L2 + ((int.from_bytes(C, "little") - hash_tl(keys, tweak, L2)) % M128).to_bytes(16, "little")
+
+K = bytes.fromhex("362b5797f85dcd995f1a5a441d920f27cc16d72b856399d3ba96a1dbd26068da")
+T = bytes.fromhex("ef5869b12c5e9a4724c1b169e112938f433d6d00db5ed8d9129afed9ff2daac4")
+P = bytes.fromhex("5ea8681985981223260accdb0a04b9df4db3487bb0e3c819435a4606942df2")
+C = adiantum(K, T, P)
+print("test vector, 31 bytes:", C.hex() == "c7c6f1738fc4ff4a39be78be8d28c8894663e70c7d87e84ec9187bbe186050",
+      "| decrypts:", adiantum(K, T, C, True) == P)
+
+# A 4,096-byte habitat sector, tweak = sector number 7
+sector = b"airlock_B=LOCKED".ljust(4096, b" ")
+flip = lambda b: bytes([b[0] ^ 1]) + b[1:]
+blocks = lambda a, b: sum(a[i:i + 16] != b[i:i + 16] for i in range(0, len(a), 16))
+tw = (7).to_bytes(32, "little")
+k1, k2 = bytes(range(16)), bytes(range(16, 32))
+print("one plaintext bit flipped, ciphertext blocks that change: XTS",
+      blocks(xts(k1, k2, 7, sector), xts(k1, k2, 7, flip(sector))), "of 256, Adiantum",
+      blocks(adiantum(K, tw, sector), adiantum(K, tw, flip(sector))), "of 256")
+c = adiantum(K, tw, sector)
+print("one ciphertext bit flipped, plaintext blocks garbled: Adiantum",
+      blocks(adiantum(K, tw, flip(c), True), sector), "of 256")
+```
+
+It prints (after the XTS listing's lines):
+
+```text
+test vector, 31 bytes: True | decrypts: True
+one plaintext bit flipped, ciphertext blocks that change: XTS 1 of 256, Adiantum 256 of 256
+one ciphertext bit flipped, plaintext blocks garbled: Adiantum 256 of 256
+```
+
+The last line is the blunt edge of a wide-block mode: a flipped bit no
+longer garbles one chosen field of the habitat's configuration while the
+rest still parses; the whole sector turns to noise. That is still not
+integrity, and Adiantum still allows rollback; those need the
+authenticated storage of the list above.
 
 ## 18.6 One key, many locks
 
@@ -612,7 +933,7 @@ unlock method has its own encrypted copy of it.
 <rect x="432" y="192" width="188" height="40" rx="6" class="acc-fill" fill-opacity="0.25" stroke="currentColor"/><text x="526" y="217" text-anchor="middle">every sector, AES-XTS</text>
 <text x="320" y="264" text-anchor="middle" font-size="12">Changing a passphrase rewrites one keyslot; anyone who once held the volume key keeps access.</text>
 </svg>
-<figcaption>Figure 18.3. The key hierarchy of full-disk encryption. LUKS calls the copies keyslots, BitLocker key protectors.</figcaption>
+<figcaption>Figure 18.4. The key hierarchy of full-disk encryption. LUKS calls the copies keyslots, BitLocker key protectors.</figcaption>
 </figure>
 
 **LUKS** (Linux Unified Key Setup, Clemens Fruhwirth 2005; LUKS2 by Milan
@@ -734,7 +1055,9 @@ window.
   slow bus, and in TPM-only BitLocker the key crosses it in the clear. Denis
   Andzakovic showed in 2019 that a cheap FPGA on the bus reads it; in 2024 a
   demonstration did it with a Raspberry Pi Pico in under a minute. Firmware
-  TPMs inside the processor, or TPM+PIN, defeat it.
+  TPMs inside the processor, or TPM+PIN, defeat it. The Engineering book's
+  [§11.9](../engineering/11-Hardware-for-Keys.md) tells both attacks in
+  full, with TPM parameter encryption, the fix that came later.
 - **Downgrade of the boot chain.** In "bitpixie" (CVE-2023-21563) an old,
   still-trusted Windows boot manager could be booted over the network and
   made to leave key material in memory after a soft reboot. The bug was
@@ -765,7 +1088,485 @@ into the chip, and limit guesses in hardware with growing delays. A six-digit
 passcode is weak against a laptop's offline attack, but strong when every
 guess must go through the chip and the chip enforces the delays.
 
-## 18.8 Cold boot and evil maid
+### Apple: Data Protection and FileVault
+
+Apple describes its design in the *Apple Platform Security* guide (here
+the January 2026 edition, updated in March 2026). On an iPhone the
+hierarchy has four levels, all managed by the Secure Enclave (Figure 18.5).
+
+1. **The hardware UID**, a 256-bit AES key fused into each Secure Enclave,
+   usable but unreadable; what it wraps opens only on that chip.
+2. **The passcode key**, "tangled" with the UID by a derivation that uses
+   the UID-keyed AES engine at every step, tuned to about 80 milliseconds,
+   so guesses must run on the device, which adds growing delays.
+3. **Class keys.** Each file has a **Data Protection class**. Class A,
+   *Complete Protection*: the key is discarded about ten seconds after the
+   device locks. Class B, *Protected Unless Open*: an asymmetric key
+   agreement lets files be written while locked. Class C, *Protected Until
+   First User Authentication*, the default: the key stays in memory from
+   the first unlock until restart. Class D, *No Protection*: UID only.
+4. **Per-file keys.** APFS gives each file (or extent) its own 256-bit key,
+   wrapped with its class key by AES key wrap (RFC 3394) and kept in the
+   file's metadata, which a file system key encrypts. The AES engine
+   between flash and memory encrypts with AES-XTS; the application
+   processor never holds the per-file key in the clear.
+
+A Mac with Apple silicon uses a hybrid of this. The data volume has a
+**volume key** wrapped by a **key encryption key** (KEK). With FileVault
+off, the KEK is protected by the UID alone: the SSD is encrypted and useless
+outside its Mac, but the Mac opens it for anyone. Turning FileVault on adds
+the user's password to the KEK: one key re-wrapped, nothing re-encrypted.
+Class C on the Mac uses that volume key rather than per-file keys,
+"effectively re-creating the security model of FileVault for user data" in
+Apple's words, and class D does not exist. Recovery is a 24-character key,
+escrow to iCloud, or an institutional key: who holds it is §18.11's
+question.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 330" width="640" role="img" aria-label="Apple's key hierarchies. On iPhone, the hardware UID and the passcode make a passcode key; it protects four class keys, A to D; each class key wraps per-file keys; the AES engine encrypts flash with AES-XTS. On a Mac with Apple silicon, the password and the hardware UID protect a key encryption key, which wraps the volume key that encrypts the whole data volume." fill="currentColor" font-size="12.5">
+<g stroke="currentColor">
+<rect x="20" y="30" width="135" height="40" rx="5" fill-opacity=".35"/>
+<rect x="165" y="30" width="135" height="40" rx="5" fill-opacity=".12"/>
+<line x1="87" y1="70" x2="150" y2="92"/>
+<line x1="232" y1="70" x2="170" y2="92"/>
+<rect x="60" y="94" width="200" height="38" rx="5" fill="none"/>
+<line x1="160" y1="132" x2="160" y2="150"/>
+<rect x="20" y="152" width="62" height="40" rx="4" fill-opacity=".25"/>
+<rect x="89" y="152" width="62" height="40" rx="4" fill-opacity=".25"/>
+<rect x="158" y="152" width="62" height="40" rx="4" fill-opacity=".25"/>
+<rect x="227" y="152" width="62" height="40" rx="4" fill="none" stroke-dasharray="4 3"/>
+<line x1="160" y1="214" x2="160" y2="230"/>
+<rect x="40" y="236" width="240" height="36" rx="5" fill="none"/>
+<line x1="160" y1="272" x2="160" y2="286"/>
+<rect x="40" y="290" width="240" height="30" rx="5" fill-opacity=".12"/>
+<line x1="330" y1="30" x2="330" y2="320" stroke-dasharray="2 4" stroke-opacity=".5"/>
+<rect x="355" y="30" width="125" height="40" rx="5" fill-opacity=".12"/>
+<rect x="495" y="30" width="125" height="40" rx="5" fill-opacity=".35"/>
+<line x1="417" y1="70" x2="480" y2="98" stroke-dasharray="4 3"/>
+<line x1="557" y1="70" x2="500" y2="98"/>
+<rect x="400" y="100" width="180" height="38" rx="5" fill="none"/>
+<line x1="490" y1="138" x2="490" y2="160"/>
+<rect x="400" y="166" width="180" height="38" rx="5" fill-opacity=".25"/>
+<line x1="490" y1="204" x2="490" y2="226"/>
+<rect x="400" y="232" width="180" height="34" rx="5" fill-opacity=".12"/>
+</g>
+<polygon points="160,234 155,224 165,224"/>
+<polygon points="160,290 155,280 165,280"/>
+<polygon points="490,164 485,154 495,154"/>
+<polygon points="490,230 485,220 495,220"/>
+<g text-anchor="middle">
+<text x="160" y="18" font-weight="bold">iPhone, iPad: Data Protection</text>
+<text x="490" y="18" font-weight="bold">Mac with Apple silicon</text>
+<text x="87" y="48">hardware UID</text>
+<text x="87" y="63" font-size="11">fused, unreadable</text>
+<text x="232" y="55">passcode</text>
+<text x="160" y="111">passcode key</text>
+<text x="160" y="126" font-size="11">tangled with UID, ~80 ms a guess</text>
+<text x="51" y="177">A</text>
+<text x="120" y="177">B</text>
+<text x="189" y="177">C</text>
+<text x="258" y="177">D</text>
+<text x="160" y="210" font-size="11.5">class keys</text>
+<text x="160" y="252">per-file keys, AES key wrap</text>
+<text x="160" y="266" font-size="11">in metadata under the file system key</text>
+<text x="160" y="310">AES engine: AES-XTS to flash</text>
+<text x="417" y="48">user password</text>
+<text x="417" y="63" font-size="11">if FileVault on</text>
+<text x="557" y="48">hardware UID</text>
+<text x="557" y="63" font-size="11">always</text>
+<text x="490" y="117">key encryption key</text>
+<text x="490" y="132" font-size="11">re-wrapped when FileVault changes</text>
+<text x="490" y="183">volume key</text>
+<text x="490" y="198" font-size="11">class C uses it for user data</text>
+<text x="490" y="254">data volume, AES-XTS</text>
+<text x="490" y="292" font-size="11.5">all in the Secure Enclave;</text>
+<text x="490" y="308" font-size="11.5">the CPU never sees the keys</text>
+</g>
+</svg>
+<figcaption>Figure 18.5. Apple's key hierarchies, after the Apple Platform Security guide (January 2026). Everything below the top row is a wrapped key; the UID never leaves the chip.</figcaption>
+</figure>
+
+### Android: file-based encryption
+
+Android documents its design on source.android.com (as of November 2026)
+and Linux documents fscrypt. Android 7.0 (2016) introduced
+**file-based encryption** (FBE), devices launching with Android 10 must use
+it, and Android 13 dropped full-disk encryption. The reason was an alarm
+clock: a fully encrypted phone that rebooted overnight sat at a password
+prompt with nothing running. FBE splits each user's storage in two:
+**Device Encrypted (DE)** storage, available at boot ("Direct Boot") for the
+alarm, accessibility and the like, and **Credential Encrypted (CE)**
+storage, the default, available only after the first unlock.
+
+Figure 18.6 draws the keys. The DE master key is wrapped by a key in
+**KeyMint** (Keymaster before Android 12), the keystore in the trusted
+execution environment, and released at boot without user input, like
+Apple's class D. The CE master key is wrapped under a secret derived from
+the user's **synthetic password**, a random value that never changes,
+which is itself protected by the lock-screen credential through scrypt and
+a hardware check that delays wrong guesses: **Weaver** on phones with a
+secure element, such as Pixel's Titan chips, or Gatekeeper in the TEE.
+Changing the PIN re-wraps the synthetic password; the CE key stays.
+
+Below the master keys, fscrypt gives each file a random 16-byte nonce. With
+the version 2 policies that are the default on devices launched with
+Android 11 or later, the file's key is
+
+```text
+file key = HKDF-SHA512(ikm = master key, no salt,
+                       info = "fscrypt\0" || 0x02 || nonce)
+```
+
+where 0x02 marks a per-file key. Contents use AES-256-XTS or Adiantum; names
+AES-256-CBC with ciphertext stealing, or HCTR2. With **hardware-wrapped
+keys** (Android 11), contents keys are usable only inside the storage
+controller's inline encryption engine. And because file sizes, permissions,
+directory layout and timestamps are not contents, **metadata encryption**,
+required on devices launching with Android 11 or later, adds
+`dm-default-key` underneath: every block FBE has not encrypted is encrypted
+under a metadata key that KeyMint releases only to software that passes
+Verified Boot.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 330" width="640" role="img" aria-label="Android's file-based encryption key hierarchy. The lock screen credential, through scrypt and Weaver or Gatekeeper, protects the synthetic password, which unwraps the Credential Encrypted master key. KeyMint in the TEE unwraps the Device Encrypted master key at boot and the metadata key bound to Verified Boot. Each master key derives per-file keys with HKDF-SHA512 from a file nonce; the metadata key encrypts all remaining blocks with dm-default-key." fill="currentColor" font-size="12.5">
+<g stroke="currentColor">
+<rect x="20" y="20" width="190" height="40" rx="5" fill-opacity=".12"/>
+<line x1="115" y1="60" x2="115" y2="78"/>
+<rect x="20" y="84" width="190" height="40" rx="5" fill="none"/>
+<line x1="115" y1="124" x2="115" y2="142"/>
+<rect x="20" y="148" width="190" height="36" rx="5" fill="none"/>
+<rect x="250" y="20" width="370" height="40" rx="5" fill-opacity=".35"/>
+<line x1="115" y1="184" x2="115" y2="206"/>
+<line x1="330" y1="60" x2="330" y2="206"/>
+<line x1="530" y1="60" x2="530" y2="206"/>
+<rect x="30" y="212" width="170" height="38" rx="5" fill-opacity=".25"/>
+<rect x="245" y="212" width="170" height="38" rx="5" fill-opacity=".25"/>
+<rect x="445" y="212" width="175" height="38" rx="5" fill-opacity=".25"/>
+<line x1="115" y1="250" x2="200" y2="270"/>
+<line x1="330" y1="250" x2="250" y2="270"/>
+<rect x="30" y="272" width="385" height="44" rx="5" fill="none"/>
+<line x1="532" y1="250" x2="532" y2="270"/>
+<rect x="445" y="276" width="175" height="40" rx="5" fill-opacity=".12"/>
+</g>
+<polygon points="115,82 110,72 120,72"/>
+<polygon points="115,146 110,136 120,136"/>
+<polygon points="115,210 110,200 120,200"/>
+<polygon points="330,210 325,200 335,200"/>
+<polygon points="530,210 525,200 535,200"/>
+<polygon points="532,274 527,264 537,264"/>
+<g text-anchor="middle">
+<text x="115" y="38">lock screen credential</text>
+<text x="115" y="53" font-size="11">PIN, pattern, password</text>
+<text x="115" y="102">scrypt + Weaver</text>
+<text x="115" y="117" font-size="11">or Gatekeeper: throttled</text>
+<text x="115" y="171">synthetic password</text>
+<text x="435" y="38">KeyMint in the TEE (or StrongBox)</text>
+<text x="435" y="53" font-size="11">keys never leave; bound to Verified Boot</text>
+<text x="115" y="229">CE master key</text>
+<text x="115" y="244" font-size="11">after first unlock</text>
+<text x="330" y="229">DE master key</text>
+<text x="330" y="244" font-size="11">at boot (Direct Boot)</text>
+<text x="532" y="229">metadata key</text>
+<text x="532" y="244" font-size="11">at boot</text>
+<text x="222" y="290">per-file key = HKDF-SHA512(master, "fscrypt\0" ‖ 2 ‖ nonce)</text>
+<text x="222" y="307" font-size="11">contents AES-256-XTS or Adiantum; names CBC-CTS or HCTR2</text>
+<text x="532" y="293">dm-default-key</text>
+<text x="532" y="308" font-size="11">every other block</text>
+</g>
+</svg>
+<figcaption>Figure 18.6. Android's file-based encryption, after the AOSP documentation and Linux's fscrypt (as of November 2026). The user's credential reaches only the CE key; the TEE releases the other two at boot.</figcaption>
+</figure>
+
+Both designs reach the same shape: per-file keys under class or storage
+keys, under a hardware-throttled passcode, split by whether data is needed
+before the first unlock. A phone unlocked once since boot holds the class
+C or CE keys in memory, which is where commercial extraction tools work;
+a freshly rebooted one holds almost nothing. So iOS 18.1
+(October 2024) restarts an iPhone left locked for 72 hours, and a Google
+Play services update brought a three-day restart to Android in April 2025:
+a reboot is a key erasure.
+
+## 18.8 Sealing the key to the boot, worked through
+
+*Level: intermediate.*
+
+The Engineering book's [chapter 11](../engineering/11-Hardware-for-Keys.md)
+explains PCRs, event logs, quotes and sealing. This section follows one
+disk key through them: which PCRs BitLocker uses, the exact bytes of the
+policy, what everyday events break it, and how a signed policy lets a rover
+on Mars take new firmware with no one on Earth in the loop.
+
+### Which registers, and why those
+
+With UEFI and Secure Boot, BitLocker seals to **PCR 7** and **PCR 11** by
+default. PCR 7 records the Secure Boot policy: whether it is on, the PK,
+KEK, db and dbx variables (platform key, key-exchange keys, allowed and
+revoked signers), and which db certificate approved each boot component.
+PCR 11 is Windows' "BitLocker access control" register. Without Secure
+Boot, BitLocker uses PCRs 0, 2, 4 and 11: firmware code, option ROMs and
+the boot manager themselves.
+
+A firmware update changes PCR 0 but usually not PCR 7, since the same
+keys still sign the same boot manager. PCR 7 means "unlock for anything
+Secure Boot would run" and survives updates; PCR 0 means "only this exact
+firmware" and locks the user out after every update.
+
+### A worked example by hand: the policy digest
+
+The program below uses short stand-in strings for the events (real
+events are UEFI variables and certificates). PCR 7 starts at zero:
+
+```text
+digest = SHA-256("SecureBoot=1")             = f66490b9 a9b3119d ...
+PCR 7  = SHA-256(00 x 32 || f66490b9 ...)     = 442b3af2 c83655d0 ...
+digest = SHA-256("PK,KEK,db,dbx as shipped") = ca98c6e1 2e241ff8 ...
+PCR 7  = SHA-256(442b3af2 ... || ca98c6e1 ...) = d6370e01 22841880 ...
+```
+
+and after the third event (the db entry that approved the boot manager),
+PCR 7 is `41c53a35…`; PCR 11, after one event, is `964edef6…`. The policy
+that guards the key is itself a hash chain, built one policy command at a
+time from 32 zero bytes. `TPM2_PolicyPCR` contributes
+
+```text
+SHA-256( 00 x 32                          the policy so far
+      || 00 00 01 7F                       TPM_CC_PolicyPCR
+      || 00 00 00 01  00 0B  03  80 08 00  1 bank, SHA-256, bitmap: PCR 7, 11
+      || SHA-256(PCR 7 || PCR 11) )        d52631b4 8b2ed9cc ...
+  = dac175d1 3b19620e ...
+```
+
+In the bitmap, byte 0 bit 7 is PCR 7 and byte 1 bit 3 is PCR 11, hence
+`80 08 00`. For TPM plus PIN, `TPM2_PolicyAuthValue` extends once more
+with its own command code: SHA-256(`dac175d1…` ‖ `00 00 01 6B`) =
+`636a54a6…`, the sealed object's **authPolicy**: not the rule "PCR 7
+must equal 41c53a35…" but the hash of a computation only those values
+reproduce.
+
+At boot, the boot manager opens a policy session and sends the same
+commands. `TPM2_PolicyPCR` reads the TPM's *own* PCRs; the caller names
+registers, never values. `TPM2_PolicyAuthValue` requires the right
+authorization on the unseal, checked under the TPM's dictionary-attack
+lockout, and `TPM2_Unseal` releases the secret only if the session digest
+equals the authPolicy. Linux's `systemd-cryptenroll --tpm2-with-pin`
+builds this shape; a BitLocker TPM+PIN protector likewise makes the PIN
+part of the authorization checked inside the TPM.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 330" width="640" role="img" aria-label="From measurements to an unsealed key. PCR 7 starts at zero and is extended three times, by the Secure Boot state, the key databases and the db entry that approved the boot manager; PCR 11 is extended once. The digest of PCR 7 and PCR 11 goes into PolicyPCR, then PolicyAuthValue; the result is compared with the sealed object's authPolicy, and only on a match is the volume key released." fill="currentColor" font-size="12.5">
+<g stroke="currentColor">
+<rect x="75" y="32" width="90" height="28" rx="4" fill="none"/>
+<rect x="215" y="32" width="90" height="28" rx="4" fill="none"/>
+<rect x="355" y="32" width="90" height="28" rx="4" fill="none"/>
+<rect x="495" y="32" width="90" height="28" rx="4" fill-opacity=".25"/>
+<line x1="165" y1="46" x2="211" y2="46"/>
+<line x1="305" y1="46" x2="351" y2="46"/>
+<line x1="445" y1="46" x2="491" y2="46"/>
+<rect x="75" y="97" width="90" height="28" rx="4" fill="none"/>
+<rect x="495" y="97" width="90" height="28" rx="4" fill-opacity=".25"/>
+<line x1="165" y1="111" x2="491" y2="111"/>
+<line x1="585" y1="46" x2="610" y2="46"/>
+<line x1="585" y1="111" x2="610" y2="111"/>
+<line x1="610" y1="46" x2="610" y2="158"/>
+<rect x="300" y="164" width="320" height="30" rx="5" fill="none"/>
+<line x1="460" y1="194" x2="460" y2="208"/>
+<rect x="190" y="214" width="430" height="30" rx="5" fill-opacity=".12"/>
+<line x1="405" y1="244" x2="405" y2="258"/>
+<rect x="190" y="264" width="430" height="30" rx="5" fill-opacity=".12"/>
+<line x1="190" y1="279" x2="150" y2="279"/>
+<rect x="20" y="214" width="130" height="80" rx="5" fill-opacity=".35"/>
+<line x1="85" y1="294" x2="85" y2="306"/>
+</g>
+<polygon points="214,46 204,41 204,51"/>
+<polygon points="354,46 344,41 344,51"/>
+<polygon points="494,46 484,41 484,51"/>
+<polygon points="494,111 484,106 484,116"/>
+<polygon points="610,162 605,152 615,152"/>
+<polygon points="460,212 455,202 465,202"/>
+<polygon points="405,262 400,252 410,252"/>
+<polygon points="85,310 80,300 90,300"/>
+<g text-anchor="middle">
+<text x="120" y="51" font-family="monospace" font-size="11.5">00…00</text>
+<text x="260" y="51" font-family="monospace" font-size="11.5">442b3af2…</text>
+<text x="400" y="51" font-family="monospace" font-size="11.5">d6370e01…</text>
+<text x="540" y="51" font-family="monospace" font-size="11.5">41c53a35…</text>
+<text x="190" y="24" font-size="11">SecureBoot=1</text>
+<text x="330" y="24" font-size="11">PK, KEK, db, dbx</text>
+<text x="470" y="24" font-size="11">db entry used</text>
+<text x="120" y="116" font-family="monospace" font-size="11.5">00…00</text>
+<text x="540" y="116" font-family="monospace" font-size="11.5">964edef6…</text>
+<text x="330" y="104" font-size="11">boot manager (BitLocker access control)</text>
+<text x="460" y="184">pcrDigest = SHA-256(PCR 7 ‖ PCR 11)</text>
+<text x="405" y="234">PolicyPCR: SHA-256(0³² ‖ 0000017F ‖ selection ‖ pcrDigest)</text>
+<text x="405" y="284">PolicyAuthValue: SHA-256(· ‖ 0000016B) = 636a54a6…</text>
+<text x="85" y="238">equal to the</text>
+<text x="85" y="254">sealed authPolicy?</text>
+<text x="85" y="276" font-size="11.5">and PIN right?</text>
+<text x="85" y="324">volume key</text>
+</g>
+<text x="20" y="49">PCR 7</text>
+<text x="20" y="114">PCR 11</text>
+</svg>
+<figcaption>Figure 18.7. From measurements to a released key, with the program's numbers. The TPM computes every box itself from its own registers; the caller only names which PCRs to use.</figcaption>
+</figure>
+
+### Code it: seal, break, cap and sign
+
+The program seals a key to PCRs 7 and 11 with a PIN, reproduces the
+worked example, changes one thing at a time, then signs rover policies
+with a toy RSA key built from two Mersenne primes (anyone could factor
+it).
+
+```python
+# TPM 2.0 sealing: PCR extends, PolicyPCR + PolicyAuthValue (TPM plus PIN),
+# capping PCR 11, and a signed policy (PolicyAuthorize) for firmware updates.
+import hashlib, hmac, struct
+H = lambda b: hashlib.sha256(b).digest()
+CC_POLICY_PCR, CC_POLICY_AUTH_VALUE, CC_POLICY_AUTHORIZE = 0x17F, 0x16B, 0x16A
+
+def boot(events):                                 # every PCR starts at 32 zero bytes
+    pcr = {i: bytes(32) for i in range(24)}
+    for i, data in events:
+        pcr[i] = H(pcr[i] + H(data))              # extend: new = H(old || digest)
+    return pcr
+def selection(pcrs):                              # TPML_PCR_SELECTION, SHA-256 bank
+    bitmap = bytearray(3)
+    for i in pcrs: bitmap[i // 8] |= 1 << (i % 8)
+    return struct.pack(">IHB", 1, 0x000B, 3) + bytes(bitmap)
+def policy_pcr(digest, pcr, pcrs):
+    values = H(b"".join(pcr[i] for i in sorted(pcrs)))
+    return H(digest + struct.pack(">I", CC_POLICY_PCR) + selection(pcrs) + values)
+def policy_auth_value(digest):
+    return H(digest + struct.pack(">I", CC_POLICY_AUTH_VALUE))
+
+PCRS = (7, 11)
+GOOD = [(7, b"SecureBoot=1"), (7, b"PK,KEK,db,dbx as shipped"), (7, b"db entry: Windows PCA 2011"),
+        (11, b"boot manager: BitLocker access control")]
+pcr = boot(GOOD)
+print("PCR 7 =", pcr[7].hex()[:16] + "...", "| PCR 11 =", pcr[11].hex()[:16] + "...")
+
+sealed = {"policy": policy_auth_value(policy_pcr(bytes(32), pcr, PCRS)),
+          "auth": H(b"482916"), "secret": b"volume master key"}   # auth: from the PIN
+print("policy digest:", sealed["policy"].hex()[:16] + "...")
+
+def unseal(pcr, pin):                             # a policy session replays the steps
+    session = policy_auth_value(policy_pcr(bytes(32), pcr, PCRS))
+    if not hmac.compare_digest(session, sealed["policy"]): return "TPM_RC_POLICY_FAIL"
+    if not hmac.compare_digest(H(pin), sealed["auth"]): return "TPM_RC_AUTH_FAIL"
+    return sealed["secret"]
+
+print(f"{'good boot, right PIN:':36}", unseal(pcr, b"482916"))
+print(f"{'good boot, wrong PIN:':36}", unseal(pcr, b"000000"))
+for name, i, event in [("Secure Boot turned off:", 0, (7, b"SecureBoot=0")),
+                       ("dbx revocation update:", 1, (7, b"PK,KEK,db,dbx + new revocations")),
+                       ("boot manager signed by a 2023 CA:", 2, (7, b"db entry: Windows UEFI CA 2023"))]:
+    events = GOOD[:]; events[i] = event
+    print(f"{name:36}", unseal(boot(events), b"482916"))
+capped = boot(GOOD + [(11, b"cap: unseal done")])
+print(f"{'PCR 11 capped after unsealing:':36}", unseal(capped, b"482916"))
+
+# Signed policy: any PCR policy the mission key signed; toy RSA, Mersenne primes
+p, q, e = 2**521 - 1, 2**607 - 1, 65537
+n, d = p * q, pow(e, -1, (p - 1) * (q - 1))
+sign = lambda m: pow(int.from_bytes(H(m), "big"), d, n)
+verify = lambda m, s: pow(s, e, n) == int.from_bytes(H(m), "big")
+key_name = struct.pack(">H", 0x000B) + H(b"TPMT_PUBLIC of the mission key" + n.to_bytes(141, "big"))
+ref = b"rover-7 disk"
+rover = {"policy": H(H(bytes(32) + struct.pack(">I", CC_POLICY_AUTHORIZE) + key_name) + ref),
+         "secret": b"rover volume key"}
+def unseal_signed(pcr, approved, signature):
+    session = policy_pcr(bytes(32), pcr, (0, 7))
+    if session != approved or not verify(approved + ref, signature): return "TPM_RC_POLICY_FAIL"
+    session = H(H(bytes(32) + struct.pack(">I", CC_POLICY_AUTHORIZE) + key_name) + ref)
+    return rover["secret"] if session == rover["policy"] else "TPM_RC_POLICY_FAIL"
+
+fw1 = boot([(0, b"rover firmware 4.1"), (7, b"SecureBoot=1")])
+fw2 = boot([(0, b"rover firmware 4.2"), (7, b"SecureBoot=1")])
+bad = boot([(0, b"rover firmware 4.2 + implant"), (7, b"SecureBoot=1")])
+a1 = policy_pcr(bytes(32), fw1, (0, 7)); s1 = sign(a1 + ref)       # signed on Earth
+a2 = policy_pcr(bytes(32), fw2, (0, 7)); s2 = sign(a2 + ref)       # uplinked with 4.2
+print(f"{'firmware 4.1, its signed policy:':36}", unseal_signed(fw1, a1, s1))
+print(f"{'firmware 4.2, new policy, no reseal:':36}", unseal_signed(fw2, a2, s2))
+print(f"{'implanted firmware, 4.2 policy:':36}", unseal_signed(bad, a2, s2))
+print(f"{'thief reflashes old 4.1:':36}", unseal_signed(fw1, a1, s1))
+```
+
+It prints:
+
+```text
+PCR 7 = 41c53a3536758833... | PCR 11 = 964edef69ac58ed5...
+policy digest: 636a54a6fd25ef9c...
+good boot, right PIN:                b'volume master key'
+good boot, wrong PIN:                TPM_RC_AUTH_FAIL
+Secure Boot turned off:              TPM_RC_POLICY_FAIL
+dbx revocation update:               TPM_RC_POLICY_FAIL
+boot manager signed by a 2023 CA:    TPM_RC_POLICY_FAIL
+PCR 11 capped after unsealing:       TPM_RC_POLICY_FAIL
+firmware 4.1, its signed policy:     b'rover volume key'
+firmware 4.2, new policy, no reseal: b'rover volume key'
+implanted firmware, 4.2 policy:      TPM_RC_POLICY_FAIL
+thief reflashes old 4.1:             b'rover volume key'
+```
+
+### What breaks a seal
+
+Each failure in the output happens to real machines.
+
+- **Secure Boot turned off** changes PCR 7, and the user meets the 48-digit
+  recovery prompt; an attacker who disables Secure Boot to boot a tool gets
+  nothing.
+- **A dbx update** changes PCR 7 too; Microsoft's revocations after the
+  BlackLotus bootkit (CVE-2023-24932) came with warnings about BitLocker
+  recovery. Windows tries to reseal around such changes (for a firmware
+  update it suspends BitLocker for one restart, leaving the key readable on
+  disk for that boot); where that fails, the recovery screen appears.
+- **A boot manager approved by a different certificate** changes PCR 7.
+  Microsoft's 2011 Secure Boot certificates expire between June and
+  October 2026, and the move to the 2023 ones is such a change; Microsoft's
+  transition guidance covers machines that ask for their recovery key.
+- **Capping.** After unsealing, the boot manager extends PCR 11 so that
+  nothing running later can unseal again. The bitpixie attack of §18.7 went
+  around it, booting an old boot manager that unsealed legitimately and left
+  the key in memory.
+
+### Signed policies: firmware updates on a rover
+
+Arcadia City's rovers keep survey data on a disk whose key is sealed in
+the rover's TPM to PCR 0, the firmware itself, so that modified firmware
+reads nothing. But firmware is signed on Earth and uplinked, and an exact
+PCR 0 seal breaks at the first update. On Earth a technician would type
+the recovery key; a rover on a traverse has none, and asking Earth costs a
+round trip of 6 to 44 minutes, or weeks during solar conjunction.
+
+`TPM2_PolicyAuthorize` turns the problem around. The key is sealed not to
+PCR values but to a **signing key**: its authPolicy is
+
+$$
+\mathrm{SHA\text{-}256}\big(\mathrm{SHA\text{-}256}(0^{32} \,\|\, \texttt{0000016A} \,\|\, \text{keyName}) \,\|\, \text{policyRef}\big),
+$$
+
+where keyName is the hash of the mission's public key and policyRef a
+label (`rover-7 disk`). At boot the rover runs `TPM2_PolicyPCR`, getting a
+digest $D$ of its current PCRs, and presents the mission's signature over
+$D$ and the label; the TPM checks both, then replaces the session digest
+with the value above. Mission control signs the PCR policy of each
+firmware release and uplinks it with the image, so the rover installs 4.2
+and unseals with no reseal and no round trip, while implanted firmware has
+no signed policy.
+
+### Break it: every signed policy stays valid
+
+The last line of the output is the flaw: a signature never expires, so every
+policy ever signed still opens the disk. A thief who reflashes genuine
+firmware 4.1, with a hole that 4.2 fixed, unseals with 4.1's signed policy.
+The fix is a version that cannot roll back: add `TPM2_PolicyNV` to the
+signed policies, comparing a monotonic counter in the TPM's nonvolatile
+memory with a minimum that each security update raises, or change the
+signing key when old releases must die. It is certificate revocation
+([Chapter 2](02-Certificates-and-PKI.md)) again, in a chip, and on Mars the
+counter needs no message from Earth.
+
+## 18.9 Cold boot and evil maid
 
 *Level: intermediate.*
 
@@ -785,7 +1586,7 @@ each cell fades over seconds, and over minutes if the chips are cold.
     another machine, dumped it, and found the disk keys of BitLocker,
     FileVault, dm-crypt and TrueCrypt; an algorithm used the redundancy of
     the AES key schedule to repair bits that had decayed · **Revived:** in
-    2018 F-Secure researchers showed that the memory-clearing defences added
+    2018 F-Secure researchers showed that the memory-clearing defenses added
     since could be switched off on many laptops · **Status:** mitigated, not
     solved: memory encryption in recent processors, shutting down instead of
     sleeping, and pre-boot PINs (a TPM-only boot puts the key back in RAM
@@ -795,7 +1596,7 @@ each cell fades over seconds, and over minutes if the chips are cold.
 TrueCrypt: the attacker gets the laptop for a few minutes while the owner is
 away from the hotel room, modifies the unencrypted boot code to record the
 passphrase, and returns. The owner boots, types the passphrase, and later the
-attacker collects it. Measured boot and Secure Boot are the defence; an
+attacker collects it. Measured boot and Secure Boot are the defense; an
 attacker with more time can replace the whole laptop with an identical one
 that phones home the passphrase, which no disk encryption stops.
 
@@ -803,7 +1604,7 @@ The pattern: full-disk encryption protects a **powered-off** device against
 a thief who takes it once. It does little against someone who gets the
 machine while it runs or sleeps, or who can tamper with it and give it back.
 
-## 18.9 Mars: data at rest in a cold, distant place
+## 18.10 Mars: data at rest in a cold, distant place
 
 *Level: intermediate.*
 
@@ -836,6 +1637,12 @@ with Shamir's secret sharing ([book 1 Chapter 23](../../book/23-Advanced-Protoco
 officers, so that any three can recover a disk and no two can read one
 alone.
 
+Better still, routine events should never need a recovery key. Sealing
+to policies signed by the mission key, with a counter against downgrades
+(§18.8), lets an update signed on Earth take effect on Mars without a round
+trip, and keeps the shares for real emergencies: a dead TPM, a corrupted
+header, a forgotten PIN.
+
 Long-lived archives on Mars face the post-quantum question differently than
 messages do. The data path is symmetric: AES-256-XTS loses at most half its
 key length to Grover's algorithm, which still leaves 128 bits. Only the
@@ -843,7 +1650,7 @@ public-key parts matter, such as age recipients and escrow keys, and those
 can move to ML-KEM hybrids (age's post-quantum stanza) without
 re-encrypting any data, by re-wrapping the file key.
 
-## 18.10 In the real world
+## 18.11 In the real world
 
 *Level: intermediate.*
 
@@ -875,7 +1682,7 @@ website with a notice that it "is not secure" and told users to switch to
 BitLocker. An independent audit (the Open Crypto Audit Project, 2014-2015)
 found no back door; its fork VeraCrypt continues.
 
-## 18.11 Going deeper
+## 18.12 Going deeper
 
 *Level: expert.*
 
@@ -896,7 +1703,7 @@ it: writes to the hidden volume change "free space" that should not change,
 exactly the XTS leak of §18.5.
 
 **Erasure is hard.** Deleting a file on an SSD does not erase its blocks;
-wear-levelling keeps old copies. **Crypto-erase**, destroying the key so that
+wear-leveling keeps old copies. **Crypto-erase**, destroying the key so that
 all ciphertext becomes unreadable, is the reliable way to wipe a drive, and
 the reason the anti-forensic splitter exists. Apple's Data Protection and
 Android's file-based encryption give each file its own key so that deleting
@@ -916,45 +1723,50 @@ continues to study.
     so there is no room for a nonce or a tag; and reusing a GCM nonce for a
     rewritten sector would be catastrophic.
 
-??? question "2. What does age's header MAC protect against?"
-    Any change to the header, including a recipient's stanza. Without it, a
-    modified stanza for one recipient could go unnoticed by the others.
-
-??? question "3. How does age's payload format catch a file cut short at a chunk boundary?"
+??? question "2. How does age's payload format catch a file cut short at a chunk boundary?"
     Each chunk nonce ends with a flag that is 1 only for the last chunk. A
     truncated file's new last chunk was encrypted with flag 0, so decrypting
     it with flag 1 fails.
 
-??? question "4. Can a recipient of a two-recipient age file forge a file to the other recipient?"
+??? question "3. Can a recipient of a two-recipient age file forge a file to the other recipient?"
     Yes. Both learn the file key, so either can write new content and a new
     header MAC. Only a signature can show who wrote a file.
 
-??? question "5. In XTS, what are the two keys for?"
-    K₂ encrypts the sector number to make the first tweak; K₁ encrypts the
-    data blocks, each masked with its tweak before and after.
+??? question "4. What does comparing two snapshots of an XTS disk reveal, and what does a wide-block mode reveal instead?"
+    Under XTS, which 16-byte blocks changed, since unchanged blocks at the
+    same position encrypt identically. Under a wide-block mode such as
+    Adiantum, only which sectors changed.
 
-??? question "6. What does comparing two snapshots of an XTS disk reveal?"
-    Which 16-byte blocks changed, since unchanged blocks at the same position
-    encrypt identically.
+??? question "5. On an Android phone that has just rebooted and not yet been unlocked, which data can apps read, and why?"
+    Only Device Encrypted (DE) storage, whose key KeyMint releases at boot.
+    The Credential Encrypted (CE) key is wrapped under the synthetic
+    password, which needs the user's credential.
 
-??? question "7. Why does a new LUKS passphrase not lock out someone who once had the volume key?"
+??? question "6. Why does a new LUKS passphrase not lock out someone who once had the volume key?"
     The passphrase only wraps a copy of the volume key, which is unchanged.
     Only re-encrypting the volume with a new volume key does that.
 
-??? question "8. What is the anti-forensic splitter for?"
-    To make the stored key large, so that overwriting its keyslot destroys
-    it reliably even if storage keeps parts of old data: losing any bit of
-    the 256,000 bytes loses the key.
+??? question "7. Adiantum calls AES once per 4,096-byte sector. How does a single flipped plaintext bit still change every ciphertext byte?"
+    The bit changes $P_M$ (through the hash, or directly), so the AES output
+    $C_M$ changes; $C_M$ is the nonce of the keystream that encrypts the left
+    part, and $C_R$ depends on $C_M$ and the new left part.
 
-??? question "9. Why is TPM-only unlocking weaker than TPM+PIN?"
+??? question "8. Why is TPM-only unlocking weaker than TPM+PIN?"
     The disk is decrypted without anything from the user, so the key is in
     RAM and on the TPM bus for anyone who powers the device on: cold boot,
     bus sniffing and boot-chain attacks all work.
 
-??? question "10. Why should recovery keys for Mars devices be split among crew members?"
-    Earth-based escrow is a light round trip away and unreachable during
-    conjunction; splitting with a threshold scheme lets the crew recover a
-    disk locally without giving any single person access.
+??? question "9. A BitLocker key is sealed to PCRs 7 and 11. Why does turning off Secure Boot trigger recovery, and why can an attacker not just tell the TPM the old PCR values?"
+    Secure Boot's state is measured into PCR 7, so the policy digest no
+    longer matches. And `TPM2_PolicyPCR` reads the TPM's own registers,
+    which can only be extended, never set; the caller names which PCRs, not
+    their values.
+
+??? question "10. A rover's disk key is sealed with TPM2_PolicyAuthorize to policies signed on Earth. What does that gain on Mars, and what must be added so a thief cannot boot old signed firmware?"
+    Updates take effect without resealing, a recovery key or a 6- to
+    44-minute round trip. But every signed policy stays valid, so old
+    firmware still unseals; a monotonic TPM counter checked with
+    `TPM2_PolicyNV` and raised by each security update stops that.
 
 ## What you learned
 
@@ -969,9 +1781,18 @@ continues to study.
   permutation. You matched IEEE 1619's vector and saw it leak changes, allow
   rollback and garble blocks without detection.
 - Wide-block modes and authenticated storage address those limits at a cost.
+  Adiantum makes a sector one block with one AES call; you matched its test
+  vector and saw one flipped bit change all 256 blocks.
+- age's post-quantum recipient (December 2025) wraps the same file key
+  with HPKE, ML-KEM-768 and X25519.
 - A random volume key never changes; passphrases, TPMs and recovery keys only
   unlock copies of it. You checked a LUKS digest, split a key into 4,000
   stripes and built a recovery password.
+- Apple and Android give each file its own key under class or storage
+  keys, under a hardware-throttled passcode.
+- A TPM policy is a hash chain; you computed one byte by byte, broke it,
+  and signed policies for a rover, which need a counter against
+  downgrades.
 - TPMs, self-encrypting drives, cold boot and evil maid show that the key's
   home decides the security. On Mars the cold, the radiation and the
   distance from Earth each change the rules.
@@ -995,5 +1816,22 @@ continues to study.
   Encryption Keys", USENIX Security 2008.
 - Carlo Meijer and Bernard van Gastel, "Self-encrypting deception: weaknesses
   in the encryption of solid state drives", IEEE S&P 2019.
-- Apple, *Apple Platform Security*, chapters on Data Protection and
-  FileVault.
+- Apple, *Apple Platform Security*, January 2026 edition (updated March
+  2026): Data Protection and FileVault.
+- Android Open Source Project, "File-based encryption" and "Metadata
+  encryption", source.android.com (as of November 2026); Linux kernel,
+  *Filesystem-level encryption (fscrypt)*.
+- age v1.3.0 release notes (27 December 2025) and the C2SP age
+  specification (post-quantum and tagged recipients).
+- Julia Len, Paul Grubbs and Thomas Ristenpart, "Partitioning Oracle
+  Attacks", USENIX Security 2021.
+- John Black, Shai Halevi, Hugo Krawczyk, Ted Krovetz and Phillip Rogaway,
+  "UMAC: Fast and Secure Message Authentication", CRYPTO 1999 (NH).
+- Paul Crowley, Nathan Huckleberry and Eric Biggers, "Length-preserving
+  encryption with HCTR2", IACR ePrint 2021/1441.
+- Adiantum test vectors: github.com/google/adiantum (also in Linux's
+  crypto/testmgr.h).
+- Trusted Computing Group, *TPM 2.0 Library*, Part 3: Commands;
+  Microsoft's BitLocker documentation on PCR validation profiles.
+- Microsoft, "When Secure Boot certificates expire on Windows devices"
+  (KB5079373, 2026) and KB5025885 (BlackLotus, CVE-2023-24932).
