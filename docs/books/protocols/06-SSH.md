@@ -465,6 +465,84 @@ the host key blob, in base64 without padding. It hashes the *key*, not the
 exchange, so it stays the same on every connection to that server; that is
 what lets a user check it once.
 
+### The exchange hash, field by field
+
+The formula for $H$ hides the part implementations get wrong: every field is
+*encoded* before it is hashed, and the encoding is part of the definition.
+Here is the hash input of the run above, worked by hand.
+
+$V_C$ is the version line without its closing carriage return and line feed:
+`SSH-2.0-` is 8 characters and `OpenSSH_10.0` is 12, so 20 bytes. As an SSH
+string it is the length in four big-endian bytes, `00 00 00 14`, then the
+ASCII bytes `53 53 48 2d 32 2e 30 2d ...`. $V_S$, `SSH-2.0-OpenSSH_9.9`, starts
+`00 00 00 13`. $I_C$ is the *payload* of the client's KEXINIT, from its message
+number 20 (`14`) on: 60 bytes in the toy run, so `00 00 00 3c 14` and the
+cookie. A real one has ten name-lists and runs past a thousand bytes, all
+hashed, including signals such as `ext-info-c` (RFC 8308) and
+`kex-strict-c-v00@openssh.com` (§6.10), which $H$ thereby protects from being
+stripped.
+
+$K_S$, $Q_C$ and $Q_S$ are strings of 51, 32 and 32 bytes. The last field is
+different. $K$ is an **mpint**, a signed integer: big-endian, no leading zero
+bytes, and one zero byte in front when the top bit is set, so that it does not
+read as negative. By hand: 0x7f is `00 00 00 01 7f`; 0x80 is
+`00 00 00 02 00 80`; zero is `00 00 00 00`; RFC 4251's example
+0x9a378f9b2e332a7 is `00 00 00 08 09 a3 78 f9 b2 e3 32 a7`. In our run the
+X25519 secret begins with 0x9c, top bit set, so $K$ is hashed as 33 bytes.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 262" width="640" role="img" aria-label="The 317 bytes hashed into H in the example run: eight fields, each starting with a four-byte length, with the shared secret K encoded as a 33-byte mpint" fill="currentColor" font-size="13">
+<text x="320" y="20" text-anchor="middle" font-size="12.5">317 bytes hashed with SHA-256 (proportional widths)</text>
+<rect x="40" y="50" width="560" height="36" fill-opacity=".12" stroke="currentColor"/>
+<rect x="535" y="50" width="65" height="36" fill-opacity=".2"/>
+<path d="M82,50v36M123,50v36M236,50v36M310,50v36M407,50v36M471,50v36M535,50v36" stroke="currentColor"/>
+<path d="M40,50h7v36h-7zM82,50h7v36h-7zM123,50h7v36h-7zM236,50h7v36h-7zM310,50h7v36h-7zM407,50h7v36h-7zM471,50h7v36h-7zM535,50h7v36h-7z" fill-opacity=".55"/>
+<g text-anchor="middle">
+<text x="64" y="73">V_C</text><text x="105" y="73">V_S</text><text x="182" y="73">I_C</text>
+<text x="276" y="73">I_S</text><text x="361" y="73">K_S</text><text x="442" y="73">Q_C</text>
+<text x="506" y="73">Q_S</text><text x="570" y="73" font-weight="bold">K</text>
+</g>
+<g text-anchor="middle" font-size="12" fill-opacity=".7">
+<text x="61" y="104">24</text><text x="102" y="104">23</text><text x="179" y="104">64</text>
+<text x="273" y="104">42</text><text x="358" y="104">55</text><text x="439" y="104">36</text>
+<text x="503" y="104">36</text><text x="567" y="104">37</text>
+</g>
+<text x="40" y="40" font-size="12" fill-opacity=".7">dark stub: 4-byte length</text>
+<text x="40" y="150" font-weight="bold">string</text>
+<text x="120" y="150" font-family="monospace" font-size="12.5">00 00 00 14 | 53 53 48 2d 32 2e 30 2d 4f 70 ...</text>
+<text x="40" y="196" font-weight="bold">mpint</text>
+<text x="120" y="196" font-family="monospace" font-size="12.5">00 00 00 21 | 00 9c d4 b6 5c 37 ... (0x9c: top bit set)</text>
+<path d="M567,110V222" stroke="currentColor" stroke-dasharray="4 3"/>
+<text x="320" y="240" text-anchor="middle">SHA-256 of all eight fields = H, signed by the host key, input to every key</text>
+</svg>
+<figcaption>Figure 6.4. The exchange hash input of the example run, byte for byte in proportion. Every field carries its own length, so no two different transcripts can produce the same input; only $K$ is an integer.</figcaption>
+</figure>
+
+The toolkit agrees:
+
+```python
+# Uses V_C, V_S, I_C, I_S, K_S, Q_C, Q_S, K_cli, H_cli and ssh_mpint() from the listing above.
+data = b"".join(ssh_string(f) for f in (V_C, V_S, I_C, I_S, K_S, Q_C, Q_S)) + ssh_mpint(K_cli)
+print(len(data), "bytes hashed; SHA-256 of them is H:", hashlib.sha256(data).digest() == H_cli)
+print("K as an mpint begins", ssh_mpint(K_cli)[:6].hex())
+wrong = data[:-37] + ssh_string(K_cli.to_bytes(32, "big"))      # K as a plain 32-byte string
+print("H with K hashed as a string instead:", hashlib.sha256(wrong).digest() == H_cli)
+```
+
+It prints:
+
+```text
+317 bytes hashed; SHA-256 of them is H: True
+K as an mpint begins 00000021009c
+H with K hashed as a string instead: False
+```
+
+An implementation that hashed the 32 secret bytes as a string would agree with
+everyone else only when the first byte lies between 0x01 and 0x7f, about half
+of all connections, and fail the rest with a signature error that looks random.
+The length prefixes also make the input parse back into its fields one way
+only, so no byte can be moved from one field to the next.
+
 ## 6.4 Packets and ciphers
 
 *Level: intermediate.*
@@ -544,7 +622,7 @@ OpenSSH introduced three families of better modes:
 <text x="550" y="269" text-anchor="middle">tag</text>
 <text x="40" y="294" font-size="12.5">length under its own key; tag over length and ciphertext, checked first</text>
 </svg>
-<figcaption>Figure 6.4. Three generations of SSH packet. Shaded boxes are encrypted. The darker length in the last row uses a separate key, so it can be read without touching the payload.</figcaption>
+<figcaption>Figure 6.5. Three generations of SSH packet. Shaded boxes are encrypted. The darker length in the last row uses a separate key, so it can be read without touching the payload.</figcaption>
 </figure>
 
 ### Code it: one ChaCha20-Poly1305 packet
@@ -686,6 +764,7 @@ stores a random salt and HMAC-SHA1(salt, host name).
 ```python
 # known_hosts: trust on first use, and the hashed host names OpenSSH writes
 # when HashKnownHosts is on (|1|salt|HMAC-SHA1(salt, hostname)).
+# Uses K_S, the host key blob, from the key exchange above.
 import base64, hashlib, hmac, os
 
 def hashed_entry(host, key_line, salt=None):
@@ -714,7 +793,7 @@ def connect(known_hosts, host, offered_key):
         return "key matches: connect"
     return "WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED! refusing to connect"
 
-real = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKbOnuWj0ZVtSn9nLqkG8gEAjEoqPeL3e9g0F0zbWGa2"
+real = "ssh-ed25519 " + base64.b64encode(K_S).decode()   # the host key from the exchange above
 fake = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEkAMbmUHWFYtrM4N9iTNydw86Q0xS3AaM9YRuj4X+JN"
 kh = []
 print(connect(kh, "habitat.arcadia.mars", real))
@@ -738,10 +817,92 @@ Hashing slows an attacker down only a little: host names are guessable, and an
 attacker who suspects you use `habitat.arcadia.mars` can test it against every
 entry. It hides the list from casual reading, not from a determined search.
 
+### Hashed host names, by hand
+
+Stuart Schechter, Jaeyeon Jung, Will Stockwell and Cynthia McLain at MIT
+pointed out that an intruder finds, in the
+`known_hosts` files of a broken machine, a ready-made list of the next targets
+("address harvesting", NDSS 2006). OpenSSH 4.0 (March 2005) adopted salted
+hashes as the `HashKnownHosts` option.
+
+The hash is HMAC (RFC 2104) with SHA-1, keyed with a random 20-byte salt per
+entry. Take the salt $s$ = SHA-1("example salt") = `51f7b560...7a48` and the
+host `habitat.arcadia.mars`. The key is padded with 44 zero bytes to SHA-1's
+64-byte block, every byte is XORed with 0x36, and that block followed by the
+host name is hashed: the inner digest is `367e93e4...c28e`. The padded key
+XORed with 0x5c, followed by the inner digest, is hashed again: the HMAC is
+`bae33540...25a0`. The file stores `|1|`, the salt in base64, `|`, the HMAC in
+base64. Base64 of the salt's first three bytes, `51 f7 b5`, by hand: the bits
+`010100 011111 011110 110101` are 20, 31, 30, 53, the characters `U`, `f`,
+`e`, `1`. The entry begins `|1|Ufe1`.
+
+```python
+# Uses hashed_entry() and lookup() from the listing above.
+host = "habitat.arcadia.mars"
+salt = hashlib.sha1(b"example salt").digest()               # 20 bytes; ssh uses random ones
+block = salt + bytes(64 - len(salt))                        # key padded to SHA-1's 64-byte block
+inner = hashlib.sha1(bytes(x ^ 0x36 for x in block) + host.encode()).digest()
+outer = hashlib.sha1(bytes(x ^ 0x5c for x in block) + inner).digest()
+print("inner", inner.hex())
+print("HMAC ", outer.hex())
+print("same as the hmac module:", outer == hmac.new(salt, host.encode(), hashlib.sha1).digest())
+line = hashed_entry(host, real, salt)
+print(line.split(" ")[0])
+print("port 2222 matches it:", lookup([line], "[habitat.arcadia.mars]:2222") is not None)
+```
+
+It prints:
+
+```text
+inner 367e93e440d55adb9062019781ba7d969d59c28e
+HMAC  bae33540b4451372a8de80aa314b0768e44825a0
+same as the hmac module: True
+|1|Ufe1YB/Lrn1EaS5pDM5Nnvi4ekg=|uuM1QLRFE3Ko3oCqMUsHaORIJaA=
+port 2222 matches it: False
+```
+
+A server on another port is stored as `[host]:port`, so it has its own entry.
+The per-entry salt stops one precomputed table from serving every entry, but
+each guess still costs only one HMAC per entry: 200 entries tested against
+100,000 names from the organization's DNS, shell history or `~/.ssh/config`
+(which hashing does not touch) is 20 million HMACs, under a minute on a laptop.
+
 **SSHFP records** (RFC 4255, 2006) put the host key's fingerprint in DNS. With
 `VerifyHostKeyDNS`, the client compares the key with the record, which is
 meaningful only if the DNS answer is authenticated by DNSSEC
 ([Chapter 10](10-DNSSEC-and-Private-DNS.md)).
+
+### Code it: SSHFP records
+
+An SSHFP record holds an algorithm number (1 RSA, 2 DSA, 3 ECDSA, 4 Ed25519, 6
+Ed448: RFC 4255, 6594, 7479, 8709), a fingerprint type (1 SHA-1, 2 SHA-256) and
+the fingerprint in hex, taken over the same key blob as the fingerprint `ssh`
+prints. `ssh-keygen -r habitat.arcadia.mars` prints them for a server's keys.
+Here they are for the host key of §6.3:
+
+```python
+# Uses K_S and fp from the listings above.
+for t, h in ((1, hashlib.sha1), (2, hashlib.sha256)):
+    print("habitat.arcadia.mars. IN SSHFP 4 %d %s..." % (t, h(K_S).hexdigest()[:24]))
+print("type 2 is the fingerprint ssh shows:",
+      base64.b64decode(fp + "=") == hashlib.sha256(K_S).digest())
+```
+
+It prints:
+
+```text
+habitat.arcadia.mars. IN SSHFP 4 1 aa15807f2520adbdd09c54e9...
+habitat.arcadia.mars. IN SSHFP 4 2 a07bfc3061d3665a716b3361...
+type 2 is the fingerprint ssh shows: True
+```
+
+An attacker who can answer the client's DNS queries can forge the record too,
+so an unvalidated match proves nothing: OpenSSH then says that a matching
+fingerprint was found in DNS but still asks. Only a DNSSEC-validated match
+replaces the first-use prompt, and the client learns of it from its resolver's
+"authenticated data" bit, so it must trust the resolver too. A signed zone, a
+trusted validating resolver and an option that is off by default: that chain
+is why SSHFP is used less than it deserves.
 
 **SSH certificates** (OpenSSH 5.4, 2010) are the answer for organizations. An
 SSH certificate is not X.509; it is a short OpenSSH-specific structure in which
@@ -933,6 +1094,78 @@ one-time codes and other prompts ([Chapter 11](11-One-Time-Codes-and-Password-Pr
 one command, `no-port-forwarding` and `restrict` take away abilities. A key
 used by an automated job should always carry them.
 
+### Security keys: what the signature covers
+
+A FIDO security key (Chapter 13) will not sign an arbitrary message, only a
+fixed structure, and OpenSSH fits SSH into it (`PROTOCOL.u2f`). An
+`sk-ssh-ed25519@openssh.com` public key is an Ed25519 key plus an
+**application** string, normally `ssh:`, in the role of a web site's name. The
+token signs this 69-byte blob:
+
+| Bytes | Field |
+| --- | --- |
+| 32 | SHA-256 of the application (`ssh:` gives `e30610e8a1621159...`) |
+| 1 | flags: bit 0 = user present (touched), bit 2 = user verified (PIN or fingerprint) |
+| 4 | signature counter, big-endian |
+| 32 | SHA-256 of the message: the usual login data, session identifier first |
+
+On the wire the flags byte and counter follow the signature in the clear, so
+the server can rebuild the blob. It checks the signature, then the flags: the
+user-present bit is required unless `authorized_keys` says `no-touch-required`,
+and `verify-required` demands the user-verified bit too. The key file on disk
+holds only a **key handle**, which the token turns back into the private key
+with a secret that never leaves it; a resident key (`ssh-keygen -O resident`)
+lives on the token and is fetched onto a new laptop with `ssh-keygen -K`.
+
+```python
+# Uses session_id, seed(), sign(), verify(), public_key() and ssh_string() from the listings above.
+import struct
+SK, app = b"sk-ssh-ed25519@openssh.com", b"ssh:"
+token_secret = seed("credential inside the security key")
+sk_blob = ssh_string(SK) + ssh_string(public_key(token_secret)) + ssh_string(app)
+m = (ssh_string(session_id) + bytes([50]) + ssh_string(b"jim") + ssh_string(b"ssh-connection") +
+     ssh_string(b"publickey") + b"\x01" + ssh_string(SK) + ssh_string(sk_blob))   # RFC 4252 data
+
+def to_be_signed(flags, counter, message):
+    return (hashlib.sha256(app).digest() + bytes([flags]) + struct.pack(">I", counter) +
+            hashlib.sha256(message).digest())
+
+def token(message, touched, counter):            # the authenticator
+    flags = 0x01 if touched else 0x00            # bit 0: user present
+    sig = sign(token_secret, to_be_signed(flags, counter, message))
+    return ssh_string(SK) + ssh_string(sig) + bytes([flags]) + struct.pack(">I", counter)
+
+def sshd(message, wire):                         # the server
+    sig, flags, counter = wire[4 + len(SK) + 4:-5], wire[-5], int.from_bytes(wire[-4:], "big")
+    if not verify(sk_blob[-40:-8], to_be_signed(flags, counter, message), sig):
+        return "refused: bad signature"
+    if not flags & 0x01:
+        return "refused: user presence not asserted"
+    return "accepted (flags %02x, counter %d)" % (flags, counter)
+
+print("signed blob:", len(to_be_signed(1, 7, m)), "bytes, starting", to_be_signed(1, 7, m)[:8].hex())
+print("touched:        ", sshd(m, token(m, True, 7)))
+print("not touched:    ", sshd(m, token(m, False, 8)))
+w = token(m, False, 9)
+print("flag set later: ", sshd(m, w[:-5] + b"\x01" + w[-4:]))
+```
+
+It prints:
+
+```text
+signed blob: 69 bytes, starting e30610e8a1621159
+touched:         accepted (flags 01, counter 7)
+not touched:     refused: user presence not asserted
+flag set later:  refused: bad signature
+```
+
+The flags are outside the signature string but inside the signed blob, so
+nobody can set the bit afterwards, and the hashed session identifier keeps the
+binding to one connection. The counter is the weak part: a web server stores
+the last value to spot a cloned authenticator, but `sshd` keeps no per-key
+state and does not enforce that it increases. The blob has the shape of
+Chapter 13's WebAuthn assertion, with `ssh:` as the relying party.
+
 ### Choosing a key type
 
 Three kinds of user and host key are in common use. All give about 128 bits of
@@ -1015,13 +1248,56 @@ forwards encrypted bytes. Agents can also be told to confirm each use
 <line x1="480" y1="290" x2="550" y2="290" stroke="currentColor" class="acc" stroke-width="2.5"/>
 <text x="320" y="315" text-anchor="middle" font-size="12.5" class="acc-fill">SSH 2 runs end to end, laptop to target, inside SSH 1</text>
 </svg>
-<figcaption>Figure 6.5. Two ways to reach a machine through a jump host. With agent forwarding, the jump host can use your keys while you are connected. With ProxyJump, it sees only encrypted bytes.</figcaption>
+<figcaption>Figure 6.6. Two ways to reach a machine through a jump host. With agent forwarding, the jump host can use your keys while you are connected. With ProxyJump, it sees only encrypted bytes.</figcaption>
 </figure>
 
-In 2023 OpenSSH added **agent restriction** (`ssh-add -h`), which tells the
-agent which hosts each key may be used for and through which paths, binding
-signatures to host keys the agent can check. It is the first serious fix for
-forwarding's risk in twenty years.
+ProxyJump arrived in OpenSSH 7.3 (August 2016); before it, the same tunnel
+was built with `ProxyCommand ssh -W %h:%p jump` (OpenSSH 5.4, 2010). The jump
+host still sees the target's name and port in the channel request, and the
+timing and size of the traffic, but it holds no key, and the laptop checks the
+target's host key itself.
+
+### What a forwarded agent is asked
+
+The agent protocol, an OpenSSH document for decades, was published as RFC 9987
+in 2026. A client asks for the list of keys (message 11, answered by 12), then
+sends a **sign request** (13): a public key blob, the data and a flags word
+(for RSA, SHA-256 or SHA-512). The agent returns a signature (14). A classic
+agent does not look inside the data, so it cannot tell which connection the
+session identifier in a login belongs to, or which server is at the other end.
+Root on a jump host needs only your session's `SSH_AUTH_SOCK` value (a socket
+such as `/tmp/ssh-XXXXd3fk/agent.4121`): set it, run `ssh-add -l` to see your
+keys, and `ssh` anywhere they open. Your laptop signs, silently, unless the key
+was added with `ssh-add -c` or lives on a security key that wants a touch.
+
+**Agent restriction** (`ssh-add -h`, OpenSSH 8.9, February 2022), the first
+serious fix for forwarding's risk in twenty years, gives the agent the missing
+facts, in three parts documented in OpenSSH's `PROTOCOL` and
+`PROTOCOL.agent` files:
+
+1. **Session binding.** After each key exchange, `ssh` sends the agent a
+   `session-bind@openssh.com` message: the server's host key, the session
+   identifier, the server's signature over it (the one from KEX_ECDH_REPLY)
+   and a flag saying whether the connection is for forwarding. The agent
+   checks that signature itself, so it knows which host key each socket
+   connection leads to without trusting the caller.
+2. **Host-bound login.** `publickey-hostbound-v00@openssh.com` adds the
+   server's host key to the signed login data, so a sign request names its
+   destination.
+3. **Destination constraints.** `ssh-add -h jump.arcadia.mars -h
+   "jump.arcadia.mars>db.arcadia.mars" key` allows logins to the jump host
+   and from there to the database server only, matched by host key, not name.
+
+Root on the jump host can still use your key for the hop you allowed, but not
+for everything else it opens. Keys added without `-h` stay unrestricted.
+
+**In the real world: Matrix.org (2019).** On 13 March 2019 an attacker broke
+into the Jenkins build server of Matrix.org through known flaws in an
+out-of-date Jenkins. On 4 April, a developer was logged in to a Jenkins worker
+with agent forwarding on; the attacker hijacked the forwarded agent and used
+the developer's keys to reach production. The breach was found on 10 April and
+announced the next day, and the post-mortem of 8 May 2019 listed turning off
+agent forwarding among the fixes.
 
 ## 6.8 Post-quantum SSH
 
@@ -1047,6 +1323,64 @@ change.
 Host and user keys, which are signatures, can wait longer, for the reason given
 in Chapter 3. OpenSSH has begun adding hybrid signature types that pair ML-DSA
 with Ed25519; check `ssh -Q key` on your version to see what it supports.
+
+### The hybrid on the wire
+
+RFC 10042 defines `mlkem768x25519-sha256` in terms that map straight onto §6.3.
+The client's message, once a 32-byte X25519 key, carries an ML-KEM-768
+encapsulation key (1,184 bytes, FIPS 203) followed by the X25519 key: 1,216
+bytes. The server replies with the ML-KEM ciphertext (1,088 bytes) followed by
+its X25519 key: 1,120 bytes. Each side checks the other's length exactly before
+use. The secrets are combined by hashing,
+
+$$
+K = \mathrm{SHA256}(K_{PQ} \,\|\, K_{CL}),
+$$
+
+and $K$ enters the exchange hash and key derivation as a 32-byte **string**,
+not an mpint, so the leading-zero trap of §6.3 is gone. The host key signature
+over $H$, the six keys and the session identifier are unchanged. The older
+`sntrup761x25519-sha512` (RFC 9941) has the same shape with a 1,158-byte
+Streamlined NTRU Prime key, a 1,039-byte ciphertext and SHA-512.
+
+<figure class="mars-fig">
+<svg viewBox="0 0 640 250" width="640" role="img" aria-label="Bar chart of key exchange message sizes in bytes: curve25519-sha256 32 and 32; sntrup761x25519-sha512 1190 and 1071; mlkem768x25519-sha256 1216 and 1120" fill="currentColor" font-size="13">
+<text x="20" y="22" font-weight="bold">bytes of key-exchange data in each direction</text>
+<text x="20" y="58">curve25519</text>
+<text x="20" y="118">sntrup761x25519</text>
+<text x="20" y="178">mlkem768x25519</text>
+<path d="M190,44h12v16h-12zM190,104h357v16h-357zM190,164h365v16h-365zM190,220h12v12h-12z" fill-opacity=".55"/>
+<path d="M190,62h12v16h-12zM190,122h321v16h-321zM190,182h336v16h-336zM330,220h12v12h-12z" fill-opacity=".2" stroke="currentColor"/>
+<path d="M190,36V206" stroke="currentColor"/>
+<g font-size="12">
+<text x="208" y="57">client 32</text><text x="208" y="75">server 32</text>
+<text x="553" y="117">1,190</text><text x="517" y="135">1,071</text>
+<text x="561" y="177">1,216</text><text x="532" y="195">1,120</text>
+<text x="208" y="231">client to server</text>
+<text x="348" y="231">server to client (plus host key and signature)</text>
+</g>
+</svg>
+<figcaption>Figure 6.7. The cost of the hybrids is size: about 2,300 bytes per handshake instead of 64. Each message still fits in one 1,500-byte Ethernet frame, and the number of round trips does not change.</figcaption>
+</figure>
+
+The client's KEX_ECDH_INIT packet is 4 bytes of length, 1 of padding length, a
+1,221-byte payload and 6 bytes of padding: 1,232 bytes. The reply, with the
+55-byte host key string and 87-byte signature string, is 1,280. Both fit under
+1,500 bytes with IPv4 and TCP headers, because SSH's algorithm lists travel
+separately in KEXINIT; a TLS ClientHello carries both, and the hybrid pushed it
+past one packet ([Chapter 3](03-TLS-1.3-Message-by-Message.md), §3.10). Speed
+was no cost: the OpenSSH 10.0 release notes call ML-KEM considerably faster
+than the NTRU Prime default it replaced.
+
+### Pushing the old exchanges out
+
+OpenSSH 10.1 (October 2025) went after servers that lag: the client warns when
+a connection is *not* using a post-quantum key exchange, saying the session may
+be open to "store now, decrypt later" and the server may need an upgrade. The
+connection still goes ahead, and the `WarnWeakCrypto` option can silence it.
+In SSH, nobody else tells an administrator that a server is behind. `ssh -v`
+shows the result in a line beginning `kex: algorithm:`; as of November 2026,
+current OpenSSH on both ends shows `mlkem768x25519-sha256`.
 
 ## 6.9 Mars: SSH over a light-time link
 
@@ -1151,7 +1485,7 @@ notices that a message is missing.
 <text x="320" y="300" text-anchor="middle" font-size="12.5">one message in, one message out: both sides reach 4, and the MAC checks</text>
 <text x="320" y="320" text-anchor="middle" font-size="12.5" class="acc-fill">EXT_INFO is gone, and nothing reports it</text>
 </svg>
-<figcaption>Figure 6.6. Terrapin. Numbers are the implicit sequence numbers each side counts. The inserted IGNORE travels in the unauthenticated phase, and the deleted EXT_INFO restores the count.</figcaption>
+<figcaption>Figure 6.8. Terrapin. Numbers are the implicit sequence numbers each side counts. The inserted IGNORE travels in the unauthenticated phase, and the deleted EXT_INFO restores the count.</figcaption>
 </figure>
 
 ```python
@@ -1211,6 +1545,59 @@ after each NEWKEYS and makes any unexpected message during the initial key
 exchange fatal. Both sides must support it. The deeper lesson is Chapter 1's:
 the transcript hash must cover *everything* that affects the session's state,
 and the sequence number was state that it did not cover.
+
+### Code it: the two halves of strict kex
+
+The IETF draft of the fix (draft-ietf-sshm-strict-kex, still a draft as of
+November 2026) states two rules. During the initial key exchange, anything but
+KEXINIT, NEWKEYS and the chosen method's messages ends the connection. And
+both sequence numbers reset to zero at each NEWKEYS. The program runs the
+attack against each rule alone.
+
+```python
+# Uses mac() from the listing above. Strict kex is two rules; try each one alone.
+KEX_MESSAGES = (b"KEXINIT", b"KEX_ECDH_REPLY", b"NEWKEYS")
+
+def terrapin(reset, reject):
+    key = b"keys from the new key exchange"
+    sent_plain = list(KEX_MESSAGES)
+    got_plain = sent_plain[:2] + [b"IGNORE (injected)"] + sent_plain[2:]
+    if reject and any(m not in KEX_MESSAGES for m in got_plain):
+        return "disconnect: non-KEX message in the initial key exchange"
+    send_seq = 0 if reset else len(sent_plain)     # server's number for its first encrypted packet
+    recv_seq = 0 if reset else len(got_plain)      # the number the client expects for it
+    secure = [b"EXT_INFO", b"SERVICE_ACCEPT"]
+    tags = [mac(key, send_seq + i, m) for i, m in enumerate(secure)]
+    # EXT_INFO is deleted, so SERVICE_ACCEPT is the first encrypted packet to arrive.
+    if not hmac.compare_digest(tags[1], mac(key, recv_seq, secure[1])):
+        return "disconnect: MAC failure on the first encrypted packet"
+    return "accepted; EXT_INFO silently lost"
+
+for reset in (False, True):
+    for reject in (False, True):
+        print(f"reset at NEWKEYS: {reset!s:5}  reject strays: {reject!s:5}  -> {terrapin(reset, reject)}")
+```
+
+It prints:
+
+```text
+reset at NEWKEYS: False  reject strays: False  -> accepted; EXT_INFO silently lost
+reset at NEWKEYS: False  reject strays: True   -> disconnect: non-KEX message in the initial key exchange
+reset at NEWKEYS: True   reject strays: False  -> disconnect: MAC failure on the first encrypted packet
+reset at NEWKEYS: True   reject strays: True   -> disconnect: non-KEX message in the initial key exchange
+```
+
+
+Each rule alone stops this attack. Rejecting strays removes the insertion.
+Resetting makes the drift irrelevant: both sides number the first encrypted
+packet 0, so after the deletion SERVICE_ACCEPT carries the wrong number and its
+MAC fails. The reset is the structural fix, cutting every link between what
+was counted in the clear and what is checked under the keys; the rejection rule
+also blocks the extreme insertion of $2^{32}$ messages to wrap the counter
+round, which the draft forbids explicitly. Both sides must announce support,
+so a patched client facing an unpatched server with ChaCha20-Poly1305 or a CBC
+encrypt-then-MAC mode is still exposed; for such a host, choosing AES-GCM
+avoids it.
 
 ### The xz backdoor (2024)
 
@@ -1346,7 +1733,7 @@ partly by modeling the handshake's sequence numbers, which earlier models had
 abstracted away.
 
 **The agent protocol.** `ssh-agent` speaks a small protocol over a Unix socket,
-recently written up as an IETF draft. Agent restriction (2023) extends it so
+published as RFC 9987 in 2026 (§6.7). Agent restriction (OpenSSH 8.9, 2022) extends it so
 that a signing request carries the host keys of each hop, signed by those
 hosts, and the agent checks them against the destinations allowed for the key.
 It turns a forwarded agent from "sign anything for anyone" into "sign only for
@@ -1365,8 +1752,8 @@ $\mathrm{HASH}(K \,\|\, H \,\|\, K_1 \,\|\, K_2)$, and so on. $K$ enters as an
 `mpint`, a signed big-endian integer with no leading zero bytes and an extra
 zero byte when the top bit is set. That encoding is a standing interoperability
 trap: about one X25519 secret in 256 starts with a zero byte, and one in two has
-its top bit set, so an implementation that hashes the raw 32 bytes agrees with
-others most of the time and fails at random. RFC 8731 spells this out for
+its top bit set, so an implementation that gets either rule wrong agrees with
+others on some connections and fails on others at random (§6.3 shows a case). RFC 8731 spells this out for
 `curve25519-sha256`. The hybrid post-quantum methods avoid the trap by hashing
 the combined secret and encoding the result as a fixed-length string.
 
@@ -1401,10 +1788,11 @@ required.
     server is checked first, so a password or signature is only sent to a
     server whose key the client has accepted.
 
-??? question "2. How is the algorithm in each category chosen from the two KEXINIT lists?"
+??? question "2. Write the bytes that the exchange hash takes for the version string `SSH-2.0-OpenSSH_9.9`, and for a shared secret $K$ = 0x80."
 
-    The first algorithm on the client's list that also appears on the
-    server's list.
+    The 19-byte version string (without CR LF) is `00 00 00 13` then
+    `53 53 48 2d 32 2e 30 2d ...`. $K$ is an mpint with its top bit set, so a
+    zero byte goes in front: `00 00 00 02 00 80`.
 
 ??? question "3. What goes into SSH's exchange hash $H$, and what does the server do with it?"
 
@@ -1438,18 +1826,22 @@ required.
     you are connected. ProxyJump runs the second connection end to end from
     your machine, so the intermediate host only relays encrypted bytes.
 
-??? question "8. In Terrapin, why does inserting one message and deleting another go unnoticed?"
+??? question "8. In Terrapin, why does inserting one message and deleting another go unnoticed, and which rule of strict kex would stop it on its own?"
 
     The exchange hash does not cover how many handshake packets there were,
     and sequence numbers keep counting through the handshake. One inserted
     IGNORE raises the receiver's count by one, one deleted message lowers the
-    sender's effective count by one, so later MACs still verify.
+    sender's effective count by one, so later MACs still verify. Either rule
+    alone stops it: rejecting non-key-exchange messages during the first key
+    exchange removes the insertion, and resetting both counters to zero at
+    NEWKEYS makes the deletion show up as a MAC failure.
 
-??? question "9. The xz backdoor did not break any cryptography. How did it get code into `sshd`?"
+??? question "9. What exactly does a security key sign when you log in with an `sk-ssh-ed25519` key, and why can malware not add the touch flag afterwards?"
 
-    Through a dependency: on distributions that link `sshd` to `libsystemd`,
-    which loads liblzma, the compromised liblzma replaced an RSA function in
-    `sshd`'s memory at load time.
+    A 69-byte blob: SHA-256 of the application (`ssh:`), the flags byte, the
+    4-byte counter and SHA-256 of the login data, session identifier first.
+    The flags are also sent in the clear, but they are inside what was
+    signed, so setting the user-present bit breaks the signature.
 
 ??? question "10. Why did SSH adopt post-quantum key exchange before post-quantum host keys?"
 
@@ -1470,7 +1862,12 @@ required.
 - Servers are trusted by first use, SSHFP or certificates; users by
   passwords, keys bound to the session identifier, security keys or
   certificates.
-- Agent forwarding lends your keys to the remote machine; ProxyJump does not.
+- Every field of $H$ is length-prefixed; $K$ is an mpint, which the hybrids
+  replace with a fixed 32-byte string.
+- Hashed `known_hosts` entries are salted HMAC-SHA1; SSHFP needs DNSSEC.
+- A security key signs the application, flags, counter and a login hash.
+- Agent forwarding lends your keys (Matrix.org, 2019); ProxyJump does not, and
+  agent restriction binds keys to named hops.
 - Terrapin, the xz backdoor and regreSSHion show three different ways to fail:
   a gap in the transcript, the supply chain, and a regression in old code.
 
@@ -1481,6 +1878,15 @@ every packet between two networks.
 
 - Tatu Ylönen, "SSH: secure login connections over the Internet" (USENIX
   Security 1996).
+- RFC 2104 (HMAC, 1997); RFC 6594 (SHA-256 and ECDSA in SSHFP, 2012); RFC 7479
+  (Ed25519 in SSHFP, 2015); RFC 9987 (the SSH agent protocol, 2026);
+  draft-ietf-sshm-strict-kex (strict key exchange, 2026 draft); FIPS 203
+  (ML-KEM, 2024).
+- OpenSSH's `PROTOCOL.u2f` and release notes for 7.3, 8.9, 10.0 and 10.1.
+- Stuart Schechter, Jaeyeon Jung, Will Stockwell and Cynthia McLain,
+  "Inoculating SSH against address harvesting" (NDSS 2006).
+- Matthew Hodgson, "Post-mortem and remediations for Apr 11 security
+  incident", matrix.org blog (8 May 2019).
 - RFC 4251 to 4254, the SSH-2 protocol (2006); RFC 4255 (SSHFP); RFC 4344
   (counter modes); RFC 5647 (AES-GCM); RFC 8308 (extension negotiation); RFC
   8332 (RSA with SHA-2); RFC 8709 (Ed25519 keys); RFC 8731 (Curve25519 key
