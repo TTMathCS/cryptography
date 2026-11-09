@@ -302,7 +302,7 @@ cheaper than the 1977 estimate and only about ten times slower.
 **2006: COPACOBANA.** Researchers at the Universities of Bochum and Kiel built
 the "Cost-Optimized Parallel Code Breaker" from 120 off-the-shelf Xilinx
 Spartan-3 FPGAs on 20 small cards, for under €10,000 in parts. It searched about
-65 billion DES keys a second and found a key in 6.4 days on average. Their point
+48 billion DES keys a second and found a key in under nine days on average (8.7 days in the 2006 paper; later reports give about 6.4 days at a higher clock rate). Their point
 was that a custom chip, with its million-dollar design cost, was no longer
 needed: reprogrammable chips bought at retail could break DES for the price of a
 used car, and the same box could be loaded with other ciphers. Its successor,
@@ -312,7 +312,7 @@ RIVYERA, did the job in under a day.
     **Born:** 2006, Sandeep Kumar, Christof Paar, Jan Pelzl, Gerd Pfeiffer and
     Manfred Schimmler, Universities of Bochum and Kiel; 120 Spartan-3 FPGAs ·
     **Purpose:** to show that code breaking needs no custom silicon, only cheap
-    reprogrammable chips · **Helped:** DES keys in about a week for under
+    reprogrammable chips · **Helped:** DES keys in about nine days for under
     €10,000; later used on A5/1, elliptic curve logarithms and old smart-card
     ciphers; led to commercial FPGA crackers · **Status:** retired, replaced by
     larger FPGA machines and GPUs
@@ -360,8 +360,8 @@ Put the rates side by side, and the right scale is logarithmic (Figure 4.2).
 <rect x="300" y="56" width="45.4" height="18" fill="currentColor" opacity="0.55"/>
 <text x="350.4" y="69" font-size="12">9.2 × 10¹⁰</text>
 <text x="292" y="103" text-anchor="end" font-size="13">COPACOBANA, 2006</text>
-<rect x="300" y="90" width="42.0" height="18" fill="currentColor" opacity="0.55"/>
-<text x="347.0" y="103" font-size="12">6.5 × 10¹⁰</text>
+<rect x="300" y="90" width="38.9" height="18" fill="currentColor" opacity="0.55"/>
+<text x="343.9" y="103" font-size="12">4.8 × 10¹⁰</text>
 <text x="292" y="137" text-anchor="end" font-size="13">crack.sh FPGA box, 2012</text>
 <rect x="300" y="124" width="66.8" height="18" fill="currentColor" opacity="0.55"/>
 <text x="371.8" y="137" font-size="12">7.7 × 10¹¹</text>
@@ -406,7 +406,7 @@ def human(s):                           # seconds, in the largest unit that fits
 rates = [                               # keys (or hashes) tried per second
     ("Diffie-Hellman design, 1977", 1e12),
     ("Deep Crack, 1998", 9.2e10),
-    ("COPACOBANA, 2006", 6.5e10),
+    ("COPACOBANA, 2006", 4.8e10),
     ("crack.sh FPGA box, 2012", 7.7e11),
     ("one RTX 4090, MD5, 2022", 1.6e11),
     ("Bitcoin network, 2025", 1e21),
@@ -421,28 +421,28 @@ for bits in (56, 64, 80, 128):
 56-bit key, average time (half the space):
   Diffie-Hellman design, 1977    10 hours
   Deep Crack, 1998               4.53 days
-  COPACOBANA, 2006               6.42 days
+  COPACOBANA, 2006               8.69 days
   crack.sh FPGA box, 2012        13 hours
   one RTX 4090, MD5, 2022        2.61 days
   Bitcoin network, 2025          3.6e-05 seconds
 64-bit key, average time (half the space):
   Diffie-Hellman design, 1977    107 days
   Deep Crack, 1998               3.18 years
-  COPACOBANA, 2006               4.5 years
+  COPACOBANA, 2006               6.09 years
   crack.sh FPGA box, 2012        139 days
   one RTX 4090, MD5, 2022        1.83 years
   Bitcoin network, 2025          0.00922 seconds
 80-bit key, average time (half the space):
   Diffie-Hellman design, 1977    1.92e+04 years
   Deep Crack, 1998               2.08e+05 years
-  COPACOBANA, 2006               2.95e+05 years
+  COPACOBANA, 2006               3.99e+05 years
   crack.sh FPGA box, 2012        2.49e+04 years
   one RTX 4090, MD5, 2022        1.2e+05 years
   Bitcoin network, 2025          10.1 minutes
 128-bit key, average time (half the space):
   Diffie-Hellman design, 1977    5.39e+18 years
   Deep Crack, 1998               5.86e+19 years
-  COPACOBANA, 2006               8.29e+19 years
+  COPACOBANA, 2006               1.12e+20 years
   crack.sh FPGA box, 2012        7e+18 years
   one RTX 4090, MD5, 2022        3.37e+19 years
   Bitcoin network, 2025          5.39e+09 years
