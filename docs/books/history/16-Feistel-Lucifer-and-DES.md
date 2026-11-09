@@ -1003,7 +1003,7 @@ DES was not alone for long. A standard cipher with a short key and a 64-bit bloc
 
 **GOST 28147-89** was the Soviet standard of 1989, a Feistel cipher with a 64-bit block, 32 rounds and a 256-bit key. Its S-boxes were not part of the standard but were supplied separately, and the cipher became known in the West in the early 1990s. [Book 1, chapter 6](../../book/06-Block-Ciphers.md) says more of it and of the other national ciphers built on the Feistel plan.
 
-**Skipjack** was the NSA's own. It was designed for the Clipper chip of 1993 ([chapter 17](17-Public-Keys-and-the-Crypto-Wars.md)) and for the Fortezza card, with a 64-bit block, an 80-bit key and 32 rounds. It was classified until 24 June 1998, when the NSA released the description. It was among the first chances anyone outside had to see how the agency built a block cipher. In 1999 Eli Biham, Alex Biryukov and Adi Shamir broke 31 of its 32 rounds with a method called impossible differentials.
+**Skipjack** was the NSA's own. It was designed for the Clipper chip of 1993 ([chapter 17](17-Public-Keys-and-the-Crypto-Wars.md)) and for the Fortezza card, with a 64-bit block, an 80-bit key and 32 rounds. It was classified until June 1998, when the NSA released the description. It was among the first chances anyone outside had to see how the agency built a block cipher. In 1999 Eli Biham, Alex Biryukov and Adi Shamir broke 31 of its 32 rounds with a method called impossible differentials.
 
 ### Can these be broken today?
 

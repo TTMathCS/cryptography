@@ -40,7 +40,8 @@ servant at the far door. At every step someone could have opened it, and opening
 candle slid under the wax and lifted it whole; the letter could be read, copied and closed again, and the seal pressed
 back where it had been. A skilled hand left nothing to see.
 
-Regular posts were new in that century and growing. France's Louis XI had set up a relay of royal riders in 1464. The
+Regular posts were new in that century and growing. France's Louis XI set up relays of royal riders in the late
+1470s (an edict of 1464 long cited for it is now thought to be a later forgery). The
 Habsburg emperors used a private post run by the Taxis family from about 1490, which later became the Thurn und Taxis
 postal system and lasted into the nineteenth century. England had a Master of the Posts who ran the royal relays. These
 systems were built to carry the government's own letters, but once a state owned the road it could stop the traffic of
@@ -384,7 +385,7 @@ substitution cipher with a short dictionary added, and a short dictionary does n
 
 *Level: intermediate.*
 
-Anthony Babington was twenty-five in the summer of 1586. He came from Dethick in Derbyshire, was rich and Catholic, and
+Anthony Babington was twenty-four in the summer of 1586. He came from Dethick in Derbyshire, was rich and Catholic, and
 had been a page in the Shrewsbury household where Mary was then held, which is how he came to know her and to admire
 her. In 1586 he was the center of a circle of young Catholic gentlemen in London, among them Chidiock Tichborne and
 Edward Abington, who had begun to talk about rescue. A priest, John Ballard, came back from France with the news that

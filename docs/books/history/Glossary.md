@@ -791,7 +791,7 @@ Chief secretary of the Sforza dukes of Milan from 1450 (born about 1410 at Caccu
 See [Chapter 6](06-Italy-Ambassadors-and-Nomenclators.md#66-simonettas-rules-1474).
 
 **Skipjack**
-The NSA's own block cipher, with a 64-bit block, an 80-bit key and 32 rounds, designed for the Clipper chip of 1993. It was classified until 24 June 1998, and in 1999 Biham, Biryukov and Shamir broke 31 of its 32 rounds.
+The NSA's own block cipher, with a 64-bit block, an 80-bit key and 32 rounds, designed for the Clipper chip of 1993. It was classified until June 1998, and in 1999 Biham, Biryukov and Shamir broke 31 of its 32 rounds.
 See [Chapter 16](16-Feistel-Lucifer-and-DES.md#1613-after-des-other-ciphers-of-the-era).
 
 **Skytale**
