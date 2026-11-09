@@ -576,7 +576,7 @@ is the job of TLS and its relatives, analyzed against an attacker who controls
 the whole network in [Protocols, Chapter 1](../protocols/01-What-a-Protocol-Must-Do.md).
 Some protocols also need a **broadcast channel**, on which a party cannot send
 different messages to different people, and some need **synchrony**, a known
-bound on how long a message takes. Over a link to Mars, with up to 24 minutes
+bound on how long a message takes. Over a link to Mars, with up to 22 minutes
 of light delay one way, a protocol with many rounds is slow even when it is
 secure, so the number of rounds matters as much as the number of bits.
 
@@ -1287,8 +1287,8 @@ answers to a district that will be colder, and the council has agreed that the
 tally will be published but individual votes will not.
 
 The obvious Trent is a tally server. On Earth, there is one that would do: the
-settlement's sponsor runs a voting service. But the light delay is between 4 and
-24 minutes each way, the server is under another government's jurisdiction, and
+settlement's sponsor runs a voting service. But the light delay is between 3 and
+22 minutes each way, the server is under another government's jurisdiction, and
 the city has no way to check what it does. In the city itself, the central
 computer's operators report to the mayor, who is one of the voters. So the
 council does without Trent. Three **teller** machines, in three different

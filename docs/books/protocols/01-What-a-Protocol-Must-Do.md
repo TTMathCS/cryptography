@@ -1281,8 +1281,8 @@ settings where sessions last days and messages may arrive out of order.
 
 ??? question "10. Between Earth and Mars at the average distance, how long after a client starts does its first data arrive with TLS 1.3, and with TCP plus TLS 1.2?"
 
-    About 12.5 minutes one way. TLS 1.3 (one round trip, then data): 3 × 12.5 ≈
-    37.5 minutes. TCP + TLS 1.2: 7 × 12.5 ≈ 87.6 minutes.
+    About 12.51 minutes one way. TLS 1.3 (one round trip, then data): 3 × 12.51 ≈
+    37.5 minutes. TCP + TLS 1.2: 7 × 12.51 ≈ 87.6 minutes.
 
 ## What you learned
 

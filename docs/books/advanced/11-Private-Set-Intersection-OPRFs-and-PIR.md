@@ -1861,7 +1861,7 @@ updates daily. Which drugs a settlement of a few thousand people asks about
 says a great deal about who is ill and with what. The first answer is the
 trivial one: mirror the registry in Arcadia and look up locally, which is
 perfect privacy and also the only way to get answers without a round trip of
-8 to 48 minutes. When the registry is too large or changes too fast to
+6 to 44 minutes. When the registry is too large or changes too fast to
 mirror, the clinic can query two copies, one held by the registry on Earth
 and one at a relay operated by a different authority, with two-server PIR;
 each sees a random-looking subset and the clinic gets its row. The

@@ -1089,7 +1089,7 @@ attack detector", contained an integer overflow that let attackers run code on
 the server before login (CVE-2001-0144). It was exploited widely; in the 2003
 film *The Matrix Reloaded*, Trinity breaks into a power station with `nmap` and
 an exploit for this very bug, one of the few accurate hacking scenes in film.
-SSH-1 was removed from OpenSSH's server in 2017.
+SSH-1 was removed from OpenSSH's server in 2016 (OpenSSH 7.4) and from its client in 2017 (OpenSSH 7.6).
 
 **Keystroke timing** (2001). Dawn Song, David Wagner and Xuqing Tian showed
 that in an interactive session each keystroke is sent in its own packet the

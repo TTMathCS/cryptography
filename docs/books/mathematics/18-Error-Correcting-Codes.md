@@ -212,7 +212,8 @@ Codes meeting it with equality are **perfect**: every string is within $t$ of ex
 one codeword. The binary Hamming codes are perfect ($2^{n-k} = 1 + n$), and so is the
 **binary Golay code** $[23, 12, 7]$ (Marcel Golay, 1949): $1 + 23 + 253 + 1771 =
 2048 = 2^{11}$. Apart from trivial codes, those are the only perfect binary codes
-(Aimo Tietäväinen and, independently, Jacobus van Lint, 1973).
+(Aimo Tietäväinen and, independently, Victor Zinoviev and Vladimir Leontiev, 1973,
+building on work by Jacobus van Lint).
 
 **Gilbert-Varshamov bound** (Edgar Gilbert 1952, Rom Varshamov 1957): a linear
 $[n, k, \ge d]$ code exists whenever $\sum_{i=0}^{d-2}\binom{n-1}{i} < 2^{n-k}$. *Proof*

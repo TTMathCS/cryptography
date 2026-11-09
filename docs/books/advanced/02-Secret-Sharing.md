@@ -1473,7 +1473,7 @@ Why four of six? The council looked at the two enemies.
   a card can burn. Four of six works with two wardens unavailable.
 - **Misuse.** Three wardens together learn nothing at all; an attacker must
   win over or rob four.
-- **Earth cannot help.** Earth is 4 to 24 minutes away by light, and around
+- **Earth cannot help.** Earth is 3 to 22 minutes away by light, and around
   solar conjunction, every 26 months, the link goes quiet for about two weeks.
   An Earth agency could hold a seventh share as a last resort, but no routine
   procedure may depend on it. All shares that matter stay on Mars.

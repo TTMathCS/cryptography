@@ -1660,7 +1660,7 @@ The design uses only this chapter's tools.
 4. **Rank.** Each family's place is set by hashing $\beta$, the list fingerprint
    and the family's name together with SHA-256, and sorting. The forty lowest get
    apartments.
-5. **Audit.** Anyone, on Mars or on Earth 4 to 24 light-minutes away, can recheck
+5. **Audit.** Anyone, on Mars or on Earth 3 to 22 light-minutes away, can recheck
    every proof and the ranking from the published data.
 
 </div>

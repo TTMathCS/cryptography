@@ -107,7 +107,7 @@ The [Glossary](Glossary.md) defines 240 terms, each with a link to the section t
 ## Arcadia City
 
 The examples often come back to Arcadia City, a settlement on Mars imagined on
-this site, four to twenty-four minutes of light delay from Earth. A small,
+this site, three to twenty-two minutes of light delay from Earth. A small,
 closed town with its own council, clinics and records, linked to a home planet
 it cannot fully trust or quickly reach, needs almost every tool in this book:
 shared keys for its vault, fair lotteries, private medical statistics, an

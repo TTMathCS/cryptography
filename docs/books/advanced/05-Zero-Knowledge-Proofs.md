@@ -1343,7 +1343,7 @@ $2^{-40}$.
 
 ### The cost of talking to Earth
 
-Now count the time. Mars is between about 4 and 24 minutes of light travel
+Now count the time. Mars is between about 3 and 22 minutes of light travel
 from Earth, depending on where the two planets are in their orbits. Take 20
 minutes one way. Each round has three moves, so it costs at least an hour of
 light travel, and 236 rounds in sequence take ten days of nothing but waiting.

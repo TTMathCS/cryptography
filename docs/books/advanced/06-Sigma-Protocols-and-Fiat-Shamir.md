@@ -1292,8 +1292,8 @@ fine at an airlock door. It is not fine for a proof that must be checked by many
 people, or later, or far away. A ballot proof must convince every observer of
 an election, not only the server that received it. A proof that the airlock
 log is genuine must convince an auditor next year. And a conversation between
-Arcadia City and Earth, at up to 24 minutes of light delay each way, takes up
-to 72 minutes for the three moves, for every single proof.
+Arcadia City and Earth, at up to 22 minutes of light delay each way, takes up
+to 66 minutes for the three moves, for every single proof.
 
 Fiat and Shamir's 1986 answer: let a hash function choose the challenge. The
 prover computes

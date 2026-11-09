@@ -1642,12 +1642,12 @@ passes through relays that nobody in Arcadia controls.
 [Chapter 10](10-Multi-Party-Computation-in-Practice.md) solved a related problem,
 pooling children's growth data across several clinics, with secret sharing
 and many rounds of messages. Here there are only two parties, and the obstacle
-is the light delay: 4 to 24 minutes each way, so every round of an interactive
-protocol costs up to 48 minutes. Homomorphic encryption needs one message
+is the light delay: 3 to 22 minutes each way, so every round of an interactive
+protocol costs up to 44 minutes. Homomorphic encryption needs one message
 there and one back.
 
 <figure class="mars-fig">
-<svg viewBox="0 0 640 230" width="640" role="img" aria-label="The Arcadia City clinic sends encrypted measurements to an Earth laboratory, 4 to 24 light-minutes away; the lab computes risk scores and statistics on ciphertexts and sends one encrypted reply, which only the clinic can decrypt" fill="currentColor" font-size="14">
+<svg viewBox="0 0 640 230" width="640" role="img" aria-label="The Arcadia City clinic sends encrypted measurements to an Earth laboratory, 3 to 22 light-minutes away; the lab computes risk scores and statistics on ciphertexts and sends one encrypted reply, which only the clinic can decrypt" fill="currentColor" font-size="14">
 <rect x="10" y="40" width="190" height="120" rx="6" fill="none" stroke="currentColor" stroke-width="1.5"/>
 <text x="105" y="66" text-anchor="middle" font-weight="bold">Arcadia City clinic</text>
 <text x="105" y="90" text-anchor="middle" font-size="13">holds the Paillier key</text>
@@ -1664,7 +1664,7 @@ there and one back.
 <line x1="438" y1="125" x2="210" y2="125" stroke="currentColor" stroke-width="1.5" stroke-dasharray="6 4"/>
 <polygon points="202,125 211,121 211,129"/>
 <text x="320" y="145" text-anchor="middle" font-size="13">8 ciphertexts</text>
-<text x="320" y="100" text-anchor="middle" font-size="12" opacity="0.8">4 to 24 light-minutes</text>
+<text x="320" y="100" text-anchor="middle" font-size="12" opacity="0.8">3 to 22 light-minutes</text>
 <text x="320" y="200" text-anchor="middle" font-size="13">one round trip; the lab never sees a measurement, a score or a total</text>
 </svg>
 <figcaption>Figure 12.6. One round trip between Mars and Earth. The clinic sends encrypted measurements; the lab applies its weights to ciphertexts and returns encrypted scores and sums.</figcaption>

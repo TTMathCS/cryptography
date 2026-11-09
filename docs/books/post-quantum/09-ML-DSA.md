@@ -284,8 +284,8 @@ about 38 times an Ed25519 signature. Speed is a different story. On a laptop, op
 ML-DSA signs and verifies in tens of microseconds, comparable to Ed25519 and much faster
 than RSA signing. Size, not speed, is ML-DSA's cost.
 
-The category 2 rating of ML-DSA-44 (not 1) reflects that its estimated attack cost sits
-between the AES-128 and SHA-256 collision thresholds of Chapter 2.
+The category 2 rating of ML-DSA-44 (not 1) reflects that its estimated attack cost reaches
+the SHA-256 collision threshold of Chapter 2, though not the AES-192 key search of category 3.
 
 ## 9.7 The complete code
 

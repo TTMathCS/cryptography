@@ -1553,7 +1553,7 @@ Arcadia City's clinic network receives a transfer note from an Earth hospital:
 a returning worker with a heart condition is on the next shuttle, and whoever
 receives her in District 3 tonight needs her history. The Earth hospital does not
 know who will be on shift, the roster changes every few hours, and the question
-"who is on duty?" takes between 8 and 48 minutes to ask and answer across the
+"who is on duty?" takes between 6 and 44 minutes to ask and answer across the
 light delay. It should not have to ask. It encrypts the note to a description:
 
 $$

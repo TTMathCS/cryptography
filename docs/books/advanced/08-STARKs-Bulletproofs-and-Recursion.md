@@ -1360,7 +1360,7 @@ matter. For a system meant to keep its integrity for decades, it does.
 the shared ice each district may draw, and every season it publishes a proof
 that the new balances follow from the old ones and that season's metered use.
 The registry is meant to outlast its founders, and anyone in the city, or on
-Earth 4 to 24 minutes away, should be able to check it on a tablet. The
+Earth 3 to 22 minutes away, should be able to check it on a tablet. The
 council chose a STARK: no ceremony to trust, and no algebra that a future
 quantum computer would undo. The proofs are about a hundred kilobytes each,
 which the settlement's archive barely notices.

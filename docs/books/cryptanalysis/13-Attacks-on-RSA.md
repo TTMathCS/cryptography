@@ -338,7 +338,7 @@ needs a short message. Johan Håstad, then a graduate student at MIT, showed in
 A mission control on Earth makes the scenario concrete. It sends the same
 command, "seal all domes, new key 7741-QZ", to three settlements on Mars. Each
 settlement has its own RSA key, all with $e = 3$, and the moduli $N_1, N_2,
-N_3$ are different. The command takes up to 24 minutes to arrive, and anyone
+N_3$ are different. The command takes up to 22 minutes to arrive, and anyone
 with a dish hears all three transmissions:
 
 $$

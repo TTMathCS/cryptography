@@ -1728,7 +1728,7 @@ to answer alone. Two children's clinics on Earth, one in Toronto and one in
 Nairobi, have agreed to pool their numbers. None of the three may send
 records: the Earth clinics are bound by their countries' health-privacy laws,
 and Arcadia's settlement charter ([Chapter 19](19-Differential-Privacy.md))
-forbids exporting residents' medical files. The link between them is 4 to 24
+forbids exporting residents' medical files. The link between them is 3 to 22
 minutes of light delay each way, depending on where the two planets are in
 their orbits, and nobody fully trusts the relays in between.
 
@@ -1795,11 +1795,11 @@ shows the flow.
 <line x1="220" y1="165" x2="434" y2="122" stroke="currentColor" stroke-width="1.3"/>
 <polygon points="440,121 430,118 431,126"/>
 <polygon points="220,165 227,159 228,167"/>
-<text x="330" y="78" text-anchor="middle" opacity="0.75">4 to 24 min</text>
-<text x="330" y="174" text-anchor="middle" opacity="0.75">4 to 24 min</text>
+<text x="330" y="78" text-anchor="middle" opacity="0.75">3 to 22 min</text>
+<text x="330" y="174" text-anchor="middle" opacity="0.75">3 to 22 min</text>
 <text x="320" y="230" text-anchor="middle">round 1: every clinic sends a share of n, S, Q to each other clinic</text>
 <text x="320" y="254" text-anchor="middle">round 2: every clinic publishes the sums of the shares it holds</text>
-<text x="320" y="276" text-anchor="middle" opacity="0.75">total: two one-way delays, 8 to 48 minutes; no record leaves a clinic</text>
+<text x="320" y="276" text-anchor="middle" opacity="0.75">total: two one-way delays, 6 to 44 minutes; no record leaves a clinic</text>
 </svg>
 <figcaption>Figure 10.6. The three-clinic study. The Earth clinics talk to each other in milliseconds and to Arcadia City in minutes; because the function is a sum, the whole protocol is two rounds, so the light delay costs two one-way trips and no more.</figcaption>
 </figure>
@@ -1874,10 +1874,10 @@ together with the shares that Nairobi and Toronto itself hold.
 ### Rounds against light
 
 The protocol above takes two rounds, so it costs two one-way light delays:
-between 8 and 48 minutes, however much data there is. Suppose the doctors
+between 6 and 44 minutes, however much data there is. Suppose the doctors
 then ask for the **median** height instead. A median needs comparisons, and
 comparisons on shares need Boolean circuits of some depth: a secure sort of a
-hundred values by GMW or SPDZ could need hundreds of rounds, and at up to 24
+hundred values by GMW or SPDZ could need hundreds of rounds, and at up to 22
 minutes a round, days of waiting. Three better plans exist: garbled circuits
 (Chapter 9), whose rounds do not grow with the circuit; letting the two Earth
 clinics, a millisecond apart, do the deep part with a dishonest-majority
@@ -2021,8 +2021,8 @@ fairness limits of a dishonest majority, Cleve's theorem among them, are in
 
 ??? question "8. A protocol needs 200 rounds. Roughly how long does it take between Earth and Mars at the farthest, and between two data centers 100 ms apart (round trip)?"
 
-    Each round needs at least one one-way trip, up to 24 minutes to Mars:
-    about $200 \times 24 = 4{,}800$ minutes, more than three days. Between
+    Each round needs at least one one-way trip, up to 22 minutes to Mars:
+    about $200 \times 22 = 4{,}400$ minutes, just over three days. Between
     data centers, with about 50 ms one way, at least 10 seconds, and twice
     that if each round needs a reply.
 

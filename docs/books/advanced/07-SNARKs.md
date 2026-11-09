@@ -254,7 +254,7 @@ board on Earth the right to check that the published rations follow the formula.
 Sending the raw readings is costly on a link shared with medical and engineering
 traffic, and some of them are household data the charter keeps private. An
 interactive proof would be worse: every round of challenge and response costs a
-round trip of 8 to 48 minutes, depending on where the planets are in their orbits.
+round trip of 6 to 44 minutes, depending on where the planets are in their orbits.
 A SNARK fits the situation exactly. Each night the settlement's computer proves
 "these rations are the formula applied to readings whose Merkle root is $R$" and
 sends a 192-byte proof with the rations and the root. Earth checks it in
