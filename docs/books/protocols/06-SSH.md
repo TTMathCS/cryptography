@@ -9,7 +9,7 @@ exchange from both sides, derive the six session keys of RFC 4253, seal a packet
 ChaCha20-Poly1305, issue and check an SSH certificate, sign a login the way
 `ssh` does, and see why the signature cannot be replayed. Then
 the attacks: the CRC flaw of SSH-1, plaintext recovery in CBC mode, Terrapin's
-deleted message, the xz backdoor that nearly reached every Linux server, and
+deleted message, the xz backdoor that was caught weeks before it reached the stable releases of major Linux distributions, and
 regreSSHion. It ends with post-quantum SSH, which arrived in 2022, earlier
 than in any other widely used protocol.*
 

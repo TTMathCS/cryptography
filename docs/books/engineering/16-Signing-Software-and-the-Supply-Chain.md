@@ -85,7 +85,7 @@ history would never have seen. Every check that a careful distribution ran said 
 these are the official releases, signed by the official maintainer. They
 were.
 
-Three and a half years earlier the same lesson had come from the other
+A little over three years earlier the same lesson had come from the other
 direction. In December 2020 the security company FireEye found that
 an update to SolarWinds Orion, a network-monitoring product installed in
 thousands of companies and government agencies, carried a backdoor. The

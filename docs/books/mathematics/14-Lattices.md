@@ -310,7 +310,9 @@ $\gamma_n$ in $\lambda_1^2 \le \gamma_n (\det L)^{2/n}$ is the **Hermite constan
 it is known exactly only for $n \le 8$ and $n = 24$ ($\gamma_2 = 2/\sqrt{3}$, reached
 by the hexagonal lattice), and it grows roughly like $n/(2\pi e)$ for large $n$.
 
-Minkowski's bound is an upper bound; a random lattice usually comes close to it.
+Minkowski's bound is only an upper bound, and a random lattice falls well short of it: its
+shortest vector is typically about $\sqrt{2\pi e} \approx 4.1$ times shorter than
+$\sqrt{n}\,(\det L)^{1/n}$.
 The **Gaussian heuristic** predicts that a ball of volume $V$ contains about $V/\det L$
 lattice points, so the first minimum is near the radius of a ball of volume $\det L$:
 

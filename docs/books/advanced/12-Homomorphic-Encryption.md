@@ -192,7 +192,7 @@ some jobs, practical (§12.7 to §12.11). Figure 12.2 shows the whole road.
 <circle cx="78" cy="490" r="3.5"/>
 <text x="92" y="495">ISO/IEC 28033 parts 3 and 4 at final ballot</text>
 </svg>
-<figcaption>Figure 12.2. Forty-eight years of computing on ciphertexts. Partially homomorphic schemes came first; Gentry's 2009 construction opened the fully homomorphic era, and fifteen years later it shipped in phones.</figcaption>
+<figcaption>Figure 12.2. Forty-eight years of computing on ciphertexts, 1978 to 2026. Partially homomorphic schemes came first; Gentry's 2009 construction opened the fully homomorphic era, and fifteen years later it shipped in phones.</figcaption>
 </figure>
 
 Before any scheme, two warnings that run through the whole chapter.

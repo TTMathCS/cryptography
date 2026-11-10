@@ -473,7 +473,7 @@ A multivariate signature design whose central map has no oil-times-oil terms, so
 See [Chapter 15, §15.3](15-Multivariate-Signatures-and-the-On-Ramp.md#153-oil-and-vinegar).
 
 **On-ramp**
-NIST's process for additional post-quantum signatures, opened in 2022. As of November 2026, eight candidates remain in its third round.
+NIST's process for additional post-quantum signatures, opened in 2022. Nine candidates entered its third round in May 2026; HAWK was withdrawn in July 2026, so as of November 2026 eight remain.
 See [Chapter 15, §15.8](15-Multivariate-Signatures-and-the-On-Ramp.md#158-the-on-ramp-round-by-round).
 
 **One-pass key establishment**
@@ -591,7 +591,7 @@ See [Chapter 13, §13.10](13-Code-Based-Encryption-McEliece.md#the-summer-of-202
 ## U
 
 **Unbalanced Oil and Vinegar (UOV)**
-Oil and Vinegar with more vinegar than oil variables (Kipnis, Patarin and Goubin, 1999), which defeats the Kipnis-Shamir attack. Signatures of about 135 bytes at level 1; a round 3 on-ramp candidate.
+Oil and Vinegar with more vinegar than oil variables (Kipnis, Patarin and Goubin, 1999), which defeats the Kipnis-Shamir attack. Signatures of 135 bytes at level 1 (uov-Ip with the round 3 parameters; 128 bytes in round 2); a round 3 on-ramp candidate.
 See [Chapter 15, §15.5](15-Multivariate-Signatures-and-the-On-Ramp.md#155-fix-it-unbalance-the-oil).
 
 **Unique shortest vector problem (uSVP)**

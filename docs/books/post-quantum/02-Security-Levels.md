@@ -587,8 +587,9 @@ category 3: classical 2^207 | quantum at 2^40, 2^64, 2^96: 2^181, 2^157, 2^125
 category 5: classical 2^272 | quantum at 2^40, 2^64, 2^96: 2^245, 2^221, 2^189
 ```
 
-Seventeen picoseconds is the clock period of a fast classical chip, a speed no quantum
-design comes near; the third figure is a physical limit, not a plan. Today's surface-code
+Seventeen picoseconds per gate is far faster than any chip's clock (a 5 GHz processor ticks
+every 200 picoseconds); it is about the delay of one fast logic gate, which is how NIST's
+call pictures serial classical work, and no quantum design comes near it; the third figure is a physical limit, not a plan. Today's surface-code
 estimates (Chapter 1, §1.5) put a logical gate at around a microsecond, so even the
 smallest depth, $2^{40}$ gates in a row, keeps one machine busy for about two weeks, and
 $2^{64}$ would take about 600,000 years.

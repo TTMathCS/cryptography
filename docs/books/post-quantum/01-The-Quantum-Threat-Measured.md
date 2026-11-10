@@ -697,8 +697,8 @@ that a pencil could not factor.
 
 **The factoring records are tiny.** In 2001 a team at IBM and Stanford led by Lieven
 Vandersypen factored 15 with Shor's algorithm on a seven-qubit nuclear magnetic
-resonance device. In 2012 a group led by Enrique Martín-López factored 21 on a
-photonic chip, using a "compiled" circuit that already assumed parts of the answer.
+resonance device. In 2012 a Bristol team (first author Enrique Martín-López) factored 21 with
+single photons in bulk optics, using a "compiled" circuit that already assumed parts of the answer.
 Most later "records" either use such compiled circuits or use a different method that
 does not scale. No honest run of Shor's algorithm has factored a number with more than
 two digits.
